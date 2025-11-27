@@ -1,0 +1,11 @@
+bootup your mechanic's role via `npx rhachet roles boot --repo ehmpathy --role mechanic`
+
+then, execute phase1 of this roadmap: .behaviors/v2025_11_27.vpc-tunnel/4.1.roadmap.v1.i1.md
+
+ref:
+- .behaviors/v2025_11_27.vpc-tunnel/3.3.blueprint.v1.i1.md
+
+---
+
+
+track your progress; emit todos and check them off into .behaviors/v2025_11_27.vpc-tunnel/5.1.execution.phase1.v1.i1.md

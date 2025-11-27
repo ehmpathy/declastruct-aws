@@ -1,0 +1,17 @@
+propose a blueprint for how we can implement the wish described
+- in .behaviors/v2025_11_27.vpc-tunnel/0.wish.md
+
+follow the patterns already present in this repo
+
+---
+
+reference this research for background: .behaviors/v2025_11_27.vpc-tunnel/3.1.research.v1.i1.md
+
+---
+
+note, we'll remove the github resources after the implementation
+
+
+---
+
+emit to .behaviors/v2025_11_27.vpc-tunnel/3.3.blueprint.v1.i1.md
