@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.3](https://github.com/ehmpathy/declastruct-aws/compare/v1.0.2...v1.0.3) (2025-11-28)
+
+
+### Bug Fixes
+
+* **tunnel:** dont destroy tunnel but still detatch ([#9](https://github.com/ehmpathy/declastruct-aws/issues/9)) ([76ac446](https://github.com/ehmpathy/declastruct-aws/commit/76ac446dd04062dece472df5d8f7e95a8a7ad9df))
+* **tunnel:** kill other port process on port collision ([#5](https://github.com/ehmpathy/declastruct-aws/issues/5)) ([d534bbb](https://github.com/ehmpathy/declastruct-aws/commit/d534bbb4c7d10640eeeac4b7e6e1a3db00073571))
+
 ## [1.0.2](https://github.com/ehmpathy/declastruct-aws/compare/v1.0.1...v1.0.2) (2025-11-28)
 
 
