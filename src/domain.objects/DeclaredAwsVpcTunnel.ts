@@ -84,6 +84,12 @@ export class DeclaredAwsVpcTunnel
   public static unique = ['via', 'into', 'from'] as const;
 
   /**
+   * .what = identity attributes assigned by the persistence layer
+   * .note = vpc tunnels have no external identity; they are identified by unique keys
+   */
+  public static metadata = [] as const;
+
+  /**
    * .what = intrinsic attributes resolved at runtime, not user-settable
    * .note = these are real attributes of the tunnel, but derived from the active process
    */
