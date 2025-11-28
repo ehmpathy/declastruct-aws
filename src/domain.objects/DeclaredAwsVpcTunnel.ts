@@ -67,7 +67,6 @@ export interface DeclaredAwsVpcTunnel {
 
   /**
    * .what = the current tunnel status
-   * .note = is @readonly -> 'OPEN' when tunnel is active, 'CLOSED' when not
    */
   status: 'OPEN' | 'CLOSED';
 
@@ -88,7 +87,7 @@ export class DeclaredAwsVpcTunnel
    * .what = intrinsic attributes resolved at runtime, not user-settable
    * .note = these are real attributes of the tunnel, but derived from the active process
    */
-  public static readonly = ['status', 'pid'] as const;
+  public static readonly = ['pid'] as const;
 
   /**
    * .what = defines nested object shapes for domain-objects manipulation

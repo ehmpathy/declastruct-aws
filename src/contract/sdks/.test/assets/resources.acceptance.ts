@@ -9,12 +9,8 @@ import {
  * .note = requires AWS_PROFILE to be set via: source .agent/repo=.this/skills/use.dev.awsprofile.sh
  */
 export const getProviders = async () => [
-  getDeclastructAwsProvider(
-    {
-      credentials: {
-        region: process.env.AWS_REGION ?? 'us-east-1',
-      },
-    },
+  await getDeclastructAwsProvider(
+    {},
     {
       log: {
         info: () => {},

@@ -3,7 +3,7 @@ import * as os from 'os';
 import * as path from 'path';
 import { given, then, when } from 'test-fns';
 
-import { getSampleAwsApiContext } from '../../__test_assets__/getSampleAwsApiContext';
+import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';
 import { setVpcTunnel } from './setVpcTunnel';
 import { getTunnelHash } from './utils/getTunnelHash';
 
@@ -46,7 +46,8 @@ describe('setVpcTunnel', () => {
         await fs.mkdir(cacheDir, { recursive: true });
 
         // write cache file with invalid pid
-        const hash = getTunnelHash({ for: { tunnel: tunnelRef } });
+        const context = getSampleAwsApiContext({ cacheDir });
+        const hash = getTunnelHash({ for: { tunnel: tunnelRef } }, context);
         const cacheFilePath = path.join(cacheDir, `${hash}.json`);
         await fs.writeFile(
           cacheFilePath,
@@ -55,7 +56,7 @@ describe('setVpcTunnel', () => {
 
         result = await setVpcTunnel(
           { ...tunnelRef, status: 'CLOSED' },
-          getSampleAwsApiContext({ cacheDir }),
+          context,
         );
 
         // verify cache file was deleted

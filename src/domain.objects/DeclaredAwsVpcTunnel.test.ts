@@ -59,8 +59,8 @@ describe('DeclaredAwsVpcTunnel', () => {
       expect(DeclaredAwsVpcTunnel.unique).toEqual(['via', 'into', 'from']);
     });
 
-    then('readonly is defined as status, pid', () => {
-      expect(DeclaredAwsVpcTunnel.readonly).toEqual(['status', 'pid']);
+    then('readonly is defined as pid', () => {
+      expect(DeclaredAwsVpcTunnel.readonly).toEqual(['pid']);
     });
   });
 });

@@ -7,18 +7,13 @@ import {
 import { mockClient } from 'aws-sdk-client-mock';
 import { given, then, when } from 'test-fns';
 
+import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';
 import { DeclaredAwsEc2Instance } from '../../domain.objects/DeclaredAwsEc2Instance';
 import { setEc2InstanceStatus } from './setEc2InstanceStatus';
 
 const ec2Mock = mockClient(EC2Client);
 
-const mockContext = {
-  aws: {
-    credentials: { region: 'us-east-1' },
-    cache: { DeclaredAwsVpcTunnel: { processes: { dir: '/tmp/tunnels' } } },
-  },
-  log: console,
-};
+const mockContext = getSampleAwsApiContext();
 
 describe('setEc2InstanceStatus', () => {
   beforeEach(() => {

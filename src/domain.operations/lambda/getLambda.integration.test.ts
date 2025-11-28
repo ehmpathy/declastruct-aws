@@ -1,7 +1,7 @@
 import { UnexpectedCodePathError } from 'helpful-errors';
 import { given, then } from 'test-fns';
 
-import { getSampleAwsApiContext } from '../../__test_assets__/getSampleAwsApiContext';
+import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';
 import { getLambda } from './getLambda';
 import { getLambdas } from './getLambdas';
 
