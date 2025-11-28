@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/ehmpathy/declastruct-aws/compare/v1.0.1...v1.0.2) (2025-11-28)
+
+
+### Bug Fixes
+
+* **dobjs:** explicitly declare metadata to support hasReadonly ([#6](https://github.com/ehmpathy/declastruct-aws/issues/6)) ([bb95392](https://github.com/ehmpathy/declastruct-aws/commit/bb9539252ea3c05afbfafb5ce74f5b41f4f36760))
+
 ## [1.0.1](https://github.com/ehmpathy/declastruct-aws/compare/v1.0.0...v1.0.1) (2025-11-28)
 
 
