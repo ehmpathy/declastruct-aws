@@ -72,9 +72,9 @@ export interface DeclaredAwsVpcTunnel {
 
   /**
    * .what = the process id of the tunnel subprocess
-   * .note = is @readonly -> only present when tunnel is OPEN
+   * .note = is @readonly -> null when CLOSED, number when OPEN, undefined on write
    */
-  pid?: number;
+  pid?: number | null;
 }
 
 export class DeclaredAwsVpcTunnel
@@ -91,7 +91,7 @@ export class DeclaredAwsVpcTunnel
 
   /**
    * .what = intrinsic attributes resolved at runtime, not user-settable
-   * .note = these are real attributes of the tunnel, but derived from the active process
+   * .note = pid is null when CLOSED, number when OPEN
    */
   public static readonly = ['pid'] as const;
 

@@ -30,7 +30,7 @@ describe('getVpcTunnel', () => {
         );
 
         expect(result.status).toBe('CLOSED');
-        expect(result.pid).toBeUndefined();
+        expect(result.pid).toBeNull();
 
         await fs.rm(cacheDir, { recursive: true });
       });
@@ -104,7 +104,7 @@ describe('getVpcTunnel', () => {
         );
 
         expect(result.status).toBe('CLOSED');
-        expect(result.pid).toBe(process.pid);
+        expect(result.pid).toBeNull();
 
         await fs.rm(cacheDir, { recursive: true });
       });
