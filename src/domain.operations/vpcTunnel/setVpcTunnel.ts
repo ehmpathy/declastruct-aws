@@ -224,11 +224,12 @@ export const setVpcTunnel = async (
   tunnelProcess.stderr?.unpipe(logStream);
   tunnelProcess.stdout?.removeAllListeners();
   tunnelProcess.stderr?.removeAllListeners();
-  tunnelProcess.stdout?.destroy();
-  tunnelProcess.stderr?.destroy();
-  tunnelProcess.stdio.forEach((stream) => stream?.removeAllListeners?.());
   tunnelProcess.removeAllListeners();
   logStream.end();
+
+  // unref streams so they don't keep parent alive, but don't destroy (would kill subprocess via SIGPIPE)
+  (tunnelProcess.stdout as any)?.unref?.();
+  (tunnelProcess.stderr as any)?.unref?.();
   tunnelProcess.unref();
 
   // verify tunnel is healthy (can reach database)
