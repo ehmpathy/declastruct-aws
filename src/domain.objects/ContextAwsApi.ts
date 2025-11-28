@@ -6,8 +6,8 @@
 export interface ContextAwsApi {
   aws: {
     credentials: {
-      account?: string;
-      region?: string;
+      account: string;
+      region: string;
     };
     cache: {
       DeclaredAwsVpcTunnel: {

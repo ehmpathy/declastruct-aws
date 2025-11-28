@@ -1,4 +1,7 @@
+import { GetCallerIdentityCommand, STSClient } from '@aws-sdk/client-sts';
+import { loadSharedConfigFiles } from '@smithy/shared-ini-file-loader';
 import { DeclastructProvider } from 'declastruct';
+import { BadRequestError, UnexpectedCodePathError } from 'helpful-errors';
 import * as os from 'os';
 import * as path from 'path';
 import type { ContextLogTrail } from 'simple-log-methods';
@@ -12,13 +15,10 @@ import { DeclastructAwsProvider } from '../../domain.objects/DeclastructAwsProvi
 /**
  * .what = creates a declastruct provider for aws resources
  * .why = enables aws resource management via declastruct framework
+ * .note = credentials are always resolved from current auth (env vars + STS)
  */
-export const getDeclastructAwsProvider = (
+export const getDeclastructAwsProvider = async (
   input: {
-    credentials?: {
-      region?: string;
-      account?: string;
-    };
     cache?: {
       DeclaredAwsVpcTunnel?: {
         processes?: {
@@ -28,18 +28,18 @@ export const getDeclastructAwsProvider = (
     };
   },
   context: ContextLogTrail,
-): DeclastructAwsProvider => {
+): Promise<DeclastructAwsProvider> => {
   // resolve default tunnels cache directory
   const defaultTunnelsDir = path.join(os.homedir(), '.declastruct', 'tunnels');
+
+  // resolve credentials from current auth
+  const credentials = await getCredentials();
 
   // build context from credentials and defaults
   const providerContext: ContextAwsApi & ContextLogTrail = {
     ...context,
     aws: {
-      credentials: {
-        region: input.credentials?.region,
-        account: input.credentials?.account,
-      },
+      credentials,
       cache: {
         DeclaredAwsVpcTunnel: {
           processes: {
@@ -66,11 +66,67 @@ export const getDeclastructAwsProvider = (
     context: providerContext,
     hooks: {
       beforeAll: async () => {
-        // no setup needed for aws provider
+        // no setup needed - credentials resolved at instantiation
       },
       afterAll: async () => {
         // no teardown needed for aws provider
       },
     },
   });
+};
+
+/**
+ * .what = resolves aws credentials from current auth
+ * .why = ensures credentials always reflect actual AWS auth state
+ * .note = region from env vars or aws config file, account from STS identity
+ */
+const getCredentials = async (): Promise<{
+  region: string;
+  account: string;
+}> => {
+  // resolve region from env vars or aws config file
+  const region = await getRegionFromEnvOrConfig();
+
+  // failfast if region not available
+  if (!region)
+    BadRequestError.throw(
+      'AWS region not specified. Set AWS_REGION, AWS_DEFAULT_REGION env var, or configure region in ~/.aws/config.',
+    );
+
+  // resolve account from STS identity
+  const account = await getAccountFromSts();
+
+  return { region, account };
+};
+
+/**
+ * .what = resolves aws region from env vars or aws config file
+ * .why = enables region inference from profile config without explicit env var
+ * .note = priority: AWS_REGION > AWS_DEFAULT_REGION > config file profile region
+ */
+const getRegionFromEnvOrConfig = async (): Promise<string | undefined> => {
+  // check env vars first (highest priority)
+  const envRegion = process.env.AWS_REGION ?? process.env.AWS_DEFAULT_REGION;
+  if (envRegion) return envRegion;
+
+  // fallback to aws config file profile
+  const profile = process.env.AWS_PROFILE ?? 'default';
+  const configFiles = await loadSharedConfigFiles();
+  const profileConfig = configFiles.configFile?.[profile];
+
+  return profileConfig?.region;
+};
+
+/**
+ * .what = resolves aws account id from sts
+ * .why = ensures account always reflects actual AWS auth state
+ * .note = account is not region-dependent; STS uses default credential chain
+ */
+const getAccountFromSts = async (): Promise<string> => {
+  const sts = new STSClient({});
+  const identity = await sts.send(new GetCallerIdentityCommand({}));
+  return (
+    identity.Account ??
+    UnexpectedCodePathError.throw('failed to resolve AWS account id from STS')
+  );
 };

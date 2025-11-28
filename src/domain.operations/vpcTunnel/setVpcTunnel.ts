@@ -32,7 +32,7 @@ export const setVpcTunnel = async (
   await fs.mkdir(tunnelsDir, { recursive: true });
 
   // compute tunnel identity and file paths
-  const tunnelHash = getTunnelHash({ for: { tunnel: input } });
+  const tunnelHash = getTunnelHash({ for: { tunnel: input } }, context);
   const cachePath = path.join(tunnelsDir, `${tunnelHash}.json`);
   const logPath = path.join(tunnelsDir, `${tunnelHash}.log`);
 

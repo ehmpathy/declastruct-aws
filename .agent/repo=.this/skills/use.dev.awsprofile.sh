@@ -10,5 +10,6 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
 fi
 
 export AWS_PROFILE="ahbode.dev"
+export AWS_REGION="us-east-1"
 
 

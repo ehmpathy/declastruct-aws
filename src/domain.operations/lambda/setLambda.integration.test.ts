@@ -1,6 +1,6 @@
 import { given, then } from 'test-fns';
 
-import { getSampleAwsApiContext } from '../../__test_assets__/getSampleAwsApiContext';
+import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';
 import { DeclaredAwsLambda } from '../../domain.objects/DeclaredAwsLambda';
 import { setLambda } from './setLambda';
 
@@ -16,7 +16,7 @@ describe('setLambda', () => {
     timeout: 30,
     memory: 128,
     envars: {},
-    codeZipUri: './src/__test_assets__/lambda.sample.zip',
+    codeZipUri: './src/.test/lambda.sample.zip',
   };
 
   // todo: unskip after role is provisioned

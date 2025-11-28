@@ -5,9 +5,8 @@ import {
 } from '@aws-sdk/client-lambda';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { VisualogicContext } from 'visualogic';
 
-import { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
+import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';
 import { DeclaredAwsLambda } from '../../domain.objects/DeclaredAwsLambda';
 import * as castModule from './castToDeclaredAwsLambda';
 import * as getLambdaModule from './getLambda';
@@ -23,13 +22,7 @@ const mockSend = jest.fn();
   send: mockSend,
 }));
 
-const context: ContextAwsApi & VisualogicContext = {
-  aws: {
-    credentials: { region: 'us-east-1' },
-    cache: { DeclaredAwsVpcTunnel: { processes: { dir: '/tmp/tunnels' } } },
-  },
-  log: console,
-};
+const context = getSampleAwsApiContext();
 
 const lambdaSample: DeclaredAwsLambda & { codeZipUri: string } = {
   name: 'test-function',
@@ -40,7 +33,7 @@ const lambdaSample: DeclaredAwsLambda & { codeZipUri: string } = {
   timeout: 30,
   memory: 128,
   envars: {},
-  codeZipUri: './src/__test_assets__/lambda.sample.zip',
+  codeZipUri: './src/.test/lambda.sample.zip',
 };
 
 describe('setLambda', () => {

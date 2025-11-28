@@ -12,7 +12,7 @@ export const getSampleAwsApiContext = (input?: {
   aws: {
     credentials: {
       region: process.env.AWS_REGION ?? 'us-east-1',
-      account: process.env.AWS_ACCOUNT,
+      account: process.env.AWS_ACCOUNT ?? '123456789012',
     },
     cache: {
       DeclaredAwsVpcTunnel: {

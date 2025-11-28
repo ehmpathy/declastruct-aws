@@ -2,18 +2,13 @@ import { DescribeDBClustersCommand, RDSClient } from '@aws-sdk/client-rds';
 import { mockClient } from 'aws-sdk-client-mock';
 import { given, then, when } from 'test-fns';
 
+import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';
 import { DeclaredAwsRdsCluster } from '../../domain.objects/DeclaredAwsRdsCluster';
 import { getRdsCluster } from './getRdsCluster';
 
 const rdsMock = mockClient(RDSClient);
 
-const mockContext = {
-  aws: {
-    credentials: { region: 'us-east-1' },
-    cache: { DeclaredAwsVpcTunnel: { processes: { dir: '/tmp/tunnels' } } },
-  },
-  log: console,
-};
+const mockContext = getSampleAwsApiContext();
 
 describe('getRdsCluster', () => {
   beforeEach(() => {
