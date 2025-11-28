@@ -234,4 +234,16 @@ export class DeclaredAwsLambda
 {
   public static primary = ['arn'] as const;
   public static unique = ['name', 'qualifier'] as const;
+
+  /**
+   * .what = identity attributes assigned by the persistence layer
+   * .note = describes the entity for persistence purposes, not intrinsic attributes
+   */
+  public static metadata = ['arn', 'updatedAt'] as const;
+
+  /**
+   * .what = intrinsic attributes resolved from AWS, not user-settable
+   * .note = these are real attributes of the resource, but derived from the source of truth
+   */
+  public static readonly = ['codeSize', 'codeSha256'] as const;
 }
