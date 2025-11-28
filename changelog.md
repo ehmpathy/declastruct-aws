@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/ehmpathy/declastruct-aws/compare/v1.0.0...v1.0.1) (2025-11-28)
+
+
+### Bug Fixes
+
+* **tunnel:** ensure tunnel hashes dont collide across accounts ([#3](https://github.com/ehmpathy/declastruct-aws/issues/3)) ([81c2e38](https://github.com/ehmpathy/declastruct-aws/commit/81c2e38030af11cfa96efb10544234051985e50e))
+
 ## 1.0.0 (2025-11-28)
 
 
