@@ -25,6 +25,7 @@ export const getTunnelHash = (
         via: input.for.tunnel.via,
         into: input.for.tunnel.into,
         from: input.for.tunnel.from,
+        _v: 'v2025_11_27',
       }),
     ),
   );

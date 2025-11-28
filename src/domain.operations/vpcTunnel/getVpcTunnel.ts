@@ -1,8 +1,8 @@
-import { RefByUnique } from 'domain-objects';
+import { HasReadonly, hasReadonly, RefByUnique } from 'domain-objects';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import type { ContextLogTrail } from 'simple-log-methods';
-import { HasMetadata } from 'type-fns';
+import { assure } from 'type-fns';
 
 import { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
 import { DeclaredAwsVpcTunnel } from '../../domain.objects/DeclaredAwsVpcTunnel';
@@ -21,7 +21,7 @@ export const getVpcTunnel = async (
     by: { unique: RefByUnique<typeof DeclaredAwsVpcTunnel> };
   },
   context: ContextAwsApi & ContextLogTrail,
-): Promise<HasMetadata<DeclaredAwsVpcTunnel>> => {
+): Promise<HasReadonly<typeof DeclaredAwsVpcTunnel>> => {
   // compute cache file path
   const hash = getTunnelHash({ for: { tunnel: input.by.unique } }, context);
   const cacheFilePath = path.join(
@@ -32,10 +32,14 @@ export const getVpcTunnel = async (
   // check if cache file exists
   const cacheFileExists = await isFilePresent({ path: cacheFilePath });
   if (!cacheFileExists)
-    return new DeclaredAwsVpcTunnel({
-      ...input.by.unique,
-      status: 'CLOSED',
-    }) as HasMetadata<DeclaredAwsVpcTunnel>;
+    return assure(
+      DeclaredAwsVpcTunnel.as({
+        ...input.by.unique,
+        status: 'CLOSED',
+        pid: null,
+      }),
+      hasReadonly({ of: DeclaredAwsVpcTunnel }),
+    );
 
   // read cache file
   const cacheFileContent = await fs.readFile(cacheFilePath, 'utf-8');
@@ -44,26 +48,36 @@ export const getVpcTunnel = async (
   // check if process is alive
   const processAlive = isProcessAlive({ pid: cacheFile.pid });
   if (!processAlive)
-    return new DeclaredAwsVpcTunnel({
-      ...input.by.unique,
-      status: 'CLOSED',
-    }) as HasMetadata<DeclaredAwsVpcTunnel>;
+    return assure(
+      DeclaredAwsVpcTunnel.as({
+        ...input.by.unique,
+        status: 'CLOSED',
+        pid: null,
+      }),
+      hasReadonly({ of: DeclaredAwsVpcTunnel }),
+    );
 
   // check if tunnel is healthy (port is responding)
   const tunnelHealthy = await isTunnelHealthy({
     port: input.by.unique.from.port,
   });
   if (!tunnelHealthy)
-    return new DeclaredAwsVpcTunnel({
-      ...input.by.unique,
-      status: 'CLOSED',
-      pid: cacheFile.pid,
-    }) as HasMetadata<DeclaredAwsVpcTunnel>;
+    return assure(
+      DeclaredAwsVpcTunnel.as({
+        ...input.by.unique,
+        status: 'CLOSED',
+        pid: null,
+      }),
+      hasReadonly({ of: DeclaredAwsVpcTunnel }),
+    );
 
   // tunnel is open and healthy
-  return new DeclaredAwsVpcTunnel({
-    ...input.by.unique,
-    status: 'OPEN',
-    pid: cacheFile.pid,
-  }) as HasMetadata<DeclaredAwsVpcTunnel>;
+  return assure(
+    DeclaredAwsVpcTunnel.as({
+      ...input.by.unique,
+      status: 'OPEN',
+      pid: cacheFile.pid,
+    }),
+    hasReadonly({ of: DeclaredAwsVpcTunnel }),
+  );
 };

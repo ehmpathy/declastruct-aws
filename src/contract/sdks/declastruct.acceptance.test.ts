@@ -7,7 +7,7 @@ import { given, when, then } from 'test-fns';
 /**
  * .what = acceptance tests for declastruct CLI workflow
  * .why = validates end-to-end usage of declastruct-aws with declastruct CLI
- * .note = requires AWS_PROFILE via: source .agent/repo=.this/skills/use.dev.awsprofile.sh
+ * .note = requires AWS_PROFILE via: `source .agent/repo=.this/skills/use.dev.awsprofile.sh`
  */
 describe('declastruct CLI workflow', () => {
   given('a declastruct resources file', () => {

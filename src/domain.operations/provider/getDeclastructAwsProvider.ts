@@ -112,7 +112,7 @@ const getRegionFromEnvOrConfig = async (): Promise<string | undefined> => {
   // fallback to aws config file profile
   const profile = process.env.AWS_PROFILE ?? 'default';
   const configFiles = await loadSharedConfigFiles();
-  const profileConfig = configFiles.configFile?.[profile];
+  const profileConfig = configFiles.credentialsFile?.[profile];
 
   return profileConfig?.region;
 };

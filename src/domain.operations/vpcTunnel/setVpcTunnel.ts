@@ -1,11 +1,11 @@
 import { spawn } from 'child_process';
-import { refByUnique } from 'domain-objects';
+import { HasReadonly, hasReadonly, refByUnique } from 'domain-objects';
 import { createWriteStream } from 'fs';
 import * as fs from 'fs/promises';
 import { BadRequestError, UnexpectedCodePathError } from 'helpful-errors';
 import * as path from 'path';
 import type { ContextLogTrail } from 'simple-log-methods';
-import { HasMetadata } from 'type-fns';
+import { assure } from 'type-fns';
 
 import { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
 import { DeclaredAwsVpcTunnel } from '../../domain.objects/DeclaredAwsVpcTunnel';
@@ -18,6 +18,7 @@ import { isFilePresent } from './utils/isFilePresent';
 import { isPortInUse } from './utils/isPortInUse';
 import { isProcessAlive } from './utils/isProcessAlive';
 import { isTunnelHealthy } from './utils/isTunnelHealthy';
+import { killProcessOnPort } from './utils/killProcessOnPort';
 
 /**
  * .what = opens or closes a VPC tunnel
@@ -26,7 +27,7 @@ import { isTunnelHealthy } from './utils/isTunnelHealthy';
 export const setVpcTunnel = async (
   input: DeclaredAwsVpcTunnel,
   context: ContextAwsApi & ContextLogTrail,
-): Promise<HasMetadata<DeclaredAwsVpcTunnel>> => {
+): Promise<HasReadonly<typeof DeclaredAwsVpcTunnel>> => {
   // resolve cache path from context
   const tunnelsDir = context.aws.cache.DeclaredAwsVpcTunnel.processes.dir;
   await fs.mkdir(tunnelsDir, { recursive: true });
@@ -51,10 +52,10 @@ export const setVpcTunnel = async (
     await fs.rm(cachePath, { force: true });
     await fs.rm(logPath, { force: true });
 
-    return new DeclaredAwsVpcTunnel({
-      ...input,
-      status: 'CLOSED',
-    }) as HasMetadata<DeclaredAwsVpcTunnel>;
+    return assure(
+      DeclaredAwsVpcTunnel.as({ ...input, status: 'CLOSED', pid: null }),
+      hasReadonly({ of: DeclaredAwsVpcTunnel }),
+    );
   }
 
   // resolve bastion and cluster for OPEN status
@@ -78,31 +79,33 @@ export const setVpcTunnel = async (
 
   // handle port in use scenario
   if (portInUse) {
-    // failfast if cache file does not exist (port used by another process)
     const cacheFilePresent = await isFilePresent({ path: cachePath });
-    if (!cacheFilePresent)
-      BadRequestError.throw('port is in use by another process', {
-        port: input.from.port,
-      });
 
-    // read cache file
-    const cacheContent = await fs.readFile(cachePath, 'utf-8');
-    const cache: TunnelCacheFile = JSON.parse(cacheContent);
+    // port used by unknown process; kill it to reclaim
+    if (!cacheFilePresent) {
+      killProcessOnPort({ port: input.from.port });
+    }
 
-    // return early if existing tunnel is alive and healthy (idempotent)
-    if (
-      isProcessAlive({ pid: cache.pid }) &&
-      (await isTunnelHealthy({ port: input.from.port }))
-    )
-      return new DeclaredAwsVpcTunnel({
-        ...input,
-        status: 'OPEN',
-        pid: cache.pid,
-      }) as HasMetadata<DeclaredAwsVpcTunnel>;
+    // check if existing tunnel is ours and healthy
+    if (cacheFilePresent) {
+      const cacheContent = await fs.readFile(cachePath, 'utf-8');
+      const cache: TunnelCacheFile = JSON.parse(cacheContent);
 
-    // cleanup stale tunnel and respawn
-    if (isProcessAlive({ pid: cache.pid })) process.kill(cache.pid, 'SIGTERM');
-    await fs.rm(cachePath, { force: true });
+      // return early if existing tunnel is alive and healthy (idempotent)
+      if (
+        isProcessAlive({ pid: cache.pid }) &&
+        (await isTunnelHealthy({ port: input.from.port }))
+      )
+        return assure(
+          DeclaredAwsVpcTunnel.as({ ...input, status: 'OPEN', pid: cache.pid }),
+          hasReadonly({ of: DeclaredAwsVpcTunnel }),
+        );
+
+      // cleanup stale tunnel
+      if (isProcessAlive({ pid: cache.pid }))
+        process.kill(cache.pid, 'SIGTERM');
+      await fs.rm(cachePath, { force: true });
+    }
   }
 
   // start bastion if not running
@@ -141,7 +144,7 @@ export const setVpcTunnel = async (
         : []),
     ],
     {
-      stdio: 'pipe',
+      stdio: ['ignore', 'pipe', 'pipe'],
       detached: true,
     },
   );
@@ -216,10 +219,17 @@ export const setVpcTunnel = async (
     });
   });
 
-  // detach log stream so parent process can exit while tunnel continues
+  // detach streams and remove listeners so parent process can exit while tunnel continues
   tunnelProcess.stdout?.unpipe(logStream);
   tunnelProcess.stderr?.unpipe(logStream);
+  tunnelProcess.stdout?.removeAllListeners();
+  tunnelProcess.stderr?.removeAllListeners();
+  tunnelProcess.stdout?.destroy();
+  tunnelProcess.stderr?.destroy();
+  tunnelProcess.stdio.forEach((stream) => stream?.removeAllListeners?.());
+  tunnelProcess.removeAllListeners();
   logStream.end();
+  tunnelProcess.unref();
 
   // verify tunnel is healthy (can reach database)
   const healthy = await isTunnelHealthy({ port: input.from.port });
@@ -232,9 +242,12 @@ export const setVpcTunnel = async (
     });
   }
 
-  return new DeclaredAwsVpcTunnel({
-    ...input,
-    status: 'OPEN',
-    pid: tunnelProcess.pid,
-  }) as HasMetadata<DeclaredAwsVpcTunnel>;
+  return assure(
+    DeclaredAwsVpcTunnel.as({
+      ...input,
+      status: 'OPEN',
+      pid: tunnelProcess.pid,
+    }),
+    hasReadonly({ of: DeclaredAwsVpcTunnel }),
+  );
 };

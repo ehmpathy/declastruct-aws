@@ -114,19 +114,19 @@ describe('getDeclastructAwsProvider', () => {
     });
   });
 
-  describe('given region in aws config file', () => {
-    it('should resolve region from config file when env vars not set', async () => {
+  describe('given region in aws credentials file', () => {
+    it('should resolve region from credentials file when env vars not set', async () => {
       delete process.env.AWS_REGION;
       delete process.env.AWS_DEFAULT_REGION;
 
-      // mock config file with region
+      // mock credentials file with region
       (
         sharedIniFileLoader.loadSharedConfigFiles as jest.Mock
       ).mockResolvedValue({
-        configFile: {
+        configFile: {},
+        credentialsFile: {
           default: { region: 'eu-west-1' },
         },
-        credentialsFile: {},
       });
 
       const provider = await getDeclastructAwsProvider({}, mockLogContext);
@@ -134,17 +134,17 @@ describe('getDeclastructAwsProvider', () => {
       expect(provider.context.aws.credentials.region).toBe('eu-west-1');
     });
 
-    it('should prefer env var over config file', async () => {
+    it('should prefer env var over credentials file', async () => {
       process.env.AWS_REGION = 'us-east-1';
 
-      // mock config file with different region
+      // mock credentials file with different region
       (
         sharedIniFileLoader.loadSharedConfigFiles as jest.Mock
       ).mockResolvedValue({
-        configFile: {
+        configFile: {},
+        credentialsFile: {
           default: { region: 'eu-west-1' },
         },
-        credentialsFile: {},
       });
 
       const provider = await getDeclastructAwsProvider({}, mockLogContext);
@@ -152,20 +152,20 @@ describe('getDeclastructAwsProvider', () => {
       expect(provider.context.aws.credentials.region).toBe('us-east-1');
     });
 
-    it('should use AWS_PROFILE when resolving config file region', async () => {
+    it('should use AWS_PROFILE when resolving credentials file region', async () => {
       delete process.env.AWS_REGION;
       delete process.env.AWS_DEFAULT_REGION;
       process.env.AWS_PROFILE = 'myprofile';
 
-      // mock config file with profile-specific region
+      // mock credentials file with profile-specific region
       (
         sharedIniFileLoader.loadSharedConfigFiles as jest.Mock
       ).mockResolvedValue({
-        configFile: {
+        configFile: {},
+        credentialsFile: {
           default: { region: 'us-east-1' },
           myprofile: { region: 'ap-southeast-2' },
         },
-        credentialsFile: {},
       });
 
       const provider = await getDeclastructAwsProvider({}, mockLogContext);
