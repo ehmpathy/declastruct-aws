@@ -17,9 +17,6 @@ on:
       aws-secret-access-key:
         required: false
         description: required credentials to authenticate with aws the aws account against which to run the tests
-      prep-github-token:
-        required: true
-        description: token to use for integration and acceptance tests
 
 jobs:
   # install the dependencies
@@ -175,9 +172,8 @@ jobs:
         run: npm run provision:integration-test-db --if-present
 
       - name: test:integration
-        run: THOROUGH=true npm run test:integration
-        env:
-          GITHUB_TOKEN: ${{ secrets.prep-github-token }}
+        run: |
+          echo 'todo: get a dedicated sample aws account for tests via public cicd'
 
   test-acceptance-locally:
     runs-on: ubuntu-24.04
@@ -217,6 +213,5 @@ jobs:
         run: npm run provision:integration-test-db --if-present
 
       - name: test:acceptance:locally
-        run: npm run test:acceptance:locally
-        env:
-          GITHUB_TOKEN: ${{ secrets.prep-github-token }}
+        run: |
+          echo 'todo: get a dedicated sample aws account for tests via public cicd'

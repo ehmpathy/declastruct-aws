@@ -1,0 +1,25 @@
+bootup your mechanic's role via `npx rhachet roles boot --repo ehmpathy --role mechanic`
+
+then, execute phase10 of this roadmap: .behaviors/v2025_11_27.vpc-tunnel/4.1.roadmap.v1.i1.md
+
+ref:
+- .behaviors/v2025_11_27.vpc-tunnel/3.3.blueprint.v1.i1.md
+
+---
+
+
+track your progress; emit todos and check them off into .behaviors/v2025_11_27.vpc-tunnel/5.1.execution.phase10.v1.i1.md
+
+
+---
+
+dont forget
+
+
+acceptance tests should follow the current pattern already established within
+
+src/contract/sdks/declastruct.acceptance.test.ts
+
+dont forget how to get the awsprofile via your skills, either.
+
+you can run the tests via that aws profile

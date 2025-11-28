@@ -4,10 +4,8 @@ import { getSampleAwsApiContext } from '../../__test_assets__/getSampleAwsApiCon
 import { DeclaredAwsLambda } from '../../domain.objects/DeclaredAwsLambda';
 import { setLambda } from './setLambda';
 
-const log = console;
-
 describe('setLambda', () => {
-  const context = { log, ...getSampleAwsApiContext() };
+  const context = getSampleAwsApiContext();
 
   const lambdaDesired: DeclaredAwsLambda & { codeZipUri: string } = {
     name: 'svc-example-prep-get-hello',

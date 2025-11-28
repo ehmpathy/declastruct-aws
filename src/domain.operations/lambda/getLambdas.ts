@@ -19,7 +19,7 @@ export const getLambdas = async (
   },
   context: ContextAwsApi & VisualogicContext,
 ): Promise<HasMetadata<DeclaredAwsLambda>[]> => {
-  const lambda = new LambdaClient({ region: context.aws.region });
+  const lambda = new LambdaClient({ region: context.aws.credentials.region });
 
   const command = new ListFunctionsCommand({
     Marker: input.page?.range?.until.marker,

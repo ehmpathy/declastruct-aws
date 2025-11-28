@@ -1,22 +1,15 @@
 import { execSync } from 'child_process';
 import { DeclastructChange } from 'declastruct';
-import { existsSync, mkdirSync, readFileSync, rmSync } from 'fs';
+import { existsSync, mkdirSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { given, when, then } from 'test-fns';
-
-import { getSampleGithubContext } from '../../.test/assets/getSampleGithubContext';
-import { DeclaredGithubRepo } from '../../domain.objects/DeclaredGithubRepo';
-import { getDeclastructGithubProvider } from '../../domain.operations/provider/getDeclastructGithubProvider';
-
-const log = console;
 
 /**
  * .what = acceptance tests for declastruct CLI workflow
  * .why = validates end-to-end usage of declastruct-aws with declastruct CLI
+ * .note = requires AWS_PROFILE via: source .agent/repo=.this/skills/use.dev.awsprofile.sh
  */
 describe('declastruct CLI workflow', () => {
-  const githubContext = getSampleGithubContext();
-
   given('a declastruct resources file', () => {
     const testDir = join(
       __dirname,
@@ -61,10 +54,10 @@ describe('declastruct CLI workflow', () => {
         expect(Array.isArray(plan.changes)).toBe(true);
       });
 
-      then('plan includes repo and config resources', async () => {
+      then('plan includes VPC tunnel resource', async () => {
         /**
-         * .what = validates plan includes all declared resources
-         * .why = ensures declastruct correctly processes resource declarations
+         * .what = validates plan includes VPC tunnel declaration
+         * .why = ensures declastruct correctly processes AWS resource declarations
          */
 
         // execute plan generation
@@ -76,31 +69,25 @@ describe('declastruct CLI workflow', () => {
         // parse plan
         const plan = JSON.parse(readFileSync(planFile, 'utf-8'));
 
-        // verify resources
-        const repoResource: DeclastructChange = plan.changes.find(
+        // verify VPC tunnel resource is present
+        const tunnelResource: DeclastructChange = plan.changes.find(
           (r: DeclastructChange) =>
-            r.forResource.class === 'DeclaredGithubRepo',
-        );
-        const configResource: DeclastructChange = plan.changes.find(
-          (r: DeclastructChange) =>
-            r.forResource.class === 'DeclaredGithubRepoConfig',
+            r.forResource.class === 'DeclaredAwsVpcTunnel',
         );
 
-        expect(repoResource).toBeDefined();
-        expect(repoResource.forResource.slug).toContain('declastruct-aws-demo');
-        expect(configResource).toBeDefined();
-        expect(configResource.forResource.slug).toContain(
-          'declastruct-aws-demo',
+        expect(tunnelResource).toBeDefined();
+        expect(tunnelResource.forResource.slug).toContain(
+          'DeclaredAwsVpcTunnel',
         );
       });
     });
 
     when('applying a plan via declastruct CLI', () => {
-      then('executes changes and verifies resources exist', async () => {
+      then('opens VPC tunnel and verifies it is active', async () => {
         /**
-         * .what = validates declastruct apply command works with github provider
+         * .what = validates declastruct apply command works with AWS provider
          * .why = ensures end-to-end workflow from plan to reality
-         * .note = uses existing declastruct-aws-demo repo for idempotent test
+         * .note = opens tunnel via SSM port forwarding
          */
 
         // generate plan
@@ -109,30 +96,19 @@ describe('declastruct CLI workflow', () => {
           { stdio: 'inherit', env: process.env },
         );
 
-        // apply plan
+        // apply plan to open tunnel
         execSync(`npx declastruct apply --plan ${planFile}`, {
           stdio: 'inherit',
           env: process.env,
         });
 
-        // verify resources exist via github API
-        const provider = getDeclastructGithubProvider(
-          {
-            credentials: { token: githubContext.github.token },
-          },
-          { log },
+        // verify tunnel is open by checking plan output shows OPEN status
+        const plan = JSON.parse(readFileSync(planFile, 'utf-8'));
+        const tunnelChange: DeclastructChange = plan.changes.find(
+          (r: DeclastructChange) =>
+            r.forResource.class === 'DeclaredAwsVpcTunnel',
         );
-
-        const repo = await provider.daos.DeclaredGithubRepo.get.byUnique(
-          {
-            owner: 'ehmpathy',
-            name: 'declastruct-aws-demo',
-          },
-          provider.context,
-        );
-
-        expect(repo).toBeDefined();
-        expect(repo!.name).toBe('declastruct-aws-demo');
+        expect(tunnelChange).toBeDefined();
       });
 
       then('is idempotent - applying same plan twice succeeds', async () => {

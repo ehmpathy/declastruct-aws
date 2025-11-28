@@ -15,5 +15,3 @@ concurrency:
 jobs:
   suite:
     uses: ./.github/workflows/.test.yml
-    secrets:
-      prep-github-token: ${{ secrets.DECLASTRUCT_GITHUB_DEMO_REPO_ADMIN_TOKEN }}

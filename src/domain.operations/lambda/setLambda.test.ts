@@ -24,7 +24,10 @@ const mockSend = jest.fn();
 }));
 
 const context: ContextAwsApi & VisualogicContext = {
-  aws: { region: 'us-east-1' },
+  aws: {
+    credentials: { region: 'us-east-1' },
+    cache: { DeclaredAwsVpcTunnel: { processes: { dir: '/tmp/tunnels' } } },
+  },
   log: console,
 };
 

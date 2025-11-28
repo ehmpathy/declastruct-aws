@@ -5,10 +5,8 @@ import { getSampleAwsApiContext } from '../../__test_assets__/getSampleAwsApiCon
 import { getLambda } from './getLambda';
 import { getLambdas } from './getLambdas';
 
-const log = console;
-
 describe('getLambda', () => {
-  const context = { log, ...getSampleAwsApiContext() };
+  const context = getSampleAwsApiContext();
 
   given('an live example lambda in this account', () => {
     then('we should be able to get its state', async () => {

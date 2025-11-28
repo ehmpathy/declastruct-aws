@@ -1,22 +1,18 @@
-import { UnexpectedCodePathError } from 'helpful-errors';
-
 import {
-  DeclaredGithubRepo,
-  DeclaredGithubRepoConfig,
-  getDeclastructGithubProvider,
+  DeclaredAwsVpcTunnel,
+  getDeclastructAwsProvider,
 } from '../../../../../dist/contract/sdks';
 
 /**
- * .what = provider configuration for acceptance tests
- * .why = enables declastruct CLI to interact with GitHub API
+ * .what = provider configuration for AWS acceptance tests
+ * .why = enables declastruct CLI to interact with AWS API
+ * .note = requires AWS_PROFILE to be set via: source .agent/repo=.this/skills/use.dev.awsprofile.sh
  */
 export const getProviders = async () => [
-  getDeclastructGithubProvider(
+  getDeclastructAwsProvider(
     {
       credentials: {
-        token:
-          process.env.GITHUB_TOKEN ??
-          UnexpectedCodePathError.throw('github token not supplied'),
+        region: process.env.AWS_REGION ?? 'us-east-1',
       },
     },
     {
@@ -31,32 +27,25 @@ export const getProviders = async () => [
 ];
 
 /**
- * .what = resource declarations for acceptance tests
- * .why = defines desired state of declastruct-aws-demo repo for testing
+ * .what = resource declarations for AWS acceptance tests
+ * .why = defines desired state of VPC tunnel for testing
  */
 export const getResources = async () => {
-  const repo = DeclaredGithubRepo.as({
-    owner: 'ehmpathy',
-    name: 'declastruct-aws-demo',
-    description: 'demo repo for declastruct-aws',
-    visibility: 'public',
+  // declare tunnel to open
+  const tunnel = DeclaredAwsVpcTunnel.as({
+    via: {
+      mechanism: 'aws.ssm',
+      bastion: { exid: 'vpc-main-bastion' },
+    },
+    into: {
+      cluster: { name: 'ahbodedb' },
+    },
+    from: {
+      host: 'localhost',
+      port: 3_5432,
+    },
+    status: 'OPEN',
   });
 
-  const repoConfig = DeclaredGithubRepoConfig.as({
-    repo,
-    hasIssues: true,
-    hasProjects: false,
-    hasWiki: false,
-    hasDownloads: true,
-    isTemplate: false,
-    defaultBranch: 'main',
-    allowSquashMerge: true,
-    allowMergeCommit: false,
-    allowRebaseMerge: false,
-    allowAutoMerge: false,
-    deleteBranchOnMerge: true,
-    allowUpdateBranch: true,
-  });
-
-  return [repo, repoConfig];
+  return [tunnel];
 };

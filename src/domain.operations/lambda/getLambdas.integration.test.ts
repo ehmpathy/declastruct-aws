@@ -3,10 +3,8 @@ import { given, then } from 'test-fns';
 import { getSampleAwsApiContext } from '../../__test_assets__/getSampleAwsApiContext';
 import { getLambdas } from './getLambdas';
 
-const log = console;
-
 describe('getLambdas', () => {
-  const context = { log, ...getSampleAwsApiContext() };
+  const context = getSampleAwsApiContext();
 
   given('an account with lambdas', () => {
     then('we should be able to get a list', async () => {

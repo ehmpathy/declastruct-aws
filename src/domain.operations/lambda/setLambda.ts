@@ -28,7 +28,9 @@ export const setLambda = asProcedure(
     context: ContextAwsApi & VisualogicContext,
   ): Promise<DeclaredAwsLambda> => {
     const lambdaDesired = input.finsert ?? input.upsert;
-    const awsLambdaSdk = new LambdaClient({ region: context.aws.region });
+    const awsLambdaSdk = new LambdaClient({
+      region: context.aws.credentials.region,
+    });
 
     // check whether it already exists
     const before = await getLambda(

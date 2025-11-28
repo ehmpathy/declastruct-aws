@@ -5,15 +5,15 @@ import util from 'util';
 jest.setTimeout(90000); // we're calling downstream apis
 
 /**
- * sanity check that GITHUB_TOKEN is available for acceptance tests
+ * sanity check that AWS_PROFILE is available for integration tests
  *
  * usecases
  * - prevent silent test failures due to missing credentials
  * - provide clear instructions on how to set up token
  */
-if (!process.env.GITHUB_TOKEN)
+if (!process.env.AWS_PROFILE)
   throw new Error(
-    'GITHUB_TOKEN not set. Run: source .agent/repo=.this/skills/use.demorepo.token.sh',
+    'AWS_PROFILE not set. Run: source .agent/repo=.this/skills/use.dev.awsprofile.sh',
   );
 
 /**
