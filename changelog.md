@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/ehmpathy/declastruct-aws/compare/v1.1.0...v1.1.1) (2025-11-30)
+
+
+### Bug Fixes
+
+* **docs:** add example of lambda usage to readme ([#12](https://github.com/ehmpathy/declastruct-aws/issues/12)) ([28679f6](https://github.com/ehmpathy/declastruct-aws/commit/28679f6cf06bf77ea54a5438f281c11a38d7c746))
+
 ## [1.1.0](https://github.com/ehmpathy/declastruct-aws/compare/v1.0.3...v1.1.0) (2025-11-30)
 
 
