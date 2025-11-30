@@ -1,0 +1,30 @@
+take a look at the wish, vision, and research done so far
+- .behaviors/v2025_11_29.lambda-with-alias/0.wish.md
+- .behaviors/v2025_11_29.lambda-with-alias/1.vision.md
+- .behaviors/v2025_11_29.lambda-with-alias/3.1.research.v1.i1.md
+- .behaviors/v2025_11_29.lambda-with-alias/3.1.research.v2.i1.md
+
+take a look at the domain.objects declared in this repo so far && recall your knowledge on domain-objects and declastruct
+
+---
+
+now, propose domain.objects for the resources required to fulfill the wish
+
+include at the least
+- DeclaredAwsLambda
+- DeclaredAwsLambdaVersion
+- DeclaredAwsLambdaAlias
+- DeclaredAwsIamRole
+- ...
+
+---
+
+emit into .behaviors/v2025_11_29.lambda-with-alias/3.2.distill.v1.i1.ts
+
+write as typescript w/ thorough .what,.why,.how comments as usual per your briefs
+
+pay special attention to the declaration of
+- primary keys
+- unique keys
+- readonly keys
+- metadata keys

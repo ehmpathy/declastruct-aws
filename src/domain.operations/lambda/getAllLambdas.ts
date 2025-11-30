@@ -5,12 +5,13 @@ import { VisualogicContext } from 'visualogic';
 
 import { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
 import { DeclaredAwsLambda } from '../../domain.objects/DeclaredAwsLambda';
-import { castToDeclaredAwsLambda } from './castToDeclaredAwsLambda';
+import { castIntoDeclaredAwsLambda } from './castIntoDeclaredAwsLambda';
 
 /**
- * .what = lists lambdas from aws
+ * .what = lists all lambdas from aws
+ * .why = enables bulk retrieval of lambda configurations
  */
-export const getLambdas = async (
+export const getAllLambdas = async (
   input: {
     page?: {
       range?: { until: { marker: string } };
@@ -29,9 +30,9 @@ export const getLambdas = async (
   try {
     const response = await lambda.send(command);
     const functions = response.Functions ?? [];
-    return functions.map(castToDeclaredAwsLambda);
+    return functions.map(castIntoDeclaredAwsLambda);
   } catch (error) {
     if (!(error instanceof Error)) throw error;
-    throw new HelpfulError('aws.getLambdas error', { cause: error });
+    throw new HelpfulError('aws.getAllLambdas error', { cause: error });
   }
 };

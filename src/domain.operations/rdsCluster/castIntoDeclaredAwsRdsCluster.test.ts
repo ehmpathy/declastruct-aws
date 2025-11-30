@@ -2,12 +2,12 @@ import type { DBCluster } from '@aws-sdk/client-rds';
 import { getError } from 'helpful-errors';
 import { given, then, when } from 'test-fns';
 
-import { castToDeclaredAwsRdsCluster } from './castToDeclaredAwsRdsCluster';
+import { castIntoDeclaredAwsRdsCluster } from './castIntoDeclaredAwsRdsCluster';
 
-describe('castToDeclaredAwsRdsCluster', () => {
+describe('castIntoDeclaredAwsRdsCluster', () => {
   given('an AWS DBCluster with all properties', () => {
     when('cast to domain object', () => {
-      let result: ReturnType<typeof castToDeclaredAwsRdsCluster>;
+      let result: ReturnType<typeof castIntoDeclaredAwsRdsCluster>;
 
       then('it should cast', () => {
         const awsCluster: DBCluster = {
@@ -20,7 +20,7 @@ describe('castToDeclaredAwsRdsCluster', () => {
           Port: 5432,
           Status: 'available',
         };
-        result = castToDeclaredAwsRdsCluster(awsCluster);
+        result = castIntoDeclaredAwsRdsCluster(awsCluster);
       });
 
       then('it should have all properties mapped', () => {
@@ -47,7 +47,7 @@ describe('castToDeclaredAwsRdsCluster', () => {
           Endpoint: 'mydb-cluster.cluster-xxx.us-east-1.rds.amazonaws.com',
         };
         const error = await getError(() =>
-          castToDeclaredAwsRdsCluster(awsCluster),
+          castIntoDeclaredAwsRdsCluster(awsCluster),
         );
         expect(error.message).toContain(
           'rds cluster lacks DBClusterIdentifier',
@@ -58,7 +58,7 @@ describe('castToDeclaredAwsRdsCluster', () => {
 
   given('an AWS DBCluster without ReaderEndpoint', () => {
     when('cast to domain object', () => {
-      let result: ReturnType<typeof castToDeclaredAwsRdsCluster>;
+      let result: ReturnType<typeof castIntoDeclaredAwsRdsCluster>;
 
       then('it should cast', () => {
         const awsCluster: DBCluster = {
@@ -70,7 +70,7 @@ describe('castToDeclaredAwsRdsCluster', () => {
           Port: 5432,
           Status: 'available',
         };
-        result = castToDeclaredAwsRdsCluster(awsCluster);
+        result = castIntoDeclaredAwsRdsCluster(awsCluster);
       });
 
       then('reader should fall back to writer endpoint', () => {
@@ -87,7 +87,7 @@ describe('castToDeclaredAwsRdsCluster', () => {
           Status: 'creating',
         };
         const error = await getError(() =>
-          castToDeclaredAwsRdsCluster(awsCluster),
+          castIntoDeclaredAwsRdsCluster(awsCluster),
         );
         expect(error.message).toContain('rds cluster lacks Endpoint');
       });

@@ -2,15 +2,15 @@ import { UnexpectedCodePathError } from 'helpful-errors';
 import { given, then } from 'test-fns';
 
 import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';
-import { getLambda } from './getLambda';
-import { getLambdas } from './getLambdas';
+import { getAllLambdas } from './getAllLambdas';
+import { getOneLambda } from './getOneLambda';
 
-describe('getLambda', () => {
+describe('getOneLambda', () => {
   const context = getSampleAwsApiContext();
 
   given('an live example lambda in this account', () => {
     then('we should be able to get its state', async () => {
-      const lambdasByAccount = await getLambdas(
+      const lambdasByAccount = await getAllLambdas(
         { page: { limit: 1 } },
         context,
       );
@@ -21,12 +21,11 @@ describe('getLambda', () => {
         });
 
       const lambdaByName =
-        (await getLambda(
+        (await getOneLambda(
           {
             by: {
               unique: {
                 name: lambdaNameToLookup,
-                qualifier: null,
               },
             },
           },

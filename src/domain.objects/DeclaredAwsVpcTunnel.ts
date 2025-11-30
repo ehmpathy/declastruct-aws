@@ -15,7 +15,7 @@ export class DeclaredAwsVpcTunnelVia
   implements DeclaredAwsVpcTunnelVia
 {
   public static nested = {
-    bastion: DeclaredAwsEc2Instance,
+    bastion: RefByUnique<typeof DeclaredAwsEc2Instance>,
   };
 }
 
@@ -30,7 +30,7 @@ export class DeclaredAwsVpcTunnelInto
   implements DeclaredAwsVpcTunnelInto
 {
   public static nested = {
-    cluster: DeclaredAwsRdsCluster,
+    cluster: RefByUnique<typeof DeclaredAwsRdsCluster>,
   };
 }
 

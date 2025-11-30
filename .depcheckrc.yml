@@ -12,3 +12,5 @@ ignores:
   - husky
   - if-env
   - babel-jest
+  - '@swc/core'
+  - '@swc/jest'

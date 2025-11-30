@@ -1,0 +1,15 @@
+research information to help fulfill the wish in .behaviors/v2025_11_29.lambda-with-alias/0.wish.md and .behaviors/v2025_11_29.lambda-with-alias/1.vision.md
+
+specifically
+- what are all of the attributes settable and gettable via the aws-sdk related to the entities we care about?
+- what endpoints in the aws sdk can we use to set and get them?
+- what are the exact typedefs of these?
+
+include at the minimum
+- aws iam role
+- aws iam statements (whats the proper name for this?)
+- aws lambda
+- aws lambda version
+- aws lambda alias
+
+emit into .behaviors/v2025_11_29.lambda-with-alias/3.1.research.v2.i1.md

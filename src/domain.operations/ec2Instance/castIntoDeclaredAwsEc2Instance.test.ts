@@ -2,12 +2,12 @@ import type { Instance } from '@aws-sdk/client-ec2';
 import { getError } from 'helpful-errors';
 import { given, then, when } from 'test-fns';
 
-import { castToDeclaredAwsEc2Instance } from './castToDeclaredAwsEc2Instance';
+import { castIntoDeclaredAwsEc2Instance } from './castIntoDeclaredAwsEc2Instance';
 
-describe('castToDeclaredAwsEc2Instance', () => {
+describe('castIntoDeclaredAwsEc2Instance', () => {
   given('an AWS Instance with all properties', () => {
     when('cast to domain object', () => {
-      let result: ReturnType<typeof castToDeclaredAwsEc2Instance>;
+      let result: ReturnType<typeof castIntoDeclaredAwsEc2Instance>;
 
       then('it should cast', () => {
         const awsInstance: Instance = {
@@ -16,7 +16,7 @@ describe('castToDeclaredAwsEc2Instance', () => {
           State: { Name: 'running' },
           PrivateIpAddress: '10.0.1.100',
         };
-        result = castToDeclaredAwsEc2Instance(awsInstance);
+        result = castIntoDeclaredAwsEc2Instance(awsInstance);
       });
 
       then('it should have all properties mapped', () => {
@@ -39,7 +39,7 @@ describe('castToDeclaredAwsEc2Instance', () => {
           State: { Name: 'stopped' },
         };
         const error = await getError(() =>
-          castToDeclaredAwsEc2Instance(awsInstance),
+          castIntoDeclaredAwsEc2Instance(awsInstance),
         );
         expect(error.message).toContain('ec2 instance lacks exid tag');
       });
@@ -53,7 +53,7 @@ describe('castToDeclaredAwsEc2Instance', () => {
           InstanceId: 'i-minimal',
         };
         const error = await getError(() =>
-          castToDeclaredAwsEc2Instance(awsInstance),
+          castIntoDeclaredAwsEc2Instance(awsInstance),
         );
         expect(error.message).toContain('ec2 instance lacks exid tag');
       });
@@ -62,7 +62,7 @@ describe('castToDeclaredAwsEc2Instance', () => {
 
   given('an AWS Instance with all readonly fields', () => {
     when('cast to domain object', () => {
-      let result: ReturnType<typeof castToDeclaredAwsEc2Instance>;
+      let result: ReturnType<typeof castIntoDeclaredAwsEc2Instance>;
 
       then('it should cast successfully', () => {
         const awsInstance: Instance = {
@@ -71,7 +71,7 @@ describe('castToDeclaredAwsEc2Instance', () => {
           State: { Name: 'stopped' },
           PrivateIpAddress: '10.0.0.1',
         };
-        result = castToDeclaredAwsEc2Instance(awsInstance);
+        result = castIntoDeclaredAwsEc2Instance(awsInstance);
       });
 
       then('it should have status and privateIp', () => {

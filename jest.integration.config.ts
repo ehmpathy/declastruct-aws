@@ -12,11 +12,10 @@ const config: Config = {
   testEnvironment: 'node',
   moduleFileExtensions: ['js', 'ts'],
   transform: {
-    '^.+\\.tsx?$': 'ts-jest', // https://kulshekhar.github.io/ts-jest/docs/getting-started/presets
-    '^.+\\.(js|jsx|mjs)$': 'babel-jest', // transform @octokit ESM with babel
+    '^.+\\.(t|j)sx?$': '@swc/jest', // use swc for faster compilation and better ESM support
   },
   transformIgnorePatterns: [
-    'node_modules/(?!(@octokit|universal-user-agent|before-after-hook)/)',
+    'node_modules/(?!(@octokit|@aws-sdk|@smithy|universal-user-agent|before-after-hook)/)',
   ],
   testMatch: ['**/*.integration.test.ts'],
   setupFiles: ['core-js'],

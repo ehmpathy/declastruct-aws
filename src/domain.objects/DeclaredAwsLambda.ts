@@ -1,9 +1,12 @@
 import { Runtime } from '@aws-sdk/client-lambda';
 import { UniDateTime } from '@ehmpathy/uni-time';
-import { DomainEntity } from 'domain-objects';
+import { DomainEntity, DomainLiteral, RefByUnique } from 'domain-objects';
+
+import { DeclaredAwsIamRole } from './DeclaredAwsIamRole';
 
 /**
- * .what = a declarative structure which represents an Aws Lambda
+ * .what = a declarative structure which represents an Aws Lambda function
+ * .note = represents the lambda function itself, not a specific version
  */
 export interface DeclaredAwsLambda {
   /**
@@ -13,17 +16,9 @@ export interface DeclaredAwsLambda {
   arn?: string;
 
   /**
-   * .what = the address of the lambda
+   * .what = the name of the lambda function
    */
   name: string;
-
-  /**
-   * .what = the version of the lambda
-   *
-   * .note
-   *   - null = the latest version
-   */
-  qualifier: string | null;
 
   /**
    * .what = the runtime of the lambda
@@ -34,9 +29,9 @@ export interface DeclaredAwsLambda {
   runtime: Runtime;
 
   /**
-   * execution role
+   * .what = reference to the iam role for lambda execution
    */
-  role: string;
+  role: RefByUnique<typeof DeclaredAwsIamRole>;
 
   /**
    * handler path
@@ -75,12 +70,17 @@ export interface DeclaredAwsLambda {
    * .note
    *   - this is persisted via tags, by this package specifically
    */
-  codeZipUri?: string;
+  codeZipUri: string;
 
   /**
    * .what = the environmental variables available at runtime
    */
   envars: Record<string, string>;
+
+  /**
+   * .what = optional tags for the lambda
+   */
+  tags?: Record<string, string>;
 
   // todo: support the rest of the configs
 
@@ -233,7 +233,7 @@ export class DeclaredAwsLambda
   implements DeclaredAwsLambda
 {
   public static primary = ['arn'] as const;
-  public static unique = ['name', 'qualifier'] as const;
+  public static unique = ['name'] as const;
 
   /**
    * .what = identity attributes assigned by the persistence layer
@@ -246,4 +246,16 @@ export class DeclaredAwsLambda
    * .note = these are real attributes of the resource, but derived from the source of truth
    */
   public static readonly = ['codeSize', 'codeSha256'] as const;
+
+  /**
+   * .what = nested domain object definitions
+   * .note
+   *   - role is RefByUnique ref, not full domain object
+   *   - envars and tags are Record<string, string>, marked as DomainLiteral for safe manipulation
+   */
+  public static nested = {
+    role: RefByUnique<typeof DeclaredAwsIamRole>,
+    envars: DomainLiteral,
+    tags: DomainLiteral,
+  };
 }
