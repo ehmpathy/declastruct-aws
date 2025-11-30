@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/ehmpathy/declastruct-aws/compare/v1.0.3...v1.1.0) (2025-11-30)
+
+
+### Features
+
+* **lambda:** control lambdas with versions and aliases ([#10](https://github.com/ehmpathy/declastruct-aws/issues/10)) ([c1d1832](https://github.com/ehmpathy/declastruct-aws/commit/c1d18322c406e6c1de5b4849713582d54448cd3f))
+
 ## [1.0.3](https://github.com/ehmpathy/declastruct-aws/compare/v1.0.2...v1.0.3) (2025-11-28)
 
 
