@@ -7,6 +7,10 @@ import * as path from 'path';
 import type { ContextLogTrail } from 'simple-log-methods';
 
 import { DeclaredAwsEc2InstanceDao } from '../../access/daos/DeclaredAwsEc2InstanceDao';
+import { DeclaredAwsIamRoleDao } from '../../access/daos/DeclaredAwsIamRoleDao';
+import { DeclaredAwsLambdaAliasDao } from '../../access/daos/DeclaredAwsLambdaAliasDao';
+import { DeclaredAwsLambdaDao } from '../../access/daos/DeclaredAwsLambdaDao';
+import { DeclaredAwsLambdaVersionDao } from '../../access/daos/DeclaredAwsLambdaVersionDao';
 import { DeclaredAwsRdsClusterDao } from '../../access/daos/DeclaredAwsRdsClusterDao';
 import { DeclaredAwsVpcTunnelDao } from '../../access/daos/DeclaredAwsVpcTunnelDao';
 import { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
@@ -55,6 +59,10 @@ export const getDeclastructAwsProvider = async (
   // assemble DAOs for all aws resource types
   const daos = {
     DeclaredAwsEc2Instance: DeclaredAwsEc2InstanceDao,
+    DeclaredAwsIamRole: DeclaredAwsIamRoleDao,
+    DeclaredAwsLambda: DeclaredAwsLambdaDao,
+    DeclaredAwsLambdaAlias: DeclaredAwsLambdaAliasDao,
+    DeclaredAwsLambdaVersion: DeclaredAwsLambdaVersionDao,
     DeclaredAwsRdsCluster: DeclaredAwsRdsClusterDao,
     DeclaredAwsVpcTunnel: DeclaredAwsVpcTunnelDao,
   };

@@ -6,6 +6,7 @@ import {
   UpdateFunctionConfigurationCommand,
 } from '@aws-sdk/client-lambda';
 import { asProcedure } from 'as-procedure';
+import { HasReadonly } from 'domain-objects';
 import * as fs from 'fs/promises';
 import { resolve } from 'path';
 import { PickOne } from 'type-fns';
@@ -13,8 +14,8 @@ import { VisualogicContext } from 'visualogic';
 
 import { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
 import { DeclaredAwsLambda } from '../../domain.objects/DeclaredAwsLambda';
-import { castToDeclaredAwsLambda } from './castToDeclaredAwsLambda';
-import { getLambda } from './getLambda';
+import { castIntoDeclaredAwsLambda } from './castIntoDeclaredAwsLambda';
+import { getOneLambda } from './getOneLambda';
 
 /**
  * .what = sets a lambda: upsert or finsert
@@ -22,23 +23,22 @@ import { getLambda } from './getLambda';
 export const setLambda = asProcedure(
   async (
     input: PickOne<{
-      finsert: DeclaredAwsLambda & { codeZipUri: string };
-      upsert: DeclaredAwsLambda & { codeZipUri: string };
+      finsert: DeclaredAwsLambda;
+      upsert: DeclaredAwsLambda;
     }>,
     context: ContextAwsApi & VisualogicContext,
-  ): Promise<DeclaredAwsLambda> => {
+  ): Promise<HasReadonly<typeof DeclaredAwsLambda>> => {
     const lambdaDesired = input.finsert ?? input.upsert;
     const awsLambdaSdk = new LambdaClient({
       region: context.aws.credentials.region,
     });
 
     // check whether it already exists
-    const before = await getLambda(
+    const before = await getOneLambda(
       {
         by: {
           unique: {
             name: lambdaDesired.name,
-            qualifier: lambdaDesired.qualifier,
           },
         },
       },
@@ -53,12 +53,15 @@ export const setLambda = asProcedure(
     // const codeZipBuffer = Buffer.from(codeZipBase64, 'base64');
     const codeZipBuffer = await fs.readFile(resolve(lambdaDesired.codeZipUri));
 
+    // construct role ARN from RefByUnique name
+    const roleArn = `arn:aws:iam::${context.aws.credentials.account}:role/${lambdaDesired.role.name}`;
+
     // otherwise, declare the desired attributes in aws's schema
     const setRequest: CreateFunctionRequest & UpdateFunctionCodeRequest = {
       FunctionName: lambdaDesired.name,
       Timeout: lambdaDesired.timeout,
       MemorySize: lambdaDesired.memory,
-      Role: lambdaDesired.role,
+      Role: roleArn,
       Handler: lambdaDesired.handler,
       Runtime: lambdaDesired.runtime,
       Environment: lambdaDesired.envars
@@ -68,6 +71,7 @@ export const setLambda = asProcedure(
         ZipFile: codeZipBuffer,
       },
       Tags: {
+        ...lambdaDesired.tags,
         codeZipUri: lambdaDesired.codeZipUri,
       },
       Publish: true,
@@ -78,7 +82,7 @@ export const setLambda = asProcedure(
       const updated = await awsLambdaSdk.send(
         new UpdateFunctionConfigurationCommand(setRequest),
       );
-      return castToDeclaredAwsLambda(updated);
+      return castIntoDeclaredAwsLambda(updated);
     }
 
     // otherwise, create it
@@ -86,6 +90,6 @@ export const setLambda = asProcedure(
       new CreateFunctionCommand(setRequest),
     );
 
-    return castToDeclaredAwsLambda(created);
+    return castIntoDeclaredAwsLambda(created);
   },
 );

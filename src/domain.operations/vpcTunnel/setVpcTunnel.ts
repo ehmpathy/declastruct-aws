@@ -1,17 +1,17 @@
 import { spawn } from 'child_process';
-import { HasReadonly, hasReadonly, refByUnique } from 'domain-objects';
+import { HasReadonly, refByUnique } from 'domain-objects';
 import { createWriteStream } from 'fs';
 import * as fs from 'fs/promises';
 import { BadRequestError, UnexpectedCodePathError } from 'helpful-errors';
 import * as path from 'path';
 import type { ContextLogTrail } from 'simple-log-methods';
-import { assure } from 'type-fns';
 
 import { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
 import { DeclaredAwsVpcTunnel } from '../../domain.objects/DeclaredAwsVpcTunnel';
 import { getEc2Instance } from '../ec2Instance/getEc2Instance';
 import { setEc2InstanceStatus } from '../ec2Instance/setEc2InstanceStatus';
 import { getRdsCluster } from '../rdsCluster/getRdsCluster';
+import { castIntoDeclaredAwsVpcTunnel } from './castIntoDeclaredAwsVpcTunnel';
 import { TunnelCacheFile } from './utils/TunnelCacheFile';
 import { getTunnelHash } from './utils/getTunnelHash';
 import { isFilePresent } from './utils/isFilePresent';
@@ -52,10 +52,11 @@ export const setVpcTunnel = async (
     await fs.rm(cachePath, { force: true });
     await fs.rm(logPath, { force: true });
 
-    return assure(
-      DeclaredAwsVpcTunnel.as({ ...input, status: 'CLOSED', pid: null }),
-      hasReadonly({ of: DeclaredAwsVpcTunnel }),
-    );
+    return castIntoDeclaredAwsVpcTunnel({
+      unique: input,
+      status: 'CLOSED',
+      pid: null,
+    });
   }
 
   // resolve bastion and cluster for OPEN status
@@ -96,10 +97,11 @@ export const setVpcTunnel = async (
         isProcessAlive({ pid: cache.pid }) &&
         (await isTunnelHealthy({ port: input.from.port }))
       )
-        return assure(
-          DeclaredAwsVpcTunnel.as({ ...input, status: 'OPEN', pid: cache.pid }),
-          hasReadonly({ of: DeclaredAwsVpcTunnel }),
-        );
+        return castIntoDeclaredAwsVpcTunnel({
+          unique: input,
+          status: 'OPEN',
+          pid: cache.pid,
+        });
 
       // cleanup stale tunnel
       if (isProcessAlive({ pid: cache.pid }))
@@ -243,12 +245,9 @@ export const setVpcTunnel = async (
     });
   }
 
-  return assure(
-    DeclaredAwsVpcTunnel.as({
-      ...input,
-      status: 'OPEN',
-      pid: tunnelProcess.pid,
-    }),
-    hasReadonly({ of: DeclaredAwsVpcTunnel }),
-  );
+  return castIntoDeclaredAwsVpcTunnel({
+    unique: input,
+    status: 'OPEN',
+    pid: tunnelProcess.pid,
+  });
 };

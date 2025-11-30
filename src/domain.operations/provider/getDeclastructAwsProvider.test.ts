@@ -1,5 +1,4 @@
 import { GetCallerIdentityCommand, STSClient } from '@aws-sdk/client-sts';
-import * as sharedIniFileLoader from '@smithy/shared-ini-file-loader';
 import { mockClient } from 'aws-sdk-client-mock';
 import { BadRequestError } from 'helpful-errors';
 import * as os from 'os';
@@ -8,7 +7,11 @@ import { getError } from 'test-fns';
 
 import { getDeclastructAwsProvider } from './getDeclastructAwsProvider';
 
-jest.mock('@smithy/shared-ini-file-loader');
+const mockLoadSharedConfigFiles = jest.fn();
+jest.mock('@smithy/shared-ini-file-loader', () => ({
+  ...jest.requireActual('@smithy/shared-ini-file-loader'),
+  loadSharedConfigFiles: () => mockLoadSharedConfigFiles(),
+}));
 
 const stsMock = mockClient(STSClient);
 
@@ -30,9 +33,10 @@ describe('getDeclastructAwsProvider', () => {
       Account: '123456789012',
     });
     process.env = { ...originalEnv };
+    mockLoadSharedConfigFiles.mockReset();
 
     // default mock: no region in config file
-    (sharedIniFileLoader.loadSharedConfigFiles as jest.Mock).mockResolvedValue({
+    mockLoadSharedConfigFiles.mockResolvedValue({
       configFile: {},
       credentialsFile: {},
     });
@@ -118,11 +122,10 @@ describe('getDeclastructAwsProvider', () => {
     it('should resolve region from credentials file when env vars not set', async () => {
       delete process.env.AWS_REGION;
       delete process.env.AWS_DEFAULT_REGION;
+      delete process.env.AWS_PROFILE;
 
       // mock credentials file with region
-      (
-        sharedIniFileLoader.loadSharedConfigFiles as jest.Mock
-      ).mockResolvedValue({
+      mockLoadSharedConfigFiles.mockResolvedValue({
         configFile: {},
         credentialsFile: {
           default: { region: 'eu-west-1' },
@@ -138,9 +141,7 @@ describe('getDeclastructAwsProvider', () => {
       process.env.AWS_REGION = 'us-east-1';
 
       // mock credentials file with different region
-      (
-        sharedIniFileLoader.loadSharedConfigFiles as jest.Mock
-      ).mockResolvedValue({
+      mockLoadSharedConfigFiles.mockResolvedValue({
         configFile: {},
         credentialsFile: {
           default: { region: 'eu-west-1' },
@@ -158,9 +159,7 @@ describe('getDeclastructAwsProvider', () => {
       process.env.AWS_PROFILE = 'myprofile';
 
       // mock credentials file with profile-specific region
-      (
-        sharedIniFileLoader.loadSharedConfigFiles as jest.Mock
-      ).mockResolvedValue({
+      mockLoadSharedConfigFiles.mockResolvedValue({
         configFile: {},
         credentialsFile: {
           default: { region: 'us-east-1' },

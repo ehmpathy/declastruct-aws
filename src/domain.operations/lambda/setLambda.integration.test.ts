@@ -7,11 +7,11 @@ import { setLambda } from './setLambda';
 describe('setLambda', () => {
   const context = getSampleAwsApiContext();
 
-  const lambdaDesired: DeclaredAwsLambda & { codeZipUri: string } = {
+  const lambdaDesired: DeclaredAwsLambda = {
     name: 'svc-example-prep-get-hello',
-    qualifier: null,
+
     runtime: 'nodejs18.x',
-    role: 'arn:aws:iam::123456789012:role/lambda-role',
+    role: { name: 'lambda-role' },
     handler: 'src/contract/getHello',
     timeout: 30,
     memory: 128,

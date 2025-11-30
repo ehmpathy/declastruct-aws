@@ -5,7 +5,7 @@ import type { ContextLogTrail } from 'simple-log-methods';
 
 import { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
 import { DeclaredAwsRdsCluster } from '../../domain.objects/DeclaredAwsRdsCluster';
-import { castToDeclaredAwsRdsCluster } from './castToDeclaredAwsRdsCluster';
+import { castIntoDeclaredAwsRdsCluster } from './castIntoDeclaredAwsRdsCluster';
 
 /**
  * .what = gets an RDS cluster from AWS
@@ -40,7 +40,7 @@ export const getRdsCluster = async (
         { input, count: collisions.length + 1 },
       );
 
-    return castToDeclaredAwsRdsCluster(cluster);
+    return castIntoDeclaredAwsRdsCluster(cluster);
   } catch (error) {
     // handle not found gracefully
     if (error instanceof Error && error.name === 'DBClusterNotFoundFault')

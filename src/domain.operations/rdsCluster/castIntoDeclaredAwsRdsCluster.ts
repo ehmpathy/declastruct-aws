@@ -9,7 +9,7 @@ import { DeclaredAwsRdsCluster } from '../../domain.objects/DeclaredAwsRdsCluste
  * .what = casts an AWS SDK DBCluster to a DeclaredAwsRdsCluster
  * .why = maps AWS response shape to domain object
  */
-export const castToDeclaredAwsRdsCluster = (
+export const castIntoDeclaredAwsRdsCluster = (
   input: DBCluster,
 ): HasReadonly<typeof DeclaredAwsRdsCluster> => {
   // failfast if cluster identifier is not defined

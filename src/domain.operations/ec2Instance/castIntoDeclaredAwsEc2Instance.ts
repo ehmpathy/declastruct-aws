@@ -9,7 +9,7 @@ import { DeclaredAwsEc2Instance } from '../../domain.objects/DeclaredAwsEc2Insta
  * .what = casts an AWS SDK Instance to a DeclaredAwsEc2Instance
  * .why = maps AWS response shape to domain object
  */
-export const castToDeclaredAwsEc2Instance = (
+export const castIntoDeclaredAwsEc2Instance = (
   input: Instance,
 ): HasReadonly<typeof DeclaredAwsEc2Instance> => {
   // extract exid from tags

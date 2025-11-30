@@ -13,7 +13,7 @@ import { PickOne } from 'type-fns';
 
 import { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
 import { DeclaredAwsEc2Instance } from '../../domain.objects/DeclaredAwsEc2Instance';
-import { castToDeclaredAwsEc2Instance } from './castToDeclaredAwsEc2Instance';
+import { castIntoDeclaredAwsEc2Instance } from './castIntoDeclaredAwsEc2Instance';
 
 /**
  * .what = gets an EC2 instance from AWS
@@ -36,15 +36,11 @@ export const getEc2Instance = async (
 
     // route to unique if ref is by unique
     if (isRefByUnique({ of: DeclaredAwsEc2Instance })(input.by.ref))
-      return {
-        unique: input.by.ref as RefByUnique<typeof DeclaredAwsEc2Instance>,
-      };
+      return { unique: input.by.ref };
 
     // route to primary if ref is by primary
     if (isRefByPrimary({ of: DeclaredAwsEc2Instance })(input.by.ref))
-      return {
-        primary: input.by.ref as RefByPrimary<typeof DeclaredAwsEc2Instance>,
-      };
+      return { primary: input.by.ref };
 
     // failfast if ref is neither unique nor primary
     return UnexpectedCodePathError.throw('ref is neither unique nor primary', {
@@ -91,5 +87,5 @@ export const getEc2Instance = async (
       { input, count: collisions.length + 1 },
     );
 
-  return castToDeclaredAwsEc2Instance(instance);
+  return castIntoDeclaredAwsEc2Instance(instance);
 };

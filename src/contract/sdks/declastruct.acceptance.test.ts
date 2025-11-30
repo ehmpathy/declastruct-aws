@@ -2,7 +2,7 @@ import { execSync } from 'child_process';
 import { DeclastructChange } from 'declastruct';
 import { existsSync, mkdirSync, readFileSync } from 'fs';
 import { join } from 'path';
-import { given, when, then } from 'test-fns';
+import { given, when, then, useBeforeAll } from 'test-fns';
 
 /**
  * .what = acceptance tests for declastruct CLI workflow
@@ -26,108 +26,169 @@ describe('declastruct CLI workflow', () => {
     );
     const planFile = join(testDir, 'plan.json');
 
-    beforeEach(() => {
+    beforeAll(() => {
       // ensure clean test directory
       mkdirSync(testDir, { recursive: true });
     });
 
     when('generating a plan via declastruct CLI', () => {
-      then('creates a valid plan file', async () => {
+      const prep = useBeforeAll(async () => {
+        // execute declastruct plan command once for all plan assertions
+        execSync(
+          `npx declastruct plan --wish ${resourcesFile} --into ${planFile}`,
+          { stdio: 'inherit', env: process.env },
+        );
+
+        // parse and return plan for assertions
+        return {
+          plan: JSON.parse(readFileSync(planFile, 'utf-8')) as {
+            changes: DeclastructChange[];
+          },
+        };
+      });
+
+      then('creates a valid plan file', () => {
         /**
          * .what = validates declastruct plan command produces valid JSON output
          * .why = ensures CLI can parse resources file and generate plan
          */
-
-        // execute declastruct plan command
-        execSync(
-          `npx declastruct plan --wish ${resourcesFile} --into ${planFile}`,
-          { stdio: 'inherit', env: process.env },
-        );
-
-        // verify plan file exists
-        const planExists = existsSync(planFile);
-        expect(planExists).toBe(true);
-
-        // verify plan contains expected structure
-        const plan = JSON.parse(readFileSync(planFile, 'utf-8'));
-        expect(plan).toHaveProperty('changes');
-        expect(Array.isArray(plan.changes)).toBe(true);
+        expect(existsSync(planFile)).toBe(true);
+        expect(prep.plan).toHaveProperty('changes');
+        expect(Array.isArray(prep.plan.changes)).toBe(true);
       });
 
-      then('plan includes VPC tunnel resource', async () => {
+      then('plan includes VPC tunnel resource', () => {
         /**
          * .what = validates plan includes VPC tunnel declaration
          * .why = ensures declastruct correctly processes AWS resource declarations
          */
-
-        // execute plan generation
-        execSync(
-          `npx declastruct plan --wish ${resourcesFile} --into ${planFile}`,
-          { stdio: 'inherit', env: process.env },
-        );
-
-        // parse plan
-        const plan = JSON.parse(readFileSync(planFile, 'utf-8'));
-
-        // verify VPC tunnel resource is present
-        const tunnelResource: DeclastructChange = plan.changes.find(
+        const tunnelResource = prep.plan.changes.find(
           (r: DeclastructChange) =>
             r.forResource.class === 'DeclaredAwsVpcTunnel',
         );
-
         expect(tunnelResource).toBeDefined();
-        expect(tunnelResource.forResource.slug).toContain(
+        expect(tunnelResource!.forResource.slug).toContain(
           'DeclaredAwsVpcTunnel',
         );
+      });
+
+      then('plan includes lambda deployment resources', () => {
+        /**
+         * .what = validates plan includes lambda, version, and alias declarations
+         * .why = ensures full lambda deployment flow is captured in plan
+         */
+
+        // verify iam role resource is present
+        const roleChange = prep.plan.changes.find(
+          (r: DeclastructChange) =>
+            r.forResource.class === 'DeclaredAwsIamRole',
+        );
+        expect(roleChange).toBeDefined();
+        expect(roleChange!.forResource.slug).toContain(
+          'declastruct-acceptance-lambda-role',
+        );
+
+        // verify lambda resource is present
+        const lambdaChange = prep.plan.changes.find(
+          (r: DeclastructChange) => r.forResource.class === 'DeclaredAwsLambda',
+        );
+        expect(lambdaChange).toBeDefined();
+        expect(lambdaChange!.forResource.slug).toContain(
+          'declastruct-acceptance-lambda',
+        );
+
+        // verify lambda version resource is present
+        const versionChange = prep.plan.changes.find(
+          (r: DeclastructChange) =>
+            r.forResource.class === 'DeclaredAwsLambdaVersion',
+        );
+        expect(versionChange).toBeDefined();
+
+        // verify lambda alias resource is present
+        const aliasChange = prep.plan.changes.find(
+          (r: DeclastructChange) =>
+            r.forResource.class === 'DeclaredAwsLambdaAlias',
+        );
+        expect(aliasChange).toBeDefined();
+        expect(aliasChange!.forResource.slug).toContain('LIVE');
       });
     });
 
     when('applying a plan via declastruct CLI', () => {
-      then('opens VPC tunnel and verifies it is active', async () => {
-        /**
-         * .what = validates declastruct apply command works with AWS provider
-         * .why = ensures end-to-end workflow from plan to reality
-         * .note = opens tunnel via SSM port forwarding
-         */
-
-        // generate plan
+      const prep = useBeforeAll(async () => {
+        // generate fresh plan for apply phase
         execSync(
           `npx declastruct plan --wish ${resourcesFile} --into ${planFile}`,
           { stdio: 'inherit', env: process.env },
         );
 
-        // apply plan to open tunnel
+        // apply plan once for all apply assertions
         execSync(`npx declastruct apply --plan ${planFile}`, {
           stdio: 'inherit',
           env: process.env,
         });
 
-        // verify tunnel is open by checking plan output shows OPEN status
-        const plan = JSON.parse(readFileSync(planFile, 'utf-8'));
-        const tunnelChange: DeclastructChange = plan.changes.find(
+        // parse and return plan for assertions
+        return {
+          plan: JSON.parse(readFileSync(planFile, 'utf-8')) as {
+            changes: DeclastructChange[];
+          },
+        };
+      });
+
+      then('opens VPC tunnel and verifies it is active', () => {
+        /**
+         * .what = validates declastruct apply command works with AWS provider
+         * .why = ensures end-to-end workflow from plan to reality
+         * .note = opens tunnel via SSM port forwarding
+         */
+        const tunnelChange = prep.plan.changes.find(
           (r: DeclastructChange) =>
             r.forResource.class === 'DeclaredAwsVpcTunnel',
         );
         expect(tunnelChange).toBeDefined();
       });
 
-      then('is idempotent - applying same plan twice succeeds', async () => {
+      then('deploys lambda with aliased version', () => {
+        /**
+         * .what = validates full lambda deployment flow via declastruct
+         * .why = ensures role, lambda, version, and alias are correctly applied
+         * .note = this is the core wish for declastruct-aws lambda support
+         */
+
+        // check role was created
+        const roleChange = prep.plan.changes.find(
+          (r: DeclastructChange) =>
+            r.forResource.class === 'DeclaredAwsIamRole',
+        );
+        expect(roleChange).toBeDefined();
+
+        // check lambda was created
+        const lambdaChange = prep.plan.changes.find(
+          (r: DeclastructChange) => r.forResource.class === 'DeclaredAwsLambda',
+        );
+        expect(lambdaChange).toBeDefined();
+
+        // check version was published
+        const versionChange = prep.plan.changes.find(
+          (r: DeclastructChange) =>
+            r.forResource.class === 'DeclaredAwsLambdaVersion',
+        );
+        expect(versionChange).toBeDefined();
+
+        // check alias was created
+        const aliasChange = prep.plan.changes.find(
+          (r: DeclastructChange) =>
+            r.forResource.class === 'DeclaredAwsLambdaAlias',
+        );
+        expect(aliasChange).toBeDefined();
+      });
+
+      then('is idempotent - applying same plan twice succeeds', () => {
         /**
          * .what = validates applying the same plan multiple times is safe
          * .why = ensures declastruct operations follow idempotency requirements
          */
-
-        // generate plan
-        execSync(
-          `npx declastruct plan --wish ${resourcesFile} --into ${planFile}`,
-          { stdio: 'inherit', env: process.env },
-        );
-
-        // apply plan first time
-        execSync(`npx declastruct apply --plan ${planFile}`, {
-          stdio: 'inherit',
-          env: process.env,
-        });
 
         // apply plan second time - should succeed without errors
         execSync(`npx declastruct apply --plan ${planFile}`, {
