@@ -5,16 +5,14 @@ import {
   UpdateAliasCommand,
 } from '@aws-sdk/client-lambda';
 import { asProcedure } from 'as-procedure';
-import { HasReadonly, RefByUnique } from 'domain-objects';
+import type { HasReadonly } from 'domain-objects';
 import { BadRequestError, UnexpectedCodePathError } from 'helpful-errors';
-import { PickOne } from 'type-fns';
-import { VisualogicContext } from 'visualogic';
+import type { PickOne } from 'type-fns';
+import type { VisualogicContext } from 'visualogic';
 
 import { DeclaredAwsLambdaVersionDao } from '../../access/daos/DeclaredAwsLambdaVersionDao';
-import { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import { DeclaredAwsLambda } from '../../domain.objects/DeclaredAwsLambda';
-import { DeclaredAwsLambdaAlias } from '../../domain.objects/DeclaredAwsLambdaAlias';
-import { DeclaredAwsLambdaVersion } from '../../domain.objects/DeclaredAwsLambdaVersion';
+import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
+import type { DeclaredAwsLambdaAlias } from '../../domain.objects/DeclaredAwsLambdaAlias';
 import { getOneLambda } from '../lambda/getOneLambda';
 import { castIntoDeclaredAwsLambdaAlias } from './castIntoDeclaredAwsLambdaAlias';
 import { getOneLambdaAlias } from './getOneLambdaAlias';

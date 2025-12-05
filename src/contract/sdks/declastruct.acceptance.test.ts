@@ -1,10 +1,10 @@
 import { asUniDateTime } from '@ehmpathy/uni-time';
 import { execSync } from 'child_process';
 import { endOfDay, startOfDay, subDays } from 'date-fns';
-import { DeclastructChange } from 'declastruct';
+import type { DeclastructChange } from 'declastruct';
 import { existsSync, mkdirSync, readFileSync } from 'fs';
 import { join } from 'path';
-import { given, when, then, useBeforeAll } from 'test-fns';
+import { given, then, useBeforeAll, when } from 'test-fns';
 
 import { DeclaredAwsLogGroupReportCostOfIngestionDao } from '../../access/daos/DeclaredAwsLogGroupReportCostOfIngestionDao';
 import { DeclaredAwsLogGroupReportDistOfPatternDao } from '../../access/daos/DeclaredAwsLogGroupReportDistOfPatternDao';

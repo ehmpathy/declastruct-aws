@@ -1,5 +1,5 @@
 import type { Instance } from '@aws-sdk/client-ec2';
-import { HasReadonly, hasReadonly } from 'domain-objects';
+import { type HasReadonly, hasReadonly } from 'domain-objects';
 import { UnexpectedCodePathError } from 'helpful-errors';
 import { assure } from 'type-fns';
 

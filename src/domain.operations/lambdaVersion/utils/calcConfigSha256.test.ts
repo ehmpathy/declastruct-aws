@@ -2,7 +2,7 @@ import { given, then, when } from 'test-fns';
 
 import {
   calcConfigSha256,
-  DeclaredAwsLambdaConfigFields,
+  type DeclaredAwsLambdaConfigFields,
 } from './calcConfigSha256';
 
 describe('calcConfigSha256', () => {

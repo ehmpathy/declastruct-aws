@@ -1,5 +1,5 @@
 import { DeclaredAwsIamPrincipal } from '../../domain.objects/DeclaredAwsIamPrincipal';
-import { SdkAwsPolicyPrincipal } from './castFromDeclaredAwsIamPrincipal';
+import type { SdkAwsPolicyPrincipal } from './castFromDeclaredAwsIamPrincipal';
 
 /**
  * .what = converts aws sdk principal format to domain format

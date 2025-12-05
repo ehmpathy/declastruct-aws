@@ -1,7 +1,7 @@
-import { given, then } from 'test-fns';
+import { then } from 'test-fns';
 
 import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';
-import { DeclaredAwsLambda } from '../../domain.objects/DeclaredAwsLambda';
+import type { DeclaredAwsLambda } from '../../domain.objects/DeclaredAwsLambda';
 import { setLambda } from './setLambda';
 
 describe('setLambda', () => {

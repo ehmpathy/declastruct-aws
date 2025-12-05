@@ -1,11 +1,15 @@
 import type { AliasConfiguration } from '@aws-sdk/client-lambda';
-import { HasReadonly, hasReadonly, RefByUnique } from 'domain-objects';
+import {
+  type HasReadonly,
+  hasReadonly,
+  type RefByUnique,
+} from 'domain-objects';
 import { UnexpectedCodePathError } from 'helpful-errors';
 import { assure } from 'type-fns';
 
-import { DeclaredAwsLambda } from '../../domain.objects/DeclaredAwsLambda';
+import type { DeclaredAwsLambda } from '../../domain.objects/DeclaredAwsLambda';
 import { DeclaredAwsLambdaAlias } from '../../domain.objects/DeclaredAwsLambdaAlias';
-import { DeclaredAwsLambdaVersion } from '../../domain.objects/DeclaredAwsLambdaVersion';
+import type { DeclaredAwsLambdaVersion } from '../../domain.objects/DeclaredAwsLambdaVersion';
 
 /**
  * .what = transforms aws sdk AliasConfiguration into DeclaredAwsLambdaAlias

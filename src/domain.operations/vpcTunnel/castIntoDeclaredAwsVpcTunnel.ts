@@ -1,4 +1,8 @@
-import { HasReadonly, hasReadonly, RefByUnique } from 'domain-objects';
+import {
+  type HasReadonly,
+  hasReadonly,
+  type RefByUnique,
+} from 'domain-objects';
 import { assure } from 'type-fns';
 
 import { DeclaredAwsVpcTunnel } from '../../domain.objects/DeclaredAwsVpcTunnel';

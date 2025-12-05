@@ -1,18 +1,18 @@
-import { LambdaClient, GetFunctionCommand } from '@aws-sdk/client-lambda';
+import { GetFunctionCommand, LambdaClient } from '@aws-sdk/client-lambda';
 import { asProcedure } from 'as-procedure';
 import {
-  HasReadonly,
-  Ref,
-  RefByPrimary,
-  RefByUnique,
+  type HasReadonly,
   isRefByPrimary,
   isRefByUnique,
+  type Ref,
+  type RefByPrimary,
+  type RefByUnique,
 } from 'domain-objects';
 import { HelpfulError, UnexpectedCodePathError } from 'helpful-errors';
-import { PickOne } from 'type-fns';
-import { VisualogicContext } from 'visualogic';
+import type { PickOne } from 'type-fns';
+import type { VisualogicContext } from 'visualogic';
 
-import { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
+import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
 import { DeclaredAwsLambda } from '../../domain.objects/DeclaredAwsLambda';
 import { castIntoDeclaredAwsLambda } from './castIntoDeclaredAwsLambda';
 

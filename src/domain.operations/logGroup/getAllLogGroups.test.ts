@@ -1,7 +1,3 @@
-import {
-  CloudWatchLogsClient,
-  DescribeLogGroupsCommand,
-} from '@aws-sdk/client-cloudwatch-logs';
 import { given, then } from 'test-fns';
 
 import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';

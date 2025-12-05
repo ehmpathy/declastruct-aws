@@ -2,7 +2,7 @@ import { LambdaClient, PublishVersionCommand } from '@aws-sdk/client-lambda';
 import { given, then, when } from 'test-fns';
 
 import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';
-import { DeclaredAwsLambdaVersion } from '../../domain.objects/DeclaredAwsLambdaVersion';
+import type { DeclaredAwsLambdaVersion } from '../../domain.objects/DeclaredAwsLambdaVersion';
 import * as getLambdaModule from '../lambda/getOneLambda';
 import * as getLambdaVersionModule from './getOneLambdaVersion';
 import { setLambdaVersion } from './setLambdaVersion';

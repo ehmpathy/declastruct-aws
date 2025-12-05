@@ -1,3 +1,6 @@
+/**
+ * @jest-config-loader esbuild-register
+ */
 import type { Config } from 'jest';
 
 // ensure tests run in utc, like they will on cicd and on server; https://stackoverflow.com/a/56277249/15593329
@@ -12,15 +15,16 @@ const config: Config = {
   testEnvironment: 'node',
   moduleFileExtensions: ['js', 'ts'],
   transform: {
-    '^.+\\.(t|j)sx?$': '@swc/jest', // use swc for faster compilation and better ESM support
+    '^.+\\.(t|j)sx?$': '@swc/jest',
   },
   transformIgnorePatterns: [
-    'node_modules/(?!(@octokit|@aws-sdk|@smithy|universal-user-agent|before-after-hook)/)',
+    // here's an example of how to ignore esm module transformation, when needed
+    // 'node_modules/(?!(@octokit|universal-user-agent|before-after-hook)/)',
   ],
-  testMatch: ['**/*.integration.test.ts'],
-  setupFiles: ['core-js'],
+  testMatch: ['**/*.integration.test.ts', '!**/.yalc/**'],
   setupFilesAfterEnv: ['./jest.integration.env.ts'],
-  // use 50% of threads on local to leave headroom for other processes
+
+  // use 50% of threads to leave headroom for other processes
   maxWorkers: '50%', // https://stackoverflow.com/questions/71287710/why-does-jest-run-faster-with-maxworkers-50
 };
 

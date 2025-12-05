@@ -3,7 +3,7 @@ import { isRefByPrimary, isRefByUnique } from 'domain-objects';
 import { UnexpectedCodePathError } from 'helpful-errors';
 import type { ContextLogTrail } from 'simple-log-methods';
 
-import { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
+import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
 import { DeclaredAwsLambdaVersion } from '../../domain.objects/DeclaredAwsLambdaVersion';
 import { delLambdaVersion } from '../../domain.operations/lambdaVersion/delLambdaVersion';
 import { getOneLambdaVersion } from '../../domain.operations/lambdaVersion/getOneLambdaVersion';

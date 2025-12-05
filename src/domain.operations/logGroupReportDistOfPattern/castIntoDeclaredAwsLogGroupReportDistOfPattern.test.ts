@@ -1,5 +1,5 @@
-import { GetQueryResultsCommandOutput as SdkAwsGetQueryResultsCommandOutput } from '@aws-sdk/client-cloudwatch-logs';
-import { UniDateTime } from '@ehmpathy/uni-time';
+import type { GetQueryResultsCommandOutput as SdkAwsGetQueryResultsCommandOutput } from '@aws-sdk/client-cloudwatch-logs';
+import type { UniDateTime } from '@ehmpathy/uni-time';
 import { given, then } from 'test-fns';
 
 import { castIntoDeclaredAwsLogGroupReportDistOfPattern } from './castIntoDeclaredAwsLogGroupReportDistOfPattern';

@@ -3,7 +3,7 @@ import { given, then, when } from 'test-fns';
 
 import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';
 import { DeclaredAwsIamRoleDao } from '../../access/daos/DeclaredAwsIamRoleDao';
-import { DeclaredAwsIamRolePolicy } from '../../domain.objects/DeclaredAwsIamRolePolicy';
+import type { DeclaredAwsIamRolePolicy } from '../../domain.objects/DeclaredAwsIamRolePolicy';
 import * as getIamRolePolicyModule from './getIamRolePolicy';
 import { setIamRolePolicy } from './setIamRolePolicy';
 

@@ -5,12 +5,12 @@ import {
   waitUntilInstanceRunning,
   waitUntilInstanceStopped,
 } from '@aws-sdk/client-ec2';
-import { HasReadonly, Ref } from 'domain-objects';
+import type { HasReadonly, Ref } from 'domain-objects';
 import { BadRequestError, UnexpectedCodePathError } from 'helpful-errors';
 import type { ContextLogTrail } from 'simple-log-methods';
 
-import { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import { DeclaredAwsEc2Instance } from '../../domain.objects/DeclaredAwsEc2Instance';
+import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
+import type { DeclaredAwsEc2Instance } from '../../domain.objects/DeclaredAwsEc2Instance';
 import { getEc2Instance } from './getEc2Instance';
 
 /**

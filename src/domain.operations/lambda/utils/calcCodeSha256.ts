@@ -1,8 +1,9 @@
 import { createHash } from 'crypto';
 import { readFileSync } from 'fs';
+import { BadRequestError } from 'helpful-errors';
 import { resolve } from 'path';
 
-import { DeclaredAwsLambda } from '../../../domain.objects/DeclaredAwsLambda';
+import type { DeclaredAwsLambda } from '../../../domain.objects/DeclaredAwsLambda';
 
 /**
  * .what = computes sha256 hash of lambda code zip file
@@ -10,6 +11,13 @@ import { DeclaredAwsLambda } from '../../../domain.objects/DeclaredAwsLambda';
  * .how = reads zip file from codeZipUri and computes base64-encoded sha256
  */
 export const calcCodeSha256 = (input: { of: DeclaredAwsLambda }): string => {
+  // fail fast if codeZipUri is not provided
+  if (!input.of.codeZipUri)
+    throw new BadRequestError(
+      'codeZipUri is required to calculate code sha256',
+      { lambda: input.of },
+    );
+
   // read the zip file
   const zipBuffer = readFileSync(resolve(input.of.codeZipUri));
 

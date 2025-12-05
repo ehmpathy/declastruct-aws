@@ -1,12 +1,12 @@
 import { IAMClient, PutRolePolicyCommand } from '@aws-sdk/client-iam';
 import { asProcedure } from 'as-procedure';
 import { UnexpectedCodePathError } from 'helpful-errors';
-import { PickOne } from 'type-fns';
-import { VisualogicContext } from 'visualogic';
+import type { PickOne } from 'type-fns';
+import type { VisualogicContext } from 'visualogic';
 
 import { DeclaredAwsIamRoleDao } from '../../access/daos/DeclaredAwsIamRoleDao';
-import { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import { DeclaredAwsIamRolePolicy } from '../../domain.objects/DeclaredAwsIamRolePolicy';
+import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
+import type { DeclaredAwsIamRolePolicy } from '../../domain.objects/DeclaredAwsIamRolePolicy';
 import { castFromDeclaredAwsIamPolicyDocument } from '../iamRole/castFromDeclaredAwsIamPolicyDocument';
 import { getIamRolePolicy } from './getIamRolePolicy';
 

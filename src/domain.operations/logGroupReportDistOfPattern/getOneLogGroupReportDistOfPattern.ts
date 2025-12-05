@@ -5,12 +5,16 @@ import {
   StartQueryCommand,
 } from '@aws-sdk/client-cloudwatch-logs';
 import { asProcedure } from 'as-procedure';
-import { HasReadonly, hasReadonly, RefByUnique } from 'domain-objects';
+import {
+  type HasReadonly,
+  hasReadonly,
+  type RefByUnique,
+} from 'domain-objects';
 import { HelpfulError, UnexpectedCodePathError } from 'helpful-errors';
 import { assure } from 'type-fns';
-import { VisualogicContext } from 'visualogic';
+import type { VisualogicContext } from 'visualogic';
 
-import { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
+import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
 import { DeclaredAwsLogGroupReportDistOfPattern } from '../../domain.objects/DeclaredAwsLogGroupReportDistOfPattern';
 import { castIntoDeclaredAwsLogGroupReportDistOfPattern } from './castIntoDeclaredAwsLogGroupReportDistOfPattern';
 

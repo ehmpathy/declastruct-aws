@@ -17,8 +17,8 @@ import { DeclaredAwsLogGroupReportCostOfIngestionDao } from '../../access/daos/D
 import { DeclaredAwsLogGroupReportDistOfPatternDao } from '../../access/daos/DeclaredAwsLogGroupReportDistOfPatternDao';
 import { DeclaredAwsRdsClusterDao } from '../../access/daos/DeclaredAwsRdsClusterDao';
 import { DeclaredAwsVpcTunnelDao } from '../../access/daos/DeclaredAwsVpcTunnelDao';
-import { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import { DeclastructAwsProvider } from '../../domain.objects/DeclastructAwsProvider';
+import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
+import type { DeclastructAwsProvider } from '../../domain.objects/DeclastructAwsProvider';
 
 /**
  * .what = creates a declastruct provider for aws resources

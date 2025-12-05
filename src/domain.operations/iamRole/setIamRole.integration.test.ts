@@ -1,7 +1,7 @@
 import { given, then } from 'test-fns';
 
 import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';
-import { DeclaredAwsIamRole } from '../../domain.objects/DeclaredAwsIamRole';
+import type { DeclaredAwsIamRole } from '../../domain.objects/DeclaredAwsIamRole';
 import { getIamRole } from './getIamRole';
 import { setIamRole } from './setIamRole';
 

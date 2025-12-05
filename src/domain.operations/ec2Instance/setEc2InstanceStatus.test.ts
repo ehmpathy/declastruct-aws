@@ -8,7 +8,7 @@ import { mockClient } from 'aws-sdk-client-mock';
 import { given, then, when } from 'test-fns';
 
 import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';
-import { DeclaredAwsEc2Instance } from '../../domain.objects/DeclaredAwsEc2Instance';
+import type { DeclaredAwsEc2Instance } from '../../domain.objects/DeclaredAwsEc2Instance';
 import { setEc2InstanceStatus } from './setEc2InstanceStatus';
 
 const ec2Mock = mockClient(EC2Client);

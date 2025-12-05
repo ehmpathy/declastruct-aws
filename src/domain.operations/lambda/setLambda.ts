@@ -1,19 +1,20 @@
 import {
   CreateFunctionCommand,
-  CreateFunctionRequest,
+  type CreateFunctionRequest,
   LambdaClient,
-  UpdateFunctionCodeRequest,
+  type UpdateFunctionCodeRequest,
   UpdateFunctionConfigurationCommand,
 } from '@aws-sdk/client-lambda';
 import { asProcedure } from 'as-procedure';
-import { HasReadonly } from 'domain-objects';
+import type { HasReadonly } from 'domain-objects';
 import * as fs from 'fs/promises';
+import { BadRequestError } from 'helpful-errors';
 import { resolve } from 'path';
-import { PickOne } from 'type-fns';
-import { VisualogicContext } from 'visualogic';
+import type { PickOne } from 'type-fns';
+import type { VisualogicContext } from 'visualogic';
 
-import { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import { DeclaredAwsLambda } from '../../domain.objects/DeclaredAwsLambda';
+import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
+import type { DeclaredAwsLambda } from '../../domain.objects/DeclaredAwsLambda';
 import { castIntoDeclaredAwsLambda } from './castIntoDeclaredAwsLambda';
 import { getOneLambda } from './getOneLambda';
 
@@ -48,9 +49,13 @@ export const setLambda = asProcedure(
     // if it's a finsert and had a before, then return that
     if (before && input.finsert) return before;
 
+    // fail fast if codeZipUri is not provided
+    if (!lambdaDesired.codeZipUri)
+      throw new BadRequestError('codeZipUri is required to set a lambda', {
+        lambdaDesired,
+      });
+
     // lookup the base64 of the zip at that uri
-    // const codeZipBase64 = lambdaDesired.codeZipUri;
-    // const codeZipBuffer = Buffer.from(codeZipBase64, 'base64');
     const codeZipBuffer = await fs.readFile(resolve(lambdaDesired.codeZipUri));
 
     // construct role ARN from RefByUnique name

@@ -1,16 +1,16 @@
-import { HasReadonly, RefByUnique } from 'domain-objects';
+import type { HasReadonly, RefByUnique } from 'domain-objects';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import type { ContextLogTrail } from 'simple-log-methods';
 
-import { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import { DeclaredAwsVpcTunnel } from '../../domain.objects/DeclaredAwsVpcTunnel';
+import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
+import type { DeclaredAwsVpcTunnel } from '../../domain.objects/DeclaredAwsVpcTunnel';
 import { castIntoDeclaredAwsVpcTunnel } from './castIntoDeclaredAwsVpcTunnel';
-import { TunnelCacheFile } from './utils/TunnelCacheFile';
 import { getTunnelHash } from './utils/getTunnelHash';
 import { isFilePresent } from './utils/isFilePresent';
 import { isProcessAlive } from './utils/isProcessAlive';
 import { isTunnelHealthy } from './utils/isTunnelHealthy';
+import type { TunnelCacheFile } from './utils/TunnelCacheFile';
 
 /**
  * .what = gets current status of a VPC tunnel

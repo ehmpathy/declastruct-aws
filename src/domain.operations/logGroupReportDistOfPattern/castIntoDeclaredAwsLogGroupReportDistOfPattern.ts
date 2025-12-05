@@ -1,9 +1,13 @@
-import { GetQueryResultsCommandOutput as SdkAwsGetQueryResultsCommandOutput } from '@aws-sdk/client-cloudwatch-logs';
-import { UniDateTimeRange } from '@ehmpathy/uni-time';
-import { HasReadonly, hasReadonly, RefByUnique } from 'domain-objects';
+import type { GetQueryResultsCommandOutput as SdkAwsGetQueryResultsCommandOutput } from '@aws-sdk/client-cloudwatch-logs';
+import type { UniDateTimeRange } from '@ehmpathy/uni-time';
+import {
+  type HasReadonly,
+  hasReadonly,
+  type RefByUnique,
+} from 'domain-objects';
 import { assure } from 'type-fns';
 
-import { DeclaredAwsLogGroup } from '../../domain.objects/DeclaredAwsLogGroup';
+import type { DeclaredAwsLogGroup } from '../../domain.objects/DeclaredAwsLogGroup';
 import {
   DeclaredAwsLogGroupReportDistOfPattern,
   DeclaredAwsLogGroupReportDistOfPatternRow,

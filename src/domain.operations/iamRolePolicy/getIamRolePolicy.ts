@@ -1,11 +1,11 @@
 import { GetRolePolicyCommand, IAMClient } from '@aws-sdk/client-iam';
 import { asProcedure } from 'as-procedure';
-import { RefByUnique } from 'domain-objects';
-import { VisualogicContext } from 'visualogic';
+import type { RefByUnique } from 'domain-objects';
+import type { VisualogicContext } from 'visualogic';
 
 import { DeclaredAwsIamRoleDao } from '../../access/daos/DeclaredAwsIamRoleDao';
-import { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import { DeclaredAwsIamRolePolicy } from '../../domain.objects/DeclaredAwsIamRolePolicy';
+import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
+import type { DeclaredAwsIamRolePolicy } from '../../domain.objects/DeclaredAwsIamRolePolicy';
 import { castIntoDeclaredAwsIamPolicyDocument } from '../iamRole/castIntoDeclaredAwsIamPolicyDocument';
 import { castIntoDeclaredAwsIamRolePolicy } from './castIntoDeclaredAwsIamRolePolicy';
 

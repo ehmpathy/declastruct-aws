@@ -1,13 +1,13 @@
 import {
-  LambdaClient,
   CreateFunctionCommand,
+  LambdaClient,
   UpdateFunctionConfigurationCommand,
 } from '@aws-sdk/client-lambda';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
 import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';
-import { DeclaredAwsLambda } from '../../domain.objects/DeclaredAwsLambda';
+import type { DeclaredAwsLambda } from '../../domain.objects/DeclaredAwsLambda';
 import * as castModule from './castIntoDeclaredAwsLambda';
 import * as getLambdaModule from './getOneLambda';
 import { setLambda } from './setLambda';
@@ -115,7 +115,7 @@ describe('setLambda', () => {
     await setLambda({ upsert: lambdaSample }, context);
 
     expect(fs.readFile).toHaveBeenCalledWith(
-      path.resolve(lambdaSample.codeZipUri),
+      path.resolve(lambdaSample.codeZipUri!),
     );
   });
 });

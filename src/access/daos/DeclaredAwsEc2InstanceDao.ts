@@ -3,7 +3,7 @@ import { isRefByPrimary, isRefByUnique } from 'domain-objects';
 import { BadRequestError, UnexpectedCodePathError } from 'helpful-errors';
 import type { ContextLogTrail } from 'simple-log-methods';
 
-import { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
+import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
 import { DeclaredAwsEc2Instance } from '../../domain.objects/DeclaredAwsEc2Instance';
 import { getEc2Instance } from '../../domain.operations/ec2Instance/getEc2Instance';
 

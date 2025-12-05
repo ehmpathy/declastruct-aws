@@ -1,5 +1,5 @@
 import type { Role as SdkAwsRole } from '@aws-sdk/client-iam';
-import { HasReadonly, hasReadonly } from 'domain-objects';
+import { type HasReadonly, hasReadonly } from 'domain-objects';
 import { UnexpectedCodePathError } from 'helpful-errors';
 import { assure } from 'type-fns';
 
@@ -43,10 +43,13 @@ export const castIntoDeclaredAwsIamRole = (
       path: role.Path,
       description: role.Description,
       policies: document.statements,
-      tags: role.Tags?.reduce((acc, tag) => {
-        if (tag.Key && tag.Value) acc[tag.Key] = tag.Value;
-        return acc;
-      }, {} as Record<string, string>),
+      tags: role.Tags?.reduce(
+        (acc, tag) => {
+          if (tag.Key && tag.Value) acc[tag.Key] = tag.Value;
+          return acc;
+        },
+        {} as Record<string, string>,
+      ),
     }),
     hasReadonly({ of: DeclaredAwsIamRole }),
   );

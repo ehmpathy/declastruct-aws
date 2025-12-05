@@ -1,5 +1,5 @@
-import { GetMetricDataCommandOutput as SdkAwsGetMetricDataCommandOutput } from '@aws-sdk/client-cloudwatch';
-import { UniDateTime } from '@ehmpathy/uni-time';
+import type { GetMetricDataCommandOutput as SdkAwsGetMetricDataCommandOutput } from '@aws-sdk/client-cloudwatch';
+import type { UniDateTime } from '@ehmpathy/uni-time';
 import { given, then } from 'test-fns';
 
 import { castIntoDeclaredAwsLogGroupReportCostOfIngestion } from './castIntoDeclaredAwsLogGroupReportCostOfIngestion';

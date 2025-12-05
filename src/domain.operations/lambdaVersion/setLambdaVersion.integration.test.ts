@@ -1,10 +1,9 @@
 import { given, then } from 'test-fns';
 
 import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';
-import { DeclaredAwsLambda } from '../../domain.objects/DeclaredAwsLambda';
+import type { DeclaredAwsLambda } from '../../domain.objects/DeclaredAwsLambda';
 import { getOneLambda } from '../lambda/getOneLambda';
 import { setLambda } from '../lambda/setLambda';
-import { getOneLambdaVersion } from './getOneLambdaVersion';
 import { setLambdaVersion } from './setLambdaVersion';
 import { calcConfigSha256 } from './utils/calcConfigSha256';
 

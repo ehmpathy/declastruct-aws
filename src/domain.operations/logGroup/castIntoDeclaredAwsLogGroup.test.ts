@@ -1,4 +1,4 @@
-import { LogGroup as SdkAwsLogGroup } from '@aws-sdk/client-cloudwatch-logs';
+import type { LogGroup as SdkAwsLogGroup } from '@aws-sdk/client-cloudwatch-logs';
 import { given, then } from 'test-fns';
 
 import { castIntoDeclaredAwsLogGroup } from './castIntoDeclaredAwsLogGroup';

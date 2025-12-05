@@ -1,5 +1,5 @@
 import { DeclaredAwsIamPolicyStatement } from '../../domain.objects/DeclaredAwsIamPolicyStatement';
-import { SdkAwsPolicyPrincipal } from './castFromDeclaredAwsIamPrincipal';
+import type { SdkAwsPolicyPrincipal } from './castFromDeclaredAwsIamPrincipal';
 import { castIntoDeclaredAwsIamPrincipal } from './castIntoDeclaredAwsIamPrincipal';
 
 /**

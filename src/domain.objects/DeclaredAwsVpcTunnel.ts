@@ -1,7 +1,7 @@
 import { DomainEntity, DomainLiteral, RefByUnique } from 'domain-objects';
 
-import { DeclaredAwsEc2Instance } from './DeclaredAwsEc2Instance';
-import { DeclaredAwsRdsCluster } from './DeclaredAwsRdsCluster';
+import type { DeclaredAwsEc2Instance } from './DeclaredAwsEc2Instance';
+import type { DeclaredAwsRdsCluster } from './DeclaredAwsRdsCluster';
 
 /**
  * .what = the bastion instance to tunnel through and the mechanism

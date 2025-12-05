@@ -4,13 +4,13 @@ import {
   ListAliasesCommand,
 } from '@aws-sdk/client-lambda';
 import { asProcedure } from 'as-procedure';
-import { HasReadonly, RefByUnique } from 'domain-objects';
-import { VisualogicContext } from 'visualogic';
+import type { HasReadonly, RefByUnique } from 'domain-objects';
+import type { VisualogicContext } from 'visualogic';
 
-import { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import { DeclaredAwsLambda } from '../../domain.objects/DeclaredAwsLambda';
-import { DeclaredAwsLambdaAlias } from '../../domain.objects/DeclaredAwsLambdaAlias';
-import { DeclaredAwsLambdaVersion } from '../../domain.objects/DeclaredAwsLambdaVersion';
+import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
+import type { DeclaredAwsLambda } from '../../domain.objects/DeclaredAwsLambda';
+import type { DeclaredAwsLambdaAlias } from '../../domain.objects/DeclaredAwsLambdaAlias';
+import type { DeclaredAwsLambdaVersion } from '../../domain.objects/DeclaredAwsLambdaVersion';
 import { getOneLambda } from '../lambda/getOneLambda';
 import { parseRoleArnIntoRef } from '../lambda/utils/parseRoleArnIntoRef';
 import { calcConfigSha256 } from '../lambdaVersion/utils/calcConfigSha256';

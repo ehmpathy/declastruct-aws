@@ -3,7 +3,6 @@ import { mockClient } from 'aws-sdk-client-mock';
 import { given, then, when } from 'test-fns';
 
 import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';
-import { DeclaredAwsRdsCluster } from '../../domain.objects/DeclaredAwsRdsCluster';
 import { getRdsCluster } from './getRdsCluster';
 
 const rdsMock = mockClient(RDSClient);

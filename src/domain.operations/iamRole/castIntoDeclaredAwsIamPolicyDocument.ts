@@ -1,7 +1,7 @@
 import { DeclaredAwsIamPolicyDocument } from '../../domain.objects/DeclaredAwsIamPolicyDocument';
 import {
-  SdkAwsPolicyStatementRaw,
   castIntoDeclaredAwsIamPolicyStatement,
+  type SdkAwsPolicyStatementRaw,
 } from './castIntoDeclaredAwsIamPolicyStatement';
 
 /**

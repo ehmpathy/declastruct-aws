@@ -8,13 +8,13 @@ import {
   waitUntilRoleExists,
 } from '@aws-sdk/client-iam';
 import { asProcedure } from 'as-procedure';
-import { HasReadonly } from 'domain-objects';
+import type { HasReadonly } from 'domain-objects';
 import { UnexpectedCodePathError } from 'helpful-errors';
-import { PickOne } from 'type-fns';
-import { VisualogicContext } from 'visualogic';
+import type { PickOne } from 'type-fns';
+import type { VisualogicContext } from 'visualogic';
 
-import { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import { DeclaredAwsIamRole } from '../../domain.objects/DeclaredAwsIamRole';
+import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
+import type { DeclaredAwsIamRole } from '../../domain.objects/DeclaredAwsIamRole';
 import { castFromDeclaredAwsIamPolicyDocument } from './castFromDeclaredAwsIamPolicyDocument';
 import { getIamRole } from './getIamRole';
 

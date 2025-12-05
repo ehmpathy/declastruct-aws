@@ -1,6 +1,6 @@
 import { createHash } from 'crypto';
 
-import { DeclaredAwsLambda } from '../../../domain.objects/DeclaredAwsLambda';
+import type { DeclaredAwsLambda } from '../../../domain.objects/DeclaredAwsLambda';
 
 /**
  * .what = the config fields used to compute the sha256 hash
@@ -41,10 +41,13 @@ export const calcConfigSha256 = (input: {
     value && typeof value === 'object' && !Array.isArray(value)
       ? Object.keys(value)
           .sort()
-          .reduce((sorted, key) => {
-            sorted[key] = value[key];
-            return sorted;
-          }, {} as Record<string, unknown>)
+          .reduce(
+            (sorted, key) => {
+              sorted[key] = value[key];
+              return sorted;
+            },
+            {} as Record<string, unknown>,
+          )
       : value,
   );
 

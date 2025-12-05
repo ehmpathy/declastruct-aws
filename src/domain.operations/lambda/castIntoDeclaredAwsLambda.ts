@@ -1,8 +1,8 @@
-import { FunctionConfiguration } from '@aws-sdk/client-lambda';
+import type { FunctionConfiguration } from '@aws-sdk/client-lambda';
 import { isUniDateTime } from '@ehmpathy/uni-time';
-import { HasReadonly, hasReadonly } from 'domain-objects';
+import { type HasReadonly, hasReadonly } from 'domain-objects';
 import { UnexpectedCodePathError } from 'helpful-errors';
-import { assure, isNotUndefined, NotUndefined } from 'type-fns';
+import { assure, isNotUndefined, type NotUndefined } from 'type-fns';
 
 import { DeclaredAwsLambda } from '../../domain.objects/DeclaredAwsLambda';
 import { parseRoleArnIntoRef } from './utils/parseRoleArnIntoRef';
@@ -42,15 +42,8 @@ const getOrThrow = <T, K extends keyof T>(
 export const castIntoDeclaredAwsLambda = (
   input: CastIntoDeclaredAwsLambdaInput,
 ): HasReadonly<typeof DeclaredAwsLambda> => {
-  // extract codeZipUri from tags (set by setLambda)
+  // extract codeZipUri from tags (set by setLambda, null if not created by declastruct)
   const { codeZipUri, ...userTags } = input.tags ?? {};
-
-  // failfast if codeZipUri tag is missing
-  if (!codeZipUri)
-    throw new UnexpectedCodePathError(
-      'codeZipUri tag not found on lambda; was this lambda created by declastruct?',
-      { functionName: input.FunctionName, tags: input.tags },
-    );
 
   // cast and assure readonly fields are present
   return assure(
@@ -71,7 +64,7 @@ export const castIntoDeclaredAwsLambda = (
         getOrThrow(input, 'LastModified').replace('+0000', 'Z'),
       ),
       envars: getOrThrow(input, 'Environment').Variables ?? {},
-      codeZipUri,
+      codeZipUri: codeZipUri ?? null,
       tags: Object.keys(userTags).length > 0 ? userTags : undefined,
     }),
     hasReadonly({ of: DeclaredAwsLambda }),
