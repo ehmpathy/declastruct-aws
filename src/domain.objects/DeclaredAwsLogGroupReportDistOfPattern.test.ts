@@ -1,4 +1,4 @@
-import { UniDateTime } from '@ehmpathy/uni-time';
+import type { UniDateTime } from '@ehmpathy/uni-time';
 import { given, then, when } from 'test-fns';
 
 import {

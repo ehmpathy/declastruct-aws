@@ -3,7 +3,7 @@ import { isRefByUnique } from 'domain-objects';
 import { UnexpectedCodePathError } from 'helpful-errors';
 import type { ContextLogTrail } from 'simple-log-methods';
 
-import { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
+import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
 import { DeclaredAwsIamRolePolicy } from '../../domain.objects/DeclaredAwsIamRolePolicy';
 import { getIamRolePolicy } from '../../domain.operations/iamRolePolicy/getIamRolePolicy';
 import { setIamRolePolicy } from '../../domain.operations/iamRolePolicy/setIamRolePolicy';

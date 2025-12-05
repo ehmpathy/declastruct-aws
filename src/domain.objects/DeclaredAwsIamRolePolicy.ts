@@ -1,7 +1,7 @@
 import { DomainEntity, RefByUnique } from 'domain-objects';
 
 import { DeclaredAwsIamPolicyStatement } from './DeclaredAwsIamPolicyStatement';
-import { DeclaredAwsIamRole } from './DeclaredAwsIamRole';
+import type { DeclaredAwsIamRole } from './DeclaredAwsIamRole';
 
 /**
  * .what = an inline policy attached to an iam role

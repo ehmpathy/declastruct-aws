@@ -1,10 +1,10 @@
 import { LambdaClient, ListFunctionsCommand } from '@aws-sdk/client-lambda';
 import { HelpfulError } from 'helpful-errors';
-import { HasMetadata } from 'type-fns';
-import { VisualogicContext } from 'visualogic';
+import type { HasMetadata } from 'type-fns';
+import type { VisualogicContext } from 'visualogic';
 
-import { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import { DeclaredAwsLambda } from '../../domain.objects/DeclaredAwsLambda';
+import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
+import type { DeclaredAwsLambda } from '../../domain.objects/DeclaredAwsLambda';
 import { castIntoDeclaredAwsLambda } from './castIntoDeclaredAwsLambda';
 
 /**

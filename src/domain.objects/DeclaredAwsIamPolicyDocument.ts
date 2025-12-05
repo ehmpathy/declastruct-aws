@@ -1,6 +1,6 @@
 import { DomainLiteral } from 'domain-objects';
 
-import { DeclaredAwsIamPolicyStatement } from './DeclaredAwsIamPolicyStatement';
+import type { DeclaredAwsIamPolicyStatement } from './DeclaredAwsIamPolicyStatement';
 
 /**
  * .what = an iam policy document containing a list of policy statements

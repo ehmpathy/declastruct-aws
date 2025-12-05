@@ -1,17 +1,17 @@
 import { DescribeInstancesCommand, EC2Client } from '@aws-sdk/client-ec2';
 import {
-  HasReadonly,
+  type HasReadonly,
   isRefByPrimary,
   isRefByUnique,
-  Ref,
-  RefByPrimary,
-  RefByUnique,
+  type Ref,
+  type RefByPrimary,
+  type RefByUnique,
 } from 'domain-objects';
 import { UnexpectedCodePathError } from 'helpful-errors';
 import type { ContextLogTrail } from 'simple-log-methods';
-import { PickOne } from 'type-fns';
+import type { PickOne } from 'type-fns';
 
-import { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
+import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
 import { DeclaredAwsEc2Instance } from '../../domain.objects/DeclaredAwsEc2Instance';
 import { castIntoDeclaredAwsEc2Instance } from './castIntoDeclaredAwsEc2Instance';
 

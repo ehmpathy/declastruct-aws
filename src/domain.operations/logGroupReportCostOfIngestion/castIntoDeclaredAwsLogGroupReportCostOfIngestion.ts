@@ -1,10 +1,10 @@
-import { GetMetricDataCommandOutput as SdkAwsGetMetricDataCommandOutput } from '@aws-sdk/client-cloudwatch';
-import { UniDateTimeRange } from '@ehmpathy/uni-time';
-import { HasReadonly, hasReadonly } from 'domain-objects';
+import type { GetMetricDataCommandOutput as SdkAwsGetMetricDataCommandOutput } from '@aws-sdk/client-cloudwatch';
+import type { UniDateTimeRange } from '@ehmpathy/uni-time';
+import { type HasReadonly, hasReadonly } from 'domain-objects';
 import { assure } from 'type-fns';
 
 import {
-  DeclaredAwsLogGroupFilter,
+  type DeclaredAwsLogGroupFilter,
   DeclaredAwsLogGroupReportCostOfIngestion,
   DeclaredAwsLogGroupReportCostOfIngestionRow,
 } from '../../domain.objects/DeclaredAwsLogGroupReportCostOfIngestion';

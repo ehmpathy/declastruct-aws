@@ -1,6 +1,6 @@
-import { RefByUnique } from 'domain-objects';
+import type { RefByUnique } from 'domain-objects';
 
-import { DeclaredAwsVpcTunnel } from '../../../domain.objects/DeclaredAwsVpcTunnel';
+import type { DeclaredAwsVpcTunnel } from '../../../domain.objects/DeclaredAwsVpcTunnel';
 
 /**
  * .what = schema for tunnel cache file contents

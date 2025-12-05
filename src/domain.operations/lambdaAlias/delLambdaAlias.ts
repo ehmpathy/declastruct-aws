@@ -3,15 +3,15 @@ import { asProcedure } from 'as-procedure';
 import {
   isRefByPrimary,
   isRefByUnique,
-  Ref,
-  RefByPrimary,
-  RefByUnique,
+  type Ref,
+  type RefByPrimary,
+  type RefByUnique,
 } from 'domain-objects';
 import { UnexpectedCodePathError } from 'helpful-errors';
-import { PickOne } from 'type-fns';
-import { VisualogicContext } from 'visualogic';
+import type { PickOne } from 'type-fns';
+import type { VisualogicContext } from 'visualogic';
 
-import { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
+import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
 import { DeclaredAwsLambdaAlias } from '../../domain.objects/DeclaredAwsLambdaAlias';
 import { getOneLambdaAlias } from './getOneLambdaAlias';
 

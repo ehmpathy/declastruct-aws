@@ -1,6 +1,6 @@
-import { LogGroup as SdkAwsLogGroup } from '@aws-sdk/client-cloudwatch-logs';
+import type { LogGroup as SdkAwsLogGroup } from '@aws-sdk/client-cloudwatch-logs';
 import { isUniDateTime } from '@ehmpathy/uni-time';
-import { HasReadonly, hasReadonly } from 'domain-objects';
+import { type HasReadonly, hasReadonly } from 'domain-objects';
 import { assure } from 'type-fns';
 
 import { DeclaredAwsLogGroup } from '../../domain.objects/DeclaredAwsLogGroup';

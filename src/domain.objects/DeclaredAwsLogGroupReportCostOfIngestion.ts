@@ -1,6 +1,6 @@
-import { UniDateTimeRange } from '@ehmpathy/uni-time';
+import type { UniDateTimeRange } from '@ehmpathy/uni-time';
 import { DomainEntity, DomainLiteral } from 'domain-objects';
-import { PickOne } from 'type-fns';
+import type { PickOne } from 'type-fns';
 
 /**
  * .what = a filter to select log groups by prefix or explicit names

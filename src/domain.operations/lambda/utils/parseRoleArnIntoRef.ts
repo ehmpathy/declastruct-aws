@@ -1,7 +1,7 @@
-import { RefByUnique } from 'domain-objects';
+import type { RefByUnique } from 'domain-objects';
 import { UnexpectedCodePathError } from 'helpful-errors';
 
-import { DeclaredAwsIamRole } from '../../../domain.objects/DeclaredAwsIamRole';
+import type { DeclaredAwsIamRole } from '../../../domain.objects/DeclaredAwsIamRole';
 
 /**
  * .what = extracts role name from an IAM role ARN and returns RefByUnique

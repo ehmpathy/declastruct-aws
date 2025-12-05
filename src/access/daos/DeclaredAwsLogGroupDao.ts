@@ -3,7 +3,7 @@ import { isRefByPrimary, isRefByUnique } from 'domain-objects';
 import { BadRequestError, UnexpectedCodePathError } from 'helpful-errors';
 import type { ContextLogTrail } from 'simple-log-methods';
 
-import { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
+import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
 import { DeclaredAwsLogGroup } from '../../domain.objects/DeclaredAwsLogGroup';
 import { getOneLogGroup } from '../../domain.operations/logGroup/getOneLogGroup';
 

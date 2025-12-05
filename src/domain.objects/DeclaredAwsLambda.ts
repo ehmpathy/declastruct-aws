@@ -1,8 +1,8 @@
-import { Runtime } from '@aws-sdk/client-lambda';
-import { UniDateTime } from '@ehmpathy/uni-time';
+import type { Runtime } from '@aws-sdk/client-lambda';
+import type { UniDateTime } from '@ehmpathy/uni-time';
 import { DomainEntity, DomainLiteral, RefByUnique } from 'domain-objects';
 
-import { DeclaredAwsIamRole } from './DeclaredAwsIamRole';
+import type { DeclaredAwsIamRole } from './DeclaredAwsIamRole';
 
 /**
  * .what = a declarative structure which represents an Aws Lambda function
@@ -69,8 +69,9 @@ export interface DeclaredAwsLambda {
    * .what = the uri to the lambda's code
    * .note
    *   - this is persisted via tags, by this package specifically
+   *   - null if lambda was not created by declastruct
    */
-  codeZipUri: string;
+  codeZipUri: string | null;
 
   /**
    * .what = the environmental variables available at runtime

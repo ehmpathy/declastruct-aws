@@ -1,13 +1,13 @@
-import { DeclastructDao, DeclastructProvider } from 'declastruct';
+import type { DeclastructDao, DeclastructProvider } from 'declastruct';
 import type { ContextLogTrail } from 'simple-log-methods';
 
-import { ContextAwsApi } from './ContextAwsApi';
-import { DeclaredAwsEc2Instance } from './DeclaredAwsEc2Instance';
-import { DeclaredAwsLogGroup } from './DeclaredAwsLogGroup';
-import { DeclaredAwsLogGroupReportCostOfIngestion } from './DeclaredAwsLogGroupReportCostOfIngestion';
-import { DeclaredAwsLogGroupReportDistOfPattern } from './DeclaredAwsLogGroupReportDistOfPattern';
-import { DeclaredAwsRdsCluster } from './DeclaredAwsRdsCluster';
-import { DeclaredAwsVpcTunnel } from './DeclaredAwsVpcTunnel';
+import type { ContextAwsApi } from './ContextAwsApi';
+import type { DeclaredAwsEc2Instance } from './DeclaredAwsEc2Instance';
+import type { DeclaredAwsLogGroup } from './DeclaredAwsLogGroup';
+import type { DeclaredAwsLogGroupReportCostOfIngestion } from './DeclaredAwsLogGroupReportCostOfIngestion';
+import type { DeclaredAwsLogGroupReportDistOfPattern } from './DeclaredAwsLogGroupReportDistOfPattern';
+import type { DeclaredAwsRdsCluster } from './DeclaredAwsRdsCluster';
+import type { DeclaredAwsVpcTunnel } from './DeclaredAwsVpcTunnel';
 
 /**
  * .what = the declastruct provider for aws resources

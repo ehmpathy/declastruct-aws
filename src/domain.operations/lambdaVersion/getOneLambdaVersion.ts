@@ -5,19 +5,19 @@ import {
 } from '@aws-sdk/client-lambda';
 import { asProcedure } from 'as-procedure';
 import {
-  HasReadonly,
+  type HasReadonly,
   isRefByPrimary,
   isRefByUnique,
-  Ref,
-  RefByPrimary,
-  RefByUnique,
+  type Ref,
+  type RefByPrimary,
+  type RefByUnique,
 } from 'domain-objects';
 import { UnexpectedCodePathError } from 'helpful-errors';
-import { PickOne } from 'type-fns';
-import { VisualogicContext } from 'visualogic';
+import type { PickOne } from 'type-fns';
+import type { VisualogicContext } from 'visualogic';
 
-import { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import { DeclaredAwsLambda } from '../../domain.objects/DeclaredAwsLambda';
+import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
+import type { DeclaredAwsLambda } from '../../domain.objects/DeclaredAwsLambda';
 import { DeclaredAwsLambdaVersion } from '../../domain.objects/DeclaredAwsLambdaVersion';
 import { getOneLambda } from '../lambda/getOneLambda';
 import { parseRoleArnIntoRef } from '../lambda/utils/parseRoleArnIntoRef';

@@ -1,6 +1,6 @@
 import { DomainEntity, RefByUnique } from 'domain-objects';
 
-import { DeclaredAwsLambda } from './DeclaredAwsLambda';
+import type { DeclaredAwsLambda } from './DeclaredAwsLambda';
 
 /**
  * .what = an immutable version of a lambda function

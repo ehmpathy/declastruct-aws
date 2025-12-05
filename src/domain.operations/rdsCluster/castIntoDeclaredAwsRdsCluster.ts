@@ -1,5 +1,5 @@
 import type { DBCluster } from '@aws-sdk/client-rds';
-import { HasReadonly, hasReadonly } from 'domain-objects';
+import { type HasReadonly, hasReadonly } from 'domain-objects';
 import { UnexpectedCodePathError } from 'helpful-errors';
 import { assure } from 'type-fns';
 

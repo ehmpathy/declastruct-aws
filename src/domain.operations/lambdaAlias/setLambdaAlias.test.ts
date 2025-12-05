@@ -1,6 +1,5 @@
 import {
   CreateAliasCommand,
-  GetAliasCommand,
   LambdaClient,
   UpdateAliasCommand,
 } from '@aws-sdk/client-lambda';
@@ -8,7 +7,7 @@ import { given, then, when } from 'test-fns';
 
 import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';
 import { DeclaredAwsLambdaVersionDao } from '../../access/daos/DeclaredAwsLambdaVersionDao';
-import { DeclaredAwsLambdaAlias } from '../../domain.objects/DeclaredAwsLambdaAlias';
+import type { DeclaredAwsLambdaAlias } from '../../domain.objects/DeclaredAwsLambdaAlias';
 import * as getLambdaModule from '../lambda/getOneLambda';
 import * as getLambdaAliasModule from './getOneLambdaAlias';
 import { setLambdaAlias } from './setLambdaAlias';

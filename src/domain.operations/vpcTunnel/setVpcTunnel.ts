@@ -1,24 +1,24 @@
 import { spawn } from 'child_process';
-import { HasReadonly, refByUnique } from 'domain-objects';
+import { type HasReadonly, refByUnique } from 'domain-objects';
 import { createWriteStream } from 'fs';
 import * as fs from 'fs/promises';
 import { BadRequestError, UnexpectedCodePathError } from 'helpful-errors';
 import * as path from 'path';
 import type { ContextLogTrail } from 'simple-log-methods';
 
-import { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
+import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
 import { DeclaredAwsVpcTunnel } from '../../domain.objects/DeclaredAwsVpcTunnel';
 import { getEc2Instance } from '../ec2Instance/getEc2Instance';
 import { setEc2InstanceStatus } from '../ec2Instance/setEc2InstanceStatus';
 import { getRdsCluster } from '../rdsCluster/getRdsCluster';
 import { castIntoDeclaredAwsVpcTunnel } from './castIntoDeclaredAwsVpcTunnel';
-import { TunnelCacheFile } from './utils/TunnelCacheFile';
 import { getTunnelHash } from './utils/getTunnelHash';
 import { isFilePresent } from './utils/isFilePresent';
 import { isPortInUse } from './utils/isPortInUse';
 import { isProcessAlive } from './utils/isProcessAlive';
 import { isTunnelHealthy } from './utils/isTunnelHealthy';
 import { killProcessOnPort } from './utils/killProcessOnPort';
+import type { TunnelCacheFile } from './utils/TunnelCacheFile';
 
 /**
  * .what = opens or closes a VPC tunnel

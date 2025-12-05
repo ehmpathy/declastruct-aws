@@ -1,4 +1,4 @@
-import { LambdaClient, GetFunctionCommand } from '@aws-sdk/client-lambda';
+import { GetFunctionCommand, LambdaClient } from '@aws-sdk/client-lambda';
 import { given, then } from 'test-fns';
 
 import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';

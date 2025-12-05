@@ -1,9 +1,13 @@
 import type { FunctionConfiguration } from '@aws-sdk/client-lambda';
-import { HasReadonly, hasReadonly, RefByUnique } from 'domain-objects';
+import {
+  type HasReadonly,
+  hasReadonly,
+  type RefByUnique,
+} from 'domain-objects';
 import { UnexpectedCodePathError } from 'helpful-errors';
 import { assure } from 'type-fns';
 
-import { DeclaredAwsLambda } from '../../domain.objects/DeclaredAwsLambda';
+import type { DeclaredAwsLambda } from '../../domain.objects/DeclaredAwsLambda';
 import { DeclaredAwsLambdaVersion } from '../../domain.objects/DeclaredAwsLambdaVersion';
 import { parseRoleArnIntoRef } from '../lambda/utils/parseRoleArnIntoRef';
 import { calcConfigSha256 } from './utils/calcConfigSha256';

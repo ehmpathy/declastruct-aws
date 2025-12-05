@@ -1,4 +1,4 @@
-import { DeclaredAwsIamPolicyDocument } from '../../domain.objects/DeclaredAwsIamPolicyDocument';
+import type { DeclaredAwsIamPolicyDocument } from '../../domain.objects/DeclaredAwsIamPolicyDocument';
 import { castFromDeclaredAwsIamPolicyStatement } from './castFromDeclaredAwsIamPolicyStatement';
 
 /**

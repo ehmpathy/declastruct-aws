@@ -1,7 +1,7 @@
 import { DomainEntity, RefByUnique } from 'domain-objects';
 
-import { DeclaredAwsLambda } from './DeclaredAwsLambda';
-import { DeclaredAwsLambdaVersion } from './DeclaredAwsLambdaVersion';
+import type { DeclaredAwsLambda } from './DeclaredAwsLambda';
+import type { DeclaredAwsLambdaVersion } from './DeclaredAwsLambdaVersion';
 
 /**
  * .what = a named pointer to a lambda version

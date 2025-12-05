@@ -1,4 +1,4 @@
-import { DeclaredAwsIamPrincipal } from '../../domain.objects/DeclaredAwsIamPrincipal';
+import type { DeclaredAwsIamPrincipal } from '../../domain.objects/DeclaredAwsIamPrincipal';
 
 /**
  * .what = aws sdk principal format

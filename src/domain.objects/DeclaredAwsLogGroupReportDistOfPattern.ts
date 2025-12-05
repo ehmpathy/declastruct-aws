@@ -1,7 +1,7 @@
-import { UniDateTimeRange } from '@ehmpathy/uni-time';
+import type { UniDateTimeRange } from '@ehmpathy/uni-time';
 import { DomainEntity, DomainLiteral, RefByUnique } from 'domain-objects';
 
-import { DeclaredAwsLogGroup } from './DeclaredAwsLogGroup';
+import type { DeclaredAwsLogGroup } from './DeclaredAwsLogGroup';
 
 /**
  * .what = a single row in a pattern distribution report

@@ -1,15 +1,15 @@
 import {
   CloudWatchClient,
   GetMetricDataCommand,
-  MetricDataQuery,
+  type MetricDataQuery,
 } from '@aws-sdk/client-cloudwatch';
 import { asProcedure } from 'as-procedure';
-import { HasReadonly, RefByUnique } from 'domain-objects';
+import type { HasReadonly, RefByUnique } from 'domain-objects';
 import { HelpfulError, UnexpectedCodePathError } from 'helpful-errors';
-import { VisualogicContext } from 'visualogic';
+import type { VisualogicContext } from 'visualogic';
 
-import { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import { DeclaredAwsLogGroupReportCostOfIngestion } from '../../domain.objects/DeclaredAwsLogGroupReportCostOfIngestion';
+import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
+import type { DeclaredAwsLogGroupReportCostOfIngestion } from '../../domain.objects/DeclaredAwsLogGroupReportCostOfIngestion';
 import { getAllLogGroups } from '../logGroup/getAllLogGroups';
 import { getOneLogGroup } from '../logGroup/getOneLogGroup';
 import { castIntoDeclaredAwsLogGroupReportCostOfIngestion } from './castIntoDeclaredAwsLogGroupReportCostOfIngestion';

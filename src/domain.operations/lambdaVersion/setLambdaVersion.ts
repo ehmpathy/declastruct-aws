@@ -1,12 +1,12 @@
 import { LambdaClient, PublishVersionCommand } from '@aws-sdk/client-lambda';
 import { asProcedure } from 'as-procedure';
-import { HasReadonly } from 'domain-objects';
+import type { HasReadonly } from 'domain-objects';
 import { UnexpectedCodePathError } from 'helpful-errors';
-import { PickOne } from 'type-fns';
-import { VisualogicContext } from 'visualogic';
+import type { PickOne } from 'type-fns';
+import type { VisualogicContext } from 'visualogic';
 
-import { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import { DeclaredAwsLambdaVersion } from '../../domain.objects/DeclaredAwsLambdaVersion';
+import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
+import type { DeclaredAwsLambdaVersion } from '../../domain.objects/DeclaredAwsLambdaVersion';
 import { getOneLambda } from '../lambda/getOneLambda';
 import { parseRoleArnIntoRef } from '../lambda/utils/parseRoleArnIntoRef';
 import { castIntoDeclaredAwsLambdaVersion } from './castIntoDeclaredAwsLambdaVersion';

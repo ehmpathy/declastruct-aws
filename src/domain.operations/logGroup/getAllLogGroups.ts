@@ -3,12 +3,12 @@ import {
   paginateDescribeLogGroups,
 } from '@aws-sdk/client-cloudwatch-logs';
 import { asProcedure } from 'as-procedure';
-import { HasReadonly } from 'domain-objects';
+import type { HasReadonly } from 'domain-objects';
 import { HelpfulError } from 'helpful-errors';
-import { VisualogicContext } from 'visualogic';
+import type { VisualogicContext } from 'visualogic';
 
-import { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import { DeclaredAwsLogGroup } from '../../domain.objects/DeclaredAwsLogGroup';
+import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
+import type { DeclaredAwsLogGroup } from '../../domain.objects/DeclaredAwsLogGroup';
 import { castIntoDeclaredAwsLogGroup } from './castIntoDeclaredAwsLogGroup';
 
 /**
