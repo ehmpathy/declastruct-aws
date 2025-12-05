@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/ehmpathy/declastruct-aws/compare/v1.1.1...v1.2.0) (2025-12-05)
+
+
+### Features
+
+* **cloudwatch:** declare cloudwatch log group reports of cost and distribution ([#14](https://github.com/ehmpathy/declastruct-aws/issues/14)) ([e6f7ab7](https://github.com/ehmpathy/declastruct-aws/commit/e6f7ab703c85fc9f2c056d6402b65fd63f430df5))
+
 ## [1.1.1](https://github.com/ehmpathy/declastruct-aws/compare/v1.1.0...v1.1.1) (2025-11-30)
 
 
