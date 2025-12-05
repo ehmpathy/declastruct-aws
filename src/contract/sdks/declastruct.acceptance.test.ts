@@ -1,8 +1,14 @@
+import { asUniDateTime } from '@ehmpathy/uni-time';
 import { execSync } from 'child_process';
+import { endOfDay, startOfDay, subDays } from 'date-fns';
 import { DeclastructChange } from 'declastruct';
 import { existsSync, mkdirSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { given, when, then, useBeforeAll } from 'test-fns';
+
+import { DeclaredAwsLogGroupReportCostOfIngestionDao } from '../../access/daos/DeclaredAwsLogGroupReportCostOfIngestionDao';
+import { DeclaredAwsLogGroupReportDistOfPatternDao } from '../../access/daos/DeclaredAwsLogGroupReportDistOfPatternDao';
+import { getDeclastructAwsProvider } from '../../domain.operations/provider/getDeclastructAwsProvider';
 
 /**
  * .what = acceptance tests for declastruct CLI workflow
@@ -25,8 +31,9 @@ describe('declastruct CLI workflow', () => {
       'resources.acceptance.ts',
     );
     const planFile = join(testDir, 'plan.json');
+    const lambdaName = 'declastruct-acceptance-lambda';
 
-    beforeAll(() => {
+    beforeAll(async () => {
       // ensure clean test directory
       mkdirSync(testDir, { recursive: true });
     });
@@ -112,6 +119,27 @@ describe('declastruct CLI workflow', () => {
         expect(aliasChange).toBeDefined();
         expect(aliasChange!.forResource.slug).toContain('LIVE');
       });
+
+      then('plan includes log group report resources', () => {
+        /**
+         * .what = validates plan includes log group report declarations
+         * .why = ensures log trend analysis resources are captured in plan
+         */
+
+        // verify pattern distribution report is present
+        const patternReportChange = prep.plan.changes.find(
+          (r: DeclastructChange) =>
+            r.forResource.class === 'DeclaredAwsLogGroupReportDistOfPattern',
+        );
+        expect(patternReportChange).toBeDefined();
+
+        // verify ingestion cost report is present
+        const costReportChange = prep.plan.changes.find(
+          (r: DeclastructChange) =>
+            r.forResource.class === 'DeclaredAwsLogGroupReportCostOfIngestion',
+        );
+        expect(costReportChange).toBeDefined();
+      });
     });
 
     when('applying a plan via declastruct CLI', () => {
@@ -195,6 +223,79 @@ describe('declastruct CLI workflow', () => {
           stdio: 'inherit',
           env: process.env,
         });
+      });
+    });
+
+    when('fetching log group reports after lambda invocation', () => {
+      beforeAll(async () => {
+        // invoke lambda to generate logs - use CLI to avoid Jest/AWS SDK dynamic import issues
+        execSync(
+          `aws lambda invoke --function-name ${lambdaName} --cli-binary-format raw-in-base64-out --payload '{"test":"acceptance"}' /dev/null`,
+          { stdio: 'pipe', env: process.env },
+        );
+      });
+
+      then('fetches log group reports with patterns and costs', async () => {
+        /**
+         * .what = validates log group reports contain actual data from AWS
+         * .why = ensures CloudWatch Logs Insights and Metrics queries work and return real data
+         */
+
+        // setup: time range for reports (last 7 days)
+        const logGroupReportRange = {
+          since: asUniDateTime(startOfDay(subDays(new Date(), 7))),
+          until: asUniDateTime(endOfDay(new Date())),
+        };
+        const logGroupName = `/aws/lambda/${lambdaName}`;
+
+        // setup: get provider context for DAO calls
+        const provider = await getDeclastructAwsProvider(
+          {},
+          {
+            log: {
+              info: () => {},
+              debug: () => {},
+              warn: console.warn,
+              error: console.error,
+            },
+          },
+        );
+
+        // fetch pattern distribution report via DAO
+        const patternReport =
+          await DeclaredAwsLogGroupReportDistOfPatternDao.get.byUnique(
+            {
+              logGroups: [{ name: logGroupName }],
+              range: logGroupReportRange,
+              pattern: '@message',
+              filter: null,
+              limit: 100,
+            },
+            provider.context,
+          );
+
+        // verify pattern distribution report has data
+        expect(patternReport).not.toBeNull();
+        expect(patternReport!.rows).toBeDefined();
+        expect(patternReport!.rows!.length).toBeGreaterThan(0);
+        expect(patternReport!.matchedEvents).toBeGreaterThan(0);
+
+        // fetch ingestion cost report via DAO
+        const costReport =
+          await DeclaredAwsLogGroupReportCostOfIngestionDao.get.byUnique(
+            {
+              logGroupFilter: { names: [logGroupName] },
+              range: logGroupReportRange,
+            },
+            provider.context,
+          );
+
+        // verify ingestion cost report has data
+        expect(costReport).not.toBeNull();
+        expect(costReport!.rows).toBeDefined();
+        expect(costReport!.rows!.length).toBeGreaterThan(0);
+        expect(costReport!.totalIngestedBytes).toBeGreaterThan(0);
+        expect(costReport!.totalEstimatedCostUsd).toBeGreaterThan(0);
       });
     });
   });

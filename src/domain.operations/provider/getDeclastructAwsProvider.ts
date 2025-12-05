@@ -8,9 +8,13 @@ import type { ContextLogTrail } from 'simple-log-methods';
 
 import { DeclaredAwsEc2InstanceDao } from '../../access/daos/DeclaredAwsEc2InstanceDao';
 import { DeclaredAwsIamRoleDao } from '../../access/daos/DeclaredAwsIamRoleDao';
+import { DeclaredAwsIamRolePolicyDao } from '../../access/daos/DeclaredAwsIamRolePolicyDao';
 import { DeclaredAwsLambdaAliasDao } from '../../access/daos/DeclaredAwsLambdaAliasDao';
 import { DeclaredAwsLambdaDao } from '../../access/daos/DeclaredAwsLambdaDao';
 import { DeclaredAwsLambdaVersionDao } from '../../access/daos/DeclaredAwsLambdaVersionDao';
+import { DeclaredAwsLogGroupDao } from '../../access/daos/DeclaredAwsLogGroupDao';
+import { DeclaredAwsLogGroupReportCostOfIngestionDao } from '../../access/daos/DeclaredAwsLogGroupReportCostOfIngestionDao';
+import { DeclaredAwsLogGroupReportDistOfPatternDao } from '../../access/daos/DeclaredAwsLogGroupReportDistOfPatternDao';
 import { DeclaredAwsRdsClusterDao } from '../../access/daos/DeclaredAwsRdsClusterDao';
 import { DeclaredAwsVpcTunnelDao } from '../../access/daos/DeclaredAwsVpcTunnelDao';
 import { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
@@ -60,9 +64,15 @@ export const getDeclastructAwsProvider = async (
   const daos = {
     DeclaredAwsEc2Instance: DeclaredAwsEc2InstanceDao,
     DeclaredAwsIamRole: DeclaredAwsIamRoleDao,
+    DeclaredAwsIamRolePolicy: DeclaredAwsIamRolePolicyDao,
     DeclaredAwsLambda: DeclaredAwsLambdaDao,
     DeclaredAwsLambdaAlias: DeclaredAwsLambdaAliasDao,
     DeclaredAwsLambdaVersion: DeclaredAwsLambdaVersionDao,
+    DeclaredAwsLogGroup: DeclaredAwsLogGroupDao,
+    DeclaredAwsLogGroupReportDistOfPattern:
+      DeclaredAwsLogGroupReportDistOfPatternDao,
+    DeclaredAwsLogGroupReportCostOfIngestion:
+      DeclaredAwsLogGroupReportCostOfIngestionDao,
     DeclaredAwsRdsCluster: DeclaredAwsRdsClusterDao,
     DeclaredAwsVpcTunnel: DeclaredAwsVpcTunnelDao,
   };

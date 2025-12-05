@@ -1,0 +1,23 @@
+research the domain available in order to fulfill the wish declared
+in .behaviors/v2025_11_30.lambda-log-trends/0.wish.md
+
+specifically
+- what are the aws domain objects that are involved with this wish
+  - entities
+  - events
+  - literals
+- what are the aws domain operations
+  - getOne
+  - getAll
+  - setCreate
+  - setUpdate
+  - setDelete
+  - ...
+
+please declare them in domain-objects syntax
+- they should exactly match AWS's terms and constructs, which we'll later convert into our own
+- ideally, leverage the typedefs emitted by aws-sdk's
+- prefix with SdkAws...
+
+
+emit into .behaviors/v2025_11_30.lambda-log-trends/3.1.research.aws.domain.v2.i1.md

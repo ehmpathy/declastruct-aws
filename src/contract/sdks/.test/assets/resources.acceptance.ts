@@ -1,15 +1,30 @@
+import { asUniDateTime, UniDateTime } from '@ehmpathy/uni-time';
+import { endOfDay, startOfDay, subDays } from 'date-fns';
 import { RefByUnique } from 'domain-objects';
 
 import {
   calcCodeSha256,
   calcConfigSha256,
   DeclaredAwsIamRole,
+  DeclaredAwsIamRolePolicy,
   DeclaredAwsLambda,
   DeclaredAwsLambdaAlias,
   DeclaredAwsLambdaVersion,
+  DeclaredAwsLogGroup,
+  DeclaredAwsLogGroupReportCostOfIngestion,
+  DeclaredAwsLogGroupReportDistOfPattern,
   DeclaredAwsVpcTunnel,
   getDeclastructAwsProvider,
 } from '../../../../../dist/contract/sdks';
+
+/**
+ * .what = time range for log group reports (last 7 days up to now)
+ * .why = enables querying recent logs for acceptance testing
+ */
+const logGroupReportRange = {
+  since: asUniDateTime(startOfDay(subDays(new Date(), 7))),
+  until: asUniDateTime(endOfDay(new Date())),
+};
 
 /**
  * .what = provider configuration for AWS acceptance tests
@@ -66,6 +81,23 @@ export const getResources = async () => {
     tags: { managedBy: 'declastruct', purpose: 'acceptance-test' },
   });
 
+  // declare inline policy for CloudWatch Logs permissions
+  const lambdaRolePolicy = DeclaredAwsIamRolePolicy.as({
+    name: 'cloudwatch-logs',
+    role: RefByUnique.as<typeof DeclaredAwsIamRole>(lambdaRole),
+    statements: [
+      {
+        effect: 'Allow',
+        action: [
+          'logs:CreateLogGroup',
+          'logs:CreateLogStream',
+          'logs:PutLogEvents',
+        ],
+        resource: '*',
+      },
+    ],
+  });
+
   // declare lambda function
   const lambda = DeclaredAwsLambda.as({
     name: 'declastruct-acceptance-lambda',
@@ -95,5 +127,36 @@ export const getResources = async () => {
     description: 'Live production alias',
   });
 
-  return [tunnel, lambdaRole, lambda, lambdaVersion, lambdaAlias];
+  // declare log group report for pattern distribution (message frequency)
+  const logGroupReportDistOfPattern = DeclaredAwsLogGroupReportDistOfPattern.as(
+    {
+      logGroups: [
+        RefByUnique.as<typeof DeclaredAwsLogGroup>({
+          name: `/aws/lambda/${lambda.name}`,
+        }),
+      ],
+      range: logGroupReportRange,
+      pattern: '@message',
+      filter: null,
+      limit: 100,
+    },
+  );
+
+  // declare log group report for ingestion cost
+  const logGroupReportCostOfIngestion =
+    DeclaredAwsLogGroupReportCostOfIngestion.as({
+      logGroupFilter: { names: [`/aws/lambda/${lambda.name}`] },
+      range: logGroupReportRange,
+    });
+
+  return [
+    tunnel,
+    lambdaRole,
+    lambdaRolePolicy,
+    lambda,
+    lambdaVersion,
+    lambdaAlias,
+    logGroupReportDistOfPattern,
+    logGroupReportCostOfIngestion,
+  ];
 };

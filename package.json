@@ -41,7 +41,7 @@
     "test:lint": "npm run test:lint:eslint && npm run test:lint:deps",
     "test:unit": "jest -c ./jest.unit.config.ts --forceExit --verbose --passWithNoTests $([ -z $THOROUGH ] && echo '--changedSince=main')",
     "test:integration": "LOCALLY=true NODE_OPTIONS='--experimental-vm-modules' jest -c ./jest.integration.config.ts --forceExit --verbose --runInBand --passWithNoTests",
-    "test:acceptance:locally": "npm run build && LOCALLY=true jest -c ./jest.acceptance.config.ts --forceExit --verbose --runInBand --passWithNoTests",
+    "test:acceptance:locally": "npm run build && LOCALLY=true NODE_OPTIONS='--experimental-vm-modules' jest -c ./jest.acceptance.config.ts --forceExit --verbose --runInBand --passWithNoTests",
     "test": "npm run test:commits && npm run test:types && npm run test:format && npm run test:lint && npm run test:unit && npm run test:integration && npm run test:acceptance:locally",
     "test:acceptance": "npm run build && jest -c ./jest.acceptance.config.ts --forceExit --verbose --runInBand --passWithNoTests",
     "prepush": "npm run test && npm run build",
@@ -52,6 +52,8 @@
     "prepare:husky": "npx husky install && chmod ug+x .husky/*"
   },
   "dependencies": {
+    "@aws-sdk/client-cloudwatch": "3.943.0",
+    "@aws-sdk/client-cloudwatch-logs": "3.943.0",
     "@aws-sdk/client-ec2": "3.940.0",
     "@aws-sdk/client-iam": "3.940.0",
     "@aws-sdk/client-lambda": "3.940.0",
@@ -79,6 +81,7 @@
     "aws-sdk-client-mock": "4.1.0",
     "core-js": "3.26.1",
     "cz-conventional-changelog": "3.3.0",
+    "date-fns": "4.1.0",
     "declapract": "0.12.0",
     "declapract-typescript-ehmpathy": "0.39.5",
     "declastruct": "1.4.0",
