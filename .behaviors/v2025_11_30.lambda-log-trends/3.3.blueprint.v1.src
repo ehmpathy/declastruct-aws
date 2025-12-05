@@ -1,0 +1,20 @@
+propose a blueprint for how we can implement the wish described
+- in .behaviors/v2025_11_30.lambda-log-trends/0.wish.md
+
+with the domain distillation declared
+- in .behaviors/v2025_11_30.lambda-log-trends/3.2.distill.aws.domain.v1.i1.md
+
+follow the patterns already present in this repo
+
+---
+
+reference the below for full context
+- .behaviors/v2025_11_30.lambda-log-trends/0.wish.md
+- .behaviors/v2025_11_30.lambda-log-trends/3.1.research.aws.domain.v1.i1.md
+- .behaviors/v2025_11_30.lambda-log-trends/3.1.research.aws.domain.v2.i1.md
+- .behaviors/v2025_11_30.lambda-log-trends/3.2.distill.aws.domain.v1.i1.md
+
+
+---
+
+emit to .behaviors/v2025_11_30.lambda-log-trends/3.3.blueprint.v1.i1.md

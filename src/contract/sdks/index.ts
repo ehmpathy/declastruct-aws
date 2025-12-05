@@ -58,6 +58,24 @@ export { getAllLambdaAliases } from '../../domain.operations/lambdaAlias/getAllL
 export { setLambdaAlias } from '../../domain.operations/lambdaAlias/setLambdaAlias';
 export { delLambdaAlias } from '../../domain.operations/lambdaAlias/delLambdaAlias';
 
+// aws log group domain objects
+export { DeclaredAwsLogGroup } from '../../domain.objects/DeclaredAwsLogGroup';
+export {
+  DeclaredAwsLogGroupReportDistOfPattern,
+  DeclaredAwsLogGroupReportDistOfPatternRow,
+} from '../../domain.objects/DeclaredAwsLogGroupReportDistOfPattern';
+export {
+  DeclaredAwsLogGroupReportCostOfIngestion,
+  DeclaredAwsLogGroupReportCostOfIngestionRow,
+  type DeclaredAwsLogGroupFilter,
+} from '../../domain.objects/DeclaredAwsLogGroupReportCostOfIngestion';
+
+// aws log group operations
+export { getOneLogGroup } from '../../domain.operations/logGroup/getOneLogGroup';
+export { getAllLogGroups } from '../../domain.operations/logGroup/getAllLogGroups';
+export { getOneLogGroupReportDistOfPattern } from '../../domain.operations/logGroupReportDistOfPattern/getOneLogGroupReportDistOfPattern';
+export { getOneLogGroupReportCostOfIngestion } from '../../domain.operations/logGroupReportCostOfIngestion/getOneLogGroupReportCostOfIngestion';
+
 // aws daos
 export { DeclaredAwsEc2InstanceDao } from '../../access/daos/DeclaredAwsEc2InstanceDao';
 export { DeclaredAwsIamRoleDao } from '../../access/daos/DeclaredAwsIamRoleDao';
@@ -67,3 +85,6 @@ export { DeclaredAwsLambdaAliasDao } from '../../access/daos/DeclaredAwsLambdaAl
 export { DeclaredAwsLambdaVersionDao } from '../../access/daos/DeclaredAwsLambdaVersionDao';
 export { DeclaredAwsRdsClusterDao } from '../../access/daos/DeclaredAwsRdsClusterDao';
 export { DeclaredAwsVpcTunnelDao } from '../../access/daos/DeclaredAwsVpcTunnelDao';
+export { DeclaredAwsLogGroupDao } from '../../access/daos/DeclaredAwsLogGroupDao';
+export { DeclaredAwsLogGroupReportDistOfPatternDao } from '../../access/daos/DeclaredAwsLogGroupReportDistOfPatternDao';
+export { DeclaredAwsLogGroupReportCostOfIngestionDao } from '../../access/daos/DeclaredAwsLogGroupReportCostOfIngestionDao';

@@ -3,6 +3,9 @@ import type { ContextLogTrail } from 'simple-log-methods';
 
 import { ContextAwsApi } from './ContextAwsApi';
 import { DeclaredAwsEc2Instance } from './DeclaredAwsEc2Instance';
+import { DeclaredAwsLogGroup } from './DeclaredAwsLogGroup';
+import { DeclaredAwsLogGroupReportCostOfIngestion } from './DeclaredAwsLogGroupReportCostOfIngestion';
+import { DeclaredAwsLogGroupReportDistOfPattern } from './DeclaredAwsLogGroupReportDistOfPattern';
 import { DeclaredAwsRdsCluster } from './DeclaredAwsRdsCluster';
 import { DeclaredAwsVpcTunnel } from './DeclaredAwsVpcTunnel';
 
@@ -25,6 +28,21 @@ export type DeclastructAwsProvider = DeclastructProvider<
     DeclaredAwsVpcTunnel: DeclastructDao<
       DeclaredAwsVpcTunnel,
       typeof DeclaredAwsVpcTunnel,
+      ContextAwsApi & ContextLogTrail
+    >;
+    DeclaredAwsLogGroup: DeclastructDao<
+      DeclaredAwsLogGroup,
+      typeof DeclaredAwsLogGroup,
+      ContextAwsApi & ContextLogTrail
+    >;
+    DeclaredAwsLogGroupReportDistOfPattern: DeclastructDao<
+      DeclaredAwsLogGroupReportDistOfPattern,
+      typeof DeclaredAwsLogGroupReportDistOfPattern,
+      ContextAwsApi & ContextLogTrail
+    >;
+    DeclaredAwsLogGroupReportCostOfIngestion: DeclastructDao<
+      DeclaredAwsLogGroupReportCostOfIngestion,
+      typeof DeclaredAwsLogGroupReportCostOfIngestion,
       ContextAwsApi & ContextLogTrail
     >;
   },

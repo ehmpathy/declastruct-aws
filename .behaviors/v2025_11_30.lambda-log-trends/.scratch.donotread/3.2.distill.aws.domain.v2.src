@@ -1,0 +1,13 @@
+distill the declastruct domain.objects and domain.operations that would
+- support the fulfillment of this wish .behaviors/v2025_11_30.lambda-log-trends/0.wish.md
+- given the research declared here
+  - .behaviors/v2025_11_30.lambda-log-trends/3.1.research.aws.domain.v1.i1.md
+  - .behaviors/v2025_11_30.lambda-log-trends/3.1.research.aws.domain.v2.i1.md
+
+process
+1. declare the usecases and envision the contract that would be used to fulfill the usecases
+2. declare the domain.objects, domain.operations, and access.daos that would fulfill this, via the declastruct pattern in this repo
+
+emit into
+- .behaviors/v2025_11_30.lambda-log-trends/3.2.distill.aws.domain.v2.i1.md
+
