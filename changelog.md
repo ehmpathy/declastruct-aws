@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.3.0](https://github.com/ehmpathy/declastruct-aws/compare/v1.2.0...v1.3.0) (2025-12-06)
+
+
+### Features
+
+* **cloudwatch:** enable control of log group retention ([#19](https://github.com/ehmpathy/declastruct-aws/issues/19)) ([2eb7952](https://github.com/ehmpathy/declastruct-aws/commit/2eb7952465224db27437766d59eb936babf3aef4))
+* **organization:** support aws orgnization account management ([#20](https://github.com/ehmpathy/declastruct-aws/issues/20)) ([cb4cf88](https://github.com/ehmpathy/declastruct-aws/commit/cb4cf88bde5d0d7036b902588316bca4ae4d5c79))
+
+
+### Bug Fixes
+
+* **practs:** bump to latest best ([#17](https://github.com/ehmpathy/declastruct-aws/issues/17)) ([5d99803](https://github.com/ehmpathy/declastruct-aws/commit/5d9980338381e04395789221e3d6480851d70aea))
+
 ## [1.2.0](https://github.com/ehmpathy/declastruct-aws/compare/v1.1.1...v1.2.0) (2025-12-05)
 
 
