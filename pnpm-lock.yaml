@@ -23,6 +23,9 @@ importers:
       '@aws-sdk/client-lambda':
         specifier: 3.940.0
         version: 3.940.0
+      '@aws-sdk/client-organizations':
+        specifier: 3.943.0
+        version: 3.943.0
       '@aws-sdk/client-rds':
         specifier: 3.940.0
         version: 3.940.0
@@ -115,8 +118,8 @@ importers:
         specifier: 1.12.3
         version: 1.12.3
       rhachet-roles-ehmpathy:
-        specifier: 1.11.0
-        version: 1.11.0(@types/node@22.15.21)
+        specifier: 1.12.0
+        version: 1.12.0(@types/node@22.15.21)
       simple-log-methods:
         specifier: 0.6.2
         version: 0.6.2
@@ -173,6 +176,10 @@ packages:
 
   '@aws-sdk/client-lambda@3.940.0':
     resolution: {integrity: sha512-yOijmOl/OqKQ2lgdHjXjz9WX9mL6R/ySPp/SCvq2XiYIDro4Hcs/pEOF6BMkITHoKppAvZcClSGbPm1antLI1g==}
+    engines: {node: '>=18.0.0'}
+
+  '@aws-sdk/client-organizations@3.943.0':
+    resolution: {integrity: sha512-Ov67KFki+Ekn2JrUmk1r1w+yN5FA1/ah7ik/IjVXu+0S5zDrk8EsSBYh5nj5l+D60PNho62IPx7qDqMN/xUcJQ==}
     engines: {node: '>=18.0.0'}
 
   '@aws-sdk/client-rds@3.940.0':
@@ -3491,8 +3498,8 @@ packages:
     resolution: {integrity: sha512-BCD7rwyArOn9k3AwDocv0UrgkNDmJ/goPAROCLyMx06n72Xhq8nO9RAVVqhdggIjyX8lI0Qriul8tgUJ+3zoIA==}
     engines: {node: '>=8.0.0'}
 
-  rhachet-roles-ehmpathy@1.11.0:
-    resolution: {integrity: sha512-P7F1N4kD3oii2YOQXNbkWrIkG+5LDkhwr8PoLalmHjJ0smLbK1WxwtqLMJAQbwg7K43gl1WI2m4OMUy98boeyA==}
+  rhachet-roles-ehmpathy@1.12.0:
+    resolution: {integrity: sha512-hTToaTiR83078Wtk1nUFmjxPiR2rOOZ5+HOWfinj0luiEqkVsQplTzbGQCcpIFBsd4C1qHe8HfB3WH3D5yLxrw==}
     engines: {node: '>=8.0.0'}
 
   rhachet@1.12.1:
@@ -4271,6 +4278,50 @@ snapshots:
       '@smithy/util-stream': 4.5.6
       '@smithy/util-utf8': 4.2.0
       '@smithy/util-waiter': 4.2.5
+      tslib: 2.8.1
+    transitivePeerDependencies:
+      - aws-crt
+
+  '@aws-sdk/client-organizations@3.943.0':
+    dependencies:
+      '@aws-crypto/sha256-browser': 5.2.0
+      '@aws-crypto/sha256-js': 5.2.0
+      '@aws-sdk/core': 3.943.0
+      '@aws-sdk/credential-provider-node': 3.943.0
+      '@aws-sdk/middleware-host-header': 3.936.0
+      '@aws-sdk/middleware-logger': 3.936.0
+      '@aws-sdk/middleware-recursion-detection': 3.936.0
+      '@aws-sdk/middleware-user-agent': 3.943.0
+      '@aws-sdk/region-config-resolver': 3.936.0
+      '@aws-sdk/types': 3.936.0
+      '@aws-sdk/util-endpoints': 3.936.0
+      '@aws-sdk/util-user-agent-browser': 3.936.0
+      '@aws-sdk/util-user-agent-node': 3.943.0
+      '@smithy/config-resolver': 4.4.3
+      '@smithy/core': 3.18.7
+      '@smithy/fetch-http-handler': 5.3.6
+      '@smithy/hash-node': 4.2.5
+      '@smithy/invalid-dependency': 4.2.5
+      '@smithy/middleware-content-length': 4.2.5
+      '@smithy/middleware-endpoint': 4.3.14
+      '@smithy/middleware-retry': 4.4.14
+      '@smithy/middleware-serde': 4.2.6
+      '@smithy/middleware-stack': 4.2.5
+      '@smithy/node-config-provider': 4.3.5
+      '@smithy/node-http-handler': 4.4.5
+      '@smithy/protocol-http': 5.3.5
+      '@smithy/smithy-client': 4.9.10
+      '@smithy/types': 4.9.0
+      '@smithy/url-parser': 4.2.5
+      '@smithy/util-base64': 4.3.0
+      '@smithy/util-body-length-browser': 4.2.0
+      '@smithy/util-body-length-node': 4.2.1
+      '@smithy/util-defaults-mode-browser': 4.3.13
+      '@smithy/util-defaults-mode-node': 4.2.16
+      '@smithy/util-endpoints': 3.2.5
+      '@smithy/util-middleware': 4.2.5
+      '@smithy/util-retry': 4.2.5
+      '@smithy/util-utf8': 4.2.0
       tslib: 2.8.1
     transitivePeerDependencies:
       - aws-crt
@@ -8863,7 +8914,7 @@ snapshots:
       domain-objects: 0.31.3
       helpful-errors: 1.5.3
 
-  rhachet-roles-ehmpathy@1.11.0(@types/node@22.15.21):
+  rhachet-roles-ehmpathy@1.12.0(@types/node@22.15.21):
     dependencies:
       '@ehmpathy/as-command': 1.0.3
       '@ehmpathy/uni-time': 1.8.1

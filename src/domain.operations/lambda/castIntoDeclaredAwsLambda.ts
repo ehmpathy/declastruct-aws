@@ -1,8 +1,7 @@
 import type { FunctionConfiguration } from '@aws-sdk/client-lambda';
 import { isUniDateTime } from '@ehmpathy/uni-time';
 import { type HasReadonly, hasReadonly } from 'domain-objects';
-import { UnexpectedCodePathError } from 'helpful-errors';
-import { assure, isNotUndefined, type NotUndefined } from 'type-fns';
+import { assure, isPresent } from 'type-fns';
 
 import { DeclaredAwsLambda } from '../../domain.objects/DeclaredAwsLambda';
 import { parseRoleArnIntoRef } from './utils/parseRoleArnIntoRef';
@@ -13,26 +12,6 @@ import { parseRoleArnIntoRef } from './utils/parseRoleArnIntoRef';
  */
 export type CastIntoDeclaredAwsLambdaInput = FunctionConfiguration & {
   tags?: Record<string, string>;
-};
-
-/**
- * .what = extracts a value from an object or throws
- * .why = provides fail-fast behavior for required fields
- */
-const getOrThrow = <T, K extends keyof T>(
-  obj: T,
-  key: K,
-): NotUndefined<T[K]> => {
-  const value = obj[key];
-
-  // if its not undefined, return it
-  if (isNotUndefined(value)) return value;
-
-  // otherwise, fail fast
-  throw new UnexpectedCodePathError(`${String(key)} not found on response`, {
-    input: obj,
-    key,
-  });
 };
 
 /**
@@ -48,22 +27,22 @@ export const castIntoDeclaredAwsLambda = (
   // cast and assure readonly fields are present
   return assure(
     DeclaredAwsLambda.as({
-      arn: getOrThrow(input, 'FunctionArn'),
-      name: getOrThrow(input, 'FunctionName'),
+      arn: assure(input.FunctionArn, isPresent),
+      name: assure(input.FunctionName, isPresent),
 
-      handler: getOrThrow(input, 'Handler'),
-      codeSha256: getOrThrow(input, 'CodeSha256'),
-      codeSize: getOrThrow(input, 'CodeSize'),
+      handler: assure(input.Handler, isPresent),
+      codeSha256: assure(input.CodeSha256, isPresent),
+      codeSize: assure(input.CodeSize, isPresent),
 
-      runtime: getOrThrow(input, 'Runtime'),
-      timeout: getOrThrow(input, 'Timeout'),
-      memory: getOrThrow(input, 'MemorySize'),
+      runtime: assure(input.Runtime, isPresent),
+      timeout: assure(input.Timeout, isPresent),
+      memory: assure(input.MemorySize, isPresent),
 
-      role: parseRoleArnIntoRef(getOrThrow(input, 'Role')),
+      role: parseRoleArnIntoRef(assure(input.Role, isPresent)),
       updatedAt: isUniDateTime.assure(
-        getOrThrow(input, 'LastModified').replace('+0000', 'Z'),
+        assure(input.LastModified, isPresent).replace('+0000', 'Z'),
       ),
-      envars: getOrThrow(input, 'Environment').Variables ?? {},
+      envars: assure(input.Environment, isPresent).Variables ?? {},
       codeZipUri: codeZipUri ?? null,
       tags: Object.keys(userTags).length > 0 ? userTags : undefined,
     }),

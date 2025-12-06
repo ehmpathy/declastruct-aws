@@ -15,6 +15,8 @@ import { DeclaredAwsLambdaVersionDao } from '../../access/daos/DeclaredAwsLambda
 import { DeclaredAwsLogGroupDao } from '../../access/daos/DeclaredAwsLogGroupDao';
 import { DeclaredAwsLogGroupReportCostOfIngestionDao } from '../../access/daos/DeclaredAwsLogGroupReportCostOfIngestionDao';
 import { DeclaredAwsLogGroupReportDistOfPatternDao } from '../../access/daos/DeclaredAwsLogGroupReportDistOfPatternDao';
+import { DeclaredAwsOrganizationAccountDao } from '../../access/daos/DeclaredAwsOrganizationAccountDao';
+import { DeclaredAwsOrganizationDao } from '../../access/daos/DeclaredAwsOrganizationDao';
 import { DeclaredAwsRdsClusterDao } from '../../access/daos/DeclaredAwsRdsClusterDao';
 import { DeclaredAwsVpcTunnelDao } from '../../access/daos/DeclaredAwsVpcTunnelDao';
 import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
@@ -73,6 +75,8 @@ export const getDeclastructAwsProvider = async (
       DeclaredAwsLogGroupReportDistOfPatternDao,
     DeclaredAwsLogGroupReportCostOfIngestion:
       DeclaredAwsLogGroupReportCostOfIngestionDao,
+    DeclaredAwsOrganization: DeclaredAwsOrganizationDao,
+    DeclaredAwsOrganizationAccount: DeclaredAwsOrganizationAccountDao,
     DeclaredAwsRdsCluster: DeclaredAwsRdsClusterDao,
     DeclaredAwsVpcTunnel: DeclaredAwsVpcTunnelDao,
   };
