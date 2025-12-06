@@ -1,16 +1,16 @@
 import { DeclastructDao } from 'declastruct';
 import { isRefByPrimary, isRefByUnique } from 'domain-objects';
-import { BadRequestError, UnexpectedCodePathError } from 'helpful-errors';
+import { UnexpectedCodePathError } from 'helpful-errors';
 import type { ContextLogTrail } from 'simple-log-methods';
 
 import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
 import { DeclaredAwsLogGroup } from '../../domain.objects/DeclaredAwsLogGroup';
 import { getOneLogGroup } from '../../domain.operations/logGroup/getOneLogGroup';
+import { setLogGroup } from '../../domain.operations/logGroup/setLogGroup';
 
 /**
  * .what = declastruct DAO for AWS CloudWatch Log Group resources
  * .why = wraps Log Group operations to conform to declastruct interface
- * .note = no set operations — log groups are auto-created by Lambda/etc
  */
 export const DeclaredAwsLogGroupDao = new DeclastructDao<
   DeclaredAwsLogGroup,
@@ -38,12 +38,11 @@ export const DeclaredAwsLogGroupDao = new DeclastructDao<
     },
   },
   set: {
-    finsert: async (input) => {
-      // log groups are auto-created by Lambda/etc — manual creation not supported yet
-      BadRequestError.throw(
-        'Log group creation not supported by this DAO yet',
-        { input },
-      );
+    finsert: async (input, context) => {
+      return setLogGroup({ finsert: input }, context);
+    },
+    upsert: async (input, context) => {
+      return setLogGroup({ upsert: input }, context);
     },
   },
 });

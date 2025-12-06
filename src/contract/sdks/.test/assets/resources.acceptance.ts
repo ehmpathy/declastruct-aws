@@ -127,6 +127,14 @@ export const getResources = async () => {
     description: 'Live production alias',
   });
 
+  // declare log group with retention policy
+  const logGroupWithRetention = DeclaredAwsLogGroup.as({
+    name: '/declastruct/acceptance-test/with-retention',
+    class: 'STANDARD',
+    kmsKeyId: null,
+    retentionInDays: 14,
+  });
+
   // declare log group report for pattern distribution (message frequency)
   const logGroupReportDistOfPattern = DeclaredAwsLogGroupReportDistOfPattern.as(
     {
@@ -156,6 +164,7 @@ export const getResources = async () => {
     lambda,
     lambdaVersion,
     lambdaAlias,
+    logGroupWithRetention,
     logGroupReportDistOfPattern,
     logGroupReportCostOfIngestion,
   ];

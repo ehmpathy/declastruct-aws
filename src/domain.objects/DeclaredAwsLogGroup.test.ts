@@ -110,11 +110,10 @@ describe('DeclaredAwsLogGroup', () => {
       expect(DeclaredAwsLogGroup.metadata).toEqual(['arn']);
     });
 
-    then('readonly includes storedBytes, createdAt, retentionInDays', () => {
+    then('readonly includes storedBytes, createdAt', () => {
       expect(DeclaredAwsLogGroup.readonly).toEqual([
         'storedBytes',
         'createdAt',
-        'retentionInDays',
       ]);
     });
   });
