@@ -50,7 +50,7 @@
     "preversion": "npm run prepush",
     "postversion": "git push origin HEAD --tags --no-verify",
     "prepare:husky": "npx husky install && chmod ug+x .husky/*",
-    "prepare": "[ -d .git ] && npm run prepare:husky || exit 0"
+    "prepare": "[ -e .git ] && npm run prepare:husky || exit 0"
   },
   "dependencies": {
     "@aws-sdk/client-cloudwatch": "3.943.0",
@@ -90,8 +90,8 @@
     "esbuild-register": "3.6.0",
     "husky": "8.0.3",
     "jest": "30.2.0",
-    "rhachet": "1.12.1",
-    "rhachet-roles-ehmpathy": "1.8.0",
+    "rhachet": "1.12.3",
+    "rhachet-roles-ehmpathy": "1.11.0",
     "simple-log-methods": "0.6.2",
     "test-fns": "1.7.2",
     "tsx": "4.20.6",

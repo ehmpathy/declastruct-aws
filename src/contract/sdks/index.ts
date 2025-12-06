@@ -65,9 +65,10 @@ export { getAllLambdaVersions } from '../../domain.operations/lambdaVersion/getA
 export { getOneLambdaVersion } from '../../domain.operations/lambdaVersion/getOneLambdaVersion';
 export { setLambdaVersion } from '../../domain.operations/lambdaVersion/setLambdaVersion';
 export { calcConfigSha256 } from '../../domain.operations/lambdaVersion/utils/calcConfigSha256';
-export { getAllLogGroups } from '../../domain.operations/logGroup/getAllLogGroups';
 // aws log group operations
+export { getAllLogGroups } from '../../domain.operations/logGroup/getAllLogGroups';
 export { getOneLogGroup } from '../../domain.operations/logGroup/getOneLogGroup';
+export { setLogGroup } from '../../domain.operations/logGroup/setLogGroup';
 export { getOneLogGroupReportCostOfIngestion } from '../../domain.operations/logGroupReportCostOfIngestion/getOneLogGroupReportCostOfIngestion';
 export { getOneLogGroupReportDistOfPattern } from '../../domain.operations/logGroupReportDistOfPattern/getOneLogGroupReportDistOfPattern';
 // aws provider

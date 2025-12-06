@@ -112,11 +112,11 @@ importers:
         specifier: 30.2.0
         version: 30.2.0(@types/node@22.15.21)(esbuild-register@3.6.0(esbuild@0.25.12))(ts-node@10.9.2(@swc/core@1.15.3)(@types/node@22.15.21)(typescript@5.4.5))
       rhachet:
-        specifier: 1.12.1
-        version: 1.12.1
+        specifier: 1.12.3
+        version: 1.12.3
       rhachet-roles-ehmpathy:
-        specifier: 1.8.0
-        version: 1.8.0(@types/node@22.15.21)
+        specifier: 1.11.0
+        version: 1.11.0(@types/node@22.15.21)
       simple-log-methods:
         specifier: 0.6.2
         version: 0.6.2
@@ -3479,21 +3479,29 @@ packages:
     resolution: {integrity: sha512-OZtfH5+4/nj4kSX0pnamIT54YVIKTNhavBqiYpCK3978sGGagYo7AwXwYAjQav9+Vjhtk5b73RJUQN0bSe3a+g==}
     engines: {node: '>=8.0.0'}
 
+  rhachet-artifact-git@1.1.3:
+    resolution: {integrity: sha512-l8v8sdRW44w4CCFjWIydjk6BgyaQ+HCH00s/ZtuoxdHSYRU++0sxHiDJzgSQyYCHy/egSiD0OCQLbjqcDCS20Q==}
+    engines: {node: '>=8.0.0'}
+
   rhachet-artifact@1.0.0:
     resolution: {integrity: sha512-dNGjHYykoxC5vljtdWL/VhZmPU89gVS9gGI5yHPzJiwNtk6hMZLtQe1B0hpZu+tu95+eerU4jNPklTj2Sdg5Tg==}
     engines: {node: '>=8.0.0'}
 
-  rhachet-roles-ehmpathy@1.8.0:
-    resolution: {integrity: sha512-6bryVZ7j8+0xtSJARu1++YrFdziPXLwKnute5+HeWbpL6JLph/ufh2N96tCFvbN8P3rUFNyxuKJuppH0PH6p9Q==}
+  rhachet-artifact@1.0.1:
+    resolution: {integrity: sha512-BCD7rwyArOn9k3AwDocv0UrgkNDmJ/goPAROCLyMx06n72Xhq8nO9RAVVqhdggIjyX8lI0Qriul8tgUJ+3zoIA==}
     engines: {node: '>=8.0.0'}
 
-  rhachet@1.11.0:
-    resolution: {integrity: sha512-kD1tEkW0+cJjRXc37o9wkFYWwGEr50B0NYlCwFaJ/TvJmlFaVTqxZSW71s+xOLN7eUggLb1lIQGloNbKpeFlgA==}
+  rhachet-roles-ehmpathy@1.11.0:
+    resolution: {integrity: sha512-P7F1N4kD3oii2YOQXNbkWrIkG+5LDkhwr8PoLalmHjJ0smLbK1WxwtqLMJAQbwg7K43gl1WI2m4OMUy98boeyA==}
     engines: {node: '>=8.0.0'}
-    hasBin: true
 
   rhachet@1.12.1:
     resolution: {integrity: sha512-YS72Mxbk2dbS+BRFmQiAV/EJbD4yP2W61aAiQAov/FZq/RHHjZPldc9Sv9hQBm+tBdVE28dnehnlvSEyC30qNg==}
+    engines: {node: '>=8.0.0'}
+    hasBin: true
+
+  rhachet@1.12.3:
+    resolution: {integrity: sha512-OMWcopVlXs5whtdFV8sx2bpNSxK4yNUHPJDpfUfkvTAkZt7mc5MSJbmsx+JlYyULtTM05OwpPAhJAAHQXfQ46g==}
     engines: {node: '>=8.0.0'}
     hasBin: true
 
@@ -8832,12 +8840,30 @@ snapshots:
       serde-fns: 1.3.0
       type-fns: 1.19.0
 
+  rhachet-artifact-git@1.1.3:
+    dependencies:
+      '@ehmpathy/uni-time': 1.8.1
+      as-procedure: 1.1.7
+      domain-objects: 0.31.3
+      find-up: 5.0.0
+      hash-fns: 1.1.0
+      helpful-errors: 1.5.3
+      rhachet-artifact: 1.0.1
+      serde-fns: 1.3.0
+      type-fns: 1.21.0
+
   rhachet-artifact@1.0.0:
     dependencies:
       as-procedure: 1.1.7
       domain-objects: 0.25.2
 
-  rhachet-roles-ehmpathy@1.8.0(@types/node@22.15.21):
+  rhachet-artifact@1.0.1:
+    dependencies:
+      as-procedure: 1.1.7
+      domain-objects: 0.31.3
+      helpful-errors: 1.5.3
+
+  rhachet-roles-ehmpathy@1.11.0(@types/node@22.15.21):
     dependencies:
       '@ehmpathy/as-command': 1.0.3
       '@ehmpathy/uni-time': 1.8.1
@@ -8847,7 +8873,7 @@ snapshots:
       helpful-errors: 1.3.8
       inquirer: 12.7.0(@types/node@22.15.21)
       openai: 5.8.2
-      rhachet: 1.11.0
+      rhachet: 1.12.1
       rhachet-artifact: 1.0.0
       rhachet-artifact-git: 1.1.0
       serde-fns: 1.2.0
@@ -8861,7 +8887,7 @@ snapshots:
       - ws
       - zod
 
-  rhachet@1.11.0:
+  rhachet@1.12.1:
     dependencies:
       '@ehmpathy/uni-time': 1.9.0
       as-procedure: 1.1.6
@@ -8883,23 +8909,23 @@ snapshots:
       - ws
       - zod
 
-  rhachet@1.12.1:
+  rhachet@1.12.3:
     dependencies:
       '@ehmpathy/uni-time': 1.9.0
       as-procedure: 1.1.6
       bottleneck: 2.19.5
       chalk: 4.1.2
       commander: 14.0.0
-      domain-objects: 0.25.2
+      domain-objects: 0.31.3
       fast-glob: 3.3.3
       flattie: 1.1.1
-      helpful-errors: 1.3.8
+      helpful-errors: 1.5.3
       openai: 5.8.2
-      rhachet-artifact: 1.0.0
-      rhachet-artifact-git: 1.1.0
+      rhachet-artifact: 1.0.1
+      rhachet-artifact-git: 1.1.3
       serde-fns: 1.3.1
       tsx: 4.20.5
-      type-fns: 1.19.0
+      type-fns: 1.21.0
       uuid-fns: 1.0.1
     transitivePeerDependencies:
       - ws
@@ -9009,7 +9035,7 @@ snapshots:
       '@ehmpathy/uni-time': 1.7.4
       bottleneck: 2.19.5
       hash-fns: 1.1.0
-      serde-fns: 1.2.0
+      serde-fns: 1.3.1
       simple-in-memory-cache: 0.4.0
       type-fns: 1.21.0
     transitivePeerDependencies:
@@ -9353,7 +9379,7 @@ snapshots:
   with-simple-caching@0.14.2:
     dependencies:
       '@ehmpathy/uni-time': 1.7.4
-      serde-fns: 1.2.0
+      serde-fns: 1.3.1
       simple-in-memory-cache: 0.4.0
       simple-on-disk-cache: 1.7.2
       type-fns: 1.21.0

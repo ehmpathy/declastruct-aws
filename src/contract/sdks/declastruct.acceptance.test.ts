@@ -140,6 +140,19 @@ describe('declastruct CLI workflow', () => {
         );
         expect(costReportChange).toBeDefined();
       });
+
+      then('plan includes log group with retention resource', () => {
+        /**
+         * .what = validates plan includes log group with retention declaration
+         * .why = ensures log group retention management is captured in plan
+         */
+        const logGroupChange = prep.plan.changes.find(
+          (r: DeclastructChange) =>
+            r.forResource.class === 'DeclaredAwsLogGroup' &&
+            r.forResource.slug.includes('with-retention'),
+        );
+        expect(logGroupChange).toBeDefined();
+      });
     });
 
     when('applying a plan via declastruct CLI', () => {
@@ -212,6 +225,19 @@ describe('declastruct CLI workflow', () => {
         expect(aliasChange).toBeDefined();
       });
 
+      then('creates log group with retention policy', () => {
+        /**
+         * .what = validates log group is created with retention via declastruct
+         * .why = ensures setLogGroup operation works through declastruct workflow
+         */
+        const logGroupChange = prep.plan.changes.find(
+          (r: DeclastructChange) =>
+            r.forResource.class === 'DeclaredAwsLogGroup' &&
+            r.forResource.slug.includes('with-retention'),
+        );
+        expect(logGroupChange).toBeDefined();
+      });
+
       then('is idempotent - applying same plan twice succeeds', () => {
         /**
          * .what = validates applying the same plan multiple times is safe
@@ -223,6 +249,50 @@ describe('declastruct CLI workflow', () => {
           stdio: 'inherit',
           env: process.env,
         });
+      });
+    });
+
+    when('re-planning after apply to verify idempotency', () => {
+      const verifyPlanFile = join(testDir, 'plan-verify.json');
+
+      const prep = useBeforeAll(async () => {
+        // generate a fresh plan after apply — if everything was applied correctly,
+        // all resources should show "KEEP" (no changes needed)
+        execSync(
+          `npx declastruct plan --wish ${resourcesFile} --into ${verifyPlanFile}`,
+          { stdio: 'inherit', env: process.env },
+        );
+
+        return {
+          plan: JSON.parse(readFileSync(verifyPlanFile, 'utf-8')) as {
+            changes: DeclastructChange[];
+          },
+        };
+      });
+
+      then('all resources show KEEP after apply', () => {
+        /**
+         * .what = validates all resources were applied correctly
+         * .why = ensures idempotency — applying same plan twice results in no changes
+         */
+        const nonKeepChanges = prep.plan.changes.filter(
+          (r: DeclastructChange) => r.action !== 'KEEP',
+        );
+        expect(nonKeepChanges).toHaveLength(0);
+      });
+
+      then('log group with retention shows KEEP', () => {
+        /**
+         * .what = validates log group was applied correctly by checking re-plan shows KEEP
+         * .why = proves the resource matches desired state after apply
+         */
+        const logGroupChange = prep.plan.changes.find(
+          (r: DeclastructChange) =>
+            r.forResource.class === 'DeclaredAwsLogGroup' &&
+            r.forResource.slug.includes('with-retention'),
+        );
+        expect(logGroupChange).toBeDefined();
+        expect(logGroupChange!.action).toBe('KEEP');
       });
     });
 

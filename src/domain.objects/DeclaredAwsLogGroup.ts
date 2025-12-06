@@ -39,7 +39,7 @@ export interface DeclaredAwsLogGroup {
 
   /**
    * .what = retention period in days
-   * .note = @readonly — null means never expire
+   * .note = null means never expire
    */
   retentionInDays?: number | null;
 
@@ -79,9 +79,5 @@ export class DeclaredAwsLogGroup
    * .what = intrinsic attributes resolved from AWS, not user-settable
    * .note = these are real attributes of the resource, but derived from the source of truth
    */
-  public static readonly = [
-    'storedBytes',
-    'createdAt',
-    'retentionInDays',
-  ] as const;
+  public static readonly = ['storedBytes', 'createdAt'] as const;
 }
