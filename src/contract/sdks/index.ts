@@ -13,6 +13,8 @@ export { DeclaredAwsLambdaVersionDao } from '../../access/daos/DeclaredAwsLambda
 export { DeclaredAwsLogGroupDao } from '../../access/daos/DeclaredAwsLogGroupDao';
 export { DeclaredAwsLogGroupReportCostOfIngestionDao } from '../../access/daos/DeclaredAwsLogGroupReportCostOfIngestionDao';
 export { DeclaredAwsLogGroupReportDistOfPatternDao } from '../../access/daos/DeclaredAwsLogGroupReportDistOfPatternDao';
+export { DeclaredAwsOrganizationAccountDao } from '../../access/daos/DeclaredAwsOrganizationAccountDao';
+export { DeclaredAwsOrganizationDao } from '../../access/daos/DeclaredAwsOrganizationDao';
 export { DeclaredAwsRdsClusterDao } from '../../access/daos/DeclaredAwsRdsClusterDao';
 export { DeclaredAwsVpcTunnelDao } from '../../access/daos/DeclaredAwsVpcTunnelDao';
 // aws domain objects
@@ -38,6 +40,9 @@ export {
   DeclaredAwsLogGroupReportDistOfPattern,
   DeclaredAwsLogGroupReportDistOfPatternRow,
 } from '../../domain.objects/DeclaredAwsLogGroupReportDistOfPattern';
+// aws organization + organization account domain objects
+export { DeclaredAwsOrganization } from '../../domain.objects/DeclaredAwsOrganization';
+export { DeclaredAwsOrganizationAccount } from '../../domain.objects/DeclaredAwsOrganizationAccount';
 export { DeclaredAwsRdsCluster } from '../../domain.objects/DeclaredAwsRdsCluster';
 export { DeclaredAwsVpcTunnel } from '../../domain.objects/DeclaredAwsVpcTunnel';
 export type { DeclastructAwsProvider } from '../../domain.objects/DeclastructAwsProvider';
@@ -71,6 +76,15 @@ export { getOneLogGroup } from '../../domain.operations/logGroup/getOneLogGroup'
 export { setLogGroup } from '../../domain.operations/logGroup/setLogGroup';
 export { getOneLogGroupReportCostOfIngestion } from '../../domain.operations/logGroupReportCostOfIngestion/getOneLogGroupReportCostOfIngestion';
 export { getOneLogGroupReportDistOfPattern } from '../../domain.operations/logGroupReportDistOfPattern/getOneLogGroupReportDistOfPattern';
+// aws organization operations
+export { delOrganization } from '../../domain.operations/organization/delOrganization';
+export { getOneOrganization } from '../../domain.operations/organization/getOneOrganization';
+export { setOrganization } from '../../domain.operations/organization/setOrganization';
+// aws organization account operations
+export { delOrganizationAccount } from '../../domain.operations/organizationAccount/delOrganizationAccount';
+export { getAllOrganizationAccounts } from '../../domain.operations/organizationAccount/getAllOrganizationAccounts';
+export { getOneOrganizationAccount } from '../../domain.operations/organizationAccount/getOneOrganizationAccount';
+export { setOrganizationAccount } from '../../domain.operations/organizationAccount/setOrganizationAccount';
 // aws provider
 export { getDeclastructAwsProvider } from '../../domain.operations/provider/getDeclastructAwsProvider';
 // aws rds operations
