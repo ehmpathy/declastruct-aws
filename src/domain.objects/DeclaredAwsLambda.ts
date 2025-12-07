@@ -3,6 +3,7 @@ import type { UniDateTime } from '@ehmpathy/uni-time';
 import { DomainEntity, DomainLiteral, RefByUnique } from 'domain-objects';
 
 import type { DeclaredAwsIamRole } from './DeclaredAwsIamRole';
+import { DeclaredAwsTags } from './DeclaredAwsTags';
 
 /**
  * .what = a declarative structure which represents an Aws Lambda function
@@ -81,7 +82,7 @@ export interface DeclaredAwsLambda {
   /**
    * .what = optional tags for the lambda
    */
-  tags?: Record<string, string>;
+  tags?: DeclaredAwsTags;
 
   // todo: support the rest of the configs
 
@@ -252,11 +253,11 @@ export class DeclaredAwsLambda
    * .what = nested domain object definitions
    * .note
    *   - role is RefByUnique ref, not full domain object
-   *   - envars and tags are Record<string, string>, marked as DomainLiteral for safe manipulation
+   *   - envars is Record<string, string>, marked as DomainLiteral for safe manipulation
    */
   public static nested = {
     role: RefByUnique<typeof DeclaredAwsIamRole>,
     envars: DomainLiteral,
-    tags: DomainLiteral,
+    tags: DeclaredAwsTags,
   };
 }

@@ -12,6 +12,9 @@ concurrency:
 jobs:
   test:
     uses: ./.github/workflows/.test.yml
+    with:
+      aws-region: us-east-1
+      aws-role-arn: arn:aws:iam::805192865516:role/ehmpathy-demo-oidc
 
   publish:
     uses: ./.github/workflows/.publish-npm.yml

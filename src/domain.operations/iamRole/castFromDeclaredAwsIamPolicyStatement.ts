@@ -29,5 +29,7 @@ export const castFromDeclaredAwsIamPolicyStatement = (
   Principal: castFromDeclaredAwsIamPrincipal(statement.principal),
   Action: statement.action,
   Resource: statement.resource,
-  Condition: statement.condition,
+  Condition: statement.condition as
+    | Record<string, Record<string, string | string[]>>
+    | undefined,
 });

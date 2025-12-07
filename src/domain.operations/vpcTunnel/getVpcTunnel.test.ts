@@ -4,7 +4,7 @@ import * as os from 'os';
 import * as path from 'path';
 import { given, then, when } from 'test-fns';
 
-import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';
+import { getMockedAwsApiContext } from '../../.test/getMockedAwsApiContext';
 import { getVpcTunnel } from './getVpcTunnel';
 import { getTunnelHash } from './utils/getTunnelHash';
 
@@ -26,7 +26,7 @@ describe('getVpcTunnel', () => {
 
         const result = await getVpcTunnel(
           { by: { unique: tunnelRef } },
-          getSampleAwsApiContext({ cacheDir }),
+          getMockedAwsApiContext({ cacheDir }),
         );
 
         expect(result.status).toBe('CLOSED');
@@ -53,7 +53,7 @@ describe('getVpcTunnel', () => {
         };
 
         // write cache file with invalid pid
-        const context = getSampleAwsApiContext({ cacheDir });
+        const context = getMockedAwsApiContext({ cacheDir });
         const hash = getTunnelHash({ for: { tunnel: tunnelRef } }, context);
         const cacheFilePath = path.join(cacheDir, `${hash}.json`);
         await fs.writeFile(
@@ -90,7 +90,7 @@ describe('getVpcTunnel', () => {
         };
 
         // write cache with current process pid (alive) but port not bound (unhealthy)
-        const context = getSampleAwsApiContext({ cacheDir });
+        const context = getMockedAwsApiContext({ cacheDir });
         const hash = getTunnelHash({ for: { tunnel: tunnelRef } }, context);
         const cacheFilePath = path.join(cacheDir, `${hash}.json`);
         await fs.writeFile(
@@ -132,7 +132,7 @@ describe('getVpcTunnel', () => {
           from: { host: 'localhost', port: 19881 },
         };
 
-        const context = getSampleAwsApiContext({ cacheDir });
+        const context = getMockedAwsApiContext({ cacheDir });
         const hash = getTunnelHash({ for: { tunnel: tunnelRef } }, context);
         const cacheFilePath = path.join(cacheDir, `${hash}.json`);
         await fs.writeFile(

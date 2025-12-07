@@ -1,7 +1,7 @@
 import { ListAccountsCommand } from '@aws-sdk/client-organizations';
 import { asProcedure } from 'as-procedure';
 import type { HasReadonly } from 'domain-objects';
-import { HelpfulError } from 'helpful-errors';
+import { HelpfulError, UnexpectedCodePathError } from 'helpful-errors';
 import type { VisualogicContext } from 'visualogic';
 
 import { getAwsOrganizationsClient } from '../../access/sdks/getAwsOrganizationsClient';
@@ -46,12 +46,22 @@ export const getAllOrganizationAccounts = asProcedure(
       const accounts = await Promise.all(
         (response.Accounts ?? []).map(async (account) => {
           const tags = await getOneOrganizationAccountTags(
-            { by: { primary: { id: account.Id! } } },
+            {
+              by: {
+                primary: {
+                  id:
+                    account.Id ??
+                    UnexpectedCodePathError.throw('account.Id not declared', {
+                      account,
+                    }),
+                },
+              },
+            },
             { client },
           );
           return castIntoDeclaredAwsOrganizationAccount({
             account,
-            organization: { id: organization.id },
+            organization: { managementAccount: organization.managementAccount },
             tags,
           });
         }),

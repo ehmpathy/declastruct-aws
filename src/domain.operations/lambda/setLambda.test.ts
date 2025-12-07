@@ -6,7 +6,7 @@ import {
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
-import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';
+import { getMockedAwsApiContext } from '../../.test/getMockedAwsApiContext';
 import type { DeclaredAwsLambda } from '../../domain.objects/DeclaredAwsLambda';
 import * as castModule from './castIntoDeclaredAwsLambda';
 import * as getLambdaModule from './getOneLambda';
@@ -22,7 +22,7 @@ const mockSend = jest.fn();
   send: mockSend,
 }));
 
-const context = getSampleAwsApiContext();
+const context = getMockedAwsApiContext();
 
 const lambdaSample: DeclaredAwsLambda = {
   name: 'test-function',

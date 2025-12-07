@@ -1,12 +1,12 @@
 import { UnexpectedCodePathError } from 'helpful-errors';
-import { given, then } from 'test-fns';
+import { given, then, useBeforeAll } from 'test-fns';
 
 import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';
 import { getAllLambdas } from './getAllLambdas';
 import { getOneLambda } from './getOneLambda';
 
 describe('getOneLambda', () => {
-  const context = getSampleAwsApiContext();
+  const context = useBeforeAll(() => getSampleAwsApiContext());
 
   given('an live example lambda in this account', () => {
     then('we should be able to get its state', async () => {

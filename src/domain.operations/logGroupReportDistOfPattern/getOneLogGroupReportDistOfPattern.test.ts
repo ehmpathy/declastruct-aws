@@ -7,7 +7,7 @@ import {
 import type { UniDateTime } from '@ehmpathy/uni-time';
 import { given, then } from 'test-fns';
 
-import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';
+import { getMockedAwsApiContext } from '../../.test/getMockedAwsApiContext';
 import * as castModule from './castIntoDeclaredAwsLogGroupReportDistOfPattern';
 import { getOneLogGroupReportDistOfPattern } from './getOneLogGroupReportDistOfPattern';
 
@@ -19,7 +19,7 @@ const mockSend = jest.fn();
   send: mockSend,
 }));
 
-const context = getSampleAwsApiContext();
+const context = getMockedAwsApiContext();
 
 describe('getOneLogGroupReportDistOfPattern', () => {
   beforeEach(() => {

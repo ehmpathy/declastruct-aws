@@ -54,8 +54,10 @@ export const castIntoDeclaredAwsLambdaAlias = (input: {
       name: input.aliasConfig.Name,
       lambda: input.lambda,
       version: input.version,
-      description: input.aliasConfig.Description,
-      routingConfig,
+      ...(input.aliasConfig.Description !== undefined && {
+        description: input.aliasConfig.Description,
+      }),
+      ...(routingConfig !== undefined && { routingConfig }),
     }),
     hasReadonly({ of: DeclaredAwsLambdaAlias }),
   );

@@ -1,7 +1,7 @@
 import { DeleteAliasCommand, LambdaClient } from '@aws-sdk/client-lambda';
 import { given, then, when } from 'test-fns';
 
-import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';
+import { getMockedAwsApiContext } from '../../.test/getMockedAwsApiContext';
 import * as getLambdaModule from '../lambda/getOneLambda';
 import { delLambdaAlias } from './delLambdaAlias';
 import * as getLambdaAliasModule from './getOneLambdaAlias';
@@ -15,7 +15,7 @@ const mockSend = jest.fn();
   send: mockSend,
 }));
 
-const context = getSampleAwsApiContext();
+const context = getMockedAwsApiContext();
 
 const lambdaSample = {
   name: 'test-function',

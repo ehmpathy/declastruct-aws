@@ -6,7 +6,7 @@ import {
   calcCodeSha256,
   calcConfigSha256,
   DeclaredAwsIamRole,
-  DeclaredAwsIamRolePolicy,
+  DeclaredAwsIamRolePolicyAttachedInline,
   DeclaredAwsLambda,
   DeclaredAwsLambdaAlias,
   DeclaredAwsLambdaVersion,
@@ -29,7 +29,7 @@ const logGroupReportRange = {
 /**
  * .what = provider configuration for AWS acceptance tests
  * .why = enables declastruct CLI to interact with AWS API
- * .note = requires AWS_PROFILE to be set via: source .agent/repo=.this/skills/use.dev.awsprofile.sh
+ * .note = requires AWS_PROFILE to be set via: source .agent/repo=.this/skills/use.demo.awsprofile.sh
  */
 export const getProviders = async () => [
   await getDeclastructAwsProvider(
@@ -50,21 +50,22 @@ export const getProviders = async () => [
  * .why = defines desired state of resources for testing
  */
 export const getResources = async () => {
-  // declare tunnel to open
-  const tunnel = DeclaredAwsVpcTunnel.as({
-    via: {
-      mechanism: 'aws.ssm',
-      bastion: { exid: 'vpc-main-bastion' },
-    },
-    into: {
-      cluster: { name: 'ahbodedb' },
-    },
-    from: {
-      host: 'localhost',
-      port: 3_5432,
-    },
-    status: 'OPEN',
-  });
+  // TODO: provision vpc, bastion machine, and rds db in demo account
+  // // declare tunnel to open
+  // const tunnel = DeclaredAwsVpcTunnel.as({
+  //   via: {
+  //     mechanism: 'aws.ssm',
+  //     bastion: { exid: 'vpc-main-bastion' },
+  //   },
+  //   into: {
+  //     cluster: { name: 'ahbodedb' },
+  //   },
+  //   from: {
+  //     host: 'localhost',
+  //     port: 3_5432,
+  //   },
+  //   status: 'OPEN',
+  // });
 
   // declare iam role for lambda execution
   const lambdaRole = DeclaredAwsIamRole.as({
@@ -82,20 +83,22 @@ export const getResources = async () => {
   });
 
   // declare inline policy for CloudWatch Logs permissions
-  const lambdaRolePolicy = DeclaredAwsIamRolePolicy.as({
+  const lambdaRolePolicy = DeclaredAwsIamRolePolicyAttachedInline.as({
     name: 'cloudwatch-logs',
     role: RefByUnique.as<typeof DeclaredAwsIamRole>(lambdaRole),
-    statements: [
-      {
-        effect: 'Allow',
-        action: [
-          'logs:CreateLogGroup',
-          'logs:CreateLogStream',
-          'logs:PutLogEvents',
-        ],
-        resource: '*',
-      },
-    ],
+    document: {
+      statements: [
+        {
+          effect: 'Allow',
+          action: [
+            'logs:CreateLogGroup',
+            'logs:CreateLogStream',
+            'logs:PutLogEvents',
+          ],
+          resource: '*',
+        },
+      ],
+    },
   });
 
   // declare lambda function
@@ -158,7 +161,7 @@ export const getResources = async () => {
     });
 
   return [
-    tunnel,
+    // tunnel,
     lambdaRole,
     lambdaRolePolicy,
     lambda,

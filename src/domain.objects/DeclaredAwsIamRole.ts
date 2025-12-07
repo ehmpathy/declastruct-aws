@@ -1,6 +1,7 @@
-import { DomainEntity, DomainLiteral } from 'domain-objects';
+import { DomainEntity } from 'domain-objects';
 
 import { DeclaredAwsIamPolicyStatement } from './DeclaredAwsIamPolicyStatement';
+import { DeclaredAwsTags } from './DeclaredAwsTags';
 
 /**
  * .what = an aws iam role
@@ -50,7 +51,7 @@ export interface DeclaredAwsIamRole {
   /**
    * .what = optional tags for the role
    */
-  tags?: Record<string, string>;
+  tags?: DeclaredAwsTags;
 }
 
 export class DeclaredAwsIamRole
@@ -79,10 +80,9 @@ export class DeclaredAwsIamRole
 
   /**
    * .what = nested domain object definitions
-   * .note = tags is Record<string, string>, marked as DomainLiteral for safe manipulation
    */
   public static nested = {
     policies: DeclaredAwsIamPolicyStatement,
-    tags: DomainLiteral,
+    tags: DeclaredAwsTags,
   };
 }

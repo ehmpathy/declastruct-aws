@@ -1,5 +1,6 @@
 import { DomainLiteral } from 'domain-objects';
 
+import { DeclaredAwsIamPolicyCondition } from './DeclaredAwsIamPolicyCondition';
 import { DeclaredAwsIamPrincipal } from './DeclaredAwsIamPrincipal';
 
 // re-export for backwards compatibility
@@ -49,7 +50,7 @@ export interface DeclaredAwsIamPolicyStatement {
    * .what = optional conditions for when this statement applies
    * .note = structured as { operator: { key: value } }
    */
-  condition?: Record<string, Record<string, string | string[]>>;
+  condition?: DeclaredAwsIamPolicyCondition;
 }
 
 export class DeclaredAwsIamPolicyStatement
@@ -58,10 +59,9 @@ export class DeclaredAwsIamPolicyStatement
 {
   /**
    * .what = nested domain object definitions
-   * .note = condition is Record<string, Record<string, ...>>, marked as DomainLiteral for safe manipulation
    */
   public static nested = {
     principal: DeclaredAwsIamPrincipal,
-    condition: DomainLiteral,
+    condition: DeclaredAwsIamPolicyCondition,
   };
 }

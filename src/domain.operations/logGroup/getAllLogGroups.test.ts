@@ -1,6 +1,6 @@
 import { given, then } from 'test-fns';
 
-import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';
+import { getMockedAwsApiContext } from '../../.test/getMockedAwsApiContext';
 import * as castModule from './castIntoDeclaredAwsLogGroup';
 import { getAllLogGroups } from './getAllLogGroups';
 
@@ -14,7 +14,7 @@ jest.mock('@aws-sdk/client-cloudwatch-logs', () => {
 });
 jest.mock('./castIntoDeclaredAwsLogGroup');
 
-const context = getSampleAwsApiContext();
+const context = getMockedAwsApiContext();
 
 describe('getAllLogGroups', () => {
   beforeEach(() => {

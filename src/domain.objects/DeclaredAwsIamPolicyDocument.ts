@@ -1,6 +1,6 @@
 import { DomainLiteral } from 'domain-objects';
 
-import type { DeclaredAwsIamPolicyStatement } from './DeclaredAwsIamPolicyStatement';
+import { DeclaredAwsIamPolicyStatement } from './DeclaredAwsIamPolicyStatement';
 
 /**
  * .what = an iam policy document containing a list of policy statements
@@ -19,4 +19,9 @@ export interface DeclaredAwsIamPolicyDocument {
 
 export class DeclaredAwsIamPolicyDocument
   extends DomainLiteral<DeclaredAwsIamPolicyDocument>
-  implements DeclaredAwsIamPolicyDocument {}
+  implements DeclaredAwsIamPolicyDocument
+{
+  public static nested = {
+    statements: DeclaredAwsIamPolicyStatement,
+  };
+}

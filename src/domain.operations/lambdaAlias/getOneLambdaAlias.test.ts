@@ -1,7 +1,7 @@
 import { GetAliasCommand, LambdaClient } from '@aws-sdk/client-lambda';
 import { given, then, when } from 'test-fns';
 
-import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';
+import { getMockedAwsApiContext } from '../../.test/getMockedAwsApiContext';
 import * as getLambdaModule from '../lambda/getOneLambda';
 import { getOneLambdaAlias } from './getOneLambdaAlias';
 
@@ -13,7 +13,7 @@ const mockSend = jest.fn();
   send: mockSend,
 }));
 
-const context = getSampleAwsApiContext();
+const context = getMockedAwsApiContext();
 
 describe('getOneLambdaAlias', () => {
   beforeEach(() => {

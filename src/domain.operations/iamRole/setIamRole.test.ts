@@ -6,7 +6,7 @@ import {
 } from '@aws-sdk/client-iam';
 import { given, then, when } from 'test-fns';
 
-import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';
+import { getMockedAwsApiContext } from '../../.test/getMockedAwsApiContext';
 import type { DeclaredAwsIamRole } from '../../domain.objects/DeclaredAwsIamRole';
 import * as getIamRoleModule from './getIamRole';
 import { setIamRole } from './setIamRole';
@@ -20,7 +20,7 @@ const mockSend = jest.fn();
 }));
 (waitUntilRoleExists as jest.Mock).mockResolvedValue({});
 
-const context = getSampleAwsApiContext();
+const context = getMockedAwsApiContext();
 
 const roleSample: DeclaredAwsIamRole = {
   name: 'test-execution-role',

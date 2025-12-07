@@ -5,7 +5,7 @@ import {
 import type { UniDateTime } from '@ehmpathy/uni-time';
 import { given, then } from 'test-fns';
 
-import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';
+import { getMockedAwsApiContext } from '../../.test/getMockedAwsApiContext';
 import * as getAllLogGroupsModule from '../logGroup/getAllLogGroups';
 import * as getOneLogGroupModule from '../logGroup/getOneLogGroup';
 import * as castModule from './castIntoDeclaredAwsLogGroupReportCostOfIngestion';
@@ -21,7 +21,7 @@ const mockSend = jest.fn();
   send: mockSend,
 }));
 
-const context = getSampleAwsApiContext();
+const context = getMockedAwsApiContext();
 
 describe('getOneLogGroupReportCostOfIngestion', () => {
   beforeEach(() => {

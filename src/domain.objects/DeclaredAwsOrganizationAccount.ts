@@ -1,7 +1,8 @@
 import type { UniDateTime } from '@ehmpathy/uni-time';
-import { DomainEntity, DomainLiteral, RefByPrimary } from 'domain-objects';
+import { DomainEntity, RefByUnique } from 'domain-objects';
 
 import type { DeclaredAwsOrganization } from './DeclaredAwsOrganization';
+import { DeclaredAwsTags } from './DeclaredAwsTags';
 
 /**
  * .what = the state of an account in the organization lifecycle
@@ -54,7 +55,7 @@ export interface DeclaredAwsOrganizationAccount {
   /**
    * .what = the organization this account belongs to
    */
-  organization: RefByPrimary<typeof DeclaredAwsOrganization>;
+  organization: RefByUnique<typeof DeclaredAwsOrganization>;
 
   /**
    * .what = the friendly name of the account
@@ -104,7 +105,7 @@ export interface DeclaredAwsOrganizationAccount {
   /**
    * .what = tags to apply to the account
    */
-  tags?: Record<string, string>;
+  tags?: DeclaredAwsTags;
 }
 
 export class DeclaredAwsOrganizationAccount
@@ -139,7 +140,7 @@ export class DeclaredAwsOrganizationAccount
    * .what = nested domain object definitions
    */
   public static nested = {
-    organization: RefByPrimary<typeof DeclaredAwsOrganization>,
-    tags: DomainLiteral,
+    organization: RefByUnique<typeof DeclaredAwsOrganization>,
+    tags: DeclaredAwsTags,
   };
 }

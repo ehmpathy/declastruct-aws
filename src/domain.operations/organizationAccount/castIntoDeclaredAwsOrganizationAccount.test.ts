@@ -21,7 +21,7 @@ describe('castIntoDeclaredAwsOrganizationAccount', () => {
         };
         result = castIntoDeclaredAwsOrganizationAccount({
           account: awsAccount,
-          organization: { id: 'o-abc123xyz789' },
+          organization: { managementAccount: { id: '111111111111' } },
           tags: { Environment: 'production' },
         });
       });
@@ -32,7 +32,7 @@ describe('castIntoDeclaredAwsOrganizationAccount', () => {
           arn: 'arn:aws:organizations::111111111111:account/o-abc123xyz789/123456789012',
           name: 'test-account',
           email: 'test@example.com',
-          organization: { id: 'o-abc123xyz789' },
+          organization: { managementAccount: { id: '111111111111' } },
           state: 'ACTIVE',
           joinedMethod: 'CREATED',
           tags: { Environment: 'production' },
@@ -57,7 +57,7 @@ describe('castIntoDeclaredAwsOrganizationAccount', () => {
 
         const result = castIntoDeclaredAwsOrganizationAccount({
           account: awsAccount,
-          organization: { id: 'o-abc123xyz789' },
+          organization: { managementAccount: { id: '111111111111' } },
           tags: { Team: 'invited' },
         });
 
@@ -81,7 +81,7 @@ describe('castIntoDeclaredAwsOrganizationAccount', () => {
 
         const result = castIntoDeclaredAwsOrganizationAccount({
           account: awsAccount,
-          organization: { id: 'o-abc123xyz789' },
+          organization: { managementAccount: { id: '111111111111' } },
           tags: { Team: 'suspended' },
         });
 
@@ -102,7 +102,7 @@ describe('castIntoDeclaredAwsOrganizationAccount', () => {
         const error = await getError(() =>
           castIntoDeclaredAwsOrganizationAccount({
             account: awsAccount,
-            organization: { id: 'o-abc123xyz789' },
+            organization: { managementAccount: { id: '111111111111' } },
             tags: null,
           }),
         );
@@ -124,7 +124,7 @@ describe('castIntoDeclaredAwsOrganizationAccount', () => {
         const error = await getError(() =>
           castIntoDeclaredAwsOrganizationAccount({
             account: awsAccount,
-            organization: { id: 'o-abc123xyz789' },
+            organization: { managementAccount: { id: '111111111111' } },
             tags: null,
           }),
         );
@@ -148,12 +148,104 @@ describe('castIntoDeclaredAwsOrganizationAccount', () => {
 
         const result = castIntoDeclaredAwsOrganizationAccount({
           account: awsAccount,
-          organization: { id: 'o-abc123xyz789' },
+          organization: { managementAccount: { id: '111111111111' } },
           tags: null,
         });
 
         expect(result.tags).toBeUndefined();
       });
+    });
+  });
+
+  given('an AWS Account with write-only tags (_decla_writeonly_)', () => {
+    when('cast to domain object', () => {
+      then('it should extract iamUserAccessToBilling from tags', () => {
+        const awsAccount: Account = {
+          Id: '555555555555',
+          Arn: 'arn:aws:organizations::111111111111:account/o-abc123xyz789/555555555555',
+          Name: 'writeonly-account',
+          Email: 'writeonly@example.com',
+          Status: 'ACTIVE',
+          JoinedMethod: 'CREATED',
+          JoinedTimestamp: new Date('2024-01-15T10:30:00Z'),
+        };
+
+        const result = castIntoDeclaredAwsOrganizationAccount({
+          account: awsAccount,
+          organization: { managementAccount: { id: '111111111111' } },
+          tags: {
+            _decla_writeonly_iamUserAccessToBilling: 'ALLOW',
+            _decla_writeonly_roleName: 'CustomAccessRole',
+            Environment: 'production',
+          },
+        });
+
+        expect(result.iamUserAccessToBilling).toBe('ALLOW');
+        expect(result.roleName).toBe('CustomAccessRole');
+      });
+
+      then('it should filter out write-only tags from public tags', () => {
+        const awsAccount: Account = {
+          Id: '555555555555',
+          Arn: 'arn:aws:organizations::111111111111:account/o-abc123xyz789/555555555555',
+          Name: 'writeonly-account',
+          Email: 'writeonly@example.com',
+          Status: 'ACTIVE',
+          JoinedMethod: 'CREATED',
+          JoinedTimestamp: new Date('2024-01-15T10:30:00Z'),
+        };
+
+        const result = castIntoDeclaredAwsOrganizationAccount({
+          account: awsAccount,
+          organization: { managementAccount: { id: '111111111111' } },
+          tags: {
+            _decla_writeonly_iamUserAccessToBilling: 'DENY',
+            _decla_writeonly_roleName: 'OrganizationAccountAccessRole',
+            Environment: 'production',
+            Team: 'platform',
+          },
+        });
+
+        // write-only tags should not appear in public tags
+        expect(result.tags).toEqual({
+          Environment: 'production',
+          Team: 'platform',
+        });
+        expect(result.tags).not.toHaveProperty(
+          '_decla_writeonly_iamUserAccessToBilling',
+        );
+        expect(result.tags).not.toHaveProperty('_decla_writeonly_roleName');
+      });
+
+      then(
+        'it should return undefined tags when only write-only tags exist',
+        () => {
+          const awsAccount: Account = {
+            Id: '666666666666',
+            Arn: 'arn:aws:organizations::111111111111:account/o-abc123xyz789/666666666666',
+            Name: 'onlywriteonly-account',
+            Email: 'onlywriteonly@example.com',
+            Status: 'ACTIVE',
+            JoinedMethod: 'CREATED',
+            JoinedTimestamp: new Date('2024-01-15T10:30:00Z'),
+          };
+
+          const result = castIntoDeclaredAwsOrganizationAccount({
+            account: awsAccount,
+            organization: { managementAccount: { id: '111111111111' } },
+            tags: {
+              _decla_writeonly_iamUserAccessToBilling: 'ALLOW',
+              _decla_writeonly_roleName: 'OrganizationAccountAccessRole',
+            },
+          });
+
+          // no public tags, so tags should be undefined
+          expect(result.tags).toBeUndefined();
+          // but write-only values should still be extracted
+          expect(result.iamUserAccessToBilling).toBe('ALLOW');
+          expect(result.roleName).toBe('OrganizationAccountAccessRole');
+        },
+      );
     });
   });
 });

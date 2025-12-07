@@ -4,19 +4,17 @@ on:
   workflow_call:
     inputs:
       aws-region:
+        description: "AWS region for OIDC authentication"
+        required: true
         type: string
-        description: the aws region within which we should run the tests
-        required: false
-    secrets:
-      aws-account-id:
-        description: the id of the account the credentials are expected to access
-        required: false
-      aws-access-key-id:
-        required: false
-        description: required credentials to authenticate with aws the aws account against which to run the tests
-      aws-secret-access-key:
-        required: false
-        description: required credentials to authenticate with aws the aws account against which to run the tests
+      aws-role-arn:
+        description: "AWS IAM role ARN to assume via OIDC"
+        required: true
+        type: string
+
+permissions:
+  id-token: write # required for oidc
+  contents: read
 
 jobs:
   # install the dependencies
@@ -152,21 +150,14 @@ jobs:
           path: ./node_modules
           key: ${{ needs.install.outputs.node-modules-cache-key }}
 
-      - name: configure aws credentials
-        if: "${{ inputs.aws-region != '' }}"
-        uses: aws-actions/configure-aws-credentials@v1
-        id: credentials
+      - name: configure aws credentials (oidc)
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.aws-access-key-id }}
-          aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
+          role-to-assume: ${{ inputs.aws-role-arn }}
           aws-region: ${{ inputs.aws-region }}
 
-      - name: confirm aws credentials
-        if: "${{ inputs.aws-region != '' }}"
-        run: |
-          [[ ${{steps.credentials.outputs.aws-account-id}} != ${{ secrets.aws-account-id }} ]] \
-            && echo 'wrong aws account' && exit 1 \
-            || echo 'correct aws account';
+      - name: verify aws credentials
+        run: aws sts get-caller-identity
 
       - name: start:testdb
         run: npm run start:testdb --if-present
@@ -175,8 +166,7 @@ jobs:
         run: npm run start:livedb:dev --if-present
 
       - name: test:integration
-        run: |
-          echo 'todo: get a dedicated sample aws account for tests via public cicd'
+        run: THOROUGH=true npm run test:integration
 
   test-acceptance-locally:
     runs-on: ubuntu-24.04
@@ -196,21 +186,14 @@ jobs:
           path: ./node_modules
           key: ${{ needs.install.outputs.node-modules-cache-key }}
 
-      - name: configure aws credentials
-        if: "${{ inputs.aws-region != '' }}"
-        uses: aws-actions/configure-aws-credentials@v1
-        id: credentials
+      - name: configure aws credentials (oidc)
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.aws-access-key-id }}
-          aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
+          role-to-assume: ${{ inputs.aws-role-arn }}
           aws-region: ${{ inputs.aws-region }}
 
-      - name: confirm aws credentials
-        if: "${{ inputs.aws-region != '' }}"
-        run: |
-          [[ ${{steps.credentials.outputs.aws-account-id}} != ${{ secrets.aws-account-id }} ]] \
-            && echo 'wrong aws account' && exit 1 \
-            || echo 'correct aws account';
+      - name: verify aws credentials
+        run: aws sts get-caller-identity
 
       - name: start:testdb
         run: npm run start:testdb --if-present
@@ -219,5 +202,4 @@ jobs:
         run: npm run start:livedb:dev --if-present
 
       - name: test:acceptance:locally
-        run: |
-          echo 'todo: get a dedicated sample aws account for tests via public cicd'
+        run: THOROUGH=true npm run test:acceptance --if-present

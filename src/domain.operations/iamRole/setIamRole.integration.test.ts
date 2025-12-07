@@ -1,4 +1,4 @@
-import { given, then } from 'test-fns';
+import { given, then, useBeforeAll } from 'test-fns';
 
 import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';
 import type { DeclaredAwsIamRole } from '../../domain.objects/DeclaredAwsIamRole';
@@ -6,7 +6,7 @@ import { getIamRole } from './getIamRole';
 import { setIamRole } from './setIamRole';
 
 describe('setIamRole', () => {
-  const context = getSampleAwsApiContext();
+  const context = useBeforeAll(() => getSampleAwsApiContext());
 
   const testRoleName = 'declastruct-test-role';
 
