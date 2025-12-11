@@ -2,12 +2,12 @@ import { DescribeDBClustersCommand, RDSClient } from '@aws-sdk/client-rds';
 import { mockClient } from 'aws-sdk-client-mock';
 import { given, then, when } from 'test-fns';
 
-import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';
+import { getMockedAwsApiContext } from '../../.test/getMockedAwsApiContext';
 import { getRdsCluster } from './getRdsCluster';
 
 const rdsMock = mockClient(RDSClient);
 
-const mockContext = getSampleAwsApiContext();
+const mockContext = getMockedAwsApiContext();
 
 describe('getRdsCluster', () => {
   beforeEach(() => {

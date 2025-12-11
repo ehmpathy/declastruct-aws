@@ -5,7 +5,7 @@ import {
 } from '@aws-sdk/client-organizations';
 import { BadRequestError } from 'helpful-errors';
 import { given, then, when } from 'test-fns';
-import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';
+import { getMockedAwsApiContext } from '../../.test/getMockedAwsApiContext';
 import * as getAwsOrganizationsClientModule from '../../access/sdks/getAwsOrganizationsClient';
 import * as getOneAccountModule from './getOneOrganizationAccount';
 import { setOrganizationAccount } from './setOrganizationAccount';
@@ -16,12 +16,12 @@ jest.mock('./getOneOrganizationAccount');
 const mockSend = jest.fn();
 const mockClient = { send: mockSend } as unknown as OrganizationsClient;
 
-const context = getSampleAwsApiContext();
+const context = getMockedAwsApiContext();
 
 const sampleDesiredAccount = {
   name: 'test-account',
   email: 'test@example.com',
-  organization: { id: 'o-abc123xyz789' },
+  organization: { managementAccount: { id: '111111111111' } },
 };
 
 const sampleFoundAccount = {
@@ -29,7 +29,7 @@ const sampleFoundAccount = {
   arn: 'arn:aws:organizations::111111111111:account/o-abc123xyz789/123456789012',
   name: 'test-account',
   email: 'test@example.com',
-  organization: { id: 'o-abc123xyz789' },
+  organization: { managementAccount: { id: '111111111111' } },
   state: 'ACTIVE',
   joinedMethod: 'CREATED',
 };
@@ -42,7 +42,7 @@ describe('setOrganizationAccount', () => {
       getAwsOrganizationsClientModule.getAwsOrganizationsClient as jest.Mock
     ).mockResolvedValue({
       client: mockClient,
-      organization: { id: 'o-abc123xyz789' },
+      organization: { managementAccount: { id: '111111111111' } },
     });
     mockSend.mockResolvedValue({});
   });
@@ -205,7 +205,7 @@ describe('setOrganizationAccount', () => {
         getAwsOrganizationsClientModule.getAwsOrganizationsClient as jest.Mock
       ).mockResolvedValue({
         client: mockClient,
-        organization: { id: 'o-differentorg' },
+        organization: { managementAccount: { id: '999999999999' } },
       });
 
       await expect(
@@ -217,10 +217,10 @@ describe('setOrganizationAccount', () => {
     });
   });
 
-  given('finsert not provided', () => {
+  given('finsert or upsert not provided', () => {
     then('we should throw BadRequestError', async () => {
       await expect(setOrganizationAccount({} as any, context)).rejects.toThrow(
-        'finsert is required',
+        'finsert or upsert is required',
       );
     });
   });

@@ -1,6 +1,7 @@
 import {
   CreateAccountCommand,
   DescribeCreateAccountStatusCommand,
+  TagResourceCommand,
 } from '@aws-sdk/client-organizations';
 import { sleep } from '@ehmpathy/uni-time';
 import { asProcedure } from 'as-procedure';
@@ -15,63 +16,107 @@ import type { DeclaredAwsOrganizationAccount } from '../../domain.objects/Declar
 import { getOneOrganizationAccount } from './getOneOrganizationAccount';
 
 /**
- * .what = creates an organization account (finsert only)
+ * .what = creates an organization account (finsert or upsert)
  * .why = accounts cannot be updated after creation, only created
  * .note
  *   - CreateAccount is async; this polls until completion
  *   - finsert returns foundBefore if email already exists (idempotent)
+ *   - upsert syncs write-only tags when SYNC_WRITEONLY_TAGS=DeclaredAwsOrganizationAccount
  *   - fails fast if not authed as org manager (required for account creation)
  */
 export const setOrganizationAccount = asProcedure(
   async (
     input: PickOne<{
       finsert: DeclaredAwsOrganizationAccount;
-      // Note: upsert not supported — accounts cannot be updated
+      upsert: DeclaredAwsOrganizationAccount;
     }>,
     context: ContextAwsApi & VisualogicContext,
   ): Promise<HasReadonly<typeof DeclaredAwsOrganizationAccount>> => {
-    const desired = input.finsert;
+    const desired = input.finsert ?? input.upsert;
 
-    // failfast if finsert not provided
+    // failfast if neither provided
     if (!desired)
-      BadRequestError.throw(
-        'finsert is required (accounts cannot be updated)',
-        { input },
-      );
+      BadRequestError.throw('finsert or upsert is required', { input });
 
     // get org client (fail-fast on non-org-manager auth)
     const { client, organization } = await getAwsOrganizationsClient(context);
 
     // validate that the desired org (if provided) matches the authed account's org
-    if (desired.organization && organization.id !== desired.organization.id)
+    if (
+      desired.organization &&
+      organization.managementAccount.id !==
+        desired.organization.managementAccount.id
+    )
       BadRequestError.throw(
         'organization mismatch: authed account org does not match desired organization',
         {
-          desired: desired.organization.id,
-          actual: organization.id,
+          desired: desired.organization.managementAccount.id,
+          actual: organization.managementAccount.id,
         },
       );
 
-    // check if already exists (idempotent finsert)
+    // check if already exists
     const foundBefore = await getOneOrganizationAccount(
       { by: { unique: { email: desired.email } } },
       context,
     );
-    if (foundBefore) return foundBefore;
+    if (foundBefore) {
+      // finsert: return existing (idempotent, no changes)
+      if (input.finsert) return foundBefore;
+
+      // upsert: sync write-only tags if env var is set (for backfilling existing accounts)
+      const canSyncWriteonlyTags =
+        process.env.SYNC_WRITEONLY_TAGS === 'DeclaredAwsOrganizationAccount';
+      if (!canSyncWriteonlyTags) return foundBefore;
+
+      const iamUserAccessToBilling = desired.iamUserAccessToBilling ?? 'ALLOW';
+      const roleName = desired.roleName ?? 'OrganizationAccountAccessRole';
+      await client.send(
+        new TagResourceCommand({
+          ResourceId: foundBefore.id,
+          Tags: [
+            {
+              Key: '_decla_writeonly_iamUserAccessToBilling',
+              Value: iamUserAccessToBilling,
+            },
+            { Key: '_decla_writeonly_roleName', Value: roleName },
+          ],
+        }),
+      );
+      // re-fetch to return updated tags
+      return (
+        (await getOneOrganizationAccount(
+          { by: { primary: { id: foundBefore.id } } },
+          context,
+        )) ?? foundBefore
+      );
+    }
+
+    // build tags including write-only values (AWS doesn't return these on read)
+    const iamUserAccessToBilling = desired.iamUserAccessToBilling ?? 'ALLOW';
+    const roleName = desired.roleName ?? 'OrganizationAccountAccessRole';
+    const tags: Array<{ Key: string; Value: string }> = [
+      // persist write-only values as tags so we can read them back
+      {
+        Key: '_decla_writeonly_iamUserAccessToBilling',
+        Value: iamUserAccessToBilling,
+      },
+      { Key: '_decla_writeonly_roleName', Value: roleName },
+      // include user-specified tags
+      ...Object.entries(desired.tags ?? {}).map(([Key, Value]) => ({
+        Key,
+        Value,
+      })),
+    ];
 
     // create account (async operation)
     const createResponse = await client.send(
       new CreateAccountCommand({
         AccountName: desired.name,
         Email: desired.email,
-        IamUserAccessToBilling: desired.iamUserAccessToBilling ?? 'ALLOW',
-        RoleName: desired.roleName ?? 'OrganizationAccountAccessRole',
-        Tags: desired.tags
-          ? Object.entries(desired.tags).map(([Key, Value]) => ({
-              Key,
-              Value,
-            }))
-          : undefined,
+        IamUserAccessToBilling: iamUserAccessToBilling,
+        RoleName: roleName,
+        Tags: tags,
       }),
     );
 

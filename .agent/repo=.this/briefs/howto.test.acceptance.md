@@ -6,7 +6,7 @@ How to run acceptance tests for declastruct-aws.
 
 1. **AWS Profile**: You must have AWS credentials configured. Source the dev profile:
    ```sh
-   source .agent/repo=.this/skills/use.dev.awsprofile.sh
+   source .agent/repo=.this/skills/use.demo.awsprofile.sh
    ```
 
 2. **Build the project**: Acceptance tests use the `dist/` output, so you must build first:
@@ -17,12 +17,12 @@ How to run acceptance tests for declastruct-aws.
 ## Running Acceptance Tests
 
 ```sh
-source .agent/repo=.this/skills/use.dev.awsprofile.sh && npm run build && npm run test:acceptance
+source .agent/repo=.this/skills/use.demo.awsprofile.sh && npm run build && npm run test:acceptance
 ```
 
 Or with the locally flag if needed:
 ```sh
-source .agent/repo=.this/skills/use.dev.awsprofile.sh && npm run build && npm run test:acceptance:locally
+source .agent/repo=.this/skills/use.demo.awsprofile.sh && npm run build && npm run test:acceptance:locally
 ```
 
 ## How It Works

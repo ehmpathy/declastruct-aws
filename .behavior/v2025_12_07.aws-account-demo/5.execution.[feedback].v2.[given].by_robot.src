@@ -1,0 +1,13 @@
+take a look at the current git diff (staged and unstaged) and the briefs in behavior .behavior/v2025_12_07.aws-account-demo/*
+
+now, think through what we're missing behaviorally
+
+what will work
+
+what wont work
+
+will this fulfill the wish and work out of the box?
+
+emit a list of blockers and nitpicks in the format of .behavior/v2025_12_07.aws-account-demo/.ref.[feedback].v1.[given].by_human.md
+
+emit that feedback into .behavior/v2025_12_07.aws-account-demo/5.execution.[feedback].v2.[given].by_robot.i1.md

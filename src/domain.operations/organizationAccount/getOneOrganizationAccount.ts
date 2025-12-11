@@ -22,6 +22,7 @@ import type { VisualogicContext } from 'visualogic';
 
 import { getAwsOrganizationsClient } from '../../access/sdks/getAwsOrganizationsClient';
 import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
+import type { DeclaredAwsOrganization } from '../../domain.objects/DeclaredAwsOrganization';
 import { DeclaredAwsOrganizationAccount } from '../../domain.objects/DeclaredAwsOrganizationAccount';
 import { castIntoDeclaredAwsOrganizationAccount } from './castIntoDeclaredAwsOrganizationAccount';
 import { getOneOrganizationAccountTags } from './getOneOrganizationAccountTags';
@@ -66,7 +67,11 @@ export const getOneOrganizationAccount = asProcedure(
 
     // by.unique requires search
     if (input.by.unique)
-      return findAccountByEmail(input.by.unique.email, organization, client);
+      return findAccountByEmail({
+        email: input.by.unique.email,
+        organization,
+        client,
+      });
 
     // by.primary - lookup by id
     const accountId = input.by.primary?.id;
@@ -76,7 +81,7 @@ export const getOneOrganizationAccount = asProcedure(
       });
 
     // get account by id
-    return getAccountById(accountId, organization, client);
+    return getAccountById({ accountId, organization, client });
   },
 );
 
@@ -84,26 +89,26 @@ export const getOneOrganizationAccount = asProcedure(
  * .what = gets account by id from organization
  * .why = hydrates full account details including tags
  */
-const getAccountById = async (
-  accountId: string,
-  organization: { id: string },
-  client: OrganizationsClient,
-): Promise<HasReadonly<typeof DeclaredAwsOrganizationAccount> | null> => {
+const getAccountById = async (input: {
+  accountId: string;
+  organization: RefByUnique<typeof DeclaredAwsOrganization>;
+  client: OrganizationsClient;
+}): Promise<HasReadonly<typeof DeclaredAwsOrganizationAccount> | null> => {
   try {
-    const response = await client.send(
-      new DescribeAccountCommand({ AccountId: accountId }),
+    const response = await input.client.send(
+      new DescribeAccountCommand({ AccountId: input.accountId }),
     );
     if (!response.Account) return null;
 
     // get tags
     const tags = await getOneOrganizationAccountTags(
-      { by: { primary: { id: accountId } } },
-      { client },
+      { by: { primary: { id: input.accountId } } },
+      { client: input.client },
     );
 
     return castIntoDeclaredAwsOrganizationAccount({
       account: response.Account,
-      organization: { id: organization.id },
+      organization: input.organization,
       tags,
     });
   } catch (error) {
@@ -120,22 +125,28 @@ const getAccountById = async (
  * .what = searches for account by email in organization
  * .why = unique key lookup requires iterating org accounts
  */
-const findAccountByEmail = async (
-  email: string,
-  organization: { id: string },
-  client: OrganizationsClient,
-): Promise<HasReadonly<typeof DeclaredAwsOrganizationAccount> | null> => {
+const findAccountByEmail = async (input: {
+  email: string;
+  organization: RefByUnique<typeof DeclaredAwsOrganization>;
+  client: OrganizationsClient;
+}): Promise<HasReadonly<typeof DeclaredAwsOrganizationAccount> | null> => {
   let nextToken: string | undefined;
   do {
-    const response = await client.send(
+    const response = await input.client.send(
       new ListAccountsCommand({ NextToken: nextToken }),
     );
 
     // find the account by email
-    const found = response.Accounts?.find((acc) => acc.Email === email);
+    const found = response.Accounts?.find((acc) => acc.Email === input.email);
     if (found) {
       // get full details via getAccountById
-      return found.Id ? getAccountById(found.Id, organization, client) : null;
+      return found.Id
+        ? getAccountById({
+            accountId: found.Id,
+            organization: input.organization,
+            client: input.client,
+          })
+        : null;
     }
 
     nextToken = response.NextToken;

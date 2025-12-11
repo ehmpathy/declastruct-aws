@@ -1,0 +1,10 @@
+take a look at the current git diff (staged and unstaged) and the briefs in behavior .behavior/v2025_12_07.aws-account-demo/*
+
+now, take a look at the other .behaviors/*feedback*given*.md and .behavior/*feedback*given*.md files
+
+what are mistakes that were previously called out as blockers in the past which are still being done in the latest git diff?
+
+
+emit a list of blockers and nitpicks in the format of .behavior/v2025_12_07.aws-account-demo/.ref.[feedback].v1.[given].by_human.md
+
+emit that feedback into .behavior/v2025_12_07.aws-account-demo/5.execution.[feedback].v3.[given].by_robot.i1.md

@@ -24,6 +24,9 @@ export const castIntoDeclaredAwsLambda = (
   // extract codeZipUri from tags (set by setLambda, null if not created by declastruct)
   const { codeZipUri, ...userTags } = input.tags ?? {};
 
+  // parse tags (only include if present)
+  const tags = Object.keys(userTags).length > 0 ? userTags : undefined;
+
   // cast and assure readonly fields are present
   return assure(
     DeclaredAwsLambda.as({
@@ -42,9 +45,9 @@ export const castIntoDeclaredAwsLambda = (
       updatedAt: isUniDateTime.assure(
         assure(input.LastModified, isPresent).replace('+0000', 'Z'),
       ),
-      envars: assure(input.Environment, isPresent).Variables ?? {},
+      envars: input.Environment?.Variables ?? {},
       codeZipUri: codeZipUri ?? null,
-      tags: Object.keys(userTags).length > 0 ? userTags : undefined,
+      ...(tags !== undefined && { tags }),
     }),
     hasReadonly({ of: DeclaredAwsLambda }),
   );

@@ -1,7 +1,7 @@
 import { LambdaClient, PublishVersionCommand } from '@aws-sdk/client-lambda';
 import { given, then, when } from 'test-fns';
 
-import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';
+import { getMockedAwsApiContext } from '../../.test/getMockedAwsApiContext';
 import type { DeclaredAwsLambdaVersion } from '../../domain.objects/DeclaredAwsLambdaVersion';
 import * as getLambdaModule from '../lambda/getOneLambda';
 import * as getLambdaVersionModule from './getOneLambdaVersion';
@@ -18,7 +18,7 @@ const mockSend = jest.fn();
   send: mockSend,
 }));
 
-const context = getSampleAwsApiContext();
+const context = getMockedAwsApiContext();
 
 const versionSample: DeclaredAwsLambdaVersion = {
   lambda: { name: 'test-function' },

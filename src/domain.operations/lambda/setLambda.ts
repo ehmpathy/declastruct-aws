@@ -2,6 +2,7 @@ import {
   CreateFunctionCommand,
   type CreateFunctionRequest,
   LambdaClient,
+  ResourceConflictException,
   type UpdateFunctionCodeRequest,
   UpdateFunctionConfigurationCommand,
 } from '@aws-sdk/client-lambda';
@@ -84,17 +85,38 @@ export const setLambda = asProcedure(
 
     // if its an upsert and had a before, then this requires an update operation
     if (before && input.upsert) {
-      const updated = await awsLambdaSdk.send(
+      await awsLambdaSdk.send(
         new UpdateFunctionConfigurationCommand(setRequest),
       );
-      return castIntoDeclaredAwsLambda(updated);
+      // fetch full state after update (UpdateFunctionConfiguration response is partial)
+      const updated = await getOneLambda(
+        { by: { unique: { name: lambdaDesired.name } } },
+        context,
+      );
+      if (!updated)
+        throw new BadRequestError('lambda disappeared after update', {
+          lambdaDesired,
+        });
+      return updated;
     }
 
     // otherwise, create it
-    const created = await awsLambdaSdk.send(
-      new CreateFunctionCommand(setRequest),
-    );
-
-    return castIntoDeclaredAwsLambda(created);
+    try {
+      const created = await awsLambdaSdk.send(
+        new CreateFunctionCommand(setRequest),
+      );
+      return castIntoDeclaredAwsLambda(created);
+    } catch (error) {
+      // handle race condition: if finsert and lambda was created between our check and create,
+      // fetch and return the foundAfter lambda (makes finsert idempotent even under race conditions)
+      if (error instanceof ResourceConflictException && input.finsert) {
+        const foundAfter = await getOneLambda(
+          { by: { unique: { name: lambdaDesired.name } } },
+          context,
+        );
+        if (foundAfter) return foundAfter;
+      }
+      throw error;
+    }
   },
 );

@@ -1,0 +1,20 @@
+propose a blueprint for how we can implement the wish described
+- in .behavior/v2025_12_07.aws-account-demo/0.wish.md
+- in .behavior/v2025_12_07.aws-account-demo/1.vision.md
+
+with the domain distillation declared
+- in .behavior/v2025_12_07.aws-account-demo/3.2.distill.domain._.v1.i1.md
+
+follow the patterns already present in this repo
+
+---
+
+reference the below for full context
+- .behavior/v2025_12_07.aws-account-demo/0.wish.md
+- .behavior/v2025_12_07.aws-account-demo/3.1.research.domain._.v1.i1.md
+- .behavior/v2025_12_07.aws-account-demo/3.2.distill.domain._.v1.i1.md
+
+
+---
+
+emit to .behavior/v2025_12_07.aws-account-demo/3.3.blueprint.v1.i1.md

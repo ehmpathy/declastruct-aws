@@ -7,8 +7,9 @@ import * as path from 'path';
 import type { ContextLogTrail } from 'simple-log-methods';
 
 import { DeclaredAwsEc2InstanceDao } from '../../access/daos/DeclaredAwsEc2InstanceDao';
+import { DeclaredAwsIamOidcProviderDao } from '../../access/daos/DeclaredAwsIamOidcProviderDao';
 import { DeclaredAwsIamRoleDao } from '../../access/daos/DeclaredAwsIamRoleDao';
-import { DeclaredAwsIamRolePolicyDao } from '../../access/daos/DeclaredAwsIamRolePolicyDao';
+import { DeclaredAwsIamRolePolicyAttachedInlineDao } from '../../access/daos/DeclaredAwsIamRolePolicyAttachedInlineDao';
 import { DeclaredAwsLambdaAliasDao } from '../../access/daos/DeclaredAwsLambdaAliasDao';
 import { DeclaredAwsLambdaDao } from '../../access/daos/DeclaredAwsLambdaDao';
 import { DeclaredAwsLambdaVersionDao } from '../../access/daos/DeclaredAwsLambdaVersionDao';
@@ -18,7 +19,12 @@ import { DeclaredAwsLogGroupReportDistOfPatternDao } from '../../access/daos/Dec
 import { DeclaredAwsOrganizationAccountDao } from '../../access/daos/DeclaredAwsOrganizationAccountDao';
 import { DeclaredAwsOrganizationDao } from '../../access/daos/DeclaredAwsOrganizationDao';
 import { DeclaredAwsRdsClusterDao } from '../../access/daos/DeclaredAwsRdsClusterDao';
+import { DeclaredAwsSsoAccountAssignmentDao } from '../../access/daos/DeclaredAwsSsoAccountAssignmentDao';
+import { DeclaredAwsSsoInstanceDao } from '../../access/daos/DeclaredAwsSsoInstanceDao';
+import { DeclaredAwsSsoPermissionSetDao } from '../../access/daos/DeclaredAwsSsoPermissionSetDao';
+import { DeclaredAwsSsoUserDao } from '../../access/daos/DeclaredAwsSsoUserDao';
 import { DeclaredAwsVpcTunnelDao } from '../../access/daos/DeclaredAwsVpcTunnelDao';
+import { DeclaredAwsIamRolePolicyAttachedManagedDao } from '../../contract/sdks';
 import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
 import type { DeclastructAwsProvider } from '../../domain.objects/DeclastructAwsProvider';
 
@@ -65,8 +71,8 @@ export const getDeclastructAwsProvider = async (
   // assemble DAOs for all aws resource types
   const daos = {
     DeclaredAwsEc2Instance: DeclaredAwsEc2InstanceDao,
+    DeclaredAwsIamOidcProvider: DeclaredAwsIamOidcProviderDao,
     DeclaredAwsIamRole: DeclaredAwsIamRoleDao,
-    DeclaredAwsIamRolePolicy: DeclaredAwsIamRolePolicyDao,
     DeclaredAwsLambda: DeclaredAwsLambdaDao,
     DeclaredAwsLambdaAlias: DeclaredAwsLambdaAliasDao,
     DeclaredAwsLambdaVersion: DeclaredAwsLambdaVersionDao,
@@ -78,7 +84,15 @@ export const getDeclastructAwsProvider = async (
     DeclaredAwsOrganization: DeclaredAwsOrganizationDao,
     DeclaredAwsOrganizationAccount: DeclaredAwsOrganizationAccountDao,
     DeclaredAwsRdsCluster: DeclaredAwsRdsClusterDao,
+    DeclaredAwsSsoAccountAssignment: DeclaredAwsSsoAccountAssignmentDao,
+    DeclaredAwsSsoInstance: DeclaredAwsSsoInstanceDao,
+    DeclaredAwsSsoPermissionSet: DeclaredAwsSsoPermissionSetDao,
+    DeclaredAwsSsoUser: DeclaredAwsSsoUserDao,
     DeclaredAwsVpcTunnel: DeclaredAwsVpcTunnelDao,
+    DeclaredAwsIamRolePolicyAttachedInline:
+      DeclaredAwsIamRolePolicyAttachedInlineDao,
+    DeclaredAwsIamRolePolicyAttachedManaged:
+      DeclaredAwsIamRolePolicyAttachedManagedDao,
   };
 
   // return provider with all required properties
@@ -102,7 +116,7 @@ export const getDeclastructAwsProvider = async (
  * .why = ensures credentials always reflect actual AWS auth state
  * .note = region from env vars or aws config file, account from STS identity
  */
-const getCredentials = async (): Promise<{
+export const getCredentials = async (): Promise<{
   region: string;
   account: string;
 }> => {

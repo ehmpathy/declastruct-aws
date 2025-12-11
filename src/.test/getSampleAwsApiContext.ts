@@ -1,19 +1,17 @@
 import type { ContextLogTrail } from 'simple-log-methods';
 
 import { ContextAwsApi } from '../domain.objects/ContextAwsApi';
+import { getCredentials } from '../domain.operations/provider/getDeclastructAwsProvider';
 
 /**
  * .what = creates a sample AWS API context for testing
  * .why = provides consistent test context across unit and integration tests
  */
-export const getSampleAwsApiContext = (input?: {
+export const getSampleAwsApiContext = async (input?: {
   cacheDir?: string;
-}): ContextAwsApi & ContextLogTrail => ({
+}): Promise<ContextAwsApi & ContextLogTrail> => ({
   aws: {
-    credentials: {
-      region: process.env.AWS_REGION ?? 'us-east-1',
-      account: process.env.AWS_ACCOUNT ?? '123456789012',
-    },
+    credentials: await getCredentials(),
     cache: {
       DeclaredAwsVpcTunnel: {
         processes: {

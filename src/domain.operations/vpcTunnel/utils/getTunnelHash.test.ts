@@ -1,10 +1,10 @@
 import { given, then, when } from 'test-fns';
 
-import { getSampleAwsApiContext } from '../../../.test/getSampleAwsApiContext';
+import { getMockedAwsApiContext } from '../../../.test/getMockedAwsApiContext';
 import { getTunnelHash } from './getTunnelHash';
 
 describe('getTunnelHash', () => {
-  const context = getSampleAwsApiContext();
+  const context = getMockedAwsApiContext();
 
   given('a tunnel reference', () => {
     when('hashed twice', () => {

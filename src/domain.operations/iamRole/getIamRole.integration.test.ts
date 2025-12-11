@@ -1,10 +1,10 @@
-import { given, then } from 'test-fns';
+import { given, then, useBeforeAll } from 'test-fns';
 
 import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';
 import { getIamRole } from './getIamRole';
 
 describe('getIamRole', () => {
-  const context = getSampleAwsApiContext();
+  const context = useBeforeAll(() => getSampleAwsApiContext());
 
   given('a common aws service role', () => {
     then(

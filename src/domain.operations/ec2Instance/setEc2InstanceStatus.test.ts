@@ -7,13 +7,13 @@ import {
 import { mockClient } from 'aws-sdk-client-mock';
 import { given, then, when } from 'test-fns';
 
-import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';
+import { getMockedAwsApiContext } from '../../.test/getMockedAwsApiContext';
 import type { DeclaredAwsEc2Instance } from '../../domain.objects/DeclaredAwsEc2Instance';
 import { setEc2InstanceStatus } from './setEc2InstanceStatus';
 
 const ec2Mock = mockClient(EC2Client);
 
-const mockContext = getSampleAwsApiContext();
+const mockContext = getMockedAwsApiContext();
 
 describe('setEc2InstanceStatus', () => {
   beforeEach(() => {

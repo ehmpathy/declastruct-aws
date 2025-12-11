@@ -1,5 +1,5 @@
 import { UnexpectedCodePathError } from 'helpful-errors';
-import { given, then } from 'test-fns';
+import { given, then, useBeforeAll } from 'test-fns';
 
 import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';
 import { getAllLambdas } from '../lambda/getAllLambdas';
@@ -7,7 +7,7 @@ import { getAllLambdaAliases } from './getAllLambdaAliases';
 import { getOneLambdaAlias } from './getOneLambdaAlias';
 
 describe('getOneLambdaAlias', () => {
-  const context = getSampleAwsApiContext();
+  const context = useBeforeAll(() => getSampleAwsApiContext());
 
   given('an existing lambda', () => {
     then('we should be able to list aliases', async () => {

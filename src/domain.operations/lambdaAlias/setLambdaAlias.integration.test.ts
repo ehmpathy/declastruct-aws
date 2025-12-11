@@ -1,4 +1,4 @@
-import { given, then } from 'test-fns';
+import { given, then, useBeforeAll } from 'test-fns';
 
 import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';
 import { getOneLambda } from '../lambda/getOneLambda';
@@ -8,25 +8,22 @@ import { getOneLambdaAlias } from './getOneLambdaAlias';
 import { setLambdaAlias } from './setLambdaAlias';
 
 describe('setLambdaAlias', () => {
-  const context = getSampleAwsApiContext();
+  const context = useBeforeAll(() => getSampleAwsApiContext());
 
+  // use the same lambda created by setLambda.integration.test.ts
   const testLambdaName = 'declastruct-test-lambda';
   const testAliasName = 'INTEGRATION';
 
   given('a lambda with published versions', () => {
-    then.skip('we should be able to create an alias', async () => {
+    then('we should be able to create an alias', async () => {
       // check lambda exists
       const lambda = await getOneLambda(
         { by: { unique: { name: testLambdaName } } },
         context,
       );
 
-      if (!lambda) {
-        console.log(
-          'Lambda not found - run setLambdaVersion integration test first',
-        );
-        return;
-      }
+      expect(lambda).not.toBeNull();
+      if (!lambda) return;
 
       // get published versions
       const versions = await getAllLambdaVersions(
@@ -37,12 +34,8 @@ describe('setLambdaAlias', () => {
       const publishedVersions = versions.filter(
         (v: { version: string }) => v.version !== '$LATEST',
       );
-      if (publishedVersions.length === 0) {
-        console.log(
-          'No published versions - run setLambdaVersion integration test first',
-        );
-        return;
-      }
+      expect(publishedVersions.length).toBeGreaterThan(0);
+      if (publishedVersions.length === 0) return;
 
       const versionToAlias = publishedVersions[0]!;
       console.log('Creating alias for version:', versionToAlias);
@@ -68,7 +61,7 @@ describe('setLambdaAlias', () => {
       console.log('Created alias:', alias);
     });
 
-    then.skip('we should be able to get the alias we created', async () => {
+    then('we should be able to get the alias we created', async () => {
       const alias = await getOneLambdaAlias(
         {
           by: {
@@ -81,15 +74,12 @@ describe('setLambdaAlias', () => {
         context,
       );
 
-      if (alias) {
-        expect(alias.name).toBe(testAliasName);
-        console.log('Found alias:', alias);
-      } else {
-        console.log('Alias not found - run create test first');
-      }
+      expect(alias).not.toBeNull();
+      expect(alias?.name).toBe(testAliasName);
+      console.log('Found alias:', alias);
     });
 
-    then.skip('finsert should be idempotent for same version', async () => {
+    then('finsert should be idempotent for same version', async () => {
       const versions = await getAllLambdaVersions(
         { by: { lambda: { name: testLambdaName } } },
         context,
@@ -98,10 +88,8 @@ describe('setLambdaAlias', () => {
       const publishedVersions = versions.filter(
         (v: { version: string }) => v.version !== '$LATEST',
       );
-      if (publishedVersions.length === 0) {
-        console.log('No published versions');
-        return;
-      }
+      expect(publishedVersions.length).toBeGreaterThan(0);
+      if (publishedVersions.length === 0) return;
 
       const versionToAlias = publishedVersions[0]!;
 
@@ -125,7 +113,7 @@ describe('setLambdaAlias', () => {
       console.log('Idempotent alias:', alias);
     });
 
-    then.skip('we should be able to delete the alias', async () => {
+    then('we should be able to delete the alias', async () => {
       const result = await delLambdaAlias(
         {
           by: {

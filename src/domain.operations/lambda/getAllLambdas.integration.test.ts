@@ -1,10 +1,10 @@
-import { given, then } from 'test-fns';
+import { given, then, useBeforeAll } from 'test-fns';
 
 import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';
 import { getAllLambdas } from './getAllLambdas';
 
 describe('getAllLambdas', () => {
-  const context = getSampleAwsApiContext();
+  const context = useBeforeAll(() => getSampleAwsApiContext());
 
   given('an account with lambdas', () => {
     then('we should be able to get a list', async () => {

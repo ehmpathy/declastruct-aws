@@ -35,21 +35,26 @@ export const castIntoDeclaredAwsIamRole = (
   // cast to domain format
   const document = castIntoDeclaredAwsIamPolicyDocument(trustPolicyDocRaw);
 
+  // parse tags (only include if present)
+  const tags = role.Tags?.length
+    ? role.Tags.reduce(
+        (acc, tag) => {
+          if (tag.Key && tag.Value) acc[tag.Key] = tag.Value;
+          return acc;
+        },
+        {} as Record<string, string>,
+      )
+    : undefined;
+
   // cast and assure readonly fields are present
   return assure(
     DeclaredAwsIamRole.as({
       arn: role.Arn,
       name: role.RoleName,
       path: role.Path,
-      description: role.Description,
       policies: document.statements,
-      tags: role.Tags?.reduce(
-        (acc, tag) => {
-          if (tag.Key && tag.Value) acc[tag.Key] = tag.Value;
-          return acc;
-        },
-        {} as Record<string, string>,
-      ),
+      ...(role.Description !== undefined && { description: role.Description }),
+      ...(tags !== undefined && { tags }),
     }),
     hasReadonly({ of: DeclaredAwsIamRole }),
   );

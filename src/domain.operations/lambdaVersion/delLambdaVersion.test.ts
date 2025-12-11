@@ -1,7 +1,7 @@
 import { DeleteFunctionCommand, LambdaClient } from '@aws-sdk/client-lambda';
 import { given, then, when } from 'test-fns';
 
-import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';
+import { getMockedAwsApiContext } from '../../.test/getMockedAwsApiContext';
 import * as getLambdaModule from '../lambda/getOneLambda';
 import { delLambdaVersion } from './delLambdaVersion';
 import * as getLambdaVersionModule from './getOneLambdaVersion';
@@ -15,7 +15,7 @@ const mockSend = jest.fn();
   send: mockSend,
 }));
 
-const context = getSampleAwsApiContext();
+const context = getMockedAwsApiContext();
 
 const lambdaSample = {
   name: 'test-function',

@@ -31,15 +31,19 @@ if (
   throw new Error(`integration.test is not targeting stage 'test'`);
 
 /**
- * sanity check that AWS_PROFILE is available for integration tests
+ * sanity check that AWS credentials are available for integration tests
  *
  * usecases
  * - prevent silent test failures due to missing credentials
- * - provide clear instructions on how to set up token
+ * - provide clear instructions on how to set up credentials
+ *
+ * supports
+ * - AWS_PROFILE: local dev via ~/.aws/config profiles
+ * - AWS_ACCESS_KEY_ID: CI/CD via OIDC or IAM credentials
  */
-if (!process.env.AWS_PROFILE)
+if (!(process.env.AWS_PROFILE || process.env.AWS_ACCESS_KEY_ID))
   throw new Error(
-    'AWS_PROFILE not set. Run: source .agent/repo=.this/skills/use.dev.awsprofile.sh',
+    'AWS credentials not set. Run: source .agent/repo=.this/skills/use.demo.awsprofile.sh',
   );
 
 /**

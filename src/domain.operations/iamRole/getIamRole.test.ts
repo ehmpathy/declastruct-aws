@@ -1,7 +1,7 @@
 import { GetRoleCommand, IAMClient } from '@aws-sdk/client-iam';
 import { given, then, when } from 'test-fns';
 
-import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';
+import { getMockedAwsApiContext } from '../../.test/getMockedAwsApiContext';
 import { getIamRole } from './getIamRole';
 
 jest.mock('@aws-sdk/client-iam');
@@ -11,7 +11,7 @@ const mockSend = jest.fn();
   send: mockSend,
 }));
 
-const context = getSampleAwsApiContext();
+const context = getMockedAwsApiContext();
 
 describe('getIamRole', () => {
   beforeEach(() => {

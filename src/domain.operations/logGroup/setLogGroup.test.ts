@@ -6,7 +6,7 @@ import {
 } from '@aws-sdk/client-cloudwatch-logs';
 import { given, then, when } from 'test-fns';
 
-import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';
+import { getMockedAwsApiContext } from '../../.test/getMockedAwsApiContext';
 import type { DeclaredAwsLogGroup } from '../../domain.objects/DeclaredAwsLogGroup';
 import * as getOneLogGroupModule from './getOneLogGroup';
 import { setLogGroup } from './setLogGroup';
@@ -19,7 +19,7 @@ const mockSend = jest.fn();
   send: mockSend,
 }));
 
-const context = getSampleAwsApiContext();
+const context = getMockedAwsApiContext();
 
 const logGroupSample: DeclaredAwsLogGroup = {
   name: '/aws/lambda/test-function',

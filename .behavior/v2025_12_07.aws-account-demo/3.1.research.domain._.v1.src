@@ -1,0 +1,38 @@
+research the domain available in order to fulfill the wish declared
+in .behavior/v2025_12_07.aws-account-demo/0.wish.md
+in .behavior/v2025_12_07.aws-account-demo/1.vision.md
+
+specifically
+- what are the domain objects that are involved with this wish
+  - entities
+  - events
+  - literals
+- what are the domain operations
+  - getOne
+  - getAll
+  - setCreate
+  - setUpdate
+  - setDelete
+  - ...
+
+---
+
+use web search to discover and research
+- cite every claim
+- number each citation
+- clone exact quotes from each citation
+
+focus on these sdk's for reference
+- aws-sdk
+
+---
+
+see this background research for context
+- .behavior/v2025_12_07.aws-account-demo/3.1.research.aws-account-auth.p1.admin-setup.md
+- .behavior/v2025_12_07.aws-account-demo/3.1.research.aws-account-auth.p2.cicd-setup.md
+- .behavior/v2025_12_07.aws-account-demo/3.1.research.aws-account-auth.p3.recommendation.md
+- .behavior/v2025_12_07.aws-account-demo/3.1.research.aws-account-auth.p4.catalog-overview.md
+
+---
+
+emit into .behavior/v2025_12_07.aws-account-demo/3.1.research.domain._.v1.i1.md

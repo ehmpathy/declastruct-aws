@@ -4,7 +4,7 @@ import {
 } from '@aws-sdk/client-organizations';
 import { BadRequestError } from 'helpful-errors';
 import { given, then } from 'test-fns';
-import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';
+import { getMockedAwsApiContext } from '../../.test/getMockedAwsApiContext';
 import * as getAwsOrganizationsClientModule from '../../access/sdks/getAwsOrganizationsClient';
 import { delOrganizationAccount } from './delOrganizationAccount';
 import * as getOneAccountModule from './getOneOrganizationAccount';
@@ -15,7 +15,7 @@ jest.mock('./getOneOrganizationAccount');
 const mockSend = jest.fn();
 const mockClient = { send: mockSend } as unknown as OrganizationsClient;
 
-const context = getSampleAwsApiContext();
+const context = getMockedAwsApiContext();
 
 const sampleAccountRef = {
   primary: { id: '123456789012' },

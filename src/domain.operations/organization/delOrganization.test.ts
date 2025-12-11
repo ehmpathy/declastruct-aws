@@ -4,7 +4,7 @@ import {
 } from '@aws-sdk/client-organizations';
 import { given, then } from 'test-fns';
 
-import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';
+import { getMockedAwsApiContext } from '../../.test/getMockedAwsApiContext';
 import { delOrganization } from './delOrganization';
 import * as getOneModule from './getOneOrganization';
 
@@ -16,7 +16,7 @@ const mockSend = jest.fn();
   send: mockSend,
 }));
 
-const context = getSampleAwsApiContext();
+const context = getMockedAwsApiContext();
 
 const sampleOrgRef = {
   primary: { id: 'o-abc123xyz789' },

@@ -1,5 +1,5 @@
 import { UnexpectedCodePathError } from 'helpful-errors';
-import { given, then } from 'test-fns';
+import { given, then, useBeforeAll } from 'test-fns';
 
 import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';
 import { getAllLambdas } from '../lambda/getAllLambdas';
@@ -7,7 +7,7 @@ import { getAllLambdaVersions } from './getAllLambdaVersions';
 import { getOneLambdaVersion } from './getOneLambdaVersion';
 
 describe('getOneLambdaVersion', () => {
-  const context = getSampleAwsApiContext();
+  const context = useBeforeAll(() => getSampleAwsApiContext());
 
   given('an existing lambda with published versions', () => {
     then('we should be able to list versions', async () => {
