@@ -1,5 +1,4 @@
-import { DeclastructDao } from 'declastruct';
-import { isRefByPrimary, isRefByUnique } from 'domain-objects';
+import { genDeclastructDao } from 'declastruct';
 import { UnexpectedCodePathError } from 'helpful-errors';
 import type { ContextLogTrail } from 'simple-log-methods';
 
@@ -14,31 +13,19 @@ import { getOneIamPolicy } from '../../domain.operations/iamPolicy/getOneIamPoli
  *   - currently read-only (no set/delete operations)
  *   - supports both aws-managed and customer-managed policies
  */
-export const DeclaredAwsIamPolicyDao = new DeclastructDao<
-  DeclaredAwsIamPolicy,
+export const DeclaredAwsIamPolicyDao = genDeclastructDao<
   typeof DeclaredAwsIamPolicy,
   ContextAwsApi & ContextLogTrail
 >({
+  dobj: DeclaredAwsIamPolicy,
   get: {
-    byPrimary: async (input, context) => {
-      return getOneIamPolicy({ by: { primary: input } }, context);
-    },
-    byUnique: async (input, context) => {
-      return getOneIamPolicy({ by: { unique: input } }, context);
-    },
-    byRef: async (input, context) => {
-      // route to primary if ref is by primary
-      if (isRefByPrimary({ of: DeclaredAwsIamPolicy })(input))
+    one: {
+      byPrimary: async (input, context) => {
         return getOneIamPolicy({ by: { primary: input } }, context);
-
-      // route to unique if ref is by unique
-      if (isRefByUnique({ of: DeclaredAwsIamPolicy })(input))
+      },
+      byUnique: async (input, context) => {
         return getOneIamPolicy({ by: { unique: input } }, context);
-
-      // failfast if ref is neither
-      UnexpectedCodePathError.throw('ref is neither primary nor unique', {
-        input,
-      });
+      },
     },
   },
   set: {
@@ -52,5 +39,6 @@ export const DeclaredAwsIamPolicyDao = new DeclastructDao<
         'DeclaredAwsIamPolicy is read-only; use aws console or cli to update managed policies',
       );
     },
+    delete: null,
   },
 });

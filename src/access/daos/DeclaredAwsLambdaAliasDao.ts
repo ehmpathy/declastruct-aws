@@ -1,6 +1,4 @@
-import { DeclastructDao } from 'declastruct';
-import { isRefByPrimary, isRefByUnique } from 'domain-objects';
-import { UnexpectedCodePathError } from 'helpful-errors';
+import { genDeclastructDao } from 'declastruct';
 import type { ContextLogTrail } from 'simple-log-methods';
 
 import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
@@ -13,29 +11,19 @@ import { setLambdaAlias } from '../../domain.operations/lambdaAlias/setLambdaAli
  * .what = declastruct DAO for AWS Lambda alias resources
  * .why = wraps lambda alias operations to conform to declastruct interface
  */
-export const DeclaredAwsLambdaAliasDao = new DeclastructDao<
-  DeclaredAwsLambdaAlias,
+export const DeclaredAwsLambdaAliasDao = genDeclastructDao<
   typeof DeclaredAwsLambdaAlias,
   ContextAwsApi & ContextLogTrail
 >({
+  dobj: DeclaredAwsLambdaAlias,
   get: {
-    byPrimary: async (input, context) => {
-      return getOneLambdaAlias({ by: { primary: input } }, context);
-    },
-    byUnique: async (input, context) => {
-      return getOneLambdaAlias({ by: { unique: input } }, context);
-    },
-    byRef: async (input, context) => {
-      // route to unique if ref is by unique
-      if (isRefByUnique({ of: DeclaredAwsLambdaAlias })(input))
-        return getOneLambdaAlias({ by: { unique: input } }, context);
-
-      // route to primary if ref is by primary
-      if (isRefByPrimary({ of: DeclaredAwsLambdaAlias })(input))
+    one: {
+      byPrimary: async (input, context) => {
         return getOneLambdaAlias({ by: { primary: input } }, context);
-
-      // failfast if ref is neither unique nor primary
-      UnexpectedCodePathError.throw('unsupported ref type', { input });
+      },
+      byUnique: async (input, context) => {
+        return getOneLambdaAlias({ by: { unique: input } }, context);
+      },
     },
   },
   set: {

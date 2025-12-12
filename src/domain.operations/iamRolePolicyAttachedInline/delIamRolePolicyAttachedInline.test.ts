@@ -23,7 +23,7 @@ describe('delIamRolePolicyAttachedInline', () => {
   given('an inline policy that exists', () => {
     when('deleted', () => {
       then('it should delete the policy', async () => {
-        (DeclaredAwsIamRoleDao.get.byRef as jest.Mock).mockResolvedValue({
+        (DeclaredAwsIamRoleDao.get.one.byRef as jest.Mock).mockResolvedValue({
           name: 'test-role',
           arn: 'arn:aws:iam::123456789012:role/test-role',
         });
@@ -49,7 +49,7 @@ describe('delIamRolePolicyAttachedInline', () => {
   given('an inline policy that does not exist', () => {
     when('deleted', () => {
       then('it should succeed silently', async () => {
-        (DeclaredAwsIamRoleDao.get.byRef as jest.Mock).mockResolvedValue({
+        (DeclaredAwsIamRoleDao.get.one.byRef as jest.Mock).mockResolvedValue({
           name: 'test-role',
           arn: 'arn:aws:iam::123456789012:role/test-role',
         });
@@ -76,7 +76,9 @@ describe('delIamRolePolicyAttachedInline', () => {
   given('a role that does not exist', () => {
     when('deleting a policy', () => {
       then('it should succeed silently (policy already gone)', async () => {
-        (DeclaredAwsIamRoleDao.get.byRef as jest.Mock).mockResolvedValue(null);
+        (DeclaredAwsIamRoleDao.get.one.byRef as jest.Mock).mockResolvedValue(
+          null,
+        );
 
         // Should not throw and should not call IAM
         await expect(

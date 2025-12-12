@@ -335,7 +335,7 @@ describe('declastruct CLI workflow', () => {
 
         // fetch pattern distribution report via DAO
         const patternReport =
-          await DeclaredAwsLogGroupReportDistOfPatternDao.get.byUnique(
+          await DeclaredAwsLogGroupReportDistOfPatternDao.get.one.byUnique(
             {
               logGroups: [{ name: logGroupName }],
               range: logGroupReportRange,
@@ -354,7 +354,7 @@ describe('declastruct CLI workflow', () => {
 
         // fetch ingestion cost report via DAO
         const costReport =
-          await DeclaredAwsLogGroupReportCostOfIngestionDao.get.byUnique(
+          await DeclaredAwsLogGroupReportCostOfIngestionDao.get.one.byUnique(
             {
               logGroupFilter: { names: [logGroupName] },
               range: logGroupReportRange,

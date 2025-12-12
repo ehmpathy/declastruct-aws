@@ -1,6 +1,4 @@
-import { DeclastructDao } from 'declastruct';
-import { isRefByPrimary, isRefByUnique } from 'domain-objects';
-import { UnexpectedCodePathError } from 'helpful-errors';
+import { genDeclastructDao } from 'declastruct';
 import type { ContextLogTrail } from 'simple-log-methods';
 
 import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
@@ -18,29 +16,19 @@ import { setOrganizationAccount } from '../../domain.operations/organizationAcco
  *   - delete = close (transitions to SUSPENDED)
  *   - requires org manager auth for all operations
  */
-export const DeclaredAwsOrganizationAccountDao = new DeclastructDao<
-  DeclaredAwsOrganizationAccount,
+export const DeclaredAwsOrganizationAccountDao = genDeclastructDao<
   typeof DeclaredAwsOrganizationAccount,
   ContextAwsApi & ContextLogTrail
 >({
+  dobj: DeclaredAwsOrganizationAccount,
   get: {
-    byPrimary: async (input, context) => {
-      return getOneOrganizationAccount({ by: { primary: input } }, context);
-    },
-    byUnique: async (input, context) => {
-      return getOneOrganizationAccount({ by: { unique: input } }, context);
-    },
-    byRef: async (input, context) => {
-      // route to unique if ref is by unique
-      if (isRefByUnique({ of: DeclaredAwsOrganizationAccount })(input))
-        return getOneOrganizationAccount({ by: { unique: input } }, context);
-
-      // route to primary if ref is by primary
-      if (isRefByPrimary({ of: DeclaredAwsOrganizationAccount })(input))
+    one: {
+      byPrimary: async (input, context) => {
         return getOneOrganizationAccount({ by: { primary: input } }, context);
-
-      // failfast if ref is neither unique nor primary
-      UnexpectedCodePathError.throw('unsupported ref type', { input });
+      },
+      byUnique: async (input, context) => {
+        return getOneOrganizationAccount({ by: { unique: input } }, context);
+      },
     },
   },
   set: {

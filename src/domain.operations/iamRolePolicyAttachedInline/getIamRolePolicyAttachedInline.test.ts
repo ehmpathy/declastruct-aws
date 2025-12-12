@@ -23,7 +23,7 @@ describe('getIamRolePolicyAttachedInline', () => {
   given('an inline policy that exists', () => {
     when('fetched by unique', () => {
       then('it should return the policy', async () => {
-        (DeclaredAwsIamRoleDao.get.byRef as jest.Mock).mockResolvedValue({
+        (DeclaredAwsIamRoleDao.get.one.byRef as jest.Mock).mockResolvedValue({
           name: 'test-role',
           arn: 'arn:aws:iam::123456789012:role/test-role',
         });
@@ -63,7 +63,7 @@ describe('getIamRolePolicyAttachedInline', () => {
   given('an inline policy that does not exist', () => {
     when('fetched', () => {
       then('it should return null', async () => {
-        (DeclaredAwsIamRoleDao.get.byRef as jest.Mock).mockResolvedValue({
+        (DeclaredAwsIamRoleDao.get.one.byRef as jest.Mock).mockResolvedValue({
           name: 'test-role',
           arn: 'arn:aws:iam::123456789012:role/test-role',
         });
@@ -89,7 +89,9 @@ describe('getIamRolePolicyAttachedInline', () => {
   given('a role that does not exist', () => {
     when('fetched', () => {
       then('it should return null', async () => {
-        (DeclaredAwsIamRoleDao.get.byRef as jest.Mock).mockResolvedValue(null);
+        (DeclaredAwsIamRoleDao.get.one.byRef as jest.Mock).mockResolvedValue(
+          null,
+        );
 
         const result = await getIamRolePolicyAttachedInline(
           {
@@ -112,7 +114,7 @@ describe('getIamRolePolicyAttachedInline', () => {
   given('an inline policy with conditions', () => {
     when('fetched', () => {
       then('it should preserve conditions', async () => {
-        (DeclaredAwsIamRoleDao.get.byRef as jest.Mock).mockResolvedValue({
+        (DeclaredAwsIamRoleDao.get.one.byRef as jest.Mock).mockResolvedValue({
           name: 'oidc-role',
           arn: 'arn:aws:iam::123456789012:role/oidc-role',
         });

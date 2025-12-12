@@ -23,7 +23,7 @@ describe('delIamRolePolicyAttachedManaged', () => {
   given('a managed policy attachment that exists', () => {
     when('deleted', () => {
       then('it should detach the policy', async () => {
-        (DeclaredAwsIamRoleDao.get.byRef as jest.Mock).mockResolvedValue({
+        (DeclaredAwsIamRoleDao.get.one.byRef as jest.Mock).mockResolvedValue({
           name: 'test-role',
           arn: 'arn:aws:iam::123456789012:role/test-role',
         });
@@ -52,7 +52,7 @@ describe('delIamRolePolicyAttachedManaged', () => {
   given('an aws-managed policy attachment', () => {
     when('deleted', () => {
       then('it should detach the aws-managed policy', async () => {
-        (DeclaredAwsIamRoleDao.get.byRef as jest.Mock).mockResolvedValue({
+        (DeclaredAwsIamRoleDao.get.one.byRef as jest.Mock).mockResolvedValue({
           name: 'admin-role',
           arn: 'arn:aws:iam::123456789012:role/admin-role',
         });
@@ -81,7 +81,7 @@ describe('delIamRolePolicyAttachedManaged', () => {
   given('a policy attachment that does not exist', () => {
     when('deleted', () => {
       then('it should succeed silently', async () => {
-        (DeclaredAwsIamRoleDao.get.byRef as jest.Mock).mockResolvedValue({
+        (DeclaredAwsIamRoleDao.get.one.byRef as jest.Mock).mockResolvedValue({
           name: 'test-role',
           arn: 'arn:aws:iam::123456789012:role/test-role',
         });
@@ -113,7 +113,9 @@ describe('delIamRolePolicyAttachedManaged', () => {
   given('a role that does not exist', () => {
     when('deleting an attachment', () => {
       then('it should succeed silently (attachment already gone)', async () => {
-        (DeclaredAwsIamRoleDao.get.byRef as jest.Mock).mockResolvedValue(null);
+        (DeclaredAwsIamRoleDao.get.one.byRef as jest.Mock).mockResolvedValue(
+          null,
+        );
 
         // Should not throw and should not call IAM
         await expect(

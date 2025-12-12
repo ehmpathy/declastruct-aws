@@ -1,6 +1,4 @@
-import { DeclastructDao } from 'declastruct';
-import { isRefByUnique } from 'domain-objects';
-import { UnexpectedCodePathError } from 'helpful-errors';
+import { genDeclastructDao } from 'declastruct';
 import type { ContextLogTrail } from 'simple-log-methods';
 
 import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
@@ -14,28 +12,20 @@ import { setIamRolePolicyAttachedInline } from '../../domain.operations/iamRoleP
  * .why = wraps IAM role policy operations to conform to declastruct interface
  * .note = inline policies have no primary key (arn), only unique key (role + name)
  */
-export const DeclaredAwsIamRolePolicyAttachedInlineDao = new DeclastructDao<
-  DeclaredAwsIamRolePolicyAttachedInline,
+export const DeclaredAwsIamRolePolicyAttachedInlineDao = genDeclastructDao<
   typeof DeclaredAwsIamRolePolicyAttachedInline,
   ContextAwsApi & ContextLogTrail
 >({
+  dobj: DeclaredAwsIamRolePolicyAttachedInline,
   get: {
-    byUnique: async (input, context) => {
-      return getIamRolePolicyAttachedInline({ by: { unique: input } }, context);
-    },
-    byRef: async (input, context) => {
-      // route to unique if ref is by unique
-      if (isRefByUnique({ of: DeclaredAwsIamRolePolicyAttachedInline })(input))
+    one: {
+      byPrimary: null,
+      byUnique: async (input, context) => {
         return getIamRolePolicyAttachedInline(
           { by: { unique: input } },
           context,
         );
-
-      // failfast if ref is not by unique (no primary key for inline policies)
-      UnexpectedCodePathError.throw(
-        'unsupported ref type; inline policies only support unique ref',
-        { input },
-      );
+      },
     },
   },
   set: {

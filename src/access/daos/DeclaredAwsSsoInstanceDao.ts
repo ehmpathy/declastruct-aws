@@ -1,6 +1,4 @@
-import { DeclastructDao } from 'declastruct';
-import { isRefByPrimary, isRefByUnique } from 'domain-objects';
-import { UnexpectedCodePathError } from 'helpful-errors';
+import { genDeclastructDao } from 'declastruct';
 import type { ContextLogTrail } from 'simple-log-methods';
 
 import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
@@ -16,35 +14,26 @@ import { setSsoInstance } from '../../domain.operations/ssoInstance/setSsoInstan
  *   - sso instances cannot be created via api; must be enabled in aws console
  *   - set.finsert will failfast if instance doesn't exist
  */
-export const DeclaredAwsSsoInstanceDao = new DeclastructDao<
-  DeclaredAwsSsoInstance,
+export const DeclaredAwsSsoInstanceDao = genDeclastructDao<
   typeof DeclaredAwsSsoInstance,
   ContextAwsApi & ContextLogTrail
 >({
+  dobj: DeclaredAwsSsoInstance,
   get: {
-    byPrimary: async (input, context) => {
-      return getOneSsoInstance({ by: { primary: input } }, context);
-    },
-    byUnique: async (input, context) => {
-      return getOneSsoInstance({ by: { unique: input } }, context);
-    },
-    byRef: async (input, context) => {
-      // route to unique if ref is by unique
-      if (isRefByUnique({ of: DeclaredAwsSsoInstance })(input))
-        return getOneSsoInstance({ by: { unique: input } }, context);
-
-      // route to primary if ref is by primary
-      if (isRefByPrimary({ of: DeclaredAwsSsoInstance })(input))
+    one: {
+      byPrimary: async (input, context) => {
         return getOneSsoInstance({ by: { primary: input } }, context);
-
-      // failfast if ref is neither unique nor primary
-      UnexpectedCodePathError.throw('unsupported ref type', { input });
+      },
+      byUnique: async (input, context) => {
+        return getOneSsoInstance({ by: { unique: input } }, context);
+      },
     },
   },
   set: {
     finsert: async (input, context) => {
       return setSsoInstance({ finsert: input }, context);
     },
-    // upsert not supported: instances are created by aws, not by us
+    upsert: null,
+    delete: null,
   },
 });

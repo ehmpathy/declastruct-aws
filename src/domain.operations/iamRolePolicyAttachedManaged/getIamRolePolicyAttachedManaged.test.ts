@@ -26,7 +26,7 @@ describe('getIamRolePolicyAttachedManaged', () => {
   given('a managed policy attachment that exists', () => {
     when('fetched by unique', () => {
       then('it should return the attachment', async () => {
-        (DeclaredAwsIamRoleDao.get.byRef as jest.Mock).mockResolvedValue({
+        (DeclaredAwsIamRoleDao.get.one.byRef as jest.Mock).mockResolvedValue({
           name: 'test-role',
           arn: 'arn:aws:iam::123456789012:role/test-role',
         });
@@ -71,7 +71,7 @@ describe('getIamRolePolicyAttachedManaged', () => {
   given('an aws-managed policy attachment', () => {
     when('fetched', () => {
       then('it should return the attachment', async () => {
-        (DeclaredAwsIamRoleDao.get.byRef as jest.Mock).mockResolvedValue({
+        (DeclaredAwsIamRoleDao.get.one.byRef as jest.Mock).mockResolvedValue({
           name: 'admin-role',
           arn: 'arn:aws:iam::123456789012:role/admin-role',
         });
@@ -108,7 +108,7 @@ describe('getIamRolePolicyAttachedManaged', () => {
   given('a policy attachment that does not exist', () => {
     when('fetched', () => {
       then('it should return null', async () => {
-        (DeclaredAwsIamRoleDao.get.byRef as jest.Mock).mockResolvedValue({
+        (DeclaredAwsIamRoleDao.get.one.byRef as jest.Mock).mockResolvedValue({
           name: 'test-role',
           arn: 'arn:aws:iam::123456789012:role/test-role',
         });
@@ -142,7 +142,9 @@ describe('getIamRolePolicyAttachedManaged', () => {
   given('a role that does not exist', () => {
     when('fetching an attachment', () => {
       then('it should return null', async () => {
-        (DeclaredAwsIamRoleDao.get.byRef as jest.Mock).mockResolvedValue(null);
+        (DeclaredAwsIamRoleDao.get.one.byRef as jest.Mock).mockResolvedValue(
+          null,
+        );
 
         const result = await getIamRolePolicyAttachedManaged(
           {
@@ -165,7 +167,7 @@ describe('getIamRolePolicyAttachedManaged', () => {
   given('a role with no attached policies', () => {
     when('fetching an attachment', () => {
       then('it should return null', async () => {
-        (DeclaredAwsIamRoleDao.get.byRef as jest.Mock).mockResolvedValue({
+        (DeclaredAwsIamRoleDao.get.one.byRef as jest.Mock).mockResolvedValue({
           name: 'empty-role',
           arn: 'arn:aws:iam::123456789012:role/empty-role',
         });

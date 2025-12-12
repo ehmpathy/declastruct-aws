@@ -48,7 +48,7 @@ export const setLambdaAlias = asProcedure(
       });
 
     // resolve version ref
-    const version = await DeclaredAwsLambdaVersionDao.get.byRef(
+    const version = await DeclaredAwsLambdaVersionDao.get.one.byRef(
       aliasDesired.version,
       context,
     );

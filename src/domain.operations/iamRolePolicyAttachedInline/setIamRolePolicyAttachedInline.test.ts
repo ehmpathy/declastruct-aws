@@ -28,7 +28,7 @@ describe('setIamRolePolicyAttachedInline', () => {
   given('a new inline policy to create', () => {
     when('finsert is called', () => {
       then('it should create the policy', async () => {
-        (DeclaredAwsIamRoleDao.get.byRef as jest.Mock).mockResolvedValue({
+        (DeclaredAwsIamRoleDao.get.one.byRef as jest.Mock).mockResolvedValue({
           name: 'test-role',
           arn: 'arn:aws:iam::123456789012:role/test-role',
         });
@@ -92,7 +92,7 @@ describe('setIamRolePolicyAttachedInline', () => {
       then(
         'it should return the existing policy without updating',
         async () => {
-          (DeclaredAwsIamRoleDao.get.byRef as jest.Mock).mockResolvedValue({
+          (DeclaredAwsIamRoleDao.get.one.byRef as jest.Mock).mockResolvedValue({
             name: 'test-role',
             arn: 'arn:aws:iam::123456789012:role/test-role',
           });
@@ -143,7 +143,7 @@ describe('setIamRolePolicyAttachedInline', () => {
   given('an existing inline policy to update', () => {
     when('upsert is called', () => {
       then('it should update the policy', async () => {
-        (DeclaredAwsIamRoleDao.get.byRef as jest.Mock).mockResolvedValue({
+        (DeclaredAwsIamRoleDao.get.one.byRef as jest.Mock).mockResolvedValue({
           name: 'test-role',
           arn: 'arn:aws:iam::123456789012:role/test-role',
         });
@@ -195,7 +195,9 @@ describe('setIamRolePolicyAttachedInline', () => {
   given('a role that does not exist', () => {
     when('creating a policy', () => {
       then('it should throw an error', async () => {
-        (DeclaredAwsIamRoleDao.get.byRef as jest.Mock).mockResolvedValue(null);
+        (DeclaredAwsIamRoleDao.get.one.byRef as jest.Mock).mockResolvedValue(
+          null,
+        );
 
         const policy = new DeclaredAwsIamRolePolicyAttachedInline({
           name: 'permissions',

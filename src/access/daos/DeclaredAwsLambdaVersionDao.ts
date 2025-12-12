@@ -1,6 +1,4 @@
-import { DeclastructDao } from 'declastruct';
-import { isRefByPrimary, isRefByUnique } from 'domain-objects';
-import { UnexpectedCodePathError } from 'helpful-errors';
+import { genDeclastructDao } from 'declastruct';
 import type { ContextLogTrail } from 'simple-log-methods';
 
 import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
@@ -13,29 +11,19 @@ import { setLambdaVersion } from '../../domain.operations/lambdaVersion/setLambd
  * .what = declastruct DAO for AWS Lambda version resources
  * .why = wraps lambda version operations to conform to declastruct interface
  */
-export const DeclaredAwsLambdaVersionDao = new DeclastructDao<
-  DeclaredAwsLambdaVersion,
+export const DeclaredAwsLambdaVersionDao = genDeclastructDao<
   typeof DeclaredAwsLambdaVersion,
   ContextAwsApi & ContextLogTrail
 >({
+  dobj: DeclaredAwsLambdaVersion,
   get: {
-    byPrimary: async (input, context) => {
-      return getOneLambdaVersion({ by: { primary: input } }, context);
-    },
-    byUnique: async (input, context) => {
-      return getOneLambdaVersion({ by: { unique: input } }, context);
-    },
-    byRef: async (input, context) => {
-      // route to unique if ref is by unique
-      if (isRefByUnique({ of: DeclaredAwsLambdaVersion })(input))
-        return getOneLambdaVersion({ by: { unique: input } }, context);
-
-      // route to primary if ref is by primary
-      if (isRefByPrimary({ of: DeclaredAwsLambdaVersion })(input))
+    one: {
+      byPrimary: async (input, context) => {
         return getOneLambdaVersion({ by: { primary: input } }, context);
-
-      // failfast if ref is neither unique nor primary
-      UnexpectedCodePathError.throw('unsupported ref type', { input });
+      },
+      byUnique: async (input, context) => {
+        return getOneLambdaVersion({ by: { unique: input } }, context);
+      },
     },
   },
   set: {

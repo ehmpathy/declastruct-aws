@@ -1,6 +1,4 @@
-import { DeclastructDao } from 'declastruct';
-import { isRefByUnique } from 'domain-objects';
-import { UnexpectedCodePathError } from 'helpful-errors';
+import { genDeclastructDao } from 'declastruct';
 import type { ContextLogTrail } from 'simple-log-methods';
 
 import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
@@ -14,31 +12,20 @@ import { setIamRolePolicyAttachedManaged } from '../../domain.operations/iamRole
  * .why = wraps IAM role policy attachment operations to conform to declastruct interface
  * .note = attachments have no primary key, only unique key (role + policy)
  */
-export const DeclaredAwsIamRolePolicyAttachedManagedDao = new DeclastructDao<
-  DeclaredAwsIamRolePolicyAttachedManaged,
+export const DeclaredAwsIamRolePolicyAttachedManagedDao = genDeclastructDao<
   typeof DeclaredAwsIamRolePolicyAttachedManaged,
   ContextAwsApi & ContextLogTrail
 >({
+  dobj: DeclaredAwsIamRolePolicyAttachedManaged,
   get: {
-    byUnique: async (input, context) => {
-      return getIamRolePolicyAttachedManaged(
-        { by: { unique: input } },
-        context,
-      );
-    },
-    byRef: async (input, context) => {
-      // route to unique if ref is by unique
-      if (isRefByUnique({ of: DeclaredAwsIamRolePolicyAttachedManaged })(input))
+    one: {
+      byPrimary: null,
+      byUnique: async (input, context) => {
         return getIamRolePolicyAttachedManaged(
           { by: { unique: input } },
           context,
         );
-
-      // failfast if ref is not by unique (no primary key for attachments)
-      UnexpectedCodePathError.throw(
-        'unsupported ref type; policy attachments only support unique ref',
-        { input },
-      );
+      },
     },
   },
   set: {

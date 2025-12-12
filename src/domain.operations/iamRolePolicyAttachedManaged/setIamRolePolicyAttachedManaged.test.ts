@@ -28,7 +28,7 @@ describe('setIamRolePolicyAttachedManaged', () => {
   given('a new managed policy attachment', () => {
     when('finsert is called', () => {
       then('it should attach the policy', async () => {
-        (DeclaredAwsIamRoleDao.get.byRef as jest.Mock).mockResolvedValue({
+        (DeclaredAwsIamRoleDao.get.one.byRef as jest.Mock).mockResolvedValue({
           name: 'test-role',
           arn: 'arn:aws:iam::123456789012:role/test-role',
         });
@@ -83,7 +83,7 @@ describe('setIamRolePolicyAttachedManaged', () => {
       then(
         'it should return the existing attachment without reattaching',
         async () => {
-          (DeclaredAwsIamRoleDao.get.byRef as jest.Mock).mockResolvedValue({
+          (DeclaredAwsIamRoleDao.get.one.byRef as jest.Mock).mockResolvedValue({
             name: 'test-role',
             arn: 'arn:aws:iam::123456789012:role/test-role',
           });
@@ -120,7 +120,7 @@ describe('setIamRolePolicyAttachedManaged', () => {
   given('an aws-managed policy', () => {
     when('attaching to a role', () => {
       then('it should attach the aws-managed policy', async () => {
-        (DeclaredAwsIamRoleDao.get.byRef as jest.Mock).mockResolvedValue({
+        (DeclaredAwsIamRoleDao.get.one.byRef as jest.Mock).mockResolvedValue({
           name: 'admin-role',
           arn: 'arn:aws:iam::123456789012:role/admin-role',
         });
@@ -168,7 +168,9 @@ describe('setIamRolePolicyAttachedManaged', () => {
   given('a role that does not exist', () => {
     when('attaching a policy', () => {
       then('it should throw an error', async () => {
-        (DeclaredAwsIamRoleDao.get.byRef as jest.Mock).mockResolvedValue(null);
+        (DeclaredAwsIamRoleDao.get.one.byRef as jest.Mock).mockResolvedValue(
+          null,
+        );
 
         const attachment = new DeclaredAwsIamRolePolicyAttachedManaged({
           role: { name: 'nonexistent-role' },
@@ -185,7 +187,7 @@ describe('setIamRolePolicyAttachedManaged', () => {
   given('an upsert request', () => {
     when('policy is not attached', () => {
       then('it should attach the policy', async () => {
-        (DeclaredAwsIamRoleDao.get.byRef as jest.Mock).mockResolvedValue({
+        (DeclaredAwsIamRoleDao.get.one.byRef as jest.Mock).mockResolvedValue({
           name: 'test-role',
           arn: 'arn:aws:iam::123456789012:role/test-role',
         });
