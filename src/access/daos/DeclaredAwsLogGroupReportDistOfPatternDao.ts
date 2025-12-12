@@ -1,6 +1,5 @@
-import { DeclastructDao } from 'declastruct';
-import { isRefByUnique } from 'domain-objects';
-import { BadRequestError, UnexpectedCodePathError } from 'helpful-errors';
+import { genDeclastructDao } from 'declastruct';
+import { BadRequestError } from 'helpful-errors';
 import type { ContextLogTrail } from 'simple-log-methods';
 
 import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
@@ -12,32 +11,20 @@ import { getOneLogGroupReportDistOfPattern } from '../../domain.operations/logGr
  * .why = wraps report operations to conform to declastruct interface
  * .note = no set operations — readonly derived entity
  */
-export const DeclaredAwsLogGroupReportDistOfPatternDao = new DeclastructDao<
-  DeclaredAwsLogGroupReportDistOfPattern,
+export const DeclaredAwsLogGroupReportDistOfPatternDao = genDeclastructDao<
   typeof DeclaredAwsLogGroupReportDistOfPattern,
   ContextAwsApi & ContextLogTrail
 >({
+  dobj: DeclaredAwsLogGroupReportDistOfPattern,
   get: {
-    // no byPrimary — entity has no primary key
-    byUnique: async (input, context) => {
-      return getOneLogGroupReportDistOfPattern(
-        { by: { unique: input } },
-        context,
-      );
-    },
-    byRef: async (input, context) => {
-      // route to unique if ref is by unique
-      if (isRefByUnique({ of: DeclaredAwsLogGroupReportDistOfPattern })(input))
+    one: {
+      byPrimary: null,
+      byUnique: async (input, context) => {
         return getOneLogGroupReportDistOfPattern(
           { by: { unique: input } },
           context,
         );
-
-      // failfast if ref is not unique (no primary key for this entity)
-      UnexpectedCodePathError.throw(
-        'unsupported ref type — entity has no primary key',
-        { input },
-      );
+      },
     },
   },
   set: {
@@ -48,5 +35,7 @@ export const DeclaredAwsLogGroupReportDistOfPatternDao = new DeclastructDao<
         { input },
       );
     },
+    upsert: null,
+    delete: null,
   },
 });

@@ -1,6 +1,4 @@
-import { DeclastructDao } from 'declastruct';
-import { isRefByPrimary, isRefByUnique } from 'domain-objects';
-import { UnexpectedCodePathError } from 'helpful-errors';
+import { genDeclastructDao } from 'declastruct';
 import type { ContextLogTrail } from 'simple-log-methods';
 
 import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
@@ -12,29 +10,19 @@ import { setIamOidcProvider } from '../../domain.operations/iamOidcProvider/setI
  * .what = declastruct DAO for AWS IAM OIDC provider resources
  * .why = wraps OIDC provider operations to conform to declastruct interface
  */
-export const DeclaredAwsIamOidcProviderDao = new DeclastructDao<
-  DeclaredAwsIamOidcProvider,
+export const DeclaredAwsIamOidcProviderDao = genDeclastructDao<
   typeof DeclaredAwsIamOidcProvider,
   ContextAwsApi & ContextLogTrail
 >({
+  dobj: DeclaredAwsIamOidcProvider,
   get: {
-    byPrimary: async (input, context) => {
-      return getOneIamOidcProvider({ by: { primary: input } }, context);
-    },
-    byUnique: async (input, context) => {
-      return getOneIamOidcProvider({ by: { unique: input } }, context);
-    },
-    byRef: async (input, context) => {
-      // route to unique if ref is by unique
-      if (isRefByUnique({ of: DeclaredAwsIamOidcProvider })(input))
-        return getOneIamOidcProvider({ by: { unique: input } }, context);
-
-      // route to primary if ref is by primary
-      if (isRefByPrimary({ of: DeclaredAwsIamOidcProvider })(input))
+    one: {
+      byPrimary: async (input, context) => {
         return getOneIamOidcProvider({ by: { primary: input } }, context);
-
-      // failfast if ref is neither unique nor primary
-      UnexpectedCodePathError.throw('unsupported ref type', { input });
+      },
+      byUnique: async (input, context) => {
+        return getOneIamOidcProvider({ by: { unique: input } }, context);
+      },
     },
   },
   set: {
@@ -44,5 +32,6 @@ export const DeclaredAwsIamOidcProviderDao = new DeclastructDao<
     upsert: async (input, context) => {
       return setIamOidcProvider({ upsert: input }, context);
     },
+    delete: null,
   },
 });

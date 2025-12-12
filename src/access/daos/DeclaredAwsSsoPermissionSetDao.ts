@@ -1,6 +1,4 @@
-import { DeclastructDao } from 'declastruct';
-import { isRefByPrimary, isRefByUnique } from 'domain-objects';
-import { UnexpectedCodePathError } from 'helpful-errors';
+import { genDeclastructDao } from 'declastruct';
 import type { ContextLogTrail } from 'simple-log-methods';
 
 import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
@@ -12,29 +10,19 @@ import { setSsoPermissionSet } from '../../domain.operations/ssoPermissionSet/se
  * .what = declastruct DAO for AWS SSO permission set resources
  * .why = wraps permission set operations to conform to declastruct interface
  */
-export const DeclaredAwsSsoPermissionSetDao = new DeclastructDao<
-  DeclaredAwsSsoPermissionSet,
+export const DeclaredAwsSsoPermissionSetDao = genDeclastructDao<
   typeof DeclaredAwsSsoPermissionSet,
   ContextAwsApi & ContextLogTrail
 >({
+  dobj: DeclaredAwsSsoPermissionSet,
   get: {
-    byPrimary: async (input, context) => {
-      return getOneSsoPermissionSet({ by: { primary: input } }, context);
-    },
-    byUnique: async (input, context) => {
-      return getOneSsoPermissionSet({ by: { unique: input } }, context);
-    },
-    byRef: async (input, context) => {
-      // route to unique if ref is by unique
-      if (isRefByUnique({ of: DeclaredAwsSsoPermissionSet })(input))
-        return getOneSsoPermissionSet({ by: { unique: input } }, context);
-
-      // route to primary if ref is by primary
-      if (isRefByPrimary({ of: DeclaredAwsSsoPermissionSet })(input))
+    one: {
+      byPrimary: async (input, context) => {
         return getOneSsoPermissionSet({ by: { primary: input } }, context);
-
-      // failfast if ref is neither unique nor primary
-      UnexpectedCodePathError.throw('unsupported ref type', { input });
+      },
+      byUnique: async (input, context) => {
+        return getOneSsoPermissionSet({ by: { unique: input } }, context);
+      },
     },
   },
   set: {
@@ -44,5 +32,6 @@ export const DeclaredAwsSsoPermissionSetDao = new DeclastructDao<
     upsert: async (input, context) => {
       return setSsoPermissionSet({ upsert: input }, context);
     },
+    delete: null,
   },
 });

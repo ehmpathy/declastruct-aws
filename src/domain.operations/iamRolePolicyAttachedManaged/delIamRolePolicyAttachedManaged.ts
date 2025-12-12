@@ -32,7 +32,7 @@ export const delIamRolePolicyAttachedManaged = asProcedure(
     const ref = input.by.ref;
 
     // resolve role reference to get role name
-    const role = await DeclaredAwsIamRoleDao.get.byRef(ref.role, context);
+    const role = await DeclaredAwsIamRoleDao.get.one.byRef(ref.role, context);
 
     // if role doesn't exist, attachment is already gone
     if (!role) return;

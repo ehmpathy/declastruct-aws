@@ -26,7 +26,7 @@ export const getIamRolePolicyAttachedManaged = asProcedure(
     context: ContextAwsApi & VisualogicContext,
   ): Promise<DeclaredAwsIamRolePolicyAttachedManaged | null> => {
     // resolve role reference to get role name
-    const role = await DeclaredAwsIamRoleDao.get.byRef(
+    const role = await DeclaredAwsIamRoleDao.get.one.byRef(
       input.by.unique.role,
       context,
     );
