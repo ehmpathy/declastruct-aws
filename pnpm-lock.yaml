@@ -48,8 +48,8 @@ importers:
         specifier: 1.1.1
         version: 1.1.1
       declastruct-github:
-        specifier: 1.0.5
-        version: 1.0.5
+        specifier: 1.0.7
+        version: 1.0.7
       domain-objects:
         specifier: 0.31.7
         version: 0.31.7(@types/node@22.15.21)
@@ -2372,8 +2372,8 @@ packages:
     engines: {node: '>=12.0.0'}
     hasBin: true
 
-  declastruct-github@1.0.5:
-    resolution: {integrity: sha512-llW3KDP98H0ulAkKaDpSOLqt7SAdQiZSg+9AIeVsEhZUVAR252kOd7eMElhZVvmk+kwr0VeWexU0xtoKglkfHQ==}
+  declastruct-github@1.0.7:
+    resolution: {integrity: sha512-BWR7QNjXD/ilmpnIv33JSmGs/cItr7YAbtrydihfv2CNG8I4zYHKaI3sVCU0lSGKxdr9R6heC1sxtuU+hUDzoA==}
     engines: {node: '>=8.0.0'}
 
   declastruct@1.7.0:
@@ -7645,7 +7645,7 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
-  declastruct-github@1.0.5:
+  declastruct-github@1.0.7:
     dependencies:
       '@ehmpathy/uni-time': 1.7.4
       '@octokit/rest': 21.1.1

@@ -67,7 +67,7 @@
     "@ehmpathy/uni-time": "1.7.4",
     "@smithy/shared-ini-file-loader": "4.4.0",
     "as-procedure": "1.1.1",
-    "declastruct-github": "1.0.5",
+    "declastruct-github": "1.0.7",
     "domain-objects": "0.31.7",
     "helpful-errors": "1.5.3",
     "type-fns": "1.21.0",
