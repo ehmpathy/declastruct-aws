@@ -57,7 +57,7 @@ describe('setLambdaAlias', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (getLambdaModule.getOneLambda as jest.Mock).mockResolvedValue(lambdaSample);
-    (DeclaredAwsLambdaVersionDao.get.byRef as jest.Mock).mockResolvedValue(
+    (DeclaredAwsLambdaVersionDao.get.one.byRef as jest.Mock).mockResolvedValue(
       versionSample,
     );
   });
@@ -167,9 +167,9 @@ describe('setLambdaAlias', () => {
   given('a version that does not exist', () => {
     when('set is called', () => {
       then('it should throw UnexpectedCodePathError', async () => {
-        (DeclaredAwsLambdaVersionDao.get.byRef as jest.Mock).mockResolvedValue(
-          null,
-        );
+        (
+          DeclaredAwsLambdaVersionDao.get.one.byRef as jest.Mock
+        ).mockResolvedValue(null);
 
         await expect(
           setLambdaAlias({ finsert: aliasSample }, context),

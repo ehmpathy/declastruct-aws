@@ -87,7 +87,7 @@
     "date-fns": "4.1.0",
     "declapract": "0.13.0",
     "declapract-typescript-ehmpathy": "0.43.8",
-    "declastruct": "1.4.5",
+    "declastruct": "1.7.0",
     "declastruct-github": "1.0.3",
     "depcheck": "1.4.3",
     "esbuild-register": "3.6.0",

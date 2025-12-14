@@ -1,6 +1,5 @@
-import { DeclastructDao } from 'declastruct';
-import { isRefByPrimary, isRefByUnique } from 'domain-objects';
-import { BadRequestError, UnexpectedCodePathError } from 'helpful-errors';
+import { genDeclastructDao } from 'declastruct';
+import { BadRequestError } from 'helpful-errors';
 import type { ContextLogTrail } from 'simple-log-methods';
 
 import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
@@ -12,29 +11,19 @@ import { getEc2Instance } from '../../domain.operations/ec2Instance/getEc2Instan
  * .why = wraps existing EC2 operations to conform to declastruct interface
  * .note = EC2 instance creation not yet implemented; currently read-only
  */
-export const DeclaredAwsEc2InstanceDao = new DeclastructDao<
-  DeclaredAwsEc2Instance,
+export const DeclaredAwsEc2InstanceDao = genDeclastructDao<
   typeof DeclaredAwsEc2Instance,
   ContextAwsApi & ContextLogTrail
 >({
+  dobj: DeclaredAwsEc2Instance,
   get: {
-    byPrimary: async (input, context) => {
-      return getEc2Instance({ by: { primary: input } }, context);
-    },
-    byUnique: async (input, context) => {
-      return getEc2Instance({ by: { unique: input } }, context);
-    },
-    byRef: async (input, context) => {
-      // route to unique if ref is by unique
-      if (isRefByUnique({ of: DeclaredAwsEc2Instance })(input))
-        return getEc2Instance({ by: { unique: input } }, context);
-
-      // route to primary if ref is by primary
-      if (isRefByPrimary({ of: DeclaredAwsEc2Instance })(input))
+    one: {
+      byPrimary: async (input, context) => {
         return getEc2Instance({ by: { primary: input } }, context);
-
-      // failfast if ref is neither unique nor primary
-      UnexpectedCodePathError.throw('unsupported ref type', { input });
+      },
+      byUnique: async (input, context) => {
+        return getEc2Instance({ by: { unique: input } }, context);
+      },
     },
   },
   set: {
@@ -45,5 +34,7 @@ export const DeclaredAwsEc2InstanceDao = new DeclastructDao<
         { input },
       );
     },
+    upsert: null,
+    delete: null,
   },
 });

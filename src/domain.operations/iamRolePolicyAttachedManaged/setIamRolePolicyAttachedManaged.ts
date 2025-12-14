@@ -27,7 +27,7 @@ export const setIamRolePolicyAttachedManaged = asProcedure(
     const attachmentDesired = input.finsert ?? input.upsert;
 
     // resolve role reference to get role name
-    const role = await DeclaredAwsIamRoleDao.get.byRef(
+    const role = await DeclaredAwsIamRoleDao.get.one.byRef(
       attachmentDesired.role,
       context,
     );

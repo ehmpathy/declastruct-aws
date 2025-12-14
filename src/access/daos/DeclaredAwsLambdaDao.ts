@@ -1,6 +1,4 @@
-import { DeclastructDao } from 'declastruct';
-import { isRefByPrimary, isRefByUnique } from 'domain-objects';
-import { UnexpectedCodePathError } from 'helpful-errors';
+import { genDeclastructDao } from 'declastruct';
 import type { ContextLogTrail } from 'simple-log-methods';
 
 import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
@@ -13,29 +11,19 @@ import { setLambda } from '../../domain.operations/lambda/setLambda';
  * .why = wraps Lambda operations to conform to declastruct interface
  * .note = codeZipUri is required for set operations but not returned from get
  */
-export const DeclaredAwsLambdaDao = new DeclastructDao<
-  DeclaredAwsLambda,
+export const DeclaredAwsLambdaDao = genDeclastructDao<
   typeof DeclaredAwsLambda,
   ContextAwsApi & ContextLogTrail
 >({
+  dobj: DeclaredAwsLambda,
   get: {
-    byPrimary: async (input, context) => {
-      return getOneLambda({ by: { primary: input } }, context);
-    },
-    byUnique: async (input, context) => {
-      return getOneLambda({ by: { unique: input } }, context);
-    },
-    byRef: async (input, context) => {
-      // route to unique if ref is by unique
-      if (isRefByUnique({ of: DeclaredAwsLambda })(input))
-        return getOneLambda({ by: { unique: input } }, context);
-
-      // route to primary if ref is by primary
-      if (isRefByPrimary({ of: DeclaredAwsLambda })(input))
+    one: {
+      byPrimary: async (input, context) => {
         return getOneLambda({ by: { primary: input } }, context);
-
-      // failfast if ref is neither unique nor primary
-      UnexpectedCodePathError.throw('unsupported ref type', { input });
+      },
+      byUnique: async (input, context) => {
+        return getOneLambda({ by: { unique: input } }, context);
+      },
     },
   },
   set: {
@@ -45,5 +33,6 @@ export const DeclaredAwsLambdaDao = new DeclastructDao<
     upsert: async (input, context) => {
       return setLambda({ upsert: input }, context);
     },
+    delete: null,
   },
 });
