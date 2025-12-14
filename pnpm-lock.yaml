@@ -103,8 +103,8 @@ importers:
         specifier: 0.13.0
         version: 0.13.0(typescript@5.4.5)
       declapract-typescript-ehmpathy:
-        specifier: 0.43.8
-        version: 0.43.8(declapract@0.13.0(typescript@5.4.5))
+        specifier: 0.43.18
+        version: 0.43.18(declapract@0.13.0(typescript@5.4.5))
       declastruct:
         specifier: 1.7.0
         version: 1.7.0(domain-objects@0.31.7(@types/node@22.15.21))
@@ -2362,8 +2362,8 @@ packages:
       supports-color:
         optional: true
 
-  declapract-typescript-ehmpathy@0.43.8:
-    resolution: {integrity: sha512-ADrwfJCYOHH2wrFqTve/kzmKiwUiGfLmm4FwXaZCkM0ZH+sZjjcnESLIwZimWko7MB7eSRkZ2KcjiI6w3c29tw==}
+  declapract-typescript-ehmpathy@0.43.18:
+    resolution: {integrity: sha512-wZ54TNnGeI6XVoksl83HyxjblS9D9YXUHYIN/oUFNmovj/Lp6ePwRYMYPevpmR7ROX1q51RENbkIlirPO56aOA==}
     peerDependencies:
       declapract: '>=0.12.1'
 
@@ -7609,7 +7609,7 @@ snapshots:
     dependencies:
       ms: 2.1.3
 
-  declapract-typescript-ehmpathy@0.43.8(declapract@0.13.0(typescript@5.4.5)):
+  declapract-typescript-ehmpathy@0.43.18(declapract@0.13.0(typescript@5.4.5)):
     dependencies:
       chalk: 4.1.2
       declapract: 0.13.0(typescript@5.4.5)
