@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.3.1](https://github.com/ehmpathy/declastruct-aws/compare/v1.3.0...v1.3.1) (2025-12-14)
+
+
+### Bug Fixes
+
+* **cicd:** unblock github declastruct ([#25](https://github.com/ehmpathy/declastruct-aws/issues/25)) ([cc8bb0e](https://github.com/ehmpathy/declastruct-aws/commit/cc8bb0eaf91a6d304c8de38c6475d6ff85a33bfc))
+* **deps:** bump to latest declastruct shape ([#22](https://github.com/ehmpathy/declastruct-aws/issues/22)) ([57c7a71](https://github.com/ehmpathy/declastruct-aws/commit/57c7a71b595026b520634598f8498cb9c0e8e33a))
+* **practs:** bump to npm oidc auth ([#23](https://github.com/ehmpathy/declastruct-aws/issues/23)) ([90454f4](https://github.com/ehmpathy/declastruct-aws/commit/90454f486968db8db6283abd966205639fb7b827))
+
 ## [1.3.0](https://github.com/ehmpathy/declastruct-aws/compare/v1.2.0...v1.3.0) (2025-12-11)
 
 
