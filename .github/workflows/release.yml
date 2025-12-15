@@ -43,9 +43,9 @@ jobs:
           changelog-path: changelog.md
 
       - name: upvibe the pr, if pr
-        if: ${{ steps.release.outputs.pull-request-number }}
+        if: ${{ steps.release.outputs.pr }}
         run: |
-          PR="${{ steps.release.outputs.pull-request-number }}"
+          PR="${{ fromJson(steps.release.outputs.pr).number }}"
 
           body="$(gh pr view "$PR" --json body -q .body)"
 
