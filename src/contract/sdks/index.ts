@@ -11,6 +11,7 @@ export { DeclaredAwsIamPolicyDao } from '../../access/daos/DeclaredAwsIamPolicyD
 export { DeclaredAwsIamRoleDao } from '../../access/daos/DeclaredAwsIamRoleDao';
 export { DeclaredAwsIamRolePolicyAttachedInlineDao } from '../../access/daos/DeclaredAwsIamRolePolicyAttachedInlineDao';
 export { DeclaredAwsIamRolePolicyAttachedManagedDao } from '../../access/daos/DeclaredAwsIamRolePolicyAttachedManagedDao';
+export { DeclaredAwsIamUserAccessKeyDao } from '../../access/daos/DeclaredAwsIamUserAccessKeyDao';
 export { DeclaredAwsLambdaAliasDao } from '../../access/daos/DeclaredAwsLambdaAliasDao';
 export { DeclaredAwsLambdaDao } from '../../access/daos/DeclaredAwsLambdaDao';
 export { DeclaredAwsLambdaVersionDao } from '../../access/daos/DeclaredAwsLambdaVersionDao';
@@ -41,6 +42,8 @@ export {
 export { DeclaredAwsIamRole } from '../../domain.objects/DeclaredAwsIamRole';
 export { DeclaredAwsIamRolePolicyAttachedInline } from '../../domain.objects/DeclaredAwsIamRolePolicyAttachedInline';
 export { DeclaredAwsIamRolePolicyAttachedManaged } from '../../domain.objects/DeclaredAwsIamRolePolicyAttachedManaged';
+export { DeclaredAwsIamUser } from '../../domain.objects/DeclaredAwsIamUser';
+export { DeclaredAwsIamUserAccessKey } from '../../domain.objects/DeclaredAwsIamUserAccessKey';
 export { DeclaredAwsLambda } from '../../domain.objects/DeclaredAwsLambda';
 export { DeclaredAwsLambdaAlias } from '../../domain.objects/DeclaredAwsLambdaAlias';
 export { DeclaredAwsLambdaVersion } from '../../domain.objects/DeclaredAwsLambdaVersion';
@@ -86,6 +89,13 @@ export { setIamRolePolicyAttachedInline } from '../../domain.operations/iamRoleP
 export { delIamRolePolicyAttachedManaged } from '../../domain.operations/iamRolePolicyAttachedManaged/delIamRolePolicyAttachedManaged';
 export { getIamRolePolicyAttachedManaged } from '../../domain.operations/iamRolePolicyAttachedManaged/getIamRolePolicyAttachedManaged';
 export { setIamRolePolicyAttachedManaged } from '../../domain.operations/iamRolePolicyAttachedManaged/setIamRolePolicyAttachedManaged';
+// aws iam user operations
+export { getAllIamUsers } from '../../domain.operations/iamUser/getAllIamUsers';
+export { getOneIamUser } from '../../domain.operations/iamUser/getOneIamUser';
+// aws iam user access key operations
+export { delIamUserAccessKey } from '../../domain.operations/iamUserAccessKey/delIamUserAccessKey';
+export { getAllIamUserAccessKeys } from '../../domain.operations/iamUserAccessKey/getAllIamUserAccessKeys';
+export { getOneIamUserAccessKey } from '../../domain.operations/iamUserAccessKey/getOneIamUserAccessKey';
 export { getAllLambdas } from '../../domain.operations/lambda/getAllLambdas';
 // aws lambda operations
 export { getOneLambda } from '../../domain.operations/lambda/getOneLambda';

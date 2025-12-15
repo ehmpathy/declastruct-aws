@@ -1,5 +1,6 @@
 import { asUniDateTime, UniDateTime } from '@ehmpathy/uni-time';
 import { endOfDay, startOfDay, subDays } from 'date-fns';
+import { del } from 'declastruct';
 import { RefByUnique } from 'domain-objects';
 
 import {
@@ -14,6 +15,7 @@ import {
   DeclaredAwsLogGroupReportCostOfIngestion,
   DeclaredAwsLogGroupReportDistOfPattern,
   DeclaredAwsVpcTunnel,
+  getAllIamUserAccessKeys,
   getDeclastructAwsProvider,
 } from '../../../../../dist/contract/sdks';
 
@@ -160,6 +162,15 @@ export const getResources = async () => {
       range: logGroupReportRange,
     });
 
+  // get provider context for fetching current access keys
+  const [provider] = await getProviders();
+
+  // get all IAM access keys and mark for deletion
+  const accessKeysToDelete = await getAllIamUserAccessKeys(
+    { by: { account: { id: provider.context.aws.credentials.account } } },
+    provider.context,
+  ).then((keys) => keys.map((key) => del(key)));
+
   return [
     // tunnel,
     lambdaRole,
@@ -170,5 +181,6 @@ export const getResources = async () => {
     logGroupWithRetention,
     logGroupReportDistOfPattern,
     logGroupReportCostOfIngestion,
+    ...accessKeysToDelete,
   ];
 };

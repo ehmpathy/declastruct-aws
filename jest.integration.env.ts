@@ -43,7 +43,7 @@ if (
  */
 if (!(process.env.AWS_PROFILE || process.env.AWS_ACCESS_KEY_ID))
   throw new Error(
-    'AWS credentials not set. Run: source .agent/repo=.this/skills/use.demo.awsprofile.sh',
+    'AWS credentials not set. Run w/ creds via `source .agent/repo=.this/skills/use.demo.awsprofile.sh && npm run test:integration`',
   );
 
 /**

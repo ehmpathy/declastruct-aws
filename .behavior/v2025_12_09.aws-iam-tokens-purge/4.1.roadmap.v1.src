@@ -5,7 +5,13 @@ declare a roadmap,
 - with behavioral acceptance criteria
 - with behavioral acceptance verification at each step
 
-for how to execute the blueprint specified in .behavior/v2025_12_09.aws-iam-tokens-purge/3.3.blueprint.v1.i1.md
+for how to execute the blueprint specified in
+- .behavior/v2025_12_09.aws-iam-tokens-purge/3.3.blueprint.v1.i1.md
+
+with context from
+- .behavior/v2025_12_09.aws-iam-tokens-purge/0.wish.md
+- .behavior/v2025_12_09.aws-iam-tokens-purge/3.1.research.domain._.v1.i1.md
+- .behavior/v2025_12_09.aws-iam-tokens-purge/3.2.distill.domain._.v1.i1.md
 
 ---
 
