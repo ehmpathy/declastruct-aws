@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.1](https://github.com/ehmpathy/declastruct-aws/compare/v1.4.0...v1.4.1) (2025-12-15)
+
+
+### Bug Fixes
+
+* **dao:** sync to updated declastruct dao contract ([#31](https://github.com/ehmpathy/declastruct-aws/issues/31)) ([defe40a](https://github.com/ehmpathy/declastruct-aws/commit/defe40a0ee1de9b42a837e48bdc51f7a9823d179))
+
 ## [1.4.0](https://github.com/ehmpathy/declastruct-aws/compare/v1.3.1...v1.4.0) (2025-12-15)
 
 
