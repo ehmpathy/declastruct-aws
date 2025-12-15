@@ -49,7 +49,7 @@ jobs:
 
           body="$(gh pr view "$PR" --json body -q .body)"
 
-          updated="$(printf "%s" "$body" | sed '1s/^🤖 I have created a release beep boop$/🐢 noice! ready to let these changes ride?/')"
+          updated="$(printf "%s" "$body" | sed '1s/^:robot: I have created a release \*beep\* \*boop\*$/🐢 noice! ready to let these changes ride?/')"
 
           gh pr edit "$PR" --body "$updated"
         env:
