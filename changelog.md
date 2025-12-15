@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.4.0](https://github.com/ehmpathy/declastruct-aws/compare/v1.3.1...v1.4.0) (2025-12-15)
+
+
+### Features
+
+* **iam:** enable control of iam user access keys ([#26](https://github.com/ehmpathy/declastruct-aws/issues/26)) ([8fa0f41](https://github.com/ehmpathy/declastruct-aws/commit/8fa0f414d0cc1dc9ab5f43c4bb9a757314abeeba))
+
+
+### Bug Fixes
+
+* **cicd:** deworm github auth ([#27](https://github.com/ehmpathy/declastruct-aws/issues/27)) ([8baf567](https://github.com/ehmpathy/declastruct-aws/commit/8baf5674c1604be1ed7dc85721ee36213dade284))
+* **cicd:** upgrade the release workflow ([#29](https://github.com/ehmpathy/declastruct-aws/issues/29)) ([460671f](https://github.com/ehmpathy/declastruct-aws/commit/460671f8862a3508458de8d4883a9668d2785660))
+* **cicd:** upgrade the release workflow ([#30](https://github.com/ehmpathy/declastruct-aws/issues/30)) ([5f74b9a](https://github.com/ehmpathy/declastruct-aws/commit/5f74b9a6e37adcd5f1923747fdfb664e86a75ed8))
+
 ## [1.3.1](https://github.com/ehmpathy/declastruct-aws/compare/v1.3.0...v1.3.1) (2025-12-14)
 
 
