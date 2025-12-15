@@ -47,7 +47,7 @@ describe('setLambdaVersion', () => {
   });
 
   given('a version that does not exist', () => {
-    when('finsert is called', () => {
+    when('findsert is called', () => {
       then('it should publish a new version', async () => {
         (
           getLambdaVersionModule.getOneLambdaVersion as jest.Mock
@@ -68,7 +68,7 @@ describe('setLambdaVersion', () => {
         });
 
         const result = await setLambdaVersion(
-          { finsert: versionSample },
+          { findsert: versionSample },
           context,
         );
 
@@ -81,7 +81,7 @@ describe('setLambdaVersion', () => {
   });
 
   given('a version that already exists', () => {
-    when('finsert is called', () => {
+    when('findsert is called', () => {
       then('it should return the existing version (idempotent)', async () => {
         const existingVersion = {
           ...versionSample,
@@ -93,7 +93,7 @@ describe('setLambdaVersion', () => {
         ).mockResolvedValue(existingVersion);
 
         const result = await setLambdaVersion(
-          { finsert: versionSample },
+          { findsert: versionSample },
           context,
         );
 
@@ -136,7 +136,7 @@ describe('setLambdaVersion', () => {
         (getLambdaModule.getOneLambda as jest.Mock).mockResolvedValue(null);
 
         await expect(
-          setLambdaVersion({ finsert: versionSample }, context),
+          setLambdaVersion({ findsert: versionSample }, context),
         ).rejects.toThrow('lambda not found');
       });
     });
@@ -167,7 +167,7 @@ describe('setLambdaVersion', () => {
         });
 
         await expect(
-          setLambdaVersion({ finsert: versionSample }, context),
+          setLambdaVersion({ findsert: versionSample }, context),
         ).rejects.toThrow('config hash mismatch');
       });
     });

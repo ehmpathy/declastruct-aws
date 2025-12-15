@@ -63,7 +63,7 @@ describe('setLambdaAlias', () => {
   });
 
   given('an alias that does not exist', () => {
-    when('finsert is called', () => {
+    when('findsert is called', () => {
       then('it should create the alias', async () => {
         (getLambdaAliasModule.getOneLambdaAlias as jest.Mock).mockResolvedValue(
           null,
@@ -76,7 +76,7 @@ describe('setLambdaAlias', () => {
           FunctionVersion: '5',
         });
 
-        const result = await setLambdaAlias({ finsert: aliasSample }, context);
+        const result = await setLambdaAlias({ findsert: aliasSample }, context);
 
         expect(result.name).toBe('LIVE');
         expect(mockSend).toHaveBeenCalledWith(expect.any(CreateAliasCommand));
@@ -85,7 +85,7 @@ describe('setLambdaAlias', () => {
   });
 
   given('an alias that already exists with same version', () => {
-    when('finsert is called', () => {
+    when('findsert is called', () => {
       then('it should return the existing alias (idempotent)', async () => {
         const existingAlias = {
           ...aliasSample,
@@ -99,7 +99,7 @@ describe('setLambdaAlias', () => {
           FunctionVersion: '5',
         });
 
-        const result = await setLambdaAlias({ finsert: aliasSample }, context);
+        const result = await setLambdaAlias({ findsert: aliasSample }, context);
 
         expect(result).toBe(existingAlias);
       });
@@ -107,7 +107,7 @@ describe('setLambdaAlias', () => {
   });
 
   given('an alias that already exists with different version', () => {
-    when('finsert is called', () => {
+    when('findsert is called', () => {
       then('it should throw BadRequestError', async () => {
         const existingAlias = {
           ...aliasSample,
@@ -122,7 +122,7 @@ describe('setLambdaAlias', () => {
         });
 
         await expect(
-          setLambdaAlias({ finsert: aliasSample }, context),
+          setLambdaAlias({ findsert: aliasSample }, context),
         ).rejects.toThrow('alias exists with different version');
       });
     });
@@ -158,7 +158,7 @@ describe('setLambdaAlias', () => {
         (getLambdaModule.getOneLambda as jest.Mock).mockResolvedValue(null);
 
         await expect(
-          setLambdaAlias({ finsert: aliasSample }, context),
+          setLambdaAlias({ findsert: aliasSample }, context),
         ).rejects.toThrow('lambda not found');
       });
     });
@@ -172,7 +172,7 @@ describe('setLambdaAlias', () => {
         ).mockResolvedValue(null);
 
         await expect(
-          setLambdaAlias({ finsert: aliasSample }, context),
+          setLambdaAlias({ findsert: aliasSample }, context),
         ).rejects.toThrow('version not found');
       });
     });

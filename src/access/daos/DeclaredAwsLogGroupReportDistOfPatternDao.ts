@@ -28,7 +28,7 @@ export const DeclaredAwsLogGroupReportDistOfPatternDao = genDeclastructDao<
     },
   },
   set: {
-    finsert: async (input) => {
+    findsert: async (input) => {
       // readonly derived entity — cannot be written
       BadRequestError.throw(
         'Pattern distribution report is a readonly derived entity — cannot be written',

@@ -25,7 +25,7 @@ export const DeclaredAwsRdsClusterDao = genDeclastructDao<
     },
   },
   set: {
-    finsert: async (input) => {
+    findsert: async (input) => {
       // todo: RDS cluster creation not yet implemented
       BadRequestError.throw(
         'RDS cluster creation not yet supported by this DAO',

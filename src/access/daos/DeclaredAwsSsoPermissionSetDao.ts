@@ -26,8 +26,8 @@ export const DeclaredAwsSsoPermissionSetDao = genDeclastructDao<
     },
   },
   set: {
-    finsert: async (input, context) => {
-      return setSsoPermissionSet({ finsert: input }, context);
+    findsert: async (input, context) => {
+      return setSsoPermissionSet({ findsert: input }, context);
     },
     upsert: async (input, context) => {
       return setSsoPermissionSet({ upsert: input }, context);

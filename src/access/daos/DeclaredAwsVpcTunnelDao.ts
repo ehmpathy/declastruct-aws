@@ -24,7 +24,7 @@ export const DeclaredAwsVpcTunnelDao = genDeclastructDao<
     },
   },
   set: {
-    finsert: async (input, context) => {
+    findsert: async (input, context) => {
       return setVpcTunnel(input, context);
     },
     upsert: async (input, context) => {

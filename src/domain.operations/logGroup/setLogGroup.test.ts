@@ -34,7 +34,7 @@ describe('setLogGroup', () => {
   });
 
   given('a log group that does not exist', () => {
-    when('finsert is called', () => {
+    when('findsert is called', () => {
       then('it should create the log group and set retention', async () => {
         (getOneLogGroupModule.getOneLogGroup as jest.Mock)
           .mockResolvedValueOnce(null) // foundBefore
@@ -45,7 +45,7 @@ describe('setLogGroup', () => {
 
         mockSend.mockResolvedValue({});
 
-        const result = await setLogGroup({ finsert: logGroupSample }, context);
+        const result = await setLogGroup({ findsert: logGroupSample }, context);
 
         expect(result.name).toBe('/aws/lambda/test-function');
         expect(mockSend).toHaveBeenCalledWith(
@@ -82,7 +82,7 @@ describe('setLogGroup', () => {
   });
 
   given('a log group that already exists', () => {
-    when('finsert is called', () => {
+    when('findsert is called', () => {
       then('it should return the found log group (idempotent)', async () => {
         const foundLogGroup = {
           ...logGroupSample,
@@ -92,7 +92,7 @@ describe('setLogGroup', () => {
           foundLogGroup,
         );
 
-        const result = await setLogGroup({ finsert: logGroupSample }, context);
+        const result = await setLogGroup({ findsert: logGroupSample }, context);
 
         expect(result).toBe(foundLogGroup);
         expect(mockSend).not.toHaveBeenCalled();

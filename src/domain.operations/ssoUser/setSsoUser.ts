@@ -27,12 +27,12 @@ import { getOneSsoUser } from './getOneSsoUser';
 export const setSsoUser = asProcedure(
   async (
     input: PickOne<{
-      finsert: DeclaredAwsSsoUser;
+      findsert: DeclaredAwsSsoUser;
       upsert: DeclaredAwsSsoUser;
     }>,
     context: ContextAwsApi & VisualogicContext,
   ): Promise<HasReadonly<typeof DeclaredAwsSsoUser>> => {
-    const userDesired = input.finsert ?? input.upsert;
+    const userDesired = input.findsert ?? input.upsert;
 
     // resolve identityStoreId from instance ref
     const resolveIdentityStoreId = async (
@@ -66,8 +66,8 @@ export const setSsoUser = asProcedure(
       context,
     );
 
-    // if it's a finsert and had a before, then return that
-    if (before && input.finsert) return before;
+    // if it's a findsert and had a before, then return that
+    if (before && input.findsert) return before;
 
     // if exists + upsert, update the user
     if (before && input.upsert) {

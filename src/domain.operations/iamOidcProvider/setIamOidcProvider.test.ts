@@ -25,7 +25,7 @@ describe('setIamOidcProvider', () => {
   });
 
   given('a provider that does not exist', () => {
-    when('finsert is called', () => {
+    when('findsert is called', () => {
       then('it should create the provider', async () => {
         const arn =
           'arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com';
@@ -45,7 +45,7 @@ describe('setIamOidcProvider', () => {
 
         const result = await setIamOidcProvider(
           {
-            finsert: {
+            findsert: {
               url: 'https://token.actions.githubusercontent.com',
               clientIds: ['sts.amazonaws.com'],
               thumbprints: [],
@@ -97,7 +97,7 @@ describe('setIamOidcProvider', () => {
   });
 
   given('a provider that already exists', () => {
-    when('finsert is called', () => {
+    when('findsert is called', () => {
       then('it should return the existing provider (idempotent)', async () => {
         const arn =
           'arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com';
@@ -114,7 +114,7 @@ describe('setIamOidcProvider', () => {
 
         const result = await setIamOidcProvider(
           {
-            finsert: {
+            findsert: {
               url: 'https://token.actions.githubusercontent.com',
               clientIds: ['sts.amazonaws.com'],
               thumbprints: ['abc123'],

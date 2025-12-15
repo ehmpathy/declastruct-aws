@@ -12,7 +12,7 @@ import { setSsoAccountAssignment } from '../../domain.operations/ssoAccountAssig
  *
  * .note
  *   - assignments are identified by composite key, not a single id
- *   - only finsert is supported (assignments cannot be updated)
+ *   - only findsert is supported (assignments cannot be updated)
  */
 export const DeclaredAwsSsoAccountAssignmentDao = genDeclastructDao<
   typeof DeclaredAwsSsoAccountAssignment,
@@ -28,8 +28,8 @@ export const DeclaredAwsSsoAccountAssignmentDao = genDeclastructDao<
     },
   },
   set: {
-    finsert: async (input, context) => {
-      return setSsoAccountAssignment({ finsert: input }, context);
+    findsert: async (input, context) => {
+      return setSsoAccountAssignment({ findsert: input }, context);
     },
     upsert: null,
     delete: null,

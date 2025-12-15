@@ -27,8 +27,8 @@ export const DeclaredAwsLambdaVersionDao = genDeclastructDao<
     },
   },
   set: {
-    finsert: async (input, context) => {
-      return setLambdaVersion({ finsert: input }, context);
+    findsert: async (input, context) => {
+      return setLambdaVersion({ findsert: input }, context);
     },
     upsert: async (input, context) => {
       return setLambdaVersion({ upsert: input }, context);

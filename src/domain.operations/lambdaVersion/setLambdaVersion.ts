@@ -24,12 +24,12 @@ import { calcConfigSha256 } from './utils/calcConfigSha256';
 export const setLambdaVersion = asProcedure(
   async (
     input: PickOne<{
-      finsert: DeclaredAwsLambdaVersion;
+      findsert: DeclaredAwsLambdaVersion;
       upsert: DeclaredAwsLambdaVersion;
     }>,
     context: ContextAwsApi & VisualogicContext,
   ): Promise<HasReadonly<typeof DeclaredAwsLambdaVersion>> => {
-    const versionDesired = input.finsert ?? input.upsert;
+    const versionDesired = input.findsert ?? input.upsert;
 
     // check if version already exists by fingerprint
     const before = await getOneLambdaVersion(
@@ -45,7 +45,7 @@ export const setLambdaVersion = asProcedure(
       context,
     );
 
-    // if exists, return before (both finsert and upsert are no-op for immutable versions)
+    // if exists, return before (both findsert and upsert are no-op for immutable versions)
     if (before) return before;
 
     // resolve lambda ref to get function name

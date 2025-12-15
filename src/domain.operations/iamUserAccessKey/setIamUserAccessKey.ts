@@ -15,7 +15,7 @@ import type { DeclaredAwsIamUserAccessKey } from '../../domain.objects/DeclaredA
  */
 export const setIamUserAccessKey = async (
   _input: PickOne<{
-    finsert: DeclaredAwsIamUserAccessKey;
+    findsert: DeclaredAwsIamUserAccessKey;
     upsert: DeclaredAwsIamUserAccessKey;
   }>,
   _context: ContextAwsApi & VisualogicContext,

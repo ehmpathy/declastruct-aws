@@ -12,7 +12,7 @@ import { setOrganization } from '../../domain.operations/organization/setOrganiz
  * .why = wraps organization operations to conform to declastruct interface
  * .note
  *   - only one organization per management account
- *   - only finsert supported (organizations cannot be updated)
+ *   - only findsert supported (organizations cannot be updated)
  */
 export const DeclaredAwsOrganizationDao = genDeclastructDao<
   typeof DeclaredAwsOrganization,
@@ -30,8 +30,8 @@ export const DeclaredAwsOrganizationDao = genDeclastructDao<
     },
   },
   set: {
-    finsert: async (input, context) => {
-      return setOrganization({ finsert: input }, context);
+    findsert: async (input, context) => {
+      return setOrganization({ findsert: input }, context);
     },
     upsert: null,
     delete: async (input, context) => {

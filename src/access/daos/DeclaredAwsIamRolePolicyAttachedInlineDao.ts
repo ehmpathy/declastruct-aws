@@ -29,8 +29,8 @@ export const DeclaredAwsIamRolePolicyAttachedInlineDao = genDeclastructDao<
     },
   },
   set: {
-    finsert: async (input, context) => {
-      return setIamRolePolicyAttachedInline({ finsert: input }, context);
+    findsert: async (input, context) => {
+      return setIamRolePolicyAttachedInline({ findsert: input }, context);
     },
     upsert: async (input, context) => {
       return setIamRolePolicyAttachedInline({ upsert: input }, context);

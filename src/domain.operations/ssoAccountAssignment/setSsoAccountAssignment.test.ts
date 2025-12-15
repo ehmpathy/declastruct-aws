@@ -67,7 +67,7 @@ describe('setSsoAccountAssignment', () => {
   });
 
   given('an account assignment that does not exist', () => {
-    when('finsert is called', () => {
+    when('findsert is called', () => {
       then('it should create the assignment', async () => {
         const permissionSetArn =
           'arn:aws:sso:::permissionSet/ssoins-1234567890abcdef/ps-abcdef1234567890';
@@ -95,7 +95,7 @@ describe('setSsoAccountAssignment', () => {
 
         const result = await setSsoAccountAssignment(
           {
-            finsert: {
+            findsert: {
               instance: instanceRef,
               permissionSet: { instance: instanceRef, name: 'TestAccess' },
               principalType: 'USER',
@@ -115,7 +115,7 @@ describe('setSsoAccountAssignment', () => {
       });
     });
 
-    when('finsert is called with GROUP principal', () => {
+    when('findsert is called with GROUP principal', () => {
       then('it should create group assignment', async () => {
         const accountId = '123456789012';
 
@@ -136,7 +136,7 @@ describe('setSsoAccountAssignment', () => {
 
         const result = await setSsoAccountAssignment(
           {
-            finsert: {
+            findsert: {
               instance: instanceRef,
               permissionSet: { instance: instanceRef, name: 'GroupAccess' },
               principalType: 'GROUP',
@@ -157,7 +157,7 @@ describe('setSsoAccountAssignment', () => {
   });
 
   given('an account assignment that already exists', () => {
-    when('finsert is called', () => {
+    when('findsert is called', () => {
       then(
         'it should return the existing assignment (idempotent)',
         async () => {
@@ -176,7 +176,7 @@ describe('setSsoAccountAssignment', () => {
 
           const result = await setSsoAccountAssignment(
             {
-              finsert: {
+              findsert: {
                 instance: instanceRef,
                 permissionSet: { instance: instanceRef, name: 'TestAccess' },
                 principalType: 'USER',
@@ -198,7 +198,7 @@ describe('setSsoAccountAssignment', () => {
   });
 
   given('an assignment with target as organization account ref', () => {
-    when('finsert is called', () => {
+    when('findsert is called', () => {
       then('it should resolve target account id', async () => {
         (getModule.getOneSsoAccountAssignment as jest.Mock)
           .mockResolvedValueOnce(null)
@@ -217,7 +217,7 @@ describe('setSsoAccountAssignment', () => {
 
         const result = await setSsoAccountAssignment(
           {
-            finsert: {
+            findsert: {
               instance: instanceRef,
               permissionSet: { instance: instanceRef, name: 'TestAccess' },
               principalType: 'USER',

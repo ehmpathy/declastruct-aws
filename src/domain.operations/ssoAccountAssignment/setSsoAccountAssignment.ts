@@ -23,16 +23,16 @@ import { getOneSsoAccountAssignment } from './getOneSsoAccountAssignment';
  * .note
  *   - assignments are identified by composite key (all fields together)
  *   - assignments cannot be updated, only created or deleted
- *   - finsert is the only supported mode (no upsert since no updatable fields)
+ *   - findsert is the only supported mode (no upsert since no updatable fields)
  */
 export const setSsoAccountAssignment = asProcedure(
   async (
     input: PickOne<{
-      finsert: DeclaredAwsSsoAccountAssignment;
+      findsert: DeclaredAwsSsoAccountAssignment;
     }>,
     context: ContextAwsApi & VisualogicContext,
   ): Promise<HasReadonly<typeof DeclaredAwsSsoAccountAssignment>> => {
-    const assignmentDesired = input.finsert;
+    const assignmentDesired = input.findsert;
 
     // resolve instance
     const instance =
@@ -53,7 +53,7 @@ export const setSsoAccountAssignment = asProcedure(
       context,
     );
 
-    // if it already exists, return it (finsert behavior)
+    // if it already exists, return it (findsert behavior)
     if (before) return before;
 
     // resolve permission set to primary ref (with arn)

@@ -27,7 +27,7 @@ export const DeclaredAwsEc2InstanceDao = genDeclastructDao<
     },
   },
   set: {
-    finsert: async (input) => {
+    findsert: async (input) => {
       // todo: EC2 instance creation not yet implemented
       BadRequestError.throw(
         'EC2 instance creation not yet supported by this DAO',

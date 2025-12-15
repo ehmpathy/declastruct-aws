@@ -28,7 +28,7 @@ describe('setLambdaVersion', () => {
       // publish a version
       const version = await setLambdaVersion(
         {
-          finsert: {
+          findsert: {
             lambda: { name: testLambdaName },
             codeSha256: lambda.codeSha256!,
             configSha256,
@@ -43,7 +43,7 @@ describe('setLambdaVersion', () => {
       console.log('Published version:', version);
     });
 
-    then('finsert should be idempotent for same code+config', async () => {
+    then('findsert should be idempotent for same code+config', async () => {
       const lambda = await getOneLambda(
         { by: { unique: { name: testLambdaName } } },
         context,
@@ -58,7 +58,7 @@ describe('setLambdaVersion', () => {
       // publish same version again - should return existing
       const version = await setLambdaVersion(
         {
-          finsert: {
+          findsert: {
             lambda: { name: testLambdaName },
             codeSha256: lambda.codeSha256!,
             configSha256,

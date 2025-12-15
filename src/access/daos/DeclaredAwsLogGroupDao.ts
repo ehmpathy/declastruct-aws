@@ -26,8 +26,8 @@ export const DeclaredAwsLogGroupDao = genDeclastructDao<
     },
   },
   set: {
-    finsert: async (input, context) => {
-      return setLogGroup({ finsert: input }, context);
+    findsert: async (input, context) => {
+      return setLogGroup({ findsert: input }, context);
     },
     upsert: async (input, context) => {
       return setLogGroup({ upsert: input }, context);

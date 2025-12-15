@@ -26,8 +26,8 @@ export const DeclaredAwsIamOidcProviderDao = genDeclastructDao<
     },
   },
   set: {
-    finsert: async (input, context) => {
-      return setIamOidcProvider({ finsert: input }, context);
+    findsert: async (input, context) => {
+      return setIamOidcProvider({ findsert: input }, context);
     },
     upsert: async (input, context) => {
       return setIamOidcProvider({ upsert: input }, context);

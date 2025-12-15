@@ -24,8 +24,8 @@ export const DeclaredAwsSsoUserDao = genDeclastructDao<
     },
   },
   set: {
-    finsert: async (input, context) => {
-      return setSsoUser({ finsert: input }, context);
+    findsert: async (input, context) => {
+      return setSsoUser({ findsert: input }, context);
     },
     upsert: async (input, context) => {
       return setSsoUser({ upsert: input }, context);

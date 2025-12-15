@@ -40,7 +40,7 @@ describe('setIamRole', () => {
   });
 
   given('a role that does not exist', () => {
-    when('finsert is called', () => {
+    when('findsert is called', () => {
       then(
         'it should create the role and wait for it to be ready',
         async () => {
@@ -53,7 +53,7 @@ describe('setIamRole', () => {
 
           mockSend.mockResolvedValue({});
 
-          const result = await setIamRole({ finsert: roleSample }, context);
+          const result = await setIamRole({ findsert: roleSample }, context);
 
           expect(result.name).toBe('test-execution-role');
           expect(mockSend).toHaveBeenCalledWith(expect.any(CreateRoleCommand));
@@ -64,7 +64,7 @@ describe('setIamRole', () => {
   });
 
   given('a role that already exists', () => {
-    when('finsert is called', () => {
+    when('findsert is called', () => {
       then('it should return the existing role (idempotent)', async () => {
         const existingRole = {
           ...roleSample,
@@ -74,7 +74,7 @@ describe('setIamRole', () => {
           existingRole,
         );
 
-        const result = await setIamRole({ finsert: roleSample }, context);
+        const result = await setIamRole({ findsert: roleSample }, context);
 
         expect(result).toBe(existingRole);
         expect(mockSend).not.toHaveBeenCalled();
