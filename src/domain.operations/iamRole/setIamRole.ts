@@ -29,12 +29,12 @@ import { getIamRole } from './getIamRole';
 export const setIamRole = asProcedure(
   async (
     input: PickOne<{
-      finsert: DeclaredAwsIamRole;
+      findsert: DeclaredAwsIamRole;
       upsert: DeclaredAwsIamRole;
     }>,
     context: ContextAwsApi & VisualogicContext,
   ): Promise<HasReadonly<typeof DeclaredAwsIamRole>> => {
-    const roleDesired = input.finsert ?? input.upsert;
+    const roleDesired = input.findsert ?? input.upsert;
 
     // create iam client
     const iam = new IAMClient({ region: context.aws.credentials.region });
@@ -45,8 +45,8 @@ export const setIamRole = asProcedure(
       context,
     );
 
-    // if it's a finsert and had a before, then return that
-    if (before && input.finsert) return before;
+    // if it's a findsert and had a before, then return that
+    if (before && input.findsert) return before;
 
     // build trust policy document from policy statements
     const trustPolicyDocument = castFromDeclaredAwsIamPolicyDocument({

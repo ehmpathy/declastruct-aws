@@ -32,12 +32,12 @@ import { getOneIamOidcProvider } from './getOneIamOidcProvider';
 export const setIamOidcProvider = asProcedure(
   async (
     input: PickOne<{
-      finsert: DeclaredAwsIamOidcProvider;
+      findsert: DeclaredAwsIamOidcProvider;
       upsert: DeclaredAwsIamOidcProvider;
     }>,
     context: ContextAwsApi & VisualogicContext,
   ): Promise<HasReadonly<typeof DeclaredAwsIamOidcProvider>> => {
-    const providerDesired = input.finsert ?? input.upsert;
+    const providerDesired = input.findsert ?? input.upsert;
 
     // create iam client
     const iam = new IAMClient({ region: context.aws.credentials.region });
@@ -48,8 +48,8 @@ export const setIamOidcProvider = asProcedure(
       context,
     );
 
-    // if it's a finsert and had a before, then return that
-    if (before && input.finsert) return before;
+    // if it's a findsert and had a before, then return that
+    if (before && input.findsert) return before;
 
     // if exists + upsert, update the provider
     if (before && input.upsert) {

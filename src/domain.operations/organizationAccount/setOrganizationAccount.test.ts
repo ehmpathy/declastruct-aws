@@ -54,7 +54,7 @@ describe('setOrganizationAccount', () => {
       ).mockResolvedValue(sampleFoundAccount);
 
       const result = await setOrganizationAccount(
-        { finsert: sampleDesiredAccount as any },
+        { findsert: sampleDesiredAccount as any },
         context,
       );
 
@@ -95,7 +95,7 @@ describe('setOrganizationAccount', () => {
         });
 
         const result = await setOrganizationAccount(
-          { finsert: sampleDesiredAccount as any },
+          { findsert: sampleDesiredAccount as any },
           context,
         );
 
@@ -142,7 +142,7 @@ describe('setOrganizationAccount', () => {
         });
 
         const result = await setOrganizationAccount(
-          { finsert: sampleDesiredAccount as any },
+          { findsert: sampleDesiredAccount as any },
           context,
         );
 
@@ -172,7 +172,7 @@ describe('setOrganizationAccount', () => {
 
         await expect(
           setOrganizationAccount(
-            { finsert: sampleDesiredAccount as any },
+            { findsert: sampleDesiredAccount as any },
             context,
           ),
         ).rejects.toThrow('Account creation failed');
@@ -192,7 +192,7 @@ describe('setOrganizationAccount', () => {
 
       await expect(
         setOrganizationAccount(
-          { finsert: sampleDesiredAccount as any },
+          { findsert: sampleDesiredAccount as any },
           context,
         ),
       ).rejects.toThrow('org manager auth required');
@@ -210,17 +210,17 @@ describe('setOrganizationAccount', () => {
 
       await expect(
         setOrganizationAccount(
-          { finsert: sampleDesiredAccount as any },
+          { findsert: sampleDesiredAccount as any },
           context,
         ),
       ).rejects.toThrow('organization mismatch');
     });
   });
 
-  given('finsert or upsert not provided', () => {
+  given('findsert or upsert not provided', () => {
     then('we should throw BadRequestError', async () => {
       await expect(setOrganizationAccount({} as any, context)).rejects.toThrow(
-        'finsert or upsert is required',
+        'findsert or upsert is required',
       );
     });
   });

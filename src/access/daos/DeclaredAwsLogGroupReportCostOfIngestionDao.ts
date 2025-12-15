@@ -28,7 +28,7 @@ export const DeclaredAwsLogGroupReportCostOfIngestionDao = genDeclastructDao<
     },
   },
   set: {
-    finsert: async (input) => {
+    findsert: async (input) => {
       // readonly derived entity — cannot be written
       BadRequestError.throw(
         'Cost of ingestion report is a readonly derived entity — cannot be written',

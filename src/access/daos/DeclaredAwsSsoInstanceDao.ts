@@ -12,7 +12,7 @@ import { setSsoInstance } from '../../domain.operations/ssoInstance/setSsoInstan
  *
  * .note
  *   - sso instances cannot be created via api; must be enabled in aws console
- *   - set.finsert will failfast if instance doesn't exist
+ *   - set.findsert will failfast if instance doesn't exist
  */
 export const DeclaredAwsSsoInstanceDao = genDeclastructDao<
   typeof DeclaredAwsSsoInstance,
@@ -30,8 +30,8 @@ export const DeclaredAwsSsoInstanceDao = genDeclastructDao<
     },
   },
   set: {
-    finsert: async (input, context) => {
-      return setSsoInstance({ finsert: input }, context);
+    findsert: async (input, context) => {
+      return setSsoInstance({ findsert: input }, context);
     },
     upsert: null,
     delete: null,

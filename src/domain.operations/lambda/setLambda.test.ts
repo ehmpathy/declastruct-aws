@@ -41,11 +41,11 @@ describe('setLambda', () => {
     jest.clearAllMocks();
   });
 
-  it('returns early for finsert if lambda already exists (before)', async () => {
+  it('returns early for findsert if lambda already exists (before)', async () => {
     const before = { ...lambdaSample, arn: 'arn:aws:lambda:...' };
     (getLambdaModule.getOneLambda as jest.Mock).mockResolvedValue(before);
 
-    const result = await setLambda({ finsert: lambdaSample }, context);
+    const result = await setLambda({ findsert: lambdaSample }, context);
     expect(result).toBe(before);
     expect(getLambdaModule.getOneLambda).toHaveBeenCalled();
     expect(mockSend).not.toHaveBeenCalled();
@@ -97,7 +97,7 @@ describe('setLambda', () => {
       codeSha256: 'def',
     });
 
-    const result = await setLambda({ finsert: lambdaSample }, context);
+    const result = await setLambda({ findsert: lambdaSample }, context);
 
     expect(getLambdaModule.getOneLambda).toHaveBeenCalled();
     expect(mockSend).toHaveBeenCalledWith(expect.any(CreateFunctionCommand));

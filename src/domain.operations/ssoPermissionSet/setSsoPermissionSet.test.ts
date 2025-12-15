@@ -45,7 +45,7 @@ describe('setSsoPermissionSet', () => {
   });
 
   given('a permission set that does not exist', () => {
-    when('finsert is called', () => {
+    when('findsert is called', () => {
       then('it should create the permission set', async () => {
         const permissionSetArn =
           'arn:aws:sso:::permissionSet/ssoins-1234567890abcdef/ps-abcdef1234567890';
@@ -70,7 +70,7 @@ describe('setSsoPermissionSet', () => {
 
         const result = await setSsoPermissionSet(
           {
-            finsert: {
+            findsert: {
               instance: instanceRef,
               name: 'DemoAccess',
               description: 'Demo access permission set',
@@ -89,7 +89,7 @@ describe('setSsoPermissionSet', () => {
       });
     });
 
-    when('finsert is called with managed policies', () => {
+    when('findsert is called with managed policies', () => {
       then(
         'it should create the permission set and attach policies',
         async () => {
@@ -114,7 +114,7 @@ describe('setSsoPermissionSet', () => {
 
           await setSsoPermissionSet(
             {
-              finsert: {
+              findsert: {
                 instance: instanceRef,
                 name: 'AdminAccess',
                 description: null,
@@ -140,7 +140,7 @@ describe('setSsoPermissionSet', () => {
   });
 
   given('a permission set that already exists', () => {
-    when('finsert is called', () => {
+    when('findsert is called', () => {
       then(
         'it should return the existing permission set (idempotent)',
         async () => {
@@ -162,7 +162,7 @@ describe('setSsoPermissionSet', () => {
 
           const result = await setSsoPermissionSet(
             {
-              finsert: {
+              findsert: {
                 instance: instanceRef,
                 name: 'DemoAccess',
                 description: 'Demo access',

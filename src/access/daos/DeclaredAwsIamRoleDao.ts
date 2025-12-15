@@ -26,8 +26,8 @@ export const DeclaredAwsIamRoleDao = genDeclastructDao<
     },
   },
   set: {
-    finsert: async (input, context) => {
-      return setIamRole({ finsert: input }, context);
+    findsert: async (input, context) => {
+      return setIamRole({ findsert: input }, context);
     },
     upsert: async (input, context) => {
       return setIamRole({ upsert: input }, context);

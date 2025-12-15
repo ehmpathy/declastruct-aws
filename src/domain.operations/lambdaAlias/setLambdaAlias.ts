@@ -22,18 +22,18 @@ import { getOneLambdaAlias } from './getOneLambdaAlias';
  * .why = enables declarative alias management for version targeting
  *
  * .note
- *   - finsert: create only if not exists, error if exists with different version
+ *   - findsert: create only if not exists, error if exists with different version
  *   - upsert: create or update to point to specified version
  */
 export const setLambdaAlias = asProcedure(
   async (
     input: PickOne<{
-      finsert: DeclaredAwsLambdaAlias;
+      findsert: DeclaredAwsLambdaAlias;
       upsert: DeclaredAwsLambdaAlias;
     }>,
     context: ContextAwsApi & VisualogicContext,
   ): Promise<HasReadonly<typeof DeclaredAwsLambdaAlias>> => {
-    const aliasDesired = input.finsert ?? input.upsert;
+    const aliasDesired = input.findsert ?? input.upsert;
 
     // resolve lambda ref
     const lambda = await getOneLambda(
@@ -74,8 +74,8 @@ export const setLambdaAlias = asProcedure(
       region: context.aws.credentials.region,
     });
 
-    // if exists + finsert, verify same version or error
-    if (before && input.finsert) {
+    // if exists + findsert, verify same version or error
+    if (before && input.findsert) {
       // get current version the alias points to from aws
       const currentResponse = await lambdaClient.send(
         new GetAliasCommand({

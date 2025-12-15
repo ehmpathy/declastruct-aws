@@ -26,7 +26,7 @@ describe('setIamRolePolicyAttachedInline', () => {
   });
 
   given('a new inline policy to create', () => {
-    when('finsert is called', () => {
+    when('findsert is called', () => {
       then('it should create the policy', async () => {
         (DeclaredAwsIamRoleDao.get.one.byRef as jest.Mock).mockResolvedValue({
           name: 'test-role',
@@ -76,7 +76,7 @@ describe('setIamRolePolicyAttachedInline', () => {
         });
 
         const result = await setIamRolePolicyAttachedInline(
-          { finsert: policy },
+          { findsert: policy },
           context,
         );
 
@@ -88,7 +88,7 @@ describe('setIamRolePolicyAttachedInline', () => {
   });
 
   given('an existing inline policy', () => {
-    when('finsert is called', () => {
+    when('findsert is called', () => {
       then(
         'it should return the existing policy without updating',
         async () => {
@@ -124,7 +124,7 @@ describe('setIamRolePolicyAttachedInline', () => {
           });
 
           const result = await setIamRolePolicyAttachedInline(
-            { finsert: policy },
+            { findsert: policy },
             context,
           );
 
@@ -214,7 +214,7 @@ describe('setIamRolePolicyAttachedInline', () => {
         });
 
         await expect(
-          setIamRolePolicyAttachedInline({ finsert: policy }, context),
+          setIamRolePolicyAttachedInline({ findsert: policy }, context),
         ).rejects.toThrow('role not found for policy attachment');
       });
     });

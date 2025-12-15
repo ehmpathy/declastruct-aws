@@ -9,22 +9,22 @@ import type { DeclaredAwsSsoInstance } from '../../domain.objects/DeclaredAwsSso
 import { getOneSsoInstance } from './getOneSsoInstance';
 
 /**
- * .what = sets (finsert) an sso identity center instance
+ * .what = sets (findsert) an sso identity center instance
  * .why = enables declarative instance management for identity center
  *
  * .note
  *   - sso instances cannot be created via api; must be enabled in aws console
- *   - this operation only supports finsert: find existing or fail
+ *   - this operation only supports findsert: find existing or fail
  *   - use this to declare dependency on an existing instance
  */
 export const setSsoInstance = asProcedure(
   async (
     input: PickOne<{
-      finsert: DeclaredAwsSsoInstance;
+      findsert: DeclaredAwsSsoInstance;
     }>,
     context: ContextAwsApi & VisualogicContext,
   ): Promise<HasReadonly<typeof DeclaredAwsSsoInstance>> => {
-    const instanceDesired = input.finsert;
+    const instanceDesired = input.findsert;
 
     // lookup existing instance by ownerAccount (unique key)
     const instanceFound = await getOneSsoInstance(
@@ -32,7 +32,7 @@ export const setSsoInstance = asProcedure(
       context,
     );
 
-    // if found, return it (finsert behavior)
+    // if found, return it (findsert behavior)
     if (instanceFound) return instanceFound;
 
     // failfast: sso instances cannot be created via api

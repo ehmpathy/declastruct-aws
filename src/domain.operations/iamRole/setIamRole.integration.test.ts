@@ -26,8 +26,8 @@ describe('setIamRole', () => {
   };
 
   given('a role to create', () => {
-    then('we should be able to finsert a role', async () => {
-      const roleAfter = await setIamRole({ finsert: roleDesired }, context);
+    then('we should be able to findsert a role', async () => {
+      const roleAfter = await setIamRole({ findsert: roleDesired }, context);
 
       expect(roleAfter.name).toBe(testRoleName);
       expect(roleAfter.arn).toContain('arn:aws:iam::');
@@ -45,8 +45,8 @@ describe('setIamRole', () => {
       expect(role?.name).toBe(testRoleName);
     });
 
-    then('finsert should be idempotent', async () => {
-      const roleAgain = await setIamRole({ finsert: roleDesired }, context);
+    then('findsert should be idempotent', async () => {
+      const roleAgain = await setIamRole({ findsert: roleDesired }, context);
 
       expect(roleAgain.name).toBe(testRoleName);
     });

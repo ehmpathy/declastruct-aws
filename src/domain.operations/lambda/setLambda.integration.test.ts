@@ -10,12 +10,12 @@ describe('setLambda', () => {
   const testRoleName = 'declastruct-aws-lambda-integration-test-role';
   const testLambdaName = 'declastruct-test-lambda';
 
-  // ensure the role exists before tests run (finsert is idempotent)
+  // ensure the role exists before tests run (findsert is idempotent)
   const context = useBeforeAll(async () => {
     const ctx = await getSampleAwsApiContext();
     await setIamRole(
       {
-        finsert: {
+        findsert: {
           name: testRoleName,
           path: '/',
           description: 'Test role for declastruct-aws lambda integration tests',
@@ -47,8 +47,8 @@ describe('setLambda', () => {
   };
 
   given('a lambda to create', () => {
-    then('we should be able to finsert a lambda', async () => {
-      const lambdaAfter = await setLambda({ finsert: lambdaDesired }, context);
+    then('we should be able to findsert a lambda', async () => {
+      const lambdaAfter = await setLambda({ findsert: lambdaDesired }, context);
 
       expect(lambdaAfter.name).toBe(testLambdaName);
       expect(lambdaAfter.arn).toContain('arn:aws:lambda:');
@@ -66,8 +66,8 @@ describe('setLambda', () => {
       expect(lambda?.name).toBe(testLambdaName);
     });
 
-    then('finsert should be idempotent', async () => {
-      const lambdaAgain = await setLambda({ finsert: lambdaDesired }, context);
+    then('findsert should be idempotent', async () => {
+      const lambdaAgain = await setLambda({ findsert: lambdaDesired }, context);
 
       expect(lambdaAgain.name).toBe(testLambdaName);
     });

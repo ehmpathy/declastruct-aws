@@ -42,7 +42,7 @@ describe('setSsoUser', () => {
   });
 
   given('a user that does not exist', () => {
-    when('finsert is called', () => {
+    when('findsert is called', () => {
       then('it should create the user', async () => {
         const userId = 'user-uuid-1234';
 
@@ -62,7 +62,7 @@ describe('setSsoUser', () => {
 
         const result = await setSsoUser(
           {
-            finsert: {
+            findsert: {
               instance: instanceRef,
               userName: 'demo@example.com',
               displayName: 'Demo User',
@@ -77,7 +77,7 @@ describe('setSsoUser', () => {
       });
     });
 
-    when('finsert is called with name fields', () => {
+    when('findsert is called with name fields', () => {
       then('it should create user with given and family name', async () => {
         const userId = 'user-uuid-1234';
 
@@ -97,7 +97,7 @@ describe('setSsoUser', () => {
 
         const result = await setSsoUser(
           {
-            finsert: {
+            findsert: {
               instance: instanceRef,
               userName: 'demo@example.com',
               displayName: 'Demo User',
@@ -117,7 +117,7 @@ describe('setSsoUser', () => {
   });
 
   given('a user that already exists', () => {
-    when('finsert is called', () => {
+    when('findsert is called', () => {
       then('it should return the existing user (idempotent)', async () => {
         const userId = 'user-uuid-1234';
         const existing = {
@@ -132,7 +132,7 @@ describe('setSsoUser', () => {
 
         const result = await setSsoUser(
           {
-            finsert: {
+            findsert: {
               instance: instanceRef,
               userName: 'demo@example.com',
               displayName: 'Demo User',

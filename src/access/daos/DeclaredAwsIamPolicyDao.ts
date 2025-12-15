@@ -29,7 +29,7 @@ export const DeclaredAwsIamPolicyDao = genDeclastructDao<
     },
   },
   set: {
-    finsert: async () => {
+    findsert: async () => {
       UnexpectedCodePathError.throw(
         'DeclaredAwsIamPolicy is read-only; use aws console or cli to create managed policies',
       );

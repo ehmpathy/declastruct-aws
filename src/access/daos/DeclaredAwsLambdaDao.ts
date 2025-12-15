@@ -27,8 +27,8 @@ export const DeclaredAwsLambdaDao = genDeclastructDao<
     },
   },
   set: {
-    finsert: async (input, context) => {
-      return setLambda({ finsert: input }, context);
+    findsert: async (input, context) => {
+      return setLambda({ findsert: input }, context);
     },
     upsert: async (input, context) => {
       return setLambda({ upsert: input }, context);

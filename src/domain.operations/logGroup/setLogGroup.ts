@@ -19,7 +19,7 @@ import { getOneLogGroup } from './getOneLogGroup';
  * .why = enables declarative log group management with retention policies
  *
  * .note
- *   - finsert: creates if not found, returns foundBefore if found
+ *   - findsert: creates if not found, returns foundBefore if found
  *   - upsert: creates if not found, updates retention if found
  *   - CreateLogGroupCommand for new log groups
  *   - PutRetentionPolicyCommand / DeleteRetentionPolicyCommand for retention
@@ -28,12 +28,12 @@ import { getOneLogGroup } from './getOneLogGroup';
 export const setLogGroup = asProcedure(
   async (
     input: PickOne<{
-      finsert: DeclaredAwsLogGroup;
+      findsert: DeclaredAwsLogGroup;
       upsert: DeclaredAwsLogGroup;
     }>,
     context: ContextAwsApi & VisualogicContext,
   ): Promise<HasReadonly<typeof DeclaredAwsLogGroup>> => {
-    const logGroupDesired = input.finsert ?? input.upsert;
+    const logGroupDesired = input.findsert ?? input.upsert;
 
     // create client
     const logs = new CloudWatchLogsClient({
@@ -46,8 +46,8 @@ export const setLogGroup = asProcedure(
       context,
     );
 
-    // handle finsert: if found, return it
-    if (foundBefore && input.finsert) return foundBefore;
+    // handle findsert: if found, return it
+    if (foundBefore && input.findsert) return foundBefore;
 
     // create log group if not found
     if (!foundBefore) {

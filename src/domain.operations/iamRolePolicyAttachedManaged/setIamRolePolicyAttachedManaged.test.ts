@@ -26,7 +26,7 @@ describe('setIamRolePolicyAttachedManaged', () => {
   });
 
   given('a new managed policy attachment', () => {
-    when('finsert is called', () => {
+    when('findsert is called', () => {
       then('it should attach the policy', async () => {
         (DeclaredAwsIamRoleDao.get.one.byRef as jest.Mock).mockResolvedValue({
           name: 'test-role',
@@ -63,7 +63,7 @@ describe('setIamRolePolicyAttachedManaged', () => {
         });
 
         const result = await setIamRolePolicyAttachedManaged(
-          { finsert: attachment },
+          { findsert: attachment },
           context,
         );
 
@@ -79,7 +79,7 @@ describe('setIamRolePolicyAttachedManaged', () => {
   });
 
   given('an existing managed policy attachment', () => {
-    when('finsert is called', () => {
+    when('findsert is called', () => {
       then(
         'it should return the existing attachment without reattaching',
         async () => {
@@ -103,7 +103,7 @@ describe('setIamRolePolicyAttachedManaged', () => {
           });
 
           const result = await setIamRolePolicyAttachedManaged(
-            { finsert: attachment },
+            { findsert: attachment },
             context,
           );
 
@@ -153,7 +153,7 @@ describe('setIamRolePolicyAttachedManaged', () => {
         });
 
         const result = await setIamRolePolicyAttachedManaged(
-          { finsert: attachment },
+          { findsert: attachment },
           context,
         );
 
@@ -178,7 +178,7 @@ describe('setIamRolePolicyAttachedManaged', () => {
         });
 
         await expect(
-          setIamRolePolicyAttachedManaged({ finsert: attachment }, context),
+          setIamRolePolicyAttachedManaged({ findsert: attachment }, context),
         ).rejects.toThrow('role not found for policy attachment');
       });
     });

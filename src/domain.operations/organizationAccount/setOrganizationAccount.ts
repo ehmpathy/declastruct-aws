@@ -16,27 +16,27 @@ import type { DeclaredAwsOrganizationAccount } from '../../domain.objects/Declar
 import { getOneOrganizationAccount } from './getOneOrganizationAccount';
 
 /**
- * .what = creates an organization account (finsert or upsert)
+ * .what = creates an organization account (findsert or upsert)
  * .why = accounts cannot be updated after creation, only created
  * .note
  *   - CreateAccount is async; this polls until completion
- *   - finsert returns foundBefore if email already exists (idempotent)
+ *   - findsert returns foundBefore if email already exists (idempotent)
  *   - upsert syncs write-only tags when SYNC_WRITEONLY_TAGS=DeclaredAwsOrganizationAccount
  *   - fails fast if not authed as org manager (required for account creation)
  */
 export const setOrganizationAccount = asProcedure(
   async (
     input: PickOne<{
-      finsert: DeclaredAwsOrganizationAccount;
+      findsert: DeclaredAwsOrganizationAccount;
       upsert: DeclaredAwsOrganizationAccount;
     }>,
     context: ContextAwsApi & VisualogicContext,
   ): Promise<HasReadonly<typeof DeclaredAwsOrganizationAccount>> => {
-    const desired = input.finsert ?? input.upsert;
+    const desired = input.findsert ?? input.upsert;
 
     // failfast if neither provided
     if (!desired)
-      BadRequestError.throw('finsert or upsert is required', { input });
+      BadRequestError.throw('findsert or upsert is required', { input });
 
     // get org client (fail-fast on non-org-manager auth)
     const { client, organization } = await getAwsOrganizationsClient(context);
@@ -61,8 +61,8 @@ export const setOrganizationAccount = asProcedure(
       context,
     );
     if (foundBefore) {
-      // finsert: return existing (idempotent, no changes)
-      if (input.finsert) return foundBefore;
+      // findsert: return existing (idempotent, no changes)
+      if (input.findsert) return foundBefore;
 
       // upsert: sync write-only tags if env var is set (for backfilling existing accounts)
       const canSyncWriteonlyTags =

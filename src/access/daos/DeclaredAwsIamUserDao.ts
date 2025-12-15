@@ -28,7 +28,7 @@ export const DeclaredAwsIamUserDao = genDeclastructDao<
     },
   },
   set: {
-    finsert: async (input) => {
+    findsert: async (input) => {
       // IAM users are managed externally; set operations not supported
       BadRequestError.throw(
         'IAM user creation not supported by this DAO. IAM users are managed externally.',

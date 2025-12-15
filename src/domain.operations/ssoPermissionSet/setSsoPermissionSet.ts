@@ -31,12 +31,12 @@ import { setSsoPermissionSetTags } from './setSsoPermissionSetTags';
 export const setSsoPermissionSet = asProcedure(
   async (
     input: PickOne<{
-      finsert: DeclaredAwsSsoPermissionSet;
+      findsert: DeclaredAwsSsoPermissionSet;
       upsert: DeclaredAwsSsoPermissionSet;
     }>,
     context: ContextAwsApi & VisualogicContext,
   ): Promise<HasReadonly<typeof DeclaredAwsSsoPermissionSet>> => {
-    const permissionSetDesired = input.finsert ?? input.upsert;
+    const permissionSetDesired = input.findsert ?? input.upsert;
 
     // resolve instance
     const instance =
@@ -64,8 +64,8 @@ export const setSsoPermissionSet = asProcedure(
       context,
     );
 
-    // if it's a finsert and had a before, then return that
-    if (before && input.finsert) return before;
+    // if it's a findsert and had a before, then return that
+    if (before && input.findsert) return before;
 
     // if exists + upsert, update the permission set
     if (before && input.upsert) {

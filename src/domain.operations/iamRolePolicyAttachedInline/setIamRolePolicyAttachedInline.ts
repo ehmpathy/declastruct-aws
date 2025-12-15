@@ -17,12 +17,12 @@ import { getIamRolePolicyAttachedInline } from './getIamRolePolicyAttachedInline
 export const setIamRolePolicyAttachedInline = asProcedure(
   async (
     input: PickOne<{
-      finsert: DeclaredAwsIamRolePolicyAttachedInline;
+      findsert: DeclaredAwsIamRolePolicyAttachedInline;
       upsert: DeclaredAwsIamRolePolicyAttachedInline;
     }>,
     context: ContextAwsApi & VisualogicContext,
   ): Promise<DeclaredAwsIamRolePolicyAttachedInline> => {
-    const policyDesired = input.finsert ?? input.upsert;
+    const policyDesired = input.findsert ?? input.upsert;
 
     // resolve role reference to get role name
     const role = await DeclaredAwsIamRoleDao.get.one.byRef(
@@ -44,8 +44,8 @@ export const setIamRolePolicyAttachedInline = asProcedure(
       context,
     );
 
-    // if it's a finsert and had a before, then return that
-    if (before && input.finsert) return before;
+    // if it's a findsert and had a before, then return that
+    if (before && input.findsert) return before;
 
     // create iam client
     const iam = new IAMClient({ region: context.aws.credentials.region });

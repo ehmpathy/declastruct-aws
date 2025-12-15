@@ -45,7 +45,7 @@ describe('setOrganization', () => {
       );
 
       const result = await setOrganization(
-        { finsert: sampleDesiredOrg },
+        { findsert: sampleDesiredOrg },
         context,
       );
 
@@ -82,7 +82,7 @@ describe('setOrganization', () => {
       );
 
       const result = await setOrganization(
-        { finsert: sampleDesiredOrg },
+        { findsert: sampleDesiredOrg },
         context,
       );
 
@@ -116,7 +116,7 @@ describe('setOrganization', () => {
 
       const result = await setOrganization(
         {
-          finsert: {
+          findsert: {
             featureSet: 'CONSOLIDATED_BILLING',
             managementAccount: { id: '123456789012' },
           },
@@ -153,7 +153,7 @@ describe('setOrganization', () => {
       });
 
       const result = await setOrganization(
-        { finsert: sampleDesiredOrg },
+        { findsert: sampleDesiredOrg },
         context,
       );
 
@@ -172,7 +172,7 @@ describe('setOrganization', () => {
       });
 
       await expect(
-        setOrganization({ finsert: sampleDesiredOrg }, context),
+        setOrganization({ findsert: sampleDesiredOrg }, context),
       ).rejects.toThrow('CreateOrganization did not return organization');
     });
   });
@@ -187,7 +187,7 @@ describe('setOrganization', () => {
       };
 
       await expect(
-        setOrganization({ finsert: desiredOrgWithWrongAccount }, context),
+        setOrganization({ findsert: desiredOrgWithWrongAccount }, context),
       ).rejects.toThrow(
         'managementAccount mismatch: desired managementAccount.id does not match authed account id',
       );
@@ -217,7 +217,7 @@ describe('setOrganization', () => {
       );
 
       await expect(
-        setOrganization({ finsert: sampleDesiredOrg }, context),
+        setOrganization({ findsert: sampleDesiredOrg }, context),
       ).rejects.toThrow(
         'created organization managementAccount does not match desired',
       );

@@ -11,7 +11,7 @@ import { setOrganizationAccount } from '../../domain.operations/organizationAcco
  * .what = declastruct DAO for AWS Organization Account resources
  * .why = wraps organization account operations to conform to declastruct interface
  * .note
- *   - finsert = create if not exists, return existing (idempotent)
+ *   - findsert = create if not exists, return existing (idempotent)
  *   - upsert = sync write-only tags when SYNC_WRITEONLY_TAGS=DeclaredAwsOrganizationAccount
  *   - delete = close (transitions to SUSPENDED)
  *   - requires org manager auth for all operations
@@ -32,8 +32,8 @@ export const DeclaredAwsOrganizationAccountDao = genDeclastructDao<
     },
   },
   set: {
-    finsert: async (input, context) => {
-      return setOrganizationAccount({ finsert: input }, context);
+    findsert: async (input, context) => {
+      return setOrganizationAccount({ findsert: input }, context);
     },
     upsert: async (input, context) => {
       return setOrganizationAccount({ upsert: input }, context);

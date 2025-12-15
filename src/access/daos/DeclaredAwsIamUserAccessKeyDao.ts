@@ -12,7 +12,7 @@ import { setIamUserAccessKey } from '../../domain.operations/iamUserAccessKey/se
  * .what = declastruct DAO for AWS IAM user access keys
  * .why = enables declarative management (audit and purge) of access keys
  *
- * .note = finsert/upsert fail fast — access keys are superseded by SSO/OIDC
+ * .note = findsert/upsert fail fast — access keys are superseded by SSO/OIDC
  */
 export const DeclaredAwsIamUserAccessKeyDao = genDeclastructDao<
   typeof DeclaredAwsIamUserAccessKey,
@@ -34,8 +34,8 @@ export const DeclaredAwsIamUserAccessKeyDao = genDeclastructDao<
     },
   },
   set: {
-    finsert: async (input, context) => {
-      return setIamUserAccessKey({ finsert: input }, context); // fails fast
+    findsert: async (input, context) => {
+      return setIamUserAccessKey({ findsert: input }, context); // fails fast
     },
     upsert: null,
     delete: async (input, context) => {

@@ -43,7 +43,7 @@ describe('setLambdaAlias', () => {
       // create alias
       const alias = await setLambdaAlias(
         {
-          finsert: {
+          findsert: {
             name: testAliasName,
             lambda: { name: testLambdaName },
             version: {
@@ -79,7 +79,7 @@ describe('setLambdaAlias', () => {
       console.log('Found alias:', alias);
     });
 
-    then('finsert should be idempotent for same version', async () => {
+    then('findsert should be idempotent for same version', async () => {
       const versions = await getAllLambdaVersions(
         { by: { lambda: { name: testLambdaName } } },
         context,
@@ -93,10 +93,10 @@ describe('setLambdaAlias', () => {
 
       const versionToAlias = publishedVersions[0]!;
 
-      // finsert same alias - should return existing
+      // findsert same alias - should return existing
       const alias = await setLambdaAlias(
         {
-          finsert: {
+          findsert: {
             name: testAliasName,
             lambda: { name: testLambdaName },
             version: {

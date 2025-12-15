@@ -14,27 +14,27 @@ import { castIntoDeclaredAwsOrganization } from './castIntoDeclaredAwsOrganizati
 import { getOneOrganization } from './getOneOrganization';
 
 /**
- * .what = creates an organization (finsert only)
+ * .what = creates an organization (findsert only)
  * .why = organizations cannot be updated, only created
  * .note
  *   - can only have one organization per management account
- *   - finsert returns foundBefore if already exists (idempotent)
+ *   - findsert returns foundBefore if already exists (idempotent)
  *   - validates that managementAccount matches the authed account
  */
 export const setOrganization = asProcedure(
   async (
     input: PickOne<{
-      finsert: DeclaredAwsOrganization;
+      findsert: DeclaredAwsOrganization;
       // Note: upsert not supported — organizations cannot be updated
     }>,
     context: ContextAwsApi & VisualogicContext,
   ): Promise<HasReadonly<typeof DeclaredAwsOrganization>> => {
-    const desired = input.finsert;
+    const desired = input.findsert;
 
-    // failfast if finsert not provided
+    // failfast if findsert not provided
     if (!desired)
       BadRequestError.throw(
-        'finsert is required (organizations cannot be updated)',
+        'findsert is required (organizations cannot be updated)',
       );
 
     // validate that managementAccount matches the authed account
@@ -53,7 +53,7 @@ export const setOrganization = asProcedure(
       region: context.aws.credentials.region,
     });
 
-    // check if already exists (idempotent finsert)
+    // check if already exists (idempotent findsert)
     const foundBefore = await getOneOrganization(
       { by: { unique: { managementAccount: desired.managementAccount } } },
       context,

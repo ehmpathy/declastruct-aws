@@ -20,17 +20,17 @@ import { castIntoDeclaredAwsLambda } from './castIntoDeclaredAwsLambda';
 import { getOneLambda } from './getOneLambda';
 
 /**
- * .what = sets a lambda: upsert or finsert
+ * .what = sets a lambda: upsert or findsert
  */
 export const setLambda = asProcedure(
   async (
     input: PickOne<{
-      finsert: DeclaredAwsLambda;
+      findsert: DeclaredAwsLambda;
       upsert: DeclaredAwsLambda;
     }>,
     context: ContextAwsApi & VisualogicContext,
   ): Promise<HasReadonly<typeof DeclaredAwsLambda>> => {
-    const lambdaDesired = input.finsert ?? input.upsert;
+    const lambdaDesired = input.findsert ?? input.upsert;
     const awsLambdaSdk = new LambdaClient({
       region: context.aws.credentials.region,
     });
@@ -47,8 +47,8 @@ export const setLambda = asProcedure(
       context,
     );
 
-    // if it's a finsert and had a before, then return that
-    if (before && input.finsert) return before;
+    // if it's a findsert and had a before, then return that
+    if (before && input.findsert) return before;
 
     // fail fast if codeZipUri is not provided
     if (!lambdaDesired.codeZipUri)
@@ -107,9 +107,9 @@ export const setLambda = asProcedure(
       );
       return castIntoDeclaredAwsLambda(created);
     } catch (error) {
-      // handle race condition: if finsert and lambda was created between our check and create,
-      // fetch and return the foundAfter lambda (makes finsert idempotent even under race conditions)
-      if (error instanceof ResourceConflictException && input.finsert) {
+      // handle race condition: if findsert and lambda was created between our check and create,
+      // fetch and return the foundAfter lambda (makes findsert idempotent even under race conditions)
+      if (error instanceof ResourceConflictException && input.findsert) {
         const foundAfter = await getOneLambda(
           { by: { unique: { name: lambdaDesired.name } } },
           context,
