@@ -16,6 +16,22 @@ if (!existsSync(join(process.cwd(), 'package.json')))
   throw new Error('no package.json found in cwd. are you @gitroot?');
 
 /**
+ * sanity check that AWS credentials are available for integration tests
+ *
+ * usecases
+ * - prevent silent test failures due to missing credentials
+ * - provide clear instructions on how to set up credentials
+ *
+ * supports
+ * - AWS_PROFILE: local dev via ~/.aws/config profiles
+ * - AWS_ACCESS_KEY_ID: CI/CD via OIDC or IAM credentials
+ */
+if (!(process.env.AWS_PROFILE || process.env.AWS_ACCESS_KEY_ID))
+  throw new Error(
+    'AWS credentials not set. Run w/ creds via `source .agent/repo=.this/skills/use.demo.awsprofile.sh && npm run test:integration`',
+  );
+
+/**
  * .what = verify that the env has sufficient auth to run the tests if aws is used; otherwise, fail fast
  * .why =
  *   - prevent time wasted waiting on tests to fail due to lack of credentials

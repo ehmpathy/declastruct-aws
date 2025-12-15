@@ -8,6 +8,7 @@ import { given, then, useBeforeAll, when } from 'test-fns';
 
 import { DeclaredAwsLogGroupReportCostOfIngestionDao } from '../../access/daos/DeclaredAwsLogGroupReportCostOfIngestionDao';
 import { DeclaredAwsLogGroupReportDistOfPatternDao } from '../../access/daos/DeclaredAwsLogGroupReportDistOfPatternDao';
+import { getAllIamUserAccessKeys } from '../../domain.operations/iamUserAccessKey/getAllIamUserAccessKeys';
 import { getDeclastructAwsProvider } from '../../domain.operations/provider/getDeclastructAwsProvider';
 
 /**
@@ -368,6 +369,37 @@ describe('declastruct CLI workflow', () => {
         expect(costReport!.rows!.length).toBeGreaterThan(0);
         expect(costReport!.totalIngestedBytes).toBeGreaterThan(0);
         expect(costReport!.totalEstimatedCostUsd).toBeGreaterThan(0);
+      });
+    });
+
+    when('verifying IAM access keys were purged via del()', () => {
+      then('no access keys remain in account after apply', async () => {
+        /**
+         * .what = validates access keys were deleted by declastruct apply
+         * .why = ensures the del() wrapper results in actual deletion
+         * .note = resources.acceptance.ts wraps all keys with del() to mark for deletion
+         */
+
+        // get provider context
+        const provider = await getDeclastructAwsProvider(
+          {},
+          {
+            log: {
+              info: () => {},
+              debug: () => {},
+              warn: console.warn,
+              error: console.error,
+            },
+          },
+        );
+
+        // verify no access keys remain
+        const keysAfter = await getAllIamUserAccessKeys(
+          { by: { account: { id: provider.context.aws.credentials.account } } },
+          provider.context,
+        );
+        expect(keysAfter.length).toBe(0);
+        console.log('all access keys purged successfully via del()');
       });
     });
   });
