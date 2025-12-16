@@ -2,7 +2,7 @@
   "name": "declastruct-aws",
   "author": "ehmpathy",
   "description": "declarative control of GitHub constructs via declastruct - manage repos, branches, and protection rules",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "repository": "ehmpathy/declastruct-aws",
   "homepage": "https://github.com/ehmpathy/declastruct-aws",
   "keywords": [
