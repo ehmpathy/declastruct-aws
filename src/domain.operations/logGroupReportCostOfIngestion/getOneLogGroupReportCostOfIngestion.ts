@@ -8,10 +8,11 @@ import type { HasReadonly, RefByUnique } from 'domain-objects';
 import { HelpfulError, UnexpectedCodePathError } from 'helpful-errors';
 import type { VisualogicContext } from 'visualogic';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import type { DeclaredAwsLogGroupReportCostOfIngestion } from '../../domain.objects/DeclaredAwsLogGroupReportCostOfIngestion';
-import { getAllLogGroups } from '../logGroup/getAllLogGroups';
-import { getOneLogGroup } from '../logGroup/getOneLogGroup';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import type { DeclaredAwsLogGroupReportCostOfIngestion } from '@src/domain.objects/DeclaredAwsLogGroupReportCostOfIngestion';
+import { getAllLogGroups } from '@src/domain.operations/logGroup/getAllLogGroups';
+import { getOneLogGroup } from '@src/domain.operations/logGroup/getOneLogGroup';
+
 import { castIntoDeclaredAwsLogGroupReportCostOfIngestion } from './castIntoDeclaredAwsLogGroupReportCostOfIngestion';
 
 /**

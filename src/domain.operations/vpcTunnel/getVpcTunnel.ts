@@ -3,8 +3,9 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import type { ContextLogTrail } from 'simple-log-methods';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import type { DeclaredAwsVpcTunnel } from '../../domain.objects/DeclaredAwsVpcTunnel';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import type { DeclaredAwsVpcTunnel } from '@src/domain.objects/DeclaredAwsVpcTunnel';
+
 import { castIntoDeclaredAwsVpcTunnel } from './castIntoDeclaredAwsVpcTunnel';
 import { getTunnelHash } from './utils/getTunnelHash';
 import { isFilePresent } from './utils/isFilePresent';

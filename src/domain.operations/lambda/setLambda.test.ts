@@ -6,8 +6,9 @@ import {
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
-import { getMockedAwsApiContext } from '../../.test/getMockedAwsApiContext';
-import type { DeclaredAwsLambda } from '../../domain.objects/DeclaredAwsLambda';
+import { getMockedAwsApiContext } from '@src/.test/getMockedAwsApiContext';
+import type { DeclaredAwsLambda } from '@src/domain.objects/DeclaredAwsLambda';
+
 import * as castModule from './castIntoDeclaredAwsLambda';
 import * as getLambdaModule from './getOneLambda';
 import { setLambda } from './setLambda';

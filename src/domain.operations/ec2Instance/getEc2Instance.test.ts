@@ -2,8 +2,9 @@ import { DescribeInstancesCommand, EC2Client } from '@aws-sdk/client-ec2';
 import { mockClient } from 'aws-sdk-client-mock';
 import { given, then, when } from 'test-fns';
 
-import { getMockedAwsApiContext } from '../../.test/getMockedAwsApiContext';
-import type { DeclaredAwsEc2Instance } from '../../domain.objects/DeclaredAwsEc2Instance';
+import { getMockedAwsApiContext } from '@src/.test/getMockedAwsApiContext';
+import type { DeclaredAwsEc2Instance } from '@src/domain.objects/DeclaredAwsEc2Instance';
+
 import { getEc2Instance } from './getEc2Instance';
 
 const ec2Mock = mockClient(EC2Client);

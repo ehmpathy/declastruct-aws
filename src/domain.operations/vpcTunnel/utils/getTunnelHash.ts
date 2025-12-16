@@ -1,8 +1,8 @@
 import * as crypto from 'crypto';
 import { type RefByUnique, serialize } from 'domain-objects';
 
-import type { ContextAwsApi } from '../../../domain.objects/ContextAwsApi';
-import type { DeclaredAwsVpcTunnel } from '../../../domain.objects/DeclaredAwsVpcTunnel';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import type { DeclaredAwsVpcTunnel } from '@src/domain.objects/DeclaredAwsVpcTunnel';
 
 /**
  * .what = generates a deterministic hash for a tunnel configuration

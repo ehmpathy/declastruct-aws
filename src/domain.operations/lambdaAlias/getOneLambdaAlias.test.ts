@@ -1,8 +1,9 @@
 import { GetAliasCommand, LambdaClient } from '@aws-sdk/client-lambda';
 import { given, then, when } from 'test-fns';
 
-import { getMockedAwsApiContext } from '../../.test/getMockedAwsApiContext';
-import * as getLambdaModule from '../lambda/getOneLambda';
+import { getMockedAwsApiContext } from '@src/.test/getMockedAwsApiContext';
+import * as getLambdaModule from '@src/domain.operations/lambda/getOneLambda';
+
 import { getOneLambdaAlias } from './getOneLambdaAlias';
 
 jest.mock('@aws-sdk/client-lambda');

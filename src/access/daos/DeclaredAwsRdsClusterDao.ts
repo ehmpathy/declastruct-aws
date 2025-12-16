@@ -2,9 +2,9 @@ import { genDeclastructDao } from 'declastruct';
 import { BadRequestError } from 'helpful-errors';
 import type { ContextLogTrail } from 'simple-log-methods';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import { DeclaredAwsRdsCluster } from '../../domain.objects/DeclaredAwsRdsCluster';
-import { getRdsCluster } from '../../domain.operations/rdsCluster/getRdsCluster';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import { DeclaredAwsRdsCluster } from '@src/domain.objects/DeclaredAwsRdsCluster';
+import { getRdsCluster } from '@src/domain.operations/rdsCluster/getRdsCluster';
 
 /**
  * .what = declastruct DAO for AWS RDS cluster resources

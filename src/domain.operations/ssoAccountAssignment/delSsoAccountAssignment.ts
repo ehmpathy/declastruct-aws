@@ -8,12 +8,13 @@ import { BadRequestError, UnexpectedCodePathError } from 'helpful-errors';
 import type { PickOne } from 'type-fns';
 import type { VisualogicContext } from 'visualogic';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import { DeclaredAwsSsoAccountAssignment } from '../../domain.objects/DeclaredAwsSsoAccountAssignment';
-import { getRefByPrimaryOfOrganizationAccount } from '../organizationAccount/getRefByPrimaryOfOrganizationAccount';
-import { getOneSsoInstance } from '../ssoInstance/getOneSsoInstance';
-import { getRefByPrimaryOfSsoPermissionSet } from '../ssoPermissionSet/getRefByPrimaryOfSsoPermissionSet';
-import { getRefByPrimaryOfSsoUser } from '../ssoUser/getRefByPrimaryOfSsoUser';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import { DeclaredAwsSsoAccountAssignment } from '@src/domain.objects/DeclaredAwsSsoAccountAssignment';
+import { getRefByPrimaryOfOrganizationAccount } from '@src/domain.operations/organizationAccount/getRefByPrimaryOfOrganizationAccount';
+import { getOneSsoInstance } from '@src/domain.operations/ssoInstance/getOneSsoInstance';
+import { getRefByPrimaryOfSsoPermissionSet } from '@src/domain.operations/ssoPermissionSet/getRefByPrimaryOfSsoPermissionSet';
+import { getRefByPrimaryOfSsoUser } from '@src/domain.operations/ssoUser/getRefByPrimaryOfSsoUser';
+
 import { getOneSsoAccountAssignment } from './getOneSsoAccountAssignment';
 
 /**

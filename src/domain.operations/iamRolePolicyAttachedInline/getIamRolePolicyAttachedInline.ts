@@ -3,10 +3,11 @@ import { asProcedure } from 'as-procedure';
 import type { RefByUnique } from 'domain-objects';
 import type { VisualogicContext } from 'visualogic';
 
-import { DeclaredAwsIamRoleDao } from '../../access/daos/DeclaredAwsIamRoleDao';
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import type { DeclaredAwsIamRolePolicyAttachedInline } from '../../domain.objects/DeclaredAwsIamRolePolicyAttachedInline';
-import { castIntoDeclaredAwsIamPolicyDocument } from '../iamRole/castIntoDeclaredAwsIamPolicyDocument';
+import { DeclaredAwsIamRoleDao } from '@src/access/daos/DeclaredAwsIamRoleDao';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import type { DeclaredAwsIamRolePolicyAttachedInline } from '@src/domain.objects/DeclaredAwsIamRolePolicyAttachedInline';
+import { castIntoDeclaredAwsIamPolicyDocument } from '@src/domain.operations/iamRole/castIntoDeclaredAwsIamPolicyDocument';
+
 import { castIntoDeclaredAwsIamRolePolicyAttachedInline } from './castIntoDeclaredAwsIamRolePolicyAttachedInline';
 
 /**

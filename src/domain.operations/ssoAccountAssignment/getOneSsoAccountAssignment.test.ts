@@ -4,11 +4,12 @@ import {
 } from '@aws-sdk/client-sso-admin';
 import { given, then } from 'test-fns';
 
-import { getMockedAwsApiContext } from '../../.test/getMockedAwsApiContext';
-import * as getRefByPrimaryOfOrganizationAccountModule from '../organizationAccount/getRefByPrimaryOfOrganizationAccount';
-import * as ssoInstanceModule from '../ssoInstance/getOneSsoInstance';
-import * as getRefByPrimaryOfSsoPermissionSetModule from '../ssoPermissionSet/getRefByPrimaryOfSsoPermissionSet';
-import * as getRefByPrimaryOfSsoUserModule from '../ssoUser/getRefByPrimaryOfSsoUser';
+import { getMockedAwsApiContext } from '@src/.test/getMockedAwsApiContext';
+import * as getRefByPrimaryOfOrganizationAccountModule from '@src/domain.operations/organizationAccount/getRefByPrimaryOfOrganizationAccount';
+import * as ssoInstanceModule from '@src/domain.operations/ssoInstance/getOneSsoInstance';
+import * as getRefByPrimaryOfSsoPermissionSetModule from '@src/domain.operations/ssoPermissionSet/getRefByPrimaryOfSsoPermissionSet';
+import * as getRefByPrimaryOfSsoUserModule from '@src/domain.operations/ssoUser/getRefByPrimaryOfSsoUser';
+
 import * as castModule from './castIntoDeclaredAwsSsoAccountAssignment';
 import { getOneSsoAccountAssignment } from './getOneSsoAccountAssignment';
 

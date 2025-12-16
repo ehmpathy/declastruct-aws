@@ -5,10 +5,11 @@ import {
 } from '@aws-sdk/client-lambda';
 import { given, then, when } from 'test-fns';
 
-import { getMockedAwsApiContext } from '../../.test/getMockedAwsApiContext';
-import { DeclaredAwsLambdaVersionDao } from '../../access/daos/DeclaredAwsLambdaVersionDao';
-import type { DeclaredAwsLambdaAlias } from '../../domain.objects/DeclaredAwsLambdaAlias';
-import * as getLambdaModule from '../lambda/getOneLambda';
+import { getMockedAwsApiContext } from '@src/.test/getMockedAwsApiContext';
+import { DeclaredAwsLambdaVersionDao } from '@src/access/daos/DeclaredAwsLambdaVersionDao';
+import type { DeclaredAwsLambdaAlias } from '@src/domain.objects/DeclaredAwsLambdaAlias';
+import * as getLambdaModule from '@src/domain.operations/lambda/getOneLambda';
+
 import * as getLambdaAliasModule from './getOneLambdaAlias';
 import { setLambdaAlias } from './setLambdaAlias';
 

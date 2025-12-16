@@ -8,8 +8,9 @@ import {
 import { UnexpectedCodePathError } from 'helpful-errors';
 import type { VisualogicContext } from 'visualogic';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import { DeclaredAwsSsoUser } from '../../domain.objects/DeclaredAwsSsoUser';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import { DeclaredAwsSsoUser } from '@src/domain.objects/DeclaredAwsSsoUser';
+
 import { getOneSsoUser } from './getOneSsoUser';
 
 /**

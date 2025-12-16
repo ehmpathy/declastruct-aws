@@ -13,8 +13,9 @@ import { UnexpectedCodePathError } from 'helpful-errors';
 import type { PickOne } from 'type-fns';
 import type { VisualogicContext } from 'visualogic';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import type { DeclaredAwsIamRole } from '../../domain.objects/DeclaredAwsIamRole';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import type { DeclaredAwsIamRole } from '@src/domain.objects/DeclaredAwsIamRole';
+
 import { castFromDeclaredAwsIamPolicyDocument } from './castFromDeclaredAwsIamPolicyDocument';
 import { getIamRole } from './getIamRole';
 

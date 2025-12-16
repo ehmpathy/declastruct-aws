@@ -4,8 +4,9 @@ import { BadRequestError } from 'helpful-errors';
 import type { PickOne } from 'type-fns';
 import type { VisualogicContext } from 'visualogic';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import type { DeclaredAwsSsoInstance } from '../../domain.objects/DeclaredAwsSsoInstance';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import type { DeclaredAwsSsoInstance } from '@src/domain.objects/DeclaredAwsSsoInstance';
+
 import { getOneSsoInstance } from './getOneSsoInstance';
 
 /**

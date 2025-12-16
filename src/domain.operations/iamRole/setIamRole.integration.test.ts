@@ -1,7 +1,8 @@
 import { given, then, useBeforeAll } from 'test-fns';
 
-import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';
-import type { DeclaredAwsIamRole } from '../../domain.objects/DeclaredAwsIamRole';
+import { getSampleAwsApiContext } from '@src/.test/getSampleAwsApiContext';
+import type { DeclaredAwsIamRole } from '@src/domain.objects/DeclaredAwsIamRole';
+
 import { getIamRole } from './getIamRole';
 import { setIamRole } from './setIamRole';
 

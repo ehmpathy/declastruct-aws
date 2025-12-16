@@ -5,7 +5,8 @@ import {
 } from '@aws-sdk/client-iam';
 import { given, then, when } from 'test-fns';
 
-import { getMockedAwsApiContext } from '../../.test/getMockedAwsApiContext';
+import { getMockedAwsApiContext } from '@src/.test/getMockedAwsApiContext';
+
 import * as getModule from './getOneIamOidcProvider';
 import { setIamOidcProvider } from './setIamOidcProvider';
 

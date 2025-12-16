@@ -7,9 +7,10 @@ import {
 import { UnexpectedCodePathError } from 'helpful-errors';
 import { assure } from 'type-fns';
 
-import type { DeclaredAwsLambda } from '../../domain.objects/DeclaredAwsLambda';
-import { DeclaredAwsLambdaVersion } from '../../domain.objects/DeclaredAwsLambdaVersion';
-import { parseRoleArnIntoRef } from '../lambda/utils/parseRoleArnIntoRef';
+import type { DeclaredAwsLambda } from '@src/domain.objects/DeclaredAwsLambda';
+import { DeclaredAwsLambdaVersion } from '@src/domain.objects/DeclaredAwsLambdaVersion';
+import { parseRoleArnIntoRef } from '@src/domain.operations/lambda/utils/parseRoleArnIntoRef';
+
 import { calcConfigSha256 } from './utils/calcConfigSha256';
 
 /**

@@ -1,10 +1,10 @@
 import { genDeclastructDao } from 'declastruct';
 import type { ContextLogTrail } from 'simple-log-methods';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import { DeclaredAwsIamOidcProvider } from '../../domain.objects/DeclaredAwsIamOidcProvider';
-import { getOneIamOidcProvider } from '../../domain.operations/iamOidcProvider/getOneIamOidcProvider';
-import { setIamOidcProvider } from '../../domain.operations/iamOidcProvider/setIamOidcProvider';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import { DeclaredAwsIamOidcProvider } from '@src/domain.objects/DeclaredAwsIamOidcProvider';
+import { getOneIamOidcProvider } from '@src/domain.operations/iamOidcProvider/getOneIamOidcProvider';
+import { setIamOidcProvider } from '@src/domain.operations/iamOidcProvider/setIamOidcProvider';
 
 /**
  * .what = declastruct DAO for AWS IAM OIDC provider resources

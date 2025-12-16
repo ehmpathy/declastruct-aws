@@ -2,9 +2,9 @@ import { genDeclastructDao } from 'declastruct';
 import { BadRequestError } from 'helpful-errors';
 import type { ContextLogTrail } from 'simple-log-methods';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import { DeclaredAwsIamUser } from '../../domain.objects/DeclaredAwsIamUser';
-import { getOneIamUser } from '../../domain.operations/iamUser/getOneIamUser';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import { DeclaredAwsIamUser } from '@src/domain.objects/DeclaredAwsIamUser';
+import { getOneIamUser } from '@src/domain.operations/iamUser/getOneIamUser';
 
 /**
  * .what = declastruct DAO for AWS IAM user resources

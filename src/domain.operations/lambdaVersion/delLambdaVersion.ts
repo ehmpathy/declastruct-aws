@@ -11,8 +11,9 @@ import { BadRequestError, UnexpectedCodePathError } from 'helpful-errors';
 import type { PickOne } from 'type-fns';
 import type { VisualogicContext } from 'visualogic';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import { DeclaredAwsLambdaVersion } from '../../domain.objects/DeclaredAwsLambdaVersion';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import { DeclaredAwsLambdaVersion } from '@src/domain.objects/DeclaredAwsLambdaVersion';
+
 import { getOneLambdaVersion } from './getOneLambdaVersion';
 
 /**

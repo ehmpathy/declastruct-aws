@@ -1,9 +1,10 @@
 import { LambdaClient, PublishVersionCommand } from '@aws-sdk/client-lambda';
 import { given, then, when } from 'test-fns';
 
-import { getMockedAwsApiContext } from '../../.test/getMockedAwsApiContext';
-import type { DeclaredAwsLambdaVersion } from '../../domain.objects/DeclaredAwsLambdaVersion';
-import * as getLambdaModule from '../lambda/getOneLambda';
+import { getMockedAwsApiContext } from '@src/.test/getMockedAwsApiContext';
+import type { DeclaredAwsLambdaVersion } from '@src/domain.objects/DeclaredAwsLambdaVersion';
+import * as getLambdaModule from '@src/domain.operations/lambda/getOneLambda';
+
 import * as getLambdaVersionModule from './getOneLambdaVersion';
 import { setLambdaVersion } from './setLambdaVersion';
 import * as calcConfigModule from './utils/calcConfigSha256';

@@ -7,7 +7,7 @@ import {
   type DeclaredAwsLogGroupFilter,
   DeclaredAwsLogGroupReportCostOfIngestion,
   DeclaredAwsLogGroupReportCostOfIngestionRow,
-} from '../../domain.objects/DeclaredAwsLogGroupReportCostOfIngestion';
+} from '@src/domain.objects/DeclaredAwsLogGroupReportCostOfIngestion';
 
 /**
  * .what = cost per GB for CloudWatch Logs ingestion

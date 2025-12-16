@@ -4,7 +4,8 @@ import * as os from 'os';
 import * as path from 'path';
 import { given, then, when } from 'test-fns';
 
-import { getMockedAwsApiContext } from '../../.test/getMockedAwsApiContext';
+import { getMockedAwsApiContext } from '@src/.test/getMockedAwsApiContext';
+
 import { getVpcTunnel } from './getVpcTunnel';
 import { getTunnelHash } from './utils/getTunnelHash';
 

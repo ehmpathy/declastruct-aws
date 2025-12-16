@@ -2,11 +2,11 @@ import { genDeclastructDao } from 'declastruct';
 import { BadRequestError } from 'helpful-errors';
 import type { ContextLogTrail } from 'simple-log-methods';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import { DeclaredAwsIamUserAccessKey } from '../../domain.objects/DeclaredAwsIamUserAccessKey';
-import { delIamUserAccessKey } from '../../domain.operations/iamUserAccessKey/delIamUserAccessKey';
-import { getOneIamUserAccessKey } from '../../domain.operations/iamUserAccessKey/getOneIamUserAccessKey';
-import { setIamUserAccessKey } from '../../domain.operations/iamUserAccessKey/setIamUserAccessKey';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import { DeclaredAwsIamUserAccessKey } from '@src/domain.objects/DeclaredAwsIamUserAccessKey';
+import { delIamUserAccessKey } from '@src/domain.operations/iamUserAccessKey/delIamUserAccessKey';
+import { getOneIamUserAccessKey } from '@src/domain.operations/iamUserAccessKey/getOneIamUserAccessKey';
+import { setIamUserAccessKey } from '@src/domain.operations/iamUserAccessKey/setIamUserAccessKey';
 
 /**
  * .what = declastruct DAO for AWS IAM user access keys

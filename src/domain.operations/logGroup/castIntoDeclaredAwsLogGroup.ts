@@ -3,7 +3,7 @@ import { isUniDateTime } from '@ehmpathy/uni-time';
 import { type HasReadonly, hasReadonly } from 'domain-objects';
 import { assure } from 'type-fns';
 
-import { DeclaredAwsLogGroup } from '../../domain.objects/DeclaredAwsLogGroup';
+import { DeclaredAwsLogGroup } from '@src/domain.objects/DeclaredAwsLogGroup';
 
 /**
  * .what = transforms aws sdk LogGroup into DeclaredAwsLogGroup

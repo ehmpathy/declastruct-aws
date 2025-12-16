@@ -4,7 +4,8 @@ import {
 } from '@aws-sdk/client-sso-admin';
 import { given, then, when } from 'test-fns';
 
-import { getMockedAwsApiContext } from '../../.test/getMockedAwsApiContext';
+import { getMockedAwsApiContext } from '@src/.test/getMockedAwsApiContext';
+
 import { getOneSsoInstance } from './getOneSsoInstance';
 
 jest.mock('@aws-sdk/client-sso-admin');

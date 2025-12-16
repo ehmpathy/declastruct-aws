@@ -1,10 +1,10 @@
 import { genDeclastructDao } from 'declastruct';
 import type { ContextLogTrail } from 'simple-log-methods';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import { DeclaredAwsLogGroup } from '../../domain.objects/DeclaredAwsLogGroup';
-import { getOneLogGroup } from '../../domain.operations/logGroup/getOneLogGroup';
-import { setLogGroup } from '../../domain.operations/logGroup/setLogGroup';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import { DeclaredAwsLogGroup } from '@src/domain.objects/DeclaredAwsLogGroup';
+import { getOneLogGroup } from '@src/domain.operations/logGroup/getOneLogGroup';
+import { setLogGroup } from '@src/domain.operations/logGroup/setLogGroup';
 
 /**
  * .what = declastruct DAO for AWS CloudWatch Log Group resources

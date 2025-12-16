@@ -16,8 +16,9 @@ import { UnexpectedCodePathError } from 'helpful-errors';
 import type { PickOne } from 'type-fns';
 import type { VisualogicContext } from 'visualogic';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import { DeclaredAwsIamOidcProvider } from '../../domain.objects/DeclaredAwsIamOidcProvider';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import { DeclaredAwsIamOidcProvider } from '@src/domain.objects/DeclaredAwsIamOidcProvider';
+
 import { castIntoDeclaredAwsIamOidcProvider } from './castIntoDeclaredAwsIamOidcProvider';
 
 /**

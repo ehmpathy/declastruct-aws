@@ -1,6 +1,7 @@
 import { given, then, when } from 'test-fns';
 
-import { DeclaredAwsIamPolicyDocument } from '../../domain.objects/DeclaredAwsIamPolicyDocument';
+import { DeclaredAwsIamPolicyDocument } from '@src/domain.objects/DeclaredAwsIamPolicyDocument';
+
 import { castIntoDeclaredAwsIamRolePolicyAttachedInline } from './castIntoDeclaredAwsIamRolePolicyAttachedInline';
 
 describe('castIntoDeclaredAwsIamRolePolicyAttachedInline', () => {

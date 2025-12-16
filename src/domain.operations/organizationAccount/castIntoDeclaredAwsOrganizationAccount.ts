@@ -7,13 +7,13 @@ import {
 } from 'domain-objects';
 import { assure, isPresent } from 'type-fns';
 
-import type { DeclaredAwsOrganization } from '../../domain.objects/DeclaredAwsOrganization';
+import type { DeclaredAwsOrganization } from '@src/domain.objects/DeclaredAwsOrganization';
 import {
   DeclaredAwsOrganizationAccount,
   type IamUserAccessToBilling,
   type OrganizationAccountJoinedMethod,
   type OrganizationAccountState,
-} from '../../domain.objects/DeclaredAwsOrganizationAccount';
+} from '@src/domain.objects/DeclaredAwsOrganizationAccount';
 
 /**
  * .what = prefix for write-only values persisted as tags

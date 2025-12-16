@@ -1,10 +1,10 @@
 import { genDeclastructDao } from 'declastruct';
 import type { ContextLogTrail } from 'simple-log-methods';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import { DeclaredAwsSsoAccountAssignment } from '../../domain.objects/DeclaredAwsSsoAccountAssignment';
-import { getOneSsoAccountAssignment } from '../../domain.operations/ssoAccountAssignment/getOneSsoAccountAssignment';
-import { setSsoAccountAssignment } from '../../domain.operations/ssoAccountAssignment/setSsoAccountAssignment';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import { DeclaredAwsSsoAccountAssignment } from '@src/domain.objects/DeclaredAwsSsoAccountAssignment';
+import { getOneSsoAccountAssignment } from '@src/domain.operations/ssoAccountAssignment/getOneSsoAccountAssignment';
+import { setSsoAccountAssignment } from '@src/domain.operations/ssoAccountAssignment/setSsoAccountAssignment';
 
 /**
  * .what = declastruct DAO for AWS SSO account assignment resources

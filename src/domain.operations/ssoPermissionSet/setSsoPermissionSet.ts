@@ -11,9 +11,10 @@ import { UnexpectedCodePathError } from 'helpful-errors';
 import type { PickOne } from 'type-fns';
 import type { VisualogicContext } from 'visualogic';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import type { DeclaredAwsSsoPermissionSet } from '../../domain.objects/DeclaredAwsSsoPermissionSet';
-import { getOneSsoInstance } from '../ssoInstance/getOneSsoInstance';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import type { DeclaredAwsSsoPermissionSet } from '@src/domain.objects/DeclaredAwsSsoPermissionSet';
+import { getOneSsoInstance } from '@src/domain.operations/ssoInstance/getOneSsoInstance';
+
 import { getOneSsoPermissionSet } from './getOneSsoPermissionSet';
 import { setSsoPermissionSetBasicProperties } from './setSsoPermissionSetBasicProperties';
 import { setSsoPermissionSetInlinePolicy } from './setSsoPermissionSetInlinePolicy';

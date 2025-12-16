@@ -10,10 +10,11 @@ import { BadRequestError, UnexpectedCodePathError } from 'helpful-errors';
 import type { PickOne } from 'type-fns';
 import type { VisualogicContext } from 'visualogic';
 
-import { DeclaredAwsLambdaVersionDao } from '../../access/daos/DeclaredAwsLambdaVersionDao';
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import type { DeclaredAwsLambdaAlias } from '../../domain.objects/DeclaredAwsLambdaAlias';
-import { getOneLambda } from '../lambda/getOneLambda';
+import { DeclaredAwsLambdaVersionDao } from '@src/access/daos/DeclaredAwsLambdaVersionDao';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import type { DeclaredAwsLambdaAlias } from '@src/domain.objects/DeclaredAwsLambdaAlias';
+import { getOneLambda } from '@src/domain.operations/lambda/getOneLambda';
+
 import { castIntoDeclaredAwsLambdaAlias } from './castIntoDeclaredAwsLambdaAlias';
 import { getOneLambdaAlias } from './getOneLambdaAlias';
 

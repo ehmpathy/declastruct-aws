@@ -2,9 +2,9 @@ import { genDeclastructDao } from 'declastruct';
 import { BadRequestError } from 'helpful-errors';
 import type { ContextLogTrail } from 'simple-log-methods';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import { DeclaredAwsLogGroupReportDistOfPattern } from '../../domain.objects/DeclaredAwsLogGroupReportDistOfPattern';
-import { getOneLogGroupReportDistOfPattern } from '../../domain.operations/logGroupReportDistOfPattern/getOneLogGroupReportDistOfPattern';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import { DeclaredAwsLogGroupReportDistOfPattern } from '@src/domain.objects/DeclaredAwsLogGroupReportDistOfPattern';
+import { getOneLogGroupReportDistOfPattern } from '@src/domain.operations/logGroupReportDistOfPattern/getOneLogGroupReportDistOfPattern';
 
 /**
  * .what = declastruct DAO for log group pattern distribution reports

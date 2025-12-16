@@ -2,9 +2,9 @@ import { genDeclastructDao } from 'declastruct';
 import { BadRequestError } from 'helpful-errors';
 import type { ContextLogTrail } from 'simple-log-methods';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import { DeclaredAwsLogGroupReportCostOfIngestion } from '../../domain.objects/DeclaredAwsLogGroupReportCostOfIngestion';
-import { getOneLogGroupReportCostOfIngestion } from '../../domain.operations/logGroupReportCostOfIngestion/getOneLogGroupReportCostOfIngestion';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import { DeclaredAwsLogGroupReportCostOfIngestion } from '@src/domain.objects/DeclaredAwsLogGroupReportCostOfIngestion';
+import { getOneLogGroupReportCostOfIngestion } from '@src/domain.operations/logGroupReportCostOfIngestion/getOneLogGroupReportCostOfIngestion';
 
 /**
  * .what = declastruct DAO for log group ingestion cost reports

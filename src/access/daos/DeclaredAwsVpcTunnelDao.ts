@@ -1,10 +1,10 @@
 import { genDeclastructDao } from 'declastruct';
 import type { ContextLogTrail } from 'simple-log-methods';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import { DeclaredAwsVpcTunnel } from '../../domain.objects/DeclaredAwsVpcTunnel';
-import { getVpcTunnel } from '../../domain.operations/vpcTunnel/getVpcTunnel';
-import { setVpcTunnel } from '../../domain.operations/vpcTunnel/setVpcTunnel';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import { DeclaredAwsVpcTunnel } from '@src/domain.objects/DeclaredAwsVpcTunnel';
+import { getVpcTunnel } from '@src/domain.operations/vpcTunnel/getVpcTunnel';
+import { setVpcTunnel } from '@src/domain.operations/vpcTunnel/setVpcTunnel';
 
 /**
  * .what = declastruct DAO for AWS VPC tunnel resources

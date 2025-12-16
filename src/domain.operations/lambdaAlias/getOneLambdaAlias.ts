@@ -16,12 +16,13 @@ import { UnexpectedCodePathError } from 'helpful-errors';
 import type { PickOne } from 'type-fns';
 import type { VisualogicContext } from 'visualogic';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import type { DeclaredAwsLambda } from '../../domain.objects/DeclaredAwsLambda';
-import { DeclaredAwsLambdaAlias } from '../../domain.objects/DeclaredAwsLambdaAlias';
-import type { DeclaredAwsLambdaVersion } from '../../domain.objects/DeclaredAwsLambdaVersion';
-import { parseRoleArnIntoRef } from '../lambda/utils/parseRoleArnIntoRef';
-import { calcConfigSha256 } from '../lambdaVersion/utils/calcConfigSha256';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import type { DeclaredAwsLambda } from '@src/domain.objects/DeclaredAwsLambda';
+import { DeclaredAwsLambdaAlias } from '@src/domain.objects/DeclaredAwsLambdaAlias';
+import type { DeclaredAwsLambdaVersion } from '@src/domain.objects/DeclaredAwsLambdaVersion';
+import { parseRoleArnIntoRef } from '@src/domain.operations/lambda/utils/parseRoleArnIntoRef';
+import { calcConfigSha256 } from '@src/domain.operations/lambdaVersion/utils/calcConfigSha256';
+
 import { castIntoDeclaredAwsLambdaAlias } from './castIntoDeclaredAwsLambdaAlias';
 
 /**

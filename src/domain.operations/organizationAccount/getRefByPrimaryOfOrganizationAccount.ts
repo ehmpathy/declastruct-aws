@@ -8,8 +8,9 @@ import {
 import { BadRequestError, UnexpectedCodePathError } from 'helpful-errors';
 import type { VisualogicContext } from 'visualogic';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import { DeclaredAwsOrganizationAccount } from '../../domain.objects/DeclaredAwsOrganizationAccount';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import { DeclaredAwsOrganizationAccount } from '@src/domain.objects/DeclaredAwsOrganizationAccount';
+
 import { getOneOrganizationAccount } from './getOneOrganizationAccount';
 
 /**

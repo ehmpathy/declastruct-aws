@@ -8,11 +8,12 @@ import { HelpfulError } from 'helpful-errors';
 import type { PickOne } from 'type-fns';
 import type { VisualogicContext } from 'visualogic';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import type { DeclaredAwsIamUser } from '../../domain.objects/DeclaredAwsIamUser';
-import type { DeclaredAwsIamUserAccessKey } from '../../domain.objects/DeclaredAwsIamUserAccessKey';
-import type { DeclaredAwsOrganizationAccount } from '../../domain.objects/DeclaredAwsOrganizationAccount';
-import { getAllIamUsers } from '../iamUser/getAllIamUsers';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import type { DeclaredAwsIamUser } from '@src/domain.objects/DeclaredAwsIamUser';
+import type { DeclaredAwsIamUserAccessKey } from '@src/domain.objects/DeclaredAwsIamUserAccessKey';
+import type { DeclaredAwsOrganizationAccount } from '@src/domain.objects/DeclaredAwsOrganizationAccount';
+import { getAllIamUsers } from '@src/domain.operations/iamUser/getAllIamUsers';
+
 import { castIntoDeclaredAwsIamUserAccessKey } from './castIntoDeclaredAwsIamUserAccessKey';
 
 /**

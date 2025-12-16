@@ -13,9 +13,10 @@ import { HelpfulError } from 'helpful-errors';
 import { assure, isPresent, type PickOne } from 'type-fns';
 import type { VisualogicContext } from 'visualogic';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import type { DeclaredAwsIamUser } from '../../domain.objects/DeclaredAwsIamUser';
-import type { DeclaredAwsIamUserAccessKey } from '../../domain.objects/DeclaredAwsIamUserAccessKey';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import type { DeclaredAwsIamUser } from '@src/domain.objects/DeclaredAwsIamUser';
+import type { DeclaredAwsIamUserAccessKey } from '@src/domain.objects/DeclaredAwsIamUserAccessKey';
+
 import { castIntoDeclaredAwsIamUserAccessKey } from './castIntoDeclaredAwsIamUserAccessKey';
 
 /**

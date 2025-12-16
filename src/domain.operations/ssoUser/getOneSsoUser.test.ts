@@ -1,6 +1,7 @@
 import { given, then } from 'test-fns';
 
-import { getMockedAwsApiContext } from '../../.test/getMockedAwsApiContext';
+import { getMockedAwsApiContext } from '@src/.test/getMockedAwsApiContext';
+
 import * as getAllSsoUsersModule from './getAllSsoUsers';
 import { getOneSsoUser } from './getOneSsoUser';
 

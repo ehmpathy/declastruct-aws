@@ -1,6 +1,7 @@
 import { given, then, useBeforeAll, when } from 'test-fns';
 
-import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';
+import { getSampleAwsApiContext } from '@src/.test/getSampleAwsApiContext';
+
 import { getAllIamUsers } from './getAllIamUsers';
 import { getOneIamUser } from './getOneIamUser';
 

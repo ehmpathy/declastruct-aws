@@ -1,6 +1,6 @@
 import type { Tag } from '@aws-sdk/client-sso-admin';
 
-import type { DeclaredAwsTags } from '../../domain.objects/DeclaredAwsTags';
+import type { DeclaredAwsTags } from '@src/domain.objects/DeclaredAwsTags';
 
 /**
  * .what = parses AWS tags to domain format

@@ -3,8 +3,9 @@ import type { HasReadonly, RefByUnique } from 'domain-objects';
 import { UnexpectedCodePathError } from 'helpful-errors';
 import type { ContextLogTrail } from 'simple-log-methods';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import type { DeclaredAwsRdsCluster } from '../../domain.objects/DeclaredAwsRdsCluster';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import type { DeclaredAwsRdsCluster } from '@src/domain.objects/DeclaredAwsRdsCluster';
+
 import { castIntoDeclaredAwsRdsCluster } from './castIntoDeclaredAwsRdsCluster';
 
 /**

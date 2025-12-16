@@ -1,11 +1,11 @@
 import { genDeclastructDao } from 'declastruct';
 import type { ContextLogTrail } from 'simple-log-methods';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import { DeclaredAwsLambdaVersion } from '../../domain.objects/DeclaredAwsLambdaVersion';
-import { delLambdaVersion } from '../../domain.operations/lambdaVersion/delLambdaVersion';
-import { getOneLambdaVersion } from '../../domain.operations/lambdaVersion/getOneLambdaVersion';
-import { setLambdaVersion } from '../../domain.operations/lambdaVersion/setLambdaVersion';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import { DeclaredAwsLambdaVersion } from '@src/domain.objects/DeclaredAwsLambdaVersion';
+import { delLambdaVersion } from '@src/domain.operations/lambdaVersion/delLambdaVersion';
+import { getOneLambdaVersion } from '@src/domain.operations/lambdaVersion/getOneLambdaVersion';
+import { setLambdaVersion } from '@src/domain.operations/lambdaVersion/setLambdaVersion';
 
 /**
  * .what = declastruct DAO for AWS Lambda version resources

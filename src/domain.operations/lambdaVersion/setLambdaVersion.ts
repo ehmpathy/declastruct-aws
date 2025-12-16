@@ -5,10 +5,11 @@ import { UnexpectedCodePathError } from 'helpful-errors';
 import type { PickOne } from 'type-fns';
 import type { VisualogicContext } from 'visualogic';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import type { DeclaredAwsLambdaVersion } from '../../domain.objects/DeclaredAwsLambdaVersion';
-import { getOneLambda } from '../lambda/getOneLambda';
-import { parseRoleArnIntoRef } from '../lambda/utils/parseRoleArnIntoRef';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import type { DeclaredAwsLambdaVersion } from '@src/domain.objects/DeclaredAwsLambdaVersion';
+import { getOneLambda } from '@src/domain.operations/lambda/getOneLambda';
+import { parseRoleArnIntoRef } from '@src/domain.operations/lambda/utils/parseRoleArnIntoRef';
+
 import { castIntoDeclaredAwsLambdaVersion } from './castIntoDeclaredAwsLambdaVersion';
 import { getOneLambdaVersion } from './getOneLambdaVersion';
 import { calcConfigSha256 } from './utils/calcConfigSha256';

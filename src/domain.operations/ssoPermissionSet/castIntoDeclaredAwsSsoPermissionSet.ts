@@ -11,11 +11,11 @@ import {
 import { UnexpectedCodePathError } from 'helpful-errors';
 import { assure } from 'type-fns';
 
-import { DeclaredAwsIamPolicyBundle } from '../../domain.objects/DeclaredAwsIamPolicyBundle';
-import type { DeclaredAwsSsoInstance } from '../../domain.objects/DeclaredAwsSsoInstance';
-import { DeclaredAwsSsoPermissionSet } from '../../domain.objects/DeclaredAwsSsoPermissionSet';
-import { castIntoDeclaredAwsIamPolicyDocument } from '../iamPolicyDocument/castIntoDeclaredAwsIamPolicyDocument';
-import { castIntoDeclaredAwsTags } from '../tags/castIntoDeclaredAwsTags';
+import { DeclaredAwsIamPolicyBundle } from '@src/domain.objects/DeclaredAwsIamPolicyBundle';
+import type { DeclaredAwsSsoInstance } from '@src/domain.objects/DeclaredAwsSsoInstance';
+import { DeclaredAwsSsoPermissionSet } from '@src/domain.objects/DeclaredAwsSsoPermissionSet';
+import { castIntoDeclaredAwsIamPolicyDocument } from '@src/domain.operations/iamPolicyDocument/castIntoDeclaredAwsIamPolicyDocument';
+import { castIntoDeclaredAwsTags } from '@src/domain.operations/tags/castIntoDeclaredAwsTags';
 
 /**
  * .what = parses AWS managed policies to domain format

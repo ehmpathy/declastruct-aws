@@ -7,11 +7,11 @@ import {
 } from 'domain-objects';
 import { assure, isPresent } from 'type-fns';
 
-import type { DeclaredAwsIamUser } from '../../domain.objects/DeclaredAwsIamUser';
+import type { DeclaredAwsIamUser } from '@src/domain.objects/DeclaredAwsIamUser';
 import {
   DeclaredAwsIamUserAccessKey,
   type IamAccessKeyStatus,
-} from '../../domain.objects/DeclaredAwsIamUserAccessKey';
+} from '@src/domain.objects/DeclaredAwsIamUserAccessKey';
 
 /**
  * .what = transforms AWS SDK AccessKeyMetadata into DeclaredAwsIamUserAccessKey

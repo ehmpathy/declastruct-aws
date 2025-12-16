@@ -8,8 +8,9 @@ import {
 } from '@aws-sdk/client-sso-admin';
 import { given, then, when } from 'test-fns';
 
-import { getMockedAwsApiContext } from '../../.test/getMockedAwsApiContext';
-import * as ssoInstanceModule from '../ssoInstance/getOneSsoInstance';
+import { getMockedAwsApiContext } from '@src/.test/getMockedAwsApiContext';
+import * as ssoInstanceModule from '@src/domain.operations/ssoInstance/getOneSsoInstance';
+
 import * as getModule from './getOneSsoPermissionSet';
 import { setSsoPermissionSet } from './setSsoPermissionSet';
 

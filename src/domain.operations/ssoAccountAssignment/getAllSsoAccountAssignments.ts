@@ -7,16 +7,17 @@ import type { HasReadonly, Ref, RefByUnique } from 'domain-objects';
 import { UnexpectedCodePathError } from 'helpful-errors';
 import type { VisualogicContext } from 'visualogic';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import type { DeclaredAwsOrganizationAccount } from '../../domain.objects/DeclaredAwsOrganizationAccount';
-import type { DeclaredAwsSsoAccountAssignment } from '../../domain.objects/DeclaredAwsSsoAccountAssignment';
-import type { DeclaredAwsSsoInstance } from '../../domain.objects/DeclaredAwsSsoInstance';
-import type { DeclaredAwsSsoPermissionSet } from '../../domain.objects/DeclaredAwsSsoPermissionSet';
-import type { DeclaredAwsSsoUser } from '../../domain.objects/DeclaredAwsSsoUser';
-import { getRefByPrimaryOfOrganizationAccount } from '../organizationAccount/getRefByPrimaryOfOrganizationAccount';
-import { getOneSsoInstance } from '../ssoInstance/getOneSsoInstance';
-import { getRefByPrimaryOfSsoPermissionSet } from '../ssoPermissionSet/getRefByPrimaryOfSsoPermissionSet';
-import { getAllSsoUsers } from '../ssoUser/getAllSsoUsers';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import type { DeclaredAwsOrganizationAccount } from '@src/domain.objects/DeclaredAwsOrganizationAccount';
+import type { DeclaredAwsSsoAccountAssignment } from '@src/domain.objects/DeclaredAwsSsoAccountAssignment';
+import type { DeclaredAwsSsoInstance } from '@src/domain.objects/DeclaredAwsSsoInstance';
+import type { DeclaredAwsSsoPermissionSet } from '@src/domain.objects/DeclaredAwsSsoPermissionSet';
+import type { DeclaredAwsSsoUser } from '@src/domain.objects/DeclaredAwsSsoUser';
+import { getRefByPrimaryOfOrganizationAccount } from '@src/domain.operations/organizationAccount/getRefByPrimaryOfOrganizationAccount';
+import { getOneSsoInstance } from '@src/domain.operations/ssoInstance/getOneSsoInstance';
+import { getRefByPrimaryOfSsoPermissionSet } from '@src/domain.operations/ssoPermissionSet/getRefByPrimaryOfSsoPermissionSet';
+import { getAllSsoUsers } from '@src/domain.operations/ssoUser/getAllSsoUsers';
+
 import { castIntoDeclaredAwsSsoAccountAssignment } from './castIntoDeclaredAwsSsoAccountAssignment';
 
 /**

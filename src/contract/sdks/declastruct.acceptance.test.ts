@@ -6,10 +6,10 @@ import { existsSync, mkdirSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { given, then, useBeforeAll, when } from 'test-fns';
 
-import { DeclaredAwsLogGroupReportCostOfIngestionDao } from '../../access/daos/DeclaredAwsLogGroupReportCostOfIngestionDao';
-import { DeclaredAwsLogGroupReportDistOfPatternDao } from '../../access/daos/DeclaredAwsLogGroupReportDistOfPatternDao';
-import { getAllIamUserAccessKeys } from '../../domain.operations/iamUserAccessKey/getAllIamUserAccessKeys';
-import { getDeclastructAwsProvider } from '../../domain.operations/provider/getDeclastructAwsProvider';
+import { DeclaredAwsLogGroupReportCostOfIngestionDao } from '@src/access/daos/DeclaredAwsLogGroupReportCostOfIngestionDao';
+import { DeclaredAwsLogGroupReportDistOfPatternDao } from '@src/access/daos/DeclaredAwsLogGroupReportDistOfPatternDao';
+import { getAllIamUserAccessKeys } from '@src/domain.operations/iamUserAccessKey/getAllIamUserAccessKeys';
+import { getDeclastructAwsProvider } from '@src/domain.operations/provider/getDeclastructAwsProvider';
 
 /**
  * .what = acceptance tests for declastruct CLI workflow

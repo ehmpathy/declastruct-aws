@@ -11,9 +11,10 @@ import { BadRequestError, HelpfulError } from 'helpful-errors';
 import type { PickOne } from 'type-fns';
 import type { VisualogicContext } from 'visualogic';
 
-import { getAwsOrganizationsClient } from '../../access/sdks/getAwsOrganizationsClient';
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import { DeclaredAwsOrganizationAccount } from '../../domain.objects/DeclaredAwsOrganizationAccount';
+import { getAwsOrganizationsClient } from '@src/access/sdks/getAwsOrganizationsClient';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import { DeclaredAwsOrganizationAccount } from '@src/domain.objects/DeclaredAwsOrganizationAccount';
+
 import { getOneOrganizationAccount } from './getOneOrganizationAccount';
 
 /**

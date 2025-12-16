@@ -7,7 +7,7 @@ import { assure } from 'type-fns';
 import {
   DeclaredAwsSsoInstance,
   type SsoInstanceStatus,
-} from '../../domain.objects/DeclaredAwsSsoInstance';
+} from '@src/domain.objects/DeclaredAwsSsoInstance';
 
 /**
  * .what = transforms aws sdk InstanceMetadata to DeclaredAwsSsoInstance
