@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.3](https://github.com/ehmpathy/declastruct-aws/compare/v1.4.2...v1.4.3) (2025-12-16)
+
+
+### Bug Fixes
+
+* **deps:** bump declastruct dep to latest ([#35](https://github.com/ehmpathy/declastruct-aws/issues/35)) ([ad1081f](https://github.com/ehmpathy/declastruct-aws/commit/ad1081f93f679ecc05b5c07300e8ea954670b0b1))
+
 ## [1.4.2](https://github.com/ehmpathy/declastruct-aws/compare/v1.4.1...v1.4.2) (2025-12-16)
 
 
