@@ -1,7 +1,8 @@
 import { given, then, useBeforeAll } from 'test-fns';
 
-import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';
-import { getOneLambda } from '../lambda/getOneLambda';
+import { getSampleAwsApiContext } from '@src/.test/getSampleAwsApiContext';
+import { getOneLambda } from '@src/domain.operations/lambda/getOneLambda';
+
 import { setLambdaVersion } from './setLambdaVersion';
 import { calcConfigSha256 } from './utils/calcConfigSha256';
 

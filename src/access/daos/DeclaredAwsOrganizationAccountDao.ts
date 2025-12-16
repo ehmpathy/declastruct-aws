@@ -1,11 +1,11 @@
 import { genDeclastructDao } from 'declastruct';
 import type { ContextLogTrail } from 'simple-log-methods';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import { DeclaredAwsOrganizationAccount } from '../../domain.objects/DeclaredAwsOrganizationAccount';
-import { delOrganizationAccount } from '../../domain.operations/organizationAccount/delOrganizationAccount';
-import { getOneOrganizationAccount } from '../../domain.operations/organizationAccount/getOneOrganizationAccount';
-import { setOrganizationAccount } from '../../domain.operations/organizationAccount/setOrganizationAccount';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import { DeclaredAwsOrganizationAccount } from '@src/domain.objects/DeclaredAwsOrganizationAccount';
+import { delOrganizationAccount } from '@src/domain.operations/organizationAccount/delOrganizationAccount';
+import { getOneOrganizationAccount } from '@src/domain.operations/organizationAccount/getOneOrganizationAccount';
+import { setOrganizationAccount } from '@src/domain.operations/organizationAccount/setOrganizationAccount';
 
 /**
  * .what = declastruct DAO for AWS Organization Account resources

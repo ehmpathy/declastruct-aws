@@ -1,11 +1,11 @@
 import { genDeclastructDao } from 'declastruct';
 import type { ContextLogTrail } from 'simple-log-methods';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import { DeclaredAwsLambdaAlias } from '../../domain.objects/DeclaredAwsLambdaAlias';
-import { delLambdaAlias } from '../../domain.operations/lambdaAlias/delLambdaAlias';
-import { getOneLambdaAlias } from '../../domain.operations/lambdaAlias/getOneLambdaAlias';
-import { setLambdaAlias } from '../../domain.operations/lambdaAlias/setLambdaAlias';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import { DeclaredAwsLambdaAlias } from '@src/domain.objects/DeclaredAwsLambdaAlias';
+import { delLambdaAlias } from '@src/domain.operations/lambdaAlias/delLambdaAlias';
+import { getOneLambdaAlias } from '@src/domain.operations/lambdaAlias/getOneLambdaAlias';
+import { setLambdaAlias } from '@src/domain.operations/lambdaAlias/setLambdaAlias';
 
 /**
  * .what = declastruct DAO for AWS Lambda alias resources

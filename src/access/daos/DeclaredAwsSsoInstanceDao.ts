@@ -1,10 +1,10 @@
 import { genDeclastructDao } from 'declastruct';
 import type { ContextLogTrail } from 'simple-log-methods';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import { DeclaredAwsSsoInstance } from '../../domain.objects/DeclaredAwsSsoInstance';
-import { getOneSsoInstance } from '../../domain.operations/ssoInstance/getOneSsoInstance';
-import { setSsoInstance } from '../../domain.operations/ssoInstance/setSsoInstance';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import { DeclaredAwsSsoInstance } from '@src/domain.objects/DeclaredAwsSsoInstance';
+import { getOneSsoInstance } from '@src/domain.operations/ssoInstance/getOneSsoInstance';
+import { setSsoInstance } from '@src/domain.operations/ssoInstance/setSsoInstance';
 
 /**
  * .what = declastruct DAO for AWS SSO Identity Center instance resources

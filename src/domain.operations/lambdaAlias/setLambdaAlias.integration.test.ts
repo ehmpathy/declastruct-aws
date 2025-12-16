@@ -1,8 +1,9 @@
 import { given, then, useBeforeAll } from 'test-fns';
 
-import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';
-import { getOneLambda } from '../lambda/getOneLambda';
-import { getAllLambdaVersions } from '../lambdaVersion/getAllLambdaVersions';
+import { getSampleAwsApiContext } from '@src/.test/getSampleAwsApiContext';
+import { getOneLambda } from '@src/domain.operations/lambda/getOneLambda';
+import { getAllLambdaVersions } from '@src/domain.operations/lambdaVersion/getAllLambdaVersions';
+
 import { delLambdaAlias } from './delLambdaAlias';
 import { getOneLambdaAlias } from './getOneLambdaAlias';
 import { setLambdaAlias } from './setLambdaAlias';

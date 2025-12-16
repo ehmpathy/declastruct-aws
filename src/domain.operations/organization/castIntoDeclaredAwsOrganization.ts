@@ -5,7 +5,7 @@ import { assure, isPresent } from 'type-fns';
 import {
   DeclaredAwsOrganization,
   type OrganizationFeatureSet,
-} from '../../domain.objects/DeclaredAwsOrganization';
+} from '@src/domain.objects/DeclaredAwsOrganization';
 
 /**
  * .what = transforms AWS SDK Organization to DeclaredAwsOrganization

@@ -6,11 +6,11 @@ import { asProcedure } from 'as-procedure';
 import { RefByPrimary, RefByUnique } from 'domain-objects';
 import type { VisualogicContext } from 'visualogic';
 
-import { DeclaredAwsIamRoleDao } from '../../access/daos/DeclaredAwsIamRoleDao';
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import type { DeclaredAwsIamPolicy } from '../../domain.objects/DeclaredAwsIamPolicy';
-import type { DeclaredAwsIamRole } from '../../domain.objects/DeclaredAwsIamRole';
-import { DeclaredAwsIamRolePolicyAttachedManaged } from '../../domain.objects/DeclaredAwsIamRolePolicyAttachedManaged';
+import { DeclaredAwsIamRoleDao } from '@src/access/daos/DeclaredAwsIamRoleDao';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import type { DeclaredAwsIamPolicy } from '@src/domain.objects/DeclaredAwsIamPolicy';
+import type { DeclaredAwsIamRole } from '@src/domain.objects/DeclaredAwsIamRole';
+import { DeclaredAwsIamRolePolicyAttachedManaged } from '@src/domain.objects/DeclaredAwsIamRolePolicyAttachedManaged';
 
 /**
  * .what = retrieves a managed policy attachment from an iam role

@@ -6,7 +6,7 @@ import { assure } from 'type-fns';
 import {
   DeclaredAwsIamOidcProvider,
   OIDC_THUMBPRINT_PLACEHOLDER,
-} from '../../domain.objects/DeclaredAwsIamOidcProvider';
+} from '@src/domain.objects/DeclaredAwsIamOidcProvider';
 
 /**
  * .what = transforms aws sdk GetOpenIDConnectProviderCommandOutput to DeclaredAwsIamOidcProvider

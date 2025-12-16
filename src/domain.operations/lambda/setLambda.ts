@@ -14,8 +14,9 @@ import { resolve } from 'path';
 import type { PickOne } from 'type-fns';
 import type { VisualogicContext } from 'visualogic';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import type { DeclaredAwsLambda } from '../../domain.objects/DeclaredAwsLambda';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import type { DeclaredAwsLambda } from '@src/domain.objects/DeclaredAwsLambda';
+
 import { castIntoDeclaredAwsLambda } from './castIntoDeclaredAwsLambda';
 import { getOneLambda } from './getOneLambda';
 

@@ -12,8 +12,9 @@ import { HelpfulError, UnexpectedCodePathError } from 'helpful-errors';
 import type { PickOne } from 'type-fns';
 import type { VisualogicContext } from 'visualogic';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import { DeclaredAwsLambda } from '../../domain.objects/DeclaredAwsLambda';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import { DeclaredAwsLambda } from '@src/domain.objects/DeclaredAwsLambda';
+
 import { castIntoDeclaredAwsLambda } from './castIntoDeclaredAwsLambda';
 
 /**

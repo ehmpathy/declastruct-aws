@@ -5,9 +5,10 @@ import {
 import type { UniDateTime } from '@ehmpathy/uni-time';
 import { given, then } from 'test-fns';
 
-import { getMockedAwsApiContext } from '../../.test/getMockedAwsApiContext';
-import * as getAllLogGroupsModule from '../logGroup/getAllLogGroups';
-import * as getOneLogGroupModule from '../logGroup/getOneLogGroup';
+import { getMockedAwsApiContext } from '@src/.test/getMockedAwsApiContext';
+import * as getAllLogGroupsModule from '@src/domain.operations/logGroup/getAllLogGroups';
+import * as getOneLogGroupModule from '@src/domain.operations/logGroup/getOneLogGroup';
+
 import * as castModule from './castIntoDeclaredAwsLogGroupReportCostOfIngestion';
 import { getOneLogGroupReportCostOfIngestion } from './getOneLogGroupReportCostOfIngestion';
 

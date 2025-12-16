@@ -1,6 +1,6 @@
 import type { ContextLogTrail } from 'simple-log-methods';
 
-import { ContextAwsApi } from '../domain.objects/ContextAwsApi';
+import { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
 
 /**
  * .what = creates a mocked AWS API context for unit testing

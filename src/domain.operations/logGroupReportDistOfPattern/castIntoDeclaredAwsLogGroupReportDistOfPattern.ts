@@ -7,11 +7,11 @@ import {
 } from 'domain-objects';
 import { assure } from 'type-fns';
 
-import type { DeclaredAwsLogGroup } from '../../domain.objects/DeclaredAwsLogGroup';
+import type { DeclaredAwsLogGroup } from '@src/domain.objects/DeclaredAwsLogGroup';
 import {
   DeclaredAwsLogGroupReportDistOfPattern,
   DeclaredAwsLogGroupReportDistOfPatternRow,
-} from '../../domain.objects/DeclaredAwsLogGroupReportDistOfPattern';
+} from '@src/domain.objects/DeclaredAwsLogGroupReportDistOfPattern';
 
 /**
  * .what = input for castIntoDeclaredAwsLogGroupReportDistOfPattern

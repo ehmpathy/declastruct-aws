@@ -4,10 +4,11 @@ import { UnexpectedCodePathError } from 'helpful-errors';
 import type { PickOne } from 'type-fns';
 import type { VisualogicContext } from 'visualogic';
 
-import { DeclaredAwsIamRoleDao } from '../../access/daos/DeclaredAwsIamRoleDao';
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import type { DeclaredAwsIamRolePolicyAttachedInline } from '../../domain.objects/DeclaredAwsIamRolePolicyAttachedInline';
-import { castFromDeclaredAwsIamPolicyDocument } from '../iamRole/castFromDeclaredAwsIamPolicyDocument';
+import { DeclaredAwsIamRoleDao } from '@src/access/daos/DeclaredAwsIamRoleDao';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import type { DeclaredAwsIamRolePolicyAttachedInline } from '@src/domain.objects/DeclaredAwsIamRolePolicyAttachedInline';
+import { castFromDeclaredAwsIamPolicyDocument } from '@src/domain.operations/iamRole/castFromDeclaredAwsIamPolicyDocument';
+
 import { getIamRolePolicyAttachedInline } from './getIamRolePolicyAttachedInline';
 
 /**

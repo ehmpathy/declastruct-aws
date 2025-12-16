@@ -6,27 +6,27 @@ import * as os from 'os';
 import * as path from 'path';
 import type { ContextLogTrail } from 'simple-log-methods';
 
-import { DeclaredAwsEc2InstanceDao } from '../../access/daos/DeclaredAwsEc2InstanceDao';
-import { DeclaredAwsIamOidcProviderDao } from '../../access/daos/DeclaredAwsIamOidcProviderDao';
-import { DeclaredAwsIamRoleDao } from '../../access/daos/DeclaredAwsIamRoleDao';
-import { DeclaredAwsIamRolePolicyAttachedInlineDao } from '../../access/daos/DeclaredAwsIamRolePolicyAttachedInlineDao';
-import { DeclaredAwsLambdaAliasDao } from '../../access/daos/DeclaredAwsLambdaAliasDao';
-import { DeclaredAwsLambdaDao } from '../../access/daos/DeclaredAwsLambdaDao';
-import { DeclaredAwsLambdaVersionDao } from '../../access/daos/DeclaredAwsLambdaVersionDao';
-import { DeclaredAwsLogGroupDao } from '../../access/daos/DeclaredAwsLogGroupDao';
-import { DeclaredAwsLogGroupReportCostOfIngestionDao } from '../../access/daos/DeclaredAwsLogGroupReportCostOfIngestionDao';
-import { DeclaredAwsLogGroupReportDistOfPatternDao } from '../../access/daos/DeclaredAwsLogGroupReportDistOfPatternDao';
-import { DeclaredAwsOrganizationAccountDao } from '../../access/daos/DeclaredAwsOrganizationAccountDao';
-import { DeclaredAwsOrganizationDao } from '../../access/daos/DeclaredAwsOrganizationDao';
-import { DeclaredAwsRdsClusterDao } from '../../access/daos/DeclaredAwsRdsClusterDao';
-import { DeclaredAwsSsoAccountAssignmentDao } from '../../access/daos/DeclaredAwsSsoAccountAssignmentDao';
-import { DeclaredAwsSsoInstanceDao } from '../../access/daos/DeclaredAwsSsoInstanceDao';
-import { DeclaredAwsSsoPermissionSetDao } from '../../access/daos/DeclaredAwsSsoPermissionSetDao';
-import { DeclaredAwsSsoUserDao } from '../../access/daos/DeclaredAwsSsoUserDao';
-import { DeclaredAwsVpcTunnelDao } from '../../access/daos/DeclaredAwsVpcTunnelDao';
-import { DeclaredAwsIamRolePolicyAttachedManagedDao } from '../../contract/sdks';
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import type { DeclastructAwsProvider } from '../../domain.objects/DeclastructAwsProvider';
+import { DeclaredAwsEc2InstanceDao } from '@src/access/daos/DeclaredAwsEc2InstanceDao';
+import { DeclaredAwsIamOidcProviderDao } from '@src/access/daos/DeclaredAwsIamOidcProviderDao';
+import { DeclaredAwsIamRoleDao } from '@src/access/daos/DeclaredAwsIamRoleDao';
+import { DeclaredAwsIamRolePolicyAttachedInlineDao } from '@src/access/daos/DeclaredAwsIamRolePolicyAttachedInlineDao';
+import { DeclaredAwsLambdaAliasDao } from '@src/access/daos/DeclaredAwsLambdaAliasDao';
+import { DeclaredAwsLambdaDao } from '@src/access/daos/DeclaredAwsLambdaDao';
+import { DeclaredAwsLambdaVersionDao } from '@src/access/daos/DeclaredAwsLambdaVersionDao';
+import { DeclaredAwsLogGroupDao } from '@src/access/daos/DeclaredAwsLogGroupDao';
+import { DeclaredAwsLogGroupReportCostOfIngestionDao } from '@src/access/daos/DeclaredAwsLogGroupReportCostOfIngestionDao';
+import { DeclaredAwsLogGroupReportDistOfPatternDao } from '@src/access/daos/DeclaredAwsLogGroupReportDistOfPatternDao';
+import { DeclaredAwsOrganizationAccountDao } from '@src/access/daos/DeclaredAwsOrganizationAccountDao';
+import { DeclaredAwsOrganizationDao } from '@src/access/daos/DeclaredAwsOrganizationDao';
+import { DeclaredAwsRdsClusterDao } from '@src/access/daos/DeclaredAwsRdsClusterDao';
+import { DeclaredAwsSsoAccountAssignmentDao } from '@src/access/daos/DeclaredAwsSsoAccountAssignmentDao';
+import { DeclaredAwsSsoInstanceDao } from '@src/access/daos/DeclaredAwsSsoInstanceDao';
+import { DeclaredAwsSsoPermissionSetDao } from '@src/access/daos/DeclaredAwsSsoPermissionSetDao';
+import { DeclaredAwsSsoUserDao } from '@src/access/daos/DeclaredAwsSsoUserDao';
+import { DeclaredAwsVpcTunnelDao } from '@src/access/daos/DeclaredAwsVpcTunnelDao';
+import { DeclaredAwsIamRolePolicyAttachedManagedDao } from '@src/contract/sdks';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import type { DeclastructAwsProvider } from '@src/domain.objects/DeclastructAwsProvider';
 
 /**
  * .what = creates a declastruct provider for aws resources

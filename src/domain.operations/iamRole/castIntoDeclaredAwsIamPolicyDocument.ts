@@ -1,4 +1,5 @@
-import { DeclaredAwsIamPolicyDocument } from '../../domain.objects/DeclaredAwsIamPolicyDocument';
+import { DeclaredAwsIamPolicyDocument } from '@src/domain.objects/DeclaredAwsIamPolicyDocument';
+
 import {
   castIntoDeclaredAwsIamPolicyStatement,
   type SdkAwsPolicyStatementRaw,

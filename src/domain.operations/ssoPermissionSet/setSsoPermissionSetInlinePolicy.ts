@@ -5,7 +5,7 @@ import {
 } from '@aws-sdk/client-sso-admin';
 import { serialize } from 'domain-objects';
 
-import type { DeclaredAwsIamPolicyDocument } from '../../domain.objects/DeclaredAwsIamPolicyDocument';
+import type { DeclaredAwsIamPolicyDocument } from '@src/domain.objects/DeclaredAwsIamPolicyDocument';
 
 /**
  * .what = updates inline policy on a permission set

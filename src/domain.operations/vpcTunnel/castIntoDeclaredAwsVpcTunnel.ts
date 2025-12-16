@@ -5,7 +5,7 @@ import {
 } from 'domain-objects';
 import { assure } from 'type-fns';
 
-import { DeclaredAwsVpcTunnel } from '../../domain.objects/DeclaredAwsVpcTunnel';
+import { DeclaredAwsVpcTunnel } from '@src/domain.objects/DeclaredAwsVpcTunnel';
 
 /**
  * .what = transforms tunnel unique ref + status into DeclaredAwsVpcTunnel

@@ -1,10 +1,10 @@
 import { genDeclastructDao } from 'declastruct';
 import type { ContextLogTrail } from 'simple-log-methods';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import { DeclaredAwsSsoUser } from '../../domain.objects/DeclaredAwsSsoUser';
-import { getOneSsoUser } from '../../domain.operations/ssoUser/getOneSsoUser';
-import { setSsoUser } from '../../domain.operations/ssoUser/setSsoUser';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import { DeclaredAwsSsoUser } from '@src/domain.objects/DeclaredAwsSsoUser';
+import { getOneSsoUser } from '@src/domain.operations/ssoUser/getOneSsoUser';
+import { setSsoUser } from '@src/domain.operations/ssoUser/setSsoUser';
 
 /**
  * .what = declastruct DAO for AWS SSO user resources

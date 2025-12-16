@@ -3,7 +3,8 @@ import { type HasReadonly, hasReadonly } from 'domain-objects';
 import { UnexpectedCodePathError } from 'helpful-errors';
 import { assure } from 'type-fns';
 
-import { DeclaredAwsIamRole } from '../../domain.objects/DeclaredAwsIamRole';
+import { DeclaredAwsIamRole } from '@src/domain.objects/DeclaredAwsIamRole';
+
 import { castIntoDeclaredAwsIamPolicyDocument } from './castIntoDeclaredAwsIamPolicyDocument';
 
 /**

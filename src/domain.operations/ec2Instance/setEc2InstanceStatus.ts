@@ -9,8 +9,9 @@ import type { HasReadonly, Ref } from 'domain-objects';
 import { BadRequestError, UnexpectedCodePathError } from 'helpful-errors';
 import type { ContextLogTrail } from 'simple-log-methods';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import type { DeclaredAwsEc2Instance } from '../../domain.objects/DeclaredAwsEc2Instance';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import type { DeclaredAwsEc2Instance } from '@src/domain.objects/DeclaredAwsEc2Instance';
+
 import { getEc2Instance } from './getEc2Instance';
 
 /**

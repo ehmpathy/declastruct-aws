@@ -1,7 +1,8 @@
 import { GetFunctionCommand, LambdaClient } from '@aws-sdk/client-lambda';
 import { given, then } from 'test-fns';
 
-import { getMockedAwsApiContext } from '../../.test/getMockedAwsApiContext';
+import { getMockedAwsApiContext } from '@src/.test/getMockedAwsApiContext';
+
 import * as castModule from './castIntoDeclaredAwsLambda';
 import { getOneLambda } from './getOneLambda';
 

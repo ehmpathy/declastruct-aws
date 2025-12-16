@@ -3,7 +3,7 @@ import { type HasReadonly, hasReadonly } from 'domain-objects';
 import { UnexpectedCodePathError } from 'helpful-errors';
 import { assure } from 'type-fns';
 
-import { DeclaredAwsEc2Instance } from '../../domain.objects/DeclaredAwsEc2Instance';
+import { DeclaredAwsEc2Instance } from '@src/domain.objects/DeclaredAwsEc2Instance';
 
 /**
  * .what = casts an AWS SDK Instance to a DeclaredAwsEc2Instance

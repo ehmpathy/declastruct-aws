@@ -5,9 +5,10 @@ import {
 } from '@aws-sdk/client-iam';
 import { given, then, when } from 'test-fns';
 
-import { getMockedAwsApiContext } from '../../.test/getMockedAwsApiContext';
-import { DeclaredAwsIamRoleDao } from '../../access/daos/DeclaredAwsIamRoleDao';
-import { DeclaredAwsIamRolePolicyAttachedInline } from '../../domain.objects/DeclaredAwsIamRolePolicyAttachedInline';
+import { getMockedAwsApiContext } from '@src/.test/getMockedAwsApiContext';
+import { DeclaredAwsIamRoleDao } from '@src/access/daos/DeclaredAwsIamRoleDao';
+import { DeclaredAwsIamRolePolicyAttachedInline } from '@src/domain.objects/DeclaredAwsIamRolePolicyAttachedInline';
+
 import { setIamRolePolicyAttachedInline } from './setIamRolePolicyAttachedInline';
 
 jest.mock('@aws-sdk/client-iam');

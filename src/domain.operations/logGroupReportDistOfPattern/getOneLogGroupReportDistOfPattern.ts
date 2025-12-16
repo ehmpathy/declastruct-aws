@@ -14,8 +14,9 @@ import { HelpfulError, UnexpectedCodePathError } from 'helpful-errors';
 import { assure } from 'type-fns';
 import type { VisualogicContext } from 'visualogic';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import { DeclaredAwsLogGroupReportDistOfPattern } from '../../domain.objects/DeclaredAwsLogGroupReportDistOfPattern';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import { DeclaredAwsLogGroupReportDistOfPattern } from '@src/domain.objects/DeclaredAwsLogGroupReportDistOfPattern';
+
 import { castIntoDeclaredAwsLogGroupReportDistOfPattern } from './castIntoDeclaredAwsLogGroupReportDistOfPattern';
 
 /**

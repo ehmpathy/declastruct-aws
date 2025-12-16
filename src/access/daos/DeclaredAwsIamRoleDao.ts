@@ -1,10 +1,10 @@
 import { genDeclastructDao } from 'declastruct';
 import type { ContextLogTrail } from 'simple-log-methods';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import { DeclaredAwsIamRole } from '../../domain.objects/DeclaredAwsIamRole';
-import { getIamRole } from '../../domain.operations/iamRole/getIamRole';
-import { setIamRole } from '../../domain.operations/iamRole/setIamRole';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import { DeclaredAwsIamRole } from '@src/domain.objects/DeclaredAwsIamRole';
+import { getIamRole } from '@src/domain.operations/iamRole/getIamRole';
+import { setIamRole } from '@src/domain.operations/iamRole/setIamRole';
 
 /**
  * .what = declastruct DAO for AWS IAM role resources

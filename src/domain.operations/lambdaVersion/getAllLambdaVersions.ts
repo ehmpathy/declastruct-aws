@@ -7,10 +7,11 @@ import { asProcedure } from 'as-procedure';
 import type { HasReadonly, RefByUnique } from 'domain-objects';
 import type { VisualogicContext } from 'visualogic';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import type { DeclaredAwsLambda } from '../../domain.objects/DeclaredAwsLambda';
-import type { DeclaredAwsLambdaVersion } from '../../domain.objects/DeclaredAwsLambdaVersion';
-import { getOneLambda } from '../lambda/getOneLambda';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import type { DeclaredAwsLambda } from '@src/domain.objects/DeclaredAwsLambda';
+import type { DeclaredAwsLambdaVersion } from '@src/domain.objects/DeclaredAwsLambdaVersion';
+import { getOneLambda } from '@src/domain.operations/lambda/getOneLambda';
+
 import { castIntoDeclaredAwsLambdaVersion } from './castIntoDeclaredAwsLambdaVersion';
 
 /**

@@ -1,4 +1,4 @@
-import { DeclaredAwsIamPolicyDocument } from '../../domain.objects/DeclaredAwsIamPolicyDocument';
+import { DeclaredAwsIamPolicyDocument } from '@src/domain.objects/DeclaredAwsIamPolicyDocument';
 
 /**
  * .what = parses AWS inline policy JSON to domain format

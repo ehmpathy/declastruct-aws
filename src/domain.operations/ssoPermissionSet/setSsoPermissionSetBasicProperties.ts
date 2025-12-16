@@ -3,7 +3,7 @@ import {
   UpdatePermissionSetCommand,
 } from '@aws-sdk/client-sso-admin';
 
-import type { DeclaredAwsSsoPermissionSet } from '../../domain.objects/DeclaredAwsSsoPermissionSet';
+import type { DeclaredAwsSsoPermissionSet } from '@src/domain.objects/DeclaredAwsSsoPermissionSet';
 
 /**
  * .what = updates basic properties (description, session duration) on a permission set

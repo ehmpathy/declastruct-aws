@@ -7,9 +7,9 @@ import {
 import { UnexpectedCodePathError } from 'helpful-errors';
 import { assure } from 'type-fns';
 
-import type { DeclaredAwsLambda } from '../../domain.objects/DeclaredAwsLambda';
-import { DeclaredAwsLambdaAlias } from '../../domain.objects/DeclaredAwsLambdaAlias';
-import type { DeclaredAwsLambdaVersion } from '../../domain.objects/DeclaredAwsLambdaVersion';
+import type { DeclaredAwsLambda } from '@src/domain.objects/DeclaredAwsLambda';
+import { DeclaredAwsLambdaAlias } from '@src/domain.objects/DeclaredAwsLambdaAlias';
+import type { DeclaredAwsLambdaVersion } from '@src/domain.objects/DeclaredAwsLambdaVersion';
 
 /**
  * .what = transforms aws sdk AliasConfiguration into DeclaredAwsLambdaAlias

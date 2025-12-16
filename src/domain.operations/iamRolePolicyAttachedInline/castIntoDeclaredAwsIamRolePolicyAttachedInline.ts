@@ -1,8 +1,8 @@
 import { RefByUnique } from 'domain-objects';
 
-import type { DeclaredAwsIamPolicyDocument } from '../../domain.objects/DeclaredAwsIamPolicyDocument';
-import type { DeclaredAwsIamRole } from '../../domain.objects/DeclaredAwsIamRole';
-import { DeclaredAwsIamRolePolicyAttachedInline } from '../../domain.objects/DeclaredAwsIamRolePolicyAttachedInline';
+import type { DeclaredAwsIamPolicyDocument } from '@src/domain.objects/DeclaredAwsIamPolicyDocument';
+import type { DeclaredAwsIamRole } from '@src/domain.objects/DeclaredAwsIamRole';
+import { DeclaredAwsIamRolePolicyAttachedInline } from '@src/domain.objects/DeclaredAwsIamRolePolicyAttachedInline';
 
 /**
  * .what = casts aws sdk inline policy response to domain format

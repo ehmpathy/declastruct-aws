@@ -3,7 +3,8 @@ import { isUniDateTime } from '@ehmpathy/uni-time';
 import { type HasReadonly, hasReadonly } from 'domain-objects';
 import { assure, isPresent } from 'type-fns';
 
-import { DeclaredAwsLambda } from '../../domain.objects/DeclaredAwsLambda';
+import { DeclaredAwsLambda } from '@src/domain.objects/DeclaredAwsLambda';
+
 import { parseRoleArnIntoRef } from './utils/parseRoleArnIntoRef';
 
 /**

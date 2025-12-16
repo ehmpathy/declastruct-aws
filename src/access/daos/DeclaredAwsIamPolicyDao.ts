@@ -2,9 +2,9 @@ import { genDeclastructDao } from 'declastruct';
 import { UnexpectedCodePathError } from 'helpful-errors';
 import type { ContextLogTrail } from 'simple-log-methods';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import { DeclaredAwsIamPolicy } from '../../domain.objects/DeclaredAwsIamPolicy';
-import { getOneIamPolicy } from '../../domain.operations/iamPolicy/getOneIamPolicy';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import { DeclaredAwsIamPolicy } from '@src/domain.objects/DeclaredAwsIamPolicy';
+import { getOneIamPolicy } from '@src/domain.operations/iamPolicy/getOneIamPolicy';
 
 /**
  * .what = declastruct DAO for AWS IAM managed policies

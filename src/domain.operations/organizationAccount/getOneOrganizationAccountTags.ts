@@ -4,7 +4,7 @@ import {
 } from '@aws-sdk/client-organizations';
 import type { RefByPrimary } from 'domain-objects';
 
-import type { DeclaredAwsOrganizationAccount } from '../../domain.objects/DeclaredAwsOrganizationAccount';
+import type { DeclaredAwsOrganizationAccount } from '@src/domain.objects/DeclaredAwsOrganizationAccount';
 
 /**
  * .what = fetches tags for an organization account

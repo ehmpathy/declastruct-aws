@@ -4,9 +4,10 @@ import type { HasReadonly } from 'domain-objects';
 import { HelpfulError, UnexpectedCodePathError } from 'helpful-errors';
 import type { VisualogicContext } from 'visualogic';
 
-import { getAwsOrganizationsClient } from '../../access/sdks/getAwsOrganizationsClient';
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import type { DeclaredAwsOrganizationAccount } from '../../domain.objects/DeclaredAwsOrganizationAccount';
+import { getAwsOrganizationsClient } from '@src/access/sdks/getAwsOrganizationsClient';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import type { DeclaredAwsOrganizationAccount } from '@src/domain.objects/DeclaredAwsOrganizationAccount';
+
 import { castIntoDeclaredAwsOrganizationAccount } from './castIntoDeclaredAwsOrganizationAccount';
 import { getOneOrganizationAccountTags } from './getOneOrganizationAccountTags';
 

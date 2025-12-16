@@ -7,8 +7,9 @@ import { asProcedure } from 'as-procedure';
 import type { HasReadonly } from 'domain-objects';
 import type { VisualogicContext } from 'visualogic';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import type { DeclaredAwsIamOidcProvider } from '../../domain.objects/DeclaredAwsIamOidcProvider';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import type { DeclaredAwsIamOidcProvider } from '@src/domain.objects/DeclaredAwsIamOidcProvider';
+
 import { castIntoDeclaredAwsIamOidcProvider } from './castIntoDeclaredAwsIamOidcProvider';
 
 /**

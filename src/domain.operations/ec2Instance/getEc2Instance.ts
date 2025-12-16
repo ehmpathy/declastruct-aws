@@ -11,8 +11,9 @@ import { UnexpectedCodePathError } from 'helpful-errors';
 import type { ContextLogTrail } from 'simple-log-methods';
 import type { PickOne } from 'type-fns';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import { DeclaredAwsEc2Instance } from '../../domain.objects/DeclaredAwsEc2Instance';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import { DeclaredAwsEc2Instance } from '@src/domain.objects/DeclaredAwsEc2Instance';
+
 import { castIntoDeclaredAwsEc2Instance } from './castIntoDeclaredAwsEc2Instance';
 
 /**

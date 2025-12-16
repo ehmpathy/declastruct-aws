@@ -6,8 +6,9 @@ import {
   type RefByPrimary,
 } from 'domain-objects';
 import { assure, isPresent } from 'type-fns';
-import { DeclaredAwsIamUser } from '../../domain.objects/DeclaredAwsIamUser';
-import type { DeclaredAwsOrganizationAccount } from '../../domain.objects/DeclaredAwsOrganizationAccount';
+
+import { DeclaredAwsIamUser } from '@src/domain.objects/DeclaredAwsIamUser';
+import type { DeclaredAwsOrganizationAccount } from '@src/domain.objects/DeclaredAwsOrganizationAccount';
 
 /**
  * .what = transforms AWS SDK User into DeclaredAwsIamUser

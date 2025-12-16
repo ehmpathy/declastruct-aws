@@ -7,8 +7,8 @@ import {
 import { UnexpectedCodePathError } from 'helpful-errors';
 import { assure } from 'type-fns';
 
-import type { DeclaredAwsSsoInstance } from '../../domain.objects/DeclaredAwsSsoInstance';
-import { DeclaredAwsSsoUser } from '../../domain.objects/DeclaredAwsSsoUser';
+import type { DeclaredAwsSsoInstance } from '@src/domain.objects/DeclaredAwsSsoInstance';
+import { DeclaredAwsSsoUser } from '@src/domain.objects/DeclaredAwsSsoUser';
 
 /**
  * .what = transforms aws sdk User to DeclaredAwsSsoUser

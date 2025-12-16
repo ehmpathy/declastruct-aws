@@ -1,6 +1,6 @@
 import { createHash } from 'crypto';
 
-import type { DeclaredAwsLambda } from '../../../domain.objects/DeclaredAwsLambda';
+import type { DeclaredAwsLambda } from '@src/domain.objects/DeclaredAwsLambda';
 
 /**
  * .what = the config fields used to compute the sha256 hash

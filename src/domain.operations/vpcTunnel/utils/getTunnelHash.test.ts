@@ -1,6 +1,7 @@
 import { given, then, when } from 'test-fns';
 
-import { getMockedAwsApiContext } from '../../../.test/getMockedAwsApiContext';
+import { getMockedAwsApiContext } from '@src/.test/getMockedAwsApiContext';
+
 import { getTunnelHash } from './getTunnelHash';
 
 describe('getTunnelHash', () => {

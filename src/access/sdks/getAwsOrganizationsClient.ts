@@ -3,9 +3,9 @@ import type { HasReadonly } from 'domain-objects';
 import { BadRequestError } from 'helpful-errors';
 import type { VisualogicContext } from 'visualogic';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import type { DeclaredAwsOrganization } from '../../domain.objects/DeclaredAwsOrganization';
-import { getOneOrganization } from '../../domain.operations/organization/getOneOrganization';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import type { DeclaredAwsOrganization } from '@src/domain.objects/DeclaredAwsOrganization';
+import { getOneOrganization } from '@src/domain.operations/organization/getOneOrganization';
 
 /**
  * .what = creates an OrganizationsClient with org manager auth check

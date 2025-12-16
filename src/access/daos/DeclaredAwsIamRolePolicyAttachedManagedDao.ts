@@ -1,11 +1,11 @@
 import { genDeclastructDao } from 'declastruct';
 import type { ContextLogTrail } from 'simple-log-methods';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import { DeclaredAwsIamRolePolicyAttachedManaged } from '../../domain.objects/DeclaredAwsIamRolePolicyAttachedManaged';
-import { delIamRolePolicyAttachedManaged } from '../../domain.operations/iamRolePolicyAttachedManaged/delIamRolePolicyAttachedManaged';
-import { getIamRolePolicyAttachedManaged } from '../../domain.operations/iamRolePolicyAttachedManaged/getIamRolePolicyAttachedManaged';
-import { setIamRolePolicyAttachedManaged } from '../../domain.operations/iamRolePolicyAttachedManaged/setIamRolePolicyAttachedManaged';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import { DeclaredAwsIamRolePolicyAttachedManaged } from '@src/domain.objects/DeclaredAwsIamRolePolicyAttachedManaged';
+import { delIamRolePolicyAttachedManaged } from '@src/domain.operations/iamRolePolicyAttachedManaged/delIamRolePolicyAttachedManaged';
+import { getIamRolePolicyAttachedManaged } from '@src/domain.operations/iamRolePolicyAttachedManaged/getIamRolePolicyAttachedManaged';
+import { setIamRolePolicyAttachedManaged } from '@src/domain.operations/iamRolePolicyAttachedManaged/setIamRolePolicyAttachedManaged';
 
 /**
  * .what = declastruct DAO for AWS IAM role managed policy attachments

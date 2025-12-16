@@ -5,8 +5,10 @@ import {
 } from '@aws-sdk/client-organizations';
 import { BadRequestError } from 'helpful-errors';
 import { given, then, when } from 'test-fns';
-import { getMockedAwsApiContext } from '../../.test/getMockedAwsApiContext';
-import * as getAwsOrganizationsClientModule from '../../access/sdks/getAwsOrganizationsClient';
+
+import { getMockedAwsApiContext } from '@src/.test/getMockedAwsApiContext';
+import * as getAwsOrganizationsClientModule from '@src/access/sdks/getAwsOrganizationsClient';
+
 import { getAllOrganizationAccounts } from './getAllOrganizationAccounts';
 
 jest.mock('../../access/sdks/getAwsOrganizationsClient');

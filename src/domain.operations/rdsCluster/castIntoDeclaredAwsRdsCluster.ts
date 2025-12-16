@@ -3,7 +3,7 @@ import { type HasReadonly, hasReadonly } from 'domain-objects';
 import { UnexpectedCodePathError } from 'helpful-errors';
 import { assure } from 'type-fns';
 
-import { DeclaredAwsRdsCluster } from '../../domain.objects/DeclaredAwsRdsCluster';
+import { DeclaredAwsRdsCluster } from '@src/domain.objects/DeclaredAwsRdsCluster';
 
 /**
  * .what = casts an AWS SDK DBCluster to a DeclaredAwsRdsCluster

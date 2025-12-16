@@ -7,7 +7,8 @@ import {
 import type { UniDateTime } from '@ehmpathy/uni-time';
 import { given, then } from 'test-fns';
 
-import { getMockedAwsApiContext } from '../../.test/getMockedAwsApiContext';
+import { getMockedAwsApiContext } from '@src/.test/getMockedAwsApiContext';
+
 import * as castModule from './castIntoDeclaredAwsLogGroupReportDistOfPattern';
 import { getOneLogGroupReportDistOfPattern } from './getOneLogGroupReportDistOfPattern';
 

@@ -1,11 +1,11 @@
 import { genDeclastructDao } from 'declastruct';
 import type { ContextLogTrail } from 'simple-log-methods';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import { DeclaredAwsIamRolePolicyAttachedInline } from '../../domain.objects/DeclaredAwsIamRolePolicyAttachedInline';
-import { delIamRolePolicyAttachedInline } from '../../domain.operations/iamRolePolicyAttachedInline/delIamRolePolicyAttachedInline';
-import { getIamRolePolicyAttachedInline } from '../../domain.operations/iamRolePolicyAttachedInline/getIamRolePolicyAttachedInline';
-import { setIamRolePolicyAttachedInline } from '../../domain.operations/iamRolePolicyAttachedInline/setIamRolePolicyAttachedInline';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import { DeclaredAwsIamRolePolicyAttachedInline } from '@src/domain.objects/DeclaredAwsIamRolePolicyAttachedInline';
+import { delIamRolePolicyAttachedInline } from '@src/domain.operations/iamRolePolicyAttachedInline/delIamRolePolicyAttachedInline';
+import { getIamRolePolicyAttachedInline } from '@src/domain.operations/iamRolePolicyAttachedInline/getIamRolePolicyAttachedInline';
+import { setIamRolePolicyAttachedInline } from '@src/domain.operations/iamRolePolicyAttachedInline/setIamRolePolicyAttachedInline';
 
 /**
  * .what = declastruct DAO for AWS IAM role inline policy document attachments

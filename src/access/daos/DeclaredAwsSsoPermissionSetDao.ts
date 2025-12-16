@@ -1,10 +1,10 @@
 import { genDeclastructDao } from 'declastruct';
 import type { ContextLogTrail } from 'simple-log-methods';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import { DeclaredAwsSsoPermissionSet } from '../../domain.objects/DeclaredAwsSsoPermissionSet';
-import { getOneSsoPermissionSet } from '../../domain.operations/ssoPermissionSet/getOneSsoPermissionSet';
-import { setSsoPermissionSet } from '../../domain.operations/ssoPermissionSet/setSsoPermissionSet';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import { DeclaredAwsSsoPermissionSet } from '@src/domain.objects/DeclaredAwsSsoPermissionSet';
+import { getOneSsoPermissionSet } from '@src/domain.operations/ssoPermissionSet/getOneSsoPermissionSet';
+import { setSsoPermissionSet } from '@src/domain.operations/ssoPermissionSet/setSsoPermissionSet';
 
 /**
  * .what = declastruct DAO for AWS SSO permission set resources

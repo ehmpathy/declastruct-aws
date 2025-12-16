@@ -3,9 +3,10 @@ import type { HasReadonly, RefByPrimary } from 'domain-objects';
 import { HelpfulError } from 'helpful-errors';
 import type { VisualogicContext } from 'visualogic';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import type { DeclaredAwsIamUser } from '../../domain.objects/DeclaredAwsIamUser';
-import type { DeclaredAwsOrganizationAccount } from '../../domain.objects/DeclaredAwsOrganizationAccount';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import type { DeclaredAwsIamUser } from '@src/domain.objects/DeclaredAwsIamUser';
+import type { DeclaredAwsOrganizationAccount } from '@src/domain.objects/DeclaredAwsOrganizationAccount';
+
 import { castIntoDeclaredAwsIamUser } from './castIntoDeclaredAwsIamUser';
 
 /**

@@ -3,15 +3,15 @@ name: .test
 on:
   workflow_call:
     inputs:
-      aws-region:
-        description: "AWS region for OIDC authentication"
+      creds-aws-role-arn:
+        description: "creds for aws, specifies the role to assume via oidc. if not provided, aws auth is skipped"
+        required: false
+        type: string
+      creds-aws-region:
+        description: "creds for aws, specifies the region. defaults to us-east-1"
         required: false
         type: string
         default: "us-east-1"
-      aws-role-arn:
-        description: "AWS IAM role ARN to assume via OIDC. If not provided, AWS auth steps are skipped."
-        required: false
-        type: string
 
 permissions:
   id-token: write # required for oidc
@@ -151,16 +151,12 @@ jobs:
           path: ./node_modules
           key: ${{ needs.install.outputs.node-modules-cache-key }}
 
-      - name: configure aws credentials (oidc)
-        if: ${{ inputs.aws-role-arn }}
+      - name: get aws auth, if creds supplied
+        if: ${{ inputs.creds-aws-role-arn }}
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ inputs.aws-role-arn }}
-          aws-region: ${{ inputs.aws-region }}
-
-      - name: verify aws credentials
-        if: ${{ inputs.aws-role-arn }}
-        run: aws sts get-caller-identity
+          role-to-assume: ${{ inputs.creds-aws-role-arn }}
+          aws-region: ${{ inputs.creds-aws-region }}
 
       - name: start:testdb
         run: npm run start:testdb --if-present
@@ -189,16 +185,12 @@ jobs:
           path: ./node_modules
           key: ${{ needs.install.outputs.node-modules-cache-key }}
 
-      - name: configure aws credentials (oidc)
-        if: ${{ inputs.aws-role-arn }}
+      - name: get aws auth, if creds supplied
+        if: ${{ inputs.creds-aws-role-arn }}
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ inputs.aws-role-arn }}
-          aws-region: ${{ inputs.aws-region }}
-
-      - name: verify aws credentials
-        if: ${{ inputs.aws-role-arn }}
-        run: aws sts get-caller-identity
+          role-to-assume: ${{ inputs.creds-aws-role-arn }}
+          aws-region: ${{ inputs.creds-aws-region }}
 
       - name: start:testdb
         run: npm run start:testdb --if-present

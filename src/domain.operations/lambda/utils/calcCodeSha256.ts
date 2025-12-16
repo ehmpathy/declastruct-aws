@@ -3,7 +3,7 @@ import { readFileSync } from 'fs';
 import { BadRequestError } from 'helpful-errors';
 import { resolve } from 'path';
 
-import type { DeclaredAwsLambda } from '../../../domain.objects/DeclaredAwsLambda';
+import type { DeclaredAwsLambda } from '@src/domain.objects/DeclaredAwsLambda';
 
 /**
  * .what = computes sha256 hash of lambda code zip file

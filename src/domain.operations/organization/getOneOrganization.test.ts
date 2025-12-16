@@ -4,7 +4,8 @@ import {
 } from '@aws-sdk/client-organizations';
 import { given, then } from 'test-fns';
 
-import { getMockedAwsApiContext } from '../../.test/getMockedAwsApiContext';
+import { getMockedAwsApiContext } from '@src/.test/getMockedAwsApiContext';
+
 import * as castModule from './castIntoDeclaredAwsOrganization';
 import { getOneOrganization } from './getOneOrganization';
 

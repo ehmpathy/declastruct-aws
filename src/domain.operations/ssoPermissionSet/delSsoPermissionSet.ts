@@ -6,8 +6,9 @@ import { asProcedure } from 'as-procedure';
 import type { Ref } from 'domain-objects';
 import type { VisualogicContext } from 'visualogic';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import type { DeclaredAwsSsoPermissionSet } from '../../domain.objects/DeclaredAwsSsoPermissionSet';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import type { DeclaredAwsSsoPermissionSet } from '@src/domain.objects/DeclaredAwsSsoPermissionSet';
+
 import { getOneSsoPermissionSet } from './getOneSsoPermissionSet';
 
 /**

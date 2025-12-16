@@ -6,8 +6,9 @@ import {
 } from '@aws-sdk/client-iam';
 import { given, then, when } from 'test-fns';
 
-import { getMockedAwsApiContext } from '../../.test/getMockedAwsApiContext';
-import type { DeclaredAwsIamRole } from '../../domain.objects/DeclaredAwsIamRole';
+import { getMockedAwsApiContext } from '@src/.test/getMockedAwsApiContext';
+import type { DeclaredAwsIamRole } from '@src/domain.objects/DeclaredAwsIamRole';
+
 import * as getIamRoleModule from './getIamRole';
 import { setIamRole } from './setIamRole';
 

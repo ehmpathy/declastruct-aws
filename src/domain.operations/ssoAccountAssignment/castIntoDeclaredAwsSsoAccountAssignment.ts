@@ -7,11 +7,11 @@ import {
 } from 'domain-objects';
 import { assure } from 'type-fns';
 
-import type { DeclaredAwsOrganizationAccount } from '../../domain.objects/DeclaredAwsOrganizationAccount';
-import { DeclaredAwsSsoAccountAssignment } from '../../domain.objects/DeclaredAwsSsoAccountAssignment';
-import type { DeclaredAwsSsoInstance } from '../../domain.objects/DeclaredAwsSsoInstance';
-import type { DeclaredAwsSsoPermissionSet } from '../../domain.objects/DeclaredAwsSsoPermissionSet';
-import type { DeclaredAwsSsoUser } from '../../domain.objects/DeclaredAwsSsoUser';
+import type { DeclaredAwsOrganizationAccount } from '@src/domain.objects/DeclaredAwsOrganizationAccount';
+import { DeclaredAwsSsoAccountAssignment } from '@src/domain.objects/DeclaredAwsSsoAccountAssignment';
+import type { DeclaredAwsSsoInstance } from '@src/domain.objects/DeclaredAwsSsoInstance';
+import type { DeclaredAwsSsoPermissionSet } from '@src/domain.objects/DeclaredAwsSsoPermissionSet';
+import type { DeclaredAwsSsoUser } from '@src/domain.objects/DeclaredAwsSsoUser';
 
 /**
  * .what = transforms aws sdk AccountAssignment to DeclaredAwsSsoAccountAssignment

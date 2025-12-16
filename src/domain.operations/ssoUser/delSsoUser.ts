@@ -7,10 +7,11 @@ import { isRefByUnique, type Ref, type RefByUnique } from 'domain-objects';
 import { UnexpectedCodePathError } from 'helpful-errors';
 import type { VisualogicContext } from 'visualogic';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import type { DeclaredAwsSsoInstance } from '../../domain.objects/DeclaredAwsSsoInstance';
-import { DeclaredAwsSsoUser } from '../../domain.objects/DeclaredAwsSsoUser';
-import { getOneSsoInstance } from '../ssoInstance/getOneSsoInstance';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import type { DeclaredAwsSsoInstance } from '@src/domain.objects/DeclaredAwsSsoInstance';
+import { DeclaredAwsSsoUser } from '@src/domain.objects/DeclaredAwsSsoUser';
+import { getOneSsoInstance } from '@src/domain.operations/ssoInstance/getOneSsoInstance';
+
 import { getOneSsoUser } from './getOneSsoUser';
 
 /**

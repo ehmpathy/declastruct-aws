@@ -1,8 +1,9 @@
 import { DetachRolePolicyCommand, IAMClient } from '@aws-sdk/client-iam';
 import { given, then, when } from 'test-fns';
 
-import { getMockedAwsApiContext } from '../../.test/getMockedAwsApiContext';
-import { DeclaredAwsIamRoleDao } from '../../access/daos/DeclaredAwsIamRoleDao';
+import { getMockedAwsApiContext } from '@src/.test/getMockedAwsApiContext';
+import { DeclaredAwsIamRoleDao } from '@src/access/daos/DeclaredAwsIamRoleDao';
+
 import { delIamRolePolicyAttachedManaged } from './delIamRolePolicyAttachedManaged';
 
 jest.mock('@aws-sdk/client-iam');

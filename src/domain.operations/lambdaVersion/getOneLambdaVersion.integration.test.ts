@@ -1,8 +1,9 @@
 import { UnexpectedCodePathError } from 'helpful-errors';
 import { given, then, useBeforeAll } from 'test-fns';
 
-import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';
-import { getAllLambdas } from '../lambda/getAllLambdas';
+import { getSampleAwsApiContext } from '@src/.test/getSampleAwsApiContext';
+import { getAllLambdas } from '@src/domain.operations/lambda/getAllLambdas';
+
 import { getAllLambdaVersions } from './getAllLambdaVersions';
 import { getOneLambdaVersion } from './getOneLambdaVersion';
 

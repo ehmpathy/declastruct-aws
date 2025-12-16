@@ -3,9 +3,9 @@ import { type HasReadonly, hasReadonly } from 'domain-objects';
 import { UnexpectedCodePathError } from 'helpful-errors';
 import { assure } from 'type-fns';
 
-import { DeclaredAwsIamPolicy } from '../../domain.objects/DeclaredAwsIamPolicy';
-import { DeclaredAwsTags } from '../../domain.objects/DeclaredAwsTags';
-import { castIntoDeclaredAwsIamPolicyDocument } from '../iamPolicyDocument/castIntoDeclaredAwsIamPolicyDocument';
+import { DeclaredAwsIamPolicy } from '@src/domain.objects/DeclaredAwsIamPolicy';
+import { DeclaredAwsTags } from '@src/domain.objects/DeclaredAwsTags';
+import { castIntoDeclaredAwsIamPolicyDocument } from '@src/domain.operations/iamPolicyDocument/castIntoDeclaredAwsIamPolicyDocument';
 
 /**
  * .what = casts aws sdk policy response into domain format

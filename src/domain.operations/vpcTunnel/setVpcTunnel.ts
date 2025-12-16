@@ -6,11 +6,12 @@ import { BadRequestError, UnexpectedCodePathError } from 'helpful-errors';
 import * as path from 'path';
 import type { ContextLogTrail } from 'simple-log-methods';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import { DeclaredAwsVpcTunnel } from '../../domain.objects/DeclaredAwsVpcTunnel';
-import { getEc2Instance } from '../ec2Instance/getEc2Instance';
-import { setEc2InstanceStatus } from '../ec2Instance/setEc2InstanceStatus';
-import { getRdsCluster } from '../rdsCluster/getRdsCluster';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import { DeclaredAwsVpcTunnel } from '@src/domain.objects/DeclaredAwsVpcTunnel';
+import { getEc2Instance } from '@src/domain.operations/ec2Instance/getEc2Instance';
+import { setEc2InstanceStatus } from '@src/domain.operations/ec2Instance/setEc2InstanceStatus';
+import { getRdsCluster } from '@src/domain.operations/rdsCluster/getRdsCluster';
+
 import { castIntoDeclaredAwsVpcTunnel } from './castIntoDeclaredAwsVpcTunnel';
 import { getTunnelHash } from './utils/getTunnelHash';
 import { isFilePresent } from './utils/isFilePresent';

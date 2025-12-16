@@ -1,6 +1,7 @@
 import { given, then, useBeforeAll } from 'test-fns';
 
-import { getSampleAwsApiContext } from '../../.test/getSampleAwsApiContext';
+import { getSampleAwsApiContext } from '@src/.test/getSampleAwsApiContext';
+
 import { getAllLambdas } from './getAllLambdas';
 
 describe('getAllLambdas', () => {

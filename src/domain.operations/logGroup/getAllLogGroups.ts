@@ -7,8 +7,9 @@ import type { HasReadonly } from 'domain-objects';
 import { HelpfulError } from 'helpful-errors';
 import type { VisualogicContext } from 'visualogic';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import type { DeclaredAwsLogGroup } from '../../domain.objects/DeclaredAwsLogGroup';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import type { DeclaredAwsLogGroup } from '@src/domain.objects/DeclaredAwsLogGroup';
+
 import { castIntoDeclaredAwsLogGroup } from './castIntoDeclaredAwsLogGroup';
 
 /**

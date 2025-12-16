@@ -1,10 +1,10 @@
 import { genDeclastructDao } from 'declastruct';
 import type { ContextLogTrail } from 'simple-log-methods';
 
-import type { ContextAwsApi } from '../../domain.objects/ContextAwsApi';
-import { DeclaredAwsLambda } from '../../domain.objects/DeclaredAwsLambda';
-import { getOneLambda } from '../../domain.operations/lambda/getOneLambda';
-import { setLambda } from '../../domain.operations/lambda/setLambda';
+import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import { DeclaredAwsLambda } from '@src/domain.objects/DeclaredAwsLambda';
+import { getOneLambda } from '@src/domain.operations/lambda/getOneLambda';
+import { setLambda } from '@src/domain.operations/lambda/setLambda';
 
 /**
  * .what = declastruct DAO for AWS Lambda resources

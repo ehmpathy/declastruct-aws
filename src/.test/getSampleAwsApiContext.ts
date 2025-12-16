@@ -1,7 +1,7 @@
 import type { ContextLogTrail } from 'simple-log-methods';
 
-import { ContextAwsApi } from '../domain.objects/ContextAwsApi';
-import { getCredentials } from '../domain.operations/provider/getDeclastructAwsProvider';
+import { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import { getCredentials } from '@src/domain.operations/provider/getDeclastructAwsProvider';
 
 /**
  * .what = creates a sample AWS API context for testing

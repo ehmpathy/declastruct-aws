@@ -6,8 +6,9 @@ import {
 } from '@aws-sdk/client-cloudwatch-logs';
 import { given, then, when } from 'test-fns';
 
-import { getMockedAwsApiContext } from '../../.test/getMockedAwsApiContext';
-import type { DeclaredAwsLogGroup } from '../../domain.objects/DeclaredAwsLogGroup';
+import { getMockedAwsApiContext } from '@src/.test/getMockedAwsApiContext';
+import type { DeclaredAwsLogGroup } from '@src/domain.objects/DeclaredAwsLogGroup';
+
 import * as getOneLogGroupModule from './getOneLogGroup';
 import { setLogGroup } from './setLogGroup';
 
