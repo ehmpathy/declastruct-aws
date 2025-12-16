@@ -106,8 +106,8 @@ importers:
         specifier: 0.45.5
         version: 0.45.5(@types/node@22.15.21)(declapract@0.13.1(@types/node@22.15.21))(esbuild@0.25.12)
       declastruct:
-        specifier: 1.7.1
-        version: 1.7.1(domain-objects@0.31.7(@types/node@22.15.21))
+        specifier: 1.7.3
+        version: 1.7.3(domain-objects@0.31.7(@types/node@22.15.21))
       depcheck:
         specifier: 1.4.3
         version: 1.4.3
@@ -2391,8 +2391,8 @@ packages:
     resolution: {integrity: sha512-1+3txrpsnjXuHjU/V2SgasjbevP2BBmPyJ58mPgPm/vM5DPRj24d+er1NXcOdNVerl11qBRqUj64mpApZ6v8eQ==}
     engines: {node: '>=8.0.0'}
 
-  declastruct@1.7.1:
-    resolution: {integrity: sha512-6pOz/fAQzZkJYe6ES9G3eHyC8jyLNdUzWxjbCz2nJCwgegLYHfxF22Wcv93hVjzAKMhNLZ+TMYtCh3WnlLlOkw==}
+  declastruct@1.7.3:
+    resolution: {integrity: sha512-Yb7HqnBCRCeNopgd/6RNWCzxtogwiPKn/GIvMay1oksuIjDKAabO6dla0MqoZPFK5zqblCbZFyE3JH7OhvWpIA==}
     engines: {node: '>=8.0.0'}
     hasBin: true
     peerDependencies:
@@ -7711,7 +7711,7 @@ snapshots:
     transitivePeerDependencies:
       - aws-crt
 
-  declastruct@1.7.1(domain-objects@0.31.7(@types/node@22.15.21)):
+  declastruct@1.7.3(domain-objects@0.31.7(@types/node@22.15.21)):
     dependencies:
       bottleneck: 2.19.5
       chalk: 5.4.1
