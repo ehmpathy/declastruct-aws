@@ -1,18 +1,18 @@
 {
   "name": "declastruct-aws",
   "author": "ehmpathy",
-  "description": "declarative control of GitHub constructs via declastruct - manage repos, branches, and protection rules",
+  "description": "declarative control of Aws constructs via declastruct",
   "version": "1.4.3",
   "repository": "ehmpathy/declastruct-aws",
   "homepage": "https://github.com/ehmpathy/declastruct-aws",
   "keywords": [
     "github",
     "declarative",
+    "instructions",
+    "control",
     "declastruct",
     "infrastructure-as-code",
-    "repository-management",
-    "branch-protection",
-    "github-api"
+    "resources-as-code"
   ],
   "bugs": "https://github.com/ehmpathy/declastruct-aws/issues",
   "license": "MIT",
