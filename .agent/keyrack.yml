@@ -1,0 +1,6 @@
+org: ehmpathy
+env.prod: null
+env.prep:
+  - AWS_PROFILE
+env.test:
+  - AWS_PROFILE

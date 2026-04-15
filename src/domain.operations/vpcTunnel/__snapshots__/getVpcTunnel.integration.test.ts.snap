@@ -1,0 +1,10 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`getVpcTunnel.integration given: real aws credentials when: getVpcTunnel is called for a non-extant tunnel then: it should return CLOSED status with null pid 1`] = `
+{
+  "account": "805192865516",
+  "pid": null,
+  "region": "us-east-1",
+  "status": "CLOSED",
+}
+`;

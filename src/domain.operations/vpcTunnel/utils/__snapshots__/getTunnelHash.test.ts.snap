@@ -1,0 +1,7 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`getTunnelHash given: a tunnel reference when: hashed twice then: hash should be 16 characters 1`] = `
+{
+  "hash": "c4a362c9633d6293",
+}
+`;

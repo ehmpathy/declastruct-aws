@@ -3,6 +3,8 @@ import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import util from 'util';
 
+import { keyrack } from 'rhachet/keyrack';
+
 // eslint-disable-next-line no-undef
 jest.setTimeout(90000); // since we're calling downstream apis
 
@@ -31,26 +33,20 @@ if (
   throw new Error(`integration.test is not targeting stage 'test'`);
 
 /**
- * sanity check that AWS credentials are available for integration tests
- *
- * usecases
- * - prevent silent test failures due to missing credentials
- * - provide clear instructions on how to set up credentials
- *
- * supports
- * - AWS_PROFILE: local dev via ~/.aws/config profiles
- * - AWS_ACCESS_KEY_ID: CI/CD via OIDC or IAM credentials
+ * .what = source credentials from keyrack for test env
+ * .why =
+ *   - auto-inject keys into process.env
+ *   - fail fast with helpful error if keyrack locked or keys absent
  */
-if (!(process.env.AWS_PROFILE || process.env.AWS_ACCESS_KEY_ID))
-  throw new Error(
-    'AWS credentials not set. Run w/ creds via `source .agent/repo=.this/skills/use.demo.awsprofile.sh && npm run test:integration`',
-  );
+const keyrackYmlPath = join(process.cwd(), '.agent/keyrack.yml');
+if (existsSync(keyrackYmlPath))
+  keyrack.source({ env: 'test', owner: 'ehmpath', mode: 'lenient' });
 
 /**
  * .what = verify that the env has sufficient auth to run the tests if aws is used; otherwise, fail fast
  * .why =
- *   - prevent time wasted waiting on tests to fail due to lack of credentials
- *   - prevent time wasted debugging tests which are failing due to hard-to-read missed credential errors
+ *   - prevent time wasted on tests that fail due to absent credentials
+ *   - prevent time wasted to debug tests which fail due to hard-to-read credential errors
  */
 const declapractUsePath = join(process.cwd(), 'declapract.use.yml');
 const declapractUseContent = existsSync(declapractUsePath)

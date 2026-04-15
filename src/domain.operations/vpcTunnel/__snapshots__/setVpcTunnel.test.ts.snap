@@ -1,0 +1,49 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`setVpcTunnel given: a tunnel with CLOSED status desired when: cache file exists with dead process then: status should be CLOSED 1`] = `
+DeclaredAwsVpcTunnel {
+  "account": "123456789012",
+  "from": DeclaredAwsVpcTunnelFrom {
+    "host": "localhost",
+    "port": 19878,
+  },
+  "into": DeclaredAwsVpcTunnelInto {
+    "cluster": RefByUnique {
+      "name": "test-db",
+    },
+  },
+  "pid": null,
+  "region": "us-east-1",
+  "status": "CLOSED",
+  "via": DeclaredAwsVpcTunnelVia {
+    "bastion": RefByUnique {
+      "exid": "test-bastion",
+    },
+    "mechanism": "aws.ssm",
+  },
+}
+`;
+
+exports[`setVpcTunnel given: a tunnel with CLOSED status desired when: no cache file exists then: status should be CLOSED 1`] = `
+DeclaredAwsVpcTunnel {
+  "account": "123456789012",
+  "from": DeclaredAwsVpcTunnelFrom {
+    "host": "localhost",
+    "port": 19878,
+  },
+  "into": DeclaredAwsVpcTunnelInto {
+    "cluster": RefByUnique {
+      "name": "test-db",
+    },
+  },
+  "pid": null,
+  "region": "us-east-1",
+  "status": "CLOSED",
+  "via": DeclaredAwsVpcTunnelVia {
+    "bastion": RefByUnique {
+      "exid": "test-bastion",
+    },
+    "mechanism": "aws.ssm",
+  },
+}
+`;

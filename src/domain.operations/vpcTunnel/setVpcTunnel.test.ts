@@ -1,7 +1,7 @@
 import * as fs from 'fs/promises';
 import * as os from 'os';
 import * as path from 'path';
-import { given, then, when } from 'test-fns';
+import { getError, given, then, when } from 'test-fns';
 
 import { getMockedAwsApiContext } from '@src/.test/getMockedAwsApiContext';
 
@@ -13,6 +13,8 @@ import { getTunnelHash } from './utils/getTunnelHash';
 
 describe('setVpcTunnel', () => {
   const tunnelRef = {
+    account: '123456789012',
+    region: 'us-east-1',
     via: { mechanism: 'aws.ssm' as const, bastion: { exid: 'test-bastion' } },
     into: { cluster: { name: 'test-db' } },
     from: { host: 'localhost', port: 19878 },
@@ -36,6 +38,7 @@ describe('setVpcTunnel', () => {
 
       then('status should be CLOSED', () => {
         expect(result.status).toBe('CLOSED');
+        expect(result).toMatchSnapshot();
       });
     });
 
@@ -48,7 +51,7 @@ describe('setVpcTunnel', () => {
 
         // write cache file with invalid pid
         const context = getMockedAwsApiContext({ cacheDir });
-        const hash = getTunnelHash({ for: { tunnel: tunnelRef } }, context);
+        const hash = getTunnelHash({ for: { tunnel: tunnelRef } });
         const cacheFilePath = path.join(cacheDir, `${hash}.json`);
         await fs.writeFile(
           cacheFilePath,
@@ -72,23 +75,33 @@ describe('setVpcTunnel', () => {
 
       then('status should be CLOSED', () => {
         expect(result.status).toBe('CLOSED');
+        expect(result).toMatchSnapshot();
       });
     });
   });
 
-  given('a tunnel with OPEN status desired', () => {
-    when('bastion is not found', () => {
-      then('it should throw BadRequestError', async () => {
+  // note: OPEN status tests require integration tests with real AWS SSM
+  // see setVpcTunnel.integration.test.ts for full coverage
+
+  given('negative path: corrupted cache file on CLOSED request', () => {
+    when('cache file contains invalid JSON', () => {
+      then('it should throw parse error', async () => {
         const cacheDir = path.join(os.tmpdir(), `tunnel-test-${Date.now()}`);
         await fs.mkdir(cacheDir, { recursive: true });
 
-        // mock getEc2Instance to return null
-        jest.doMock('../ec2Instance/getEc2Instance', () => ({
-          getEc2Instance: jest.fn().mockResolvedValue(null),
-        }));
+        // write corrupted cache file
+        const context = getMockedAwsApiContext({ cacheDir });
+        const hash = getTunnelHash({ for: { tunnel: tunnelRef } });
+        const cacheFilePath = path.join(cacheDir, `${hash}.json`);
+        await fs.writeFile(cacheFilePath, 'not valid json {{{');
 
-        // note: this test would require mocking AWS SDK calls
-        // leaving as a placeholder for integration tests
+        const error = await getError(
+          setVpcTunnel({ ...tunnelRef, status: 'CLOSED' }, context),
+        );
+
+        expect(error).toBeInstanceOf(SyntaxError);
+        expect(error.message).toContain('JSON');
+
         await fs.rm(cacheDir, { recursive: true });
       });
     });

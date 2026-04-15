@@ -1,0 +1,10 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`setVpcTunnel.integration given: real aws credentials when: setVpcTunnel is called with CLOSED status then: it should return the tunnel in CLOSED state 1`] = `
+{
+  "account": "805192865516",
+  "pid": null,
+  "region": "us-east-1",
+  "status": "CLOSED",
+}
+`;

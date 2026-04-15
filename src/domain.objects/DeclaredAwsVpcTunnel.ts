@@ -51,6 +51,16 @@ export class DeclaredAwsVpcTunnelFrom
  */
 export interface DeclaredAwsVpcTunnel {
   /**
+   * .what = the aws account id whose credentials opened this tunnel
+   */
+  account: string;
+
+  /**
+   * .what = the aws region whose credentials opened this tunnel
+   */
+  region: string;
+
+  /**
    * .what = the bastion instance to tunnel through and the mechanism
    */
   via: DeclaredAwsVpcTunnelVia;
@@ -81,7 +91,7 @@ export class DeclaredAwsVpcTunnel
   extends DomainEntity<DeclaredAwsVpcTunnel>
   implements DeclaredAwsVpcTunnel
 {
-  public static unique = ['via', 'into', 'from'] as const;
+  public static unique = ['account', 'region', 'via', 'into', 'from'] as const;
 
   /**
    * .what = identity attributes assigned by the persistence layer

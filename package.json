@@ -51,7 +51,8 @@
     "preversion": "npm run prepush",
     "postversion": "git push origin HEAD --tags --no-verify",
     "prepare:husky": "npx husky install && chmod ug+x .husky/*",
-    "prepare": "[ -e .git ] && npm run prepare:husky || exit 0"
+    "prepare": "[ -e .git ] && npm run prepare:husky || exit 0 && npm run prepare:rhachet",
+    "prepare:rhachet": "rhachet init --hooks --roles mechanic architect ergonomist driver achiever reviewer dreamer behaver"
   },
   "dependencies": {
     "@aws-sdk/client-cloudwatch": "3.943.0",
@@ -70,6 +71,10 @@
     "declastruct-github": "1.1.1",
     "domain-objects": "0.31.7",
     "helpful-errors": "1.5.3",
+    "rhachet-brains-anthropic": "0.4.0",
+    "rhachet-brains-xai": "0.3.3",
+    "rhachet-roles-bhrain": "0.25.1",
+    "rhachet-roles-bhuild": "0.18.1",
     "type-fns": "1.21.0",
     "visualogic": "1.3.2"
   },
@@ -94,8 +99,8 @@
     "esbuild-register": "3.6.0",
     "husky": "8.0.3",
     "jest": "30.2.0",
-    "rhachet": "1.13.1",
-    "rhachet-roles-ehmpathy": "1.13.8",
+    "rhachet": "1.40.3",
+    "rhachet-roles-ehmpathy": "1.34.32",
     "simple-log-methods": "0.6.2",
     "test-fns": "1.7.2",
     "tsc-alias": "1.8.10",

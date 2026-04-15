@@ -2,7 +2,7 @@ import * as fs from 'fs/promises';
 import * as net from 'net';
 import * as os from 'os';
 import * as path from 'path';
-import { given, then, when } from 'test-fns';
+import { getError, given, then, when } from 'test-fns';
 
 import { getMockedAwsApiContext } from '@src/.test/getMockedAwsApiContext';
 
@@ -17,6 +17,8 @@ describe('getVpcTunnel', () => {
         await fs.mkdir(cacheDir, { recursive: true });
 
         const tunnelRef = {
+          account: '123456789012',
+          region: 'us-east-1',
           via: {
             mechanism: 'aws.ssm' as const,
             bastion: { exid: 'test-bastion' },
@@ -32,6 +34,7 @@ describe('getVpcTunnel', () => {
 
         expect(result.status).toBe('CLOSED');
         expect(result.pid).toBeNull();
+        expect(result).toMatchSnapshot();
 
         await fs.rm(cacheDir, { recursive: true });
       });
@@ -45,6 +48,8 @@ describe('getVpcTunnel', () => {
         await fs.mkdir(cacheDir, { recursive: true });
 
         const tunnelRef = {
+          account: '123456789012',
+          region: 'us-east-1',
           via: {
             mechanism: 'aws.ssm' as const,
             bastion: { exid: 'test-bastion-dead' },
@@ -55,7 +60,7 @@ describe('getVpcTunnel', () => {
 
         // write cache file with invalid pid
         const context = getMockedAwsApiContext({ cacheDir });
-        const hash = getTunnelHash({ for: { tunnel: tunnelRef } }, context);
+        const hash = getTunnelHash({ for: { tunnel: tunnelRef } });
         const cacheFilePath = path.join(cacheDir, `${hash}.json`);
         await fs.writeFile(
           cacheFilePath,
@@ -68,6 +73,7 @@ describe('getVpcTunnel', () => {
         );
 
         expect(result.status).toBe('CLOSED');
+        expect(result).toMatchSnapshot();
 
         await fs.rm(cacheDir, { recursive: true });
       });
@@ -82,6 +88,8 @@ describe('getVpcTunnel', () => {
 
         // use a port that is not bound (unhealthy)
         const tunnelRef = {
+          account: '123456789012',
+          region: 'us-east-1',
           via: {
             mechanism: 'aws.ssm' as const,
             bastion: { exid: 'test-bastion-unhealthy' },
@@ -92,7 +100,7 @@ describe('getVpcTunnel', () => {
 
         // write cache with current process pid (alive) but port not bound (unhealthy)
         const context = getMockedAwsApiContext({ cacheDir });
-        const hash = getTunnelHash({ for: { tunnel: tunnelRef } }, context);
+        const hash = getTunnelHash({ for: { tunnel: tunnelRef } });
         const cacheFilePath = path.join(cacheDir, `${hash}.json`);
         await fs.writeFile(
           cacheFilePath,
@@ -106,6 +114,7 @@ describe('getVpcTunnel', () => {
 
         expect(result.status).toBe('CLOSED');
         expect(result.pid).toBeNull();
+        expect(result).toMatchSnapshot();
 
         await fs.rm(cacheDir, { recursive: true });
       });
@@ -125,6 +134,8 @@ describe('getVpcTunnel', () => {
         });
 
         const tunnelRef = {
+          account: '123456789012',
+          region: 'us-east-1',
           via: {
             mechanism: 'aws.ssm' as const,
             bastion: { exid: 'test-bastion-healthy' },
@@ -134,7 +145,7 @@ describe('getVpcTunnel', () => {
         };
 
         const context = getMockedAwsApiContext({ cacheDir });
-        const hash = getTunnelHash({ for: { tunnel: tunnelRef } }, context);
+        const hash = getTunnelHash({ for: { tunnel: tunnelRef } });
         const cacheFilePath = path.join(cacheDir, `${hash}.json`);
         await fs.writeFile(
           cacheFilePath,
@@ -148,8 +159,48 @@ describe('getVpcTunnel', () => {
 
         expect(result.status).toBe('OPEN');
         expect(result.pid).toBe(process.pid);
+        // snapshot excludes pid since it's dynamic (process.pid)
+        expect({
+          ...result,
+          pid: '<dynamic>',
+        }).toMatchSnapshot();
 
         server.close();
+        await fs.rm(cacheDir, { recursive: true });
+      });
+    });
+  });
+
+  given('negative path: corrupted cache file', () => {
+    when('cache file contains invalid JSON', () => {
+      then('it should throw parse error', async () => {
+        const cacheDir = path.join(os.tmpdir(), `tunnel-test-${Date.now()}`);
+        await fs.mkdir(cacheDir, { recursive: true });
+
+        const tunnelRef = {
+          account: '123456789012',
+          region: 'us-east-1',
+          via: {
+            mechanism: 'aws.ssm' as const,
+            bastion: { exid: 'test-bastion-corrupted' },
+          },
+          into: { cluster: { name: 'test-db-corrupted' } },
+          from: { host: 'localhost', port: 19882 },
+        };
+
+        // write corrupted cache file
+        const context = getMockedAwsApiContext({ cacheDir });
+        const hash = getTunnelHash({ for: { tunnel: tunnelRef } });
+        const cacheFilePath = path.join(cacheDir, `${hash}.json`);
+        await fs.writeFile(cacheFilePath, 'not valid json {{{');
+
+        const error = await getError(
+          getVpcTunnel({ by: { unique: tunnelRef } }, context),
+        );
+
+        expect(error).toBeInstanceOf(SyntaxError);
+        expect(error.message).toContain('JSON');
+
         await fs.rm(cacheDir, { recursive: true });
       });
     });
