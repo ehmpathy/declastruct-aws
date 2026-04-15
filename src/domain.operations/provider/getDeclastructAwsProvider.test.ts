@@ -118,18 +118,18 @@ describe('getDeclastructAwsProvider', () => {
     });
   });
 
-  describe('given region in aws credentials file', () => {
-    it('should resolve region from credentials file when env vars not set', async () => {
+  describe('given region in aws config file', () => {
+    it('should lookup region from config file when env vars not set', async () => {
       delete process.env.AWS_REGION;
       delete process.env.AWS_DEFAULT_REGION;
       delete process.env.AWS_PROFILE;
 
-      // mock credentials file with region
+      // mock config file with region
       mockLoadSharedConfigFiles.mockResolvedValue({
-        configFile: {},
-        credentialsFile: {
+        configFile: {
           default: { region: 'eu-west-1' },
         },
+        credentialsFile: {},
       });
 
       const provider = await getDeclastructAwsProvider({}, mockLogContext);
@@ -137,15 +137,15 @@ describe('getDeclastructAwsProvider', () => {
       expect(provider.context.aws.credentials.region).toBe('eu-west-1');
     });
 
-    it('should prefer env var over credentials file', async () => {
+    it('should prefer env var over config file', async () => {
       process.env.AWS_REGION = 'us-east-1';
 
-      // mock credentials file with different region
+      // mock config file with different region
       mockLoadSharedConfigFiles.mockResolvedValue({
-        configFile: {},
-        credentialsFile: {
+        configFile: {
           default: { region: 'eu-west-1' },
         },
+        credentialsFile: {},
       });
 
       const provider = await getDeclastructAwsProvider({}, mockLogContext);
@@ -153,23 +153,59 @@ describe('getDeclastructAwsProvider', () => {
       expect(provider.context.aws.credentials.region).toBe('us-east-1');
     });
 
-    it('should use AWS_PROFILE when resolving credentials file region', async () => {
+    it('should use AWS_PROFILE when looking up config file region', async () => {
       delete process.env.AWS_REGION;
       delete process.env.AWS_DEFAULT_REGION;
       process.env.AWS_PROFILE = 'myprofile';
 
-      // mock credentials file with profile-specific region
+      // mock config file with profile-specific region
       mockLoadSharedConfigFiles.mockResolvedValue({
-        configFile: {},
-        credentialsFile: {
+        configFile: {
           default: { region: 'us-east-1' },
           myprofile: { region: 'ap-southeast-2' },
         },
+        credentialsFile: {},
       });
 
       const provider = await getDeclastructAwsProvider({}, mockLogContext);
 
       expect(provider.context.aws.credentials.region).toBe('ap-southeast-2');
+    });
+
+    it('should fallback to sso_region for SSO profiles', async () => {
+      delete process.env.AWS_REGION;
+      delete process.env.AWS_DEFAULT_REGION;
+      process.env.AWS_PROFILE = 'sso-profile';
+
+      // mock config file with sso_region only (typical SSO config)
+      mockLoadSharedConfigFiles.mockResolvedValue({
+        configFile: {
+          'sso-profile': { sso_region: 'us-west-2' },
+        },
+        credentialsFile: {},
+      });
+
+      const provider = await getDeclastructAwsProvider({}, mockLogContext);
+
+      expect(provider.context.aws.credentials.region).toBe('us-west-2');
+    });
+
+    it('should prefer region over sso_region', async () => {
+      delete process.env.AWS_REGION;
+      delete process.env.AWS_DEFAULT_REGION;
+      process.env.AWS_PROFILE = 'sso-profile';
+
+      // mock config file with both region and sso_region
+      mockLoadSharedConfigFiles.mockResolvedValue({
+        configFile: {
+          'sso-profile': { region: 'eu-central-1', sso_region: 'us-west-2' },
+        },
+        credentialsFile: {},
+      });
+
+      const provider = await getDeclastructAwsProvider({}, mockLogContext);
+
+      expect(provider.context.aws.credentials.region).toBe('eu-central-1');
     });
   });
 
