@@ -1,0 +1,119 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`DeclaredAwsVpcTunnel given: all properties provided with pid when: instantiated with readonly attributes then: it should have readonly status and pid 1`] = `
+DeclaredAwsVpcTunnel {
+  "account": "123456789012",
+  "from": DeclaredAwsVpcTunnelFrom {
+    "host": "localhost",
+    "port": 7775432,
+  },
+  "into": DeclaredAwsVpcTunnelInto {
+    "cluster": RefByUnique {
+      "name": "test-db",
+    },
+  },
+  "pid": 12345,
+  "region": "us-east-1",
+  "status": "OPEN",
+  "via": DeclaredAwsVpcTunnelVia {
+    "bastion": RefByUnique {
+      "exid": "test-bastion",
+    },
+    "mechanism": "aws.ssm",
+  },
+}
+`;
+
+exports[`DeclaredAwsVpcTunnel given: edge case: different aws region when: instantiated with eu-west-1 then: region is eu-west-1 1`] = `
+DeclaredAwsVpcTunnel {
+  "account": "987654321098",
+  "from": DeclaredAwsVpcTunnelFrom {
+    "host": "localhost",
+    "port": 15432,
+  },
+  "into": DeclaredAwsVpcTunnelInto {
+    "cluster": RefByUnique {
+      "name": "eu-db",
+    },
+  },
+  "region": "eu-west-1",
+  "status": "CLOSED",
+  "via": DeclaredAwsVpcTunnelVia {
+    "bastion": RefByUnique {
+      "exid": "eu-bastion",
+    },
+    "mechanism": "aws.ssm",
+  },
+}
+`;
+
+exports[`DeclaredAwsVpcTunnel given: edge case: high port number when: instantiated with port 65535 then: port is at boundary 1`] = `
+DeclaredAwsVpcTunnel {
+  "account": "123456789012",
+  "from": DeclaredAwsVpcTunnelFrom {
+    "host": "localhost",
+    "port": 65535,
+  },
+  "into": DeclaredAwsVpcTunnelInto {
+    "cluster": RefByUnique {
+      "name": "highport-db",
+    },
+  },
+  "pid": 99999,
+  "region": "us-west-2",
+  "status": "OPEN",
+  "via": DeclaredAwsVpcTunnelVia {
+    "bastion": RefByUnique {
+      "exid": "highport-bastion",
+    },
+    "mechanism": "aws.ssm",
+  },
+}
+`;
+
+exports[`DeclaredAwsVpcTunnel given: edge case: pid is null for CLOSED status when: instantiated with explicit null pid then: pid is null 1`] = `
+DeclaredAwsVpcTunnel {
+  "account": "123456789012",
+  "from": DeclaredAwsVpcTunnelFrom {
+    "host": "localhost",
+    "port": 5433,
+  },
+  "into": DeclaredAwsVpcTunnelInto {
+    "cluster": RefByUnique {
+      "name": "asia-db",
+    },
+  },
+  "pid": null,
+  "region": "ap-southeast-1",
+  "status": "CLOSED",
+  "via": DeclaredAwsVpcTunnelVia {
+    "bastion": RefByUnique {
+      "exid": "asia-bastion",
+    },
+    "mechanism": "aws.ssm",
+  },
+}
+`;
+
+exports[`DeclaredAwsVpcTunnel given: valid account, region, via, into, from, and status when: instantiated then: it should have all required properties 1`] = `
+DeclaredAwsVpcTunnel {
+  "account": "123456789012",
+  "from": DeclaredAwsVpcTunnelFrom {
+    "host": "localhost",
+    "port": 5432,
+  },
+  "into": DeclaredAwsVpcTunnelInto {
+    "cluster": RefByUnique {
+      "name": "test-db",
+    },
+  },
+  "region": "us-east-1",
+  "status": "CLOSED",
+  "via": DeclaredAwsVpcTunnelVia {
+    "bastion": RefByUnique {
+      "exid": "test-bastion",
+    },
+    "mechanism": "aws.ssm",
+  },
+}
+`;

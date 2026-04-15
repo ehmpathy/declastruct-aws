@@ -13,6 +13,8 @@ import { setEc2InstanceStatus } from '@src/domain.operations/ec2Instance/setEc2I
 import { getRdsCluster } from '@src/domain.operations/rdsCluster/getRdsCluster';
 
 import { castIntoDeclaredAwsVpcTunnel } from './castIntoDeclaredAwsVpcTunnel';
+import { asSsmStartSessionArgs } from './utils/asSsmStartSessionArgs';
+import { asTunnelLogEntry } from './utils/asTunnelLogEntry';
 import { getTunnelHash } from './utils/getTunnelHash';
 import { isFilePresent } from './utils/isFilePresent';
 import { isPortInUse } from './utils/isPortInUse';
@@ -34,7 +36,7 @@ export const setVpcTunnel = async (
   await fs.mkdir(tunnelsDir, { recursive: true });
 
   // compute tunnel identity and file paths
-  const tunnelHash = getTunnelHash({ for: { tunnel: input } }, context);
+  const tunnelHash = getTunnelHash({ for: { tunnel: input } });
   const cachePath = path.join(tunnelsDir, `${tunnelHash}.json`);
   const logPath = path.join(tunnelsDir, `${tunnelHash}.log`);
 
@@ -121,36 +123,24 @@ export const setVpcTunnel = async (
   // create log file stream for tunnel output
   const logStream = createWriteStream(logPath, { flags: 'a' });
   logStream.write(
-    `[${new Date().toISOString()}] starting tunnel to ${cluster.host.writer}:${
-      cluster.port
-    } via ${bastion.id}\n`,
+    asTunnelLogEntry({
+      message: `tunnel start: ${cluster.host.writer}:${cluster.port} via ${bastion.id}`,
+    }),
   );
 
+  // build SSM command arguments
+  const ssmArgs = asSsmStartSessionArgs({
+    bastion: { id: bastion.id },
+    cluster: { host: { writer: cluster.host.writer }, port: cluster.port },
+    localPort: input.from.port,
+    region: context.aws.credentials.region ?? null,
+  });
+
   // spawn SSM tunnel subprocess
-  const tunnelProcess = spawn(
-    'aws',
-    [
-      'ssm',
-      'start-session',
-      '--target',
-      bastion.id,
-      '--document-name',
-      'AWS-StartPortForwardingSessionToRemoteHost',
-      '--parameters',
-      JSON.stringify({
-        host: [cluster.host.writer],
-        portNumber: [String(cluster.port)],
-        localPortNumber: [String(input.from.port)],
-      }),
-      ...(context.aws.credentials.region
-        ? ['--region', context.aws.credentials.region]
-        : []),
-    ],
-    {
-      stdio: ['ignore', 'pipe', 'pipe'],
-      detached: true,
-    },
-  );
+  const tunnelProcess = spawn('aws', ssmArgs, {
+    stdio: ['ignore', 'pipe', 'pipe'],
+    detached: true,
+  });
 
   // stream stdout and stderr to log file
   tunnelProcess.stdout?.pipe(logStream);

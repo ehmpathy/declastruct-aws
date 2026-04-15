@@ -9,6 +9,11 @@ ignores:
   - '@swc/core'
   - '@swc/jest'
   - rhachet
+  - rhachet-brains-anthropic
+  - rhachet-brains-xai
+  - rhachet-roles-bhrain
+  - rhachet-roles-bhuild
+  - rhachet-roles-ehmpathy
   - "@tsconfig/node20"
   - "@tsconfig/strictest"
   - "@biomejs/biome"

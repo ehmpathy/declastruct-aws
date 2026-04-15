@@ -138,7 +138,7 @@ export const getCredentials = async (): Promise<{
 /**
  * .what = resolves aws region from env vars or aws config file
  * .why = enables region inference from profile config without explicit env var
- * .note = priority: AWS_REGION > AWS_DEFAULT_REGION > config file profile region
+ * .note = priority: AWS_REGION > AWS_DEFAULT_REGION > config file region > sso_region
  */
 const getRegionFromEnvOrConfig = async (): Promise<string | undefined> => {
   // check env vars first (highest priority)
@@ -148,9 +148,10 @@ const getRegionFromEnvOrConfig = async (): Promise<string | undefined> => {
   // fallback to aws config file profile
   const profile = process.env.AWS_PROFILE ?? 'default';
   const configFiles = await loadSharedConfigFiles();
-  const profileConfig = configFiles.credentialsFile?.[profile];
+  const profileConfig = configFiles.configFile?.[profile];
 
-  return profileConfig?.region;
+  // check region, then sso_region for SSO profiles
+  return profileConfig?.region ?? profileConfig?.sso_region;
 };
 
 /**

@@ -1,0 +1,97 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`getVpcTunnel given: a cache file with alive process and healthy tunnel when: getVpcTunnel is called then: it should return OPEN status with pid 1`] = `
+{
+  "account": "123456789012",
+  "from": DeclaredAwsVpcTunnelFrom {
+    "host": "localhost",
+    "port": 19881,
+  },
+  "into": DeclaredAwsVpcTunnelInto {
+    "cluster": RefByUnique {
+      "name": "test-db-healthy",
+    },
+  },
+  "pid": "<dynamic>",
+  "region": "us-east-1",
+  "status": "OPEN",
+  "via": DeclaredAwsVpcTunnelVia {
+    "bastion": RefByUnique {
+      "exid": "test-bastion-healthy",
+    },
+    "mechanism": "aws.ssm",
+  },
+}
+`;
+
+exports[`getVpcTunnel given: a cache file with alive process but unhealthy tunnel when: getVpcTunnel is called then: it should return CLOSED status with pid 1`] = `
+DeclaredAwsVpcTunnel {
+  "account": "123456789012",
+  "from": DeclaredAwsVpcTunnelFrom {
+    "host": "localhost",
+    "port": 19880,
+  },
+  "into": DeclaredAwsVpcTunnelInto {
+    "cluster": RefByUnique {
+      "name": "test-db-unhealthy",
+    },
+  },
+  "pid": null,
+  "region": "us-east-1",
+  "status": "CLOSED",
+  "via": DeclaredAwsVpcTunnelVia {
+    "bastion": RefByUnique {
+      "exid": "test-bastion-unhealthy",
+    },
+    "mechanism": "aws.ssm",
+  },
+}
+`;
+
+exports[`getVpcTunnel given: a cache file with dead process when: getVpcTunnel is called then: it should return CLOSED status 1`] = `
+DeclaredAwsVpcTunnel {
+  "account": "123456789012",
+  "from": DeclaredAwsVpcTunnelFrom {
+    "host": "localhost",
+    "port": 19879,
+  },
+  "into": DeclaredAwsVpcTunnelInto {
+    "cluster": RefByUnique {
+      "name": "test-db-dead",
+    },
+  },
+  "pid": null,
+  "region": "us-east-1",
+  "status": "CLOSED",
+  "via": DeclaredAwsVpcTunnelVia {
+    "bastion": RefByUnique {
+      "exid": "test-bastion-dead",
+    },
+    "mechanism": "aws.ssm",
+  },
+}
+`;
+
+exports[`getVpcTunnel given: no cache file exists when: getVpcTunnel is called then: it should return CLOSED status with no pid 1`] = `
+DeclaredAwsVpcTunnel {
+  "account": "123456789012",
+  "from": DeclaredAwsVpcTunnelFrom {
+    "host": "localhost",
+    "port": 19876,
+  },
+  "into": DeclaredAwsVpcTunnelInto {
+    "cluster": RefByUnique {
+      "name": "test-db",
+    },
+  },
+  "pid": null,
+  "region": "us-east-1",
+  "status": "CLOSED",
+  "via": DeclaredAwsVpcTunnelVia {
+    "bastion": RefByUnique {
+      "exid": "test-bastion",
+    },
+    "mechanism": "aws.ssm",
+  },
+}
+`;

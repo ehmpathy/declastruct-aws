@@ -1,0 +1,73 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`castIntoDeclaredAwsVpcTunnel given: a CLOSED tunnel with null pid when: cast into tunnel then: status is CLOSED and pid is null 1`] = `
+DeclaredAwsVpcTunnel {
+  "account": "987654321098",
+  "from": DeclaredAwsVpcTunnelFrom {
+    "host": "localhost",
+    "port": 15432,
+  },
+  "into": DeclaredAwsVpcTunnelInto {
+    "cluster": RefByUnique {
+      "name": "eu-db",
+    },
+  },
+  "pid": null,
+  "region": "eu-west-1",
+  "status": "CLOSED",
+  "via": DeclaredAwsVpcTunnelVia {
+    "bastion": RefByUnique {
+      "exid": "eu-bastion",
+    },
+    "mechanism": "aws.ssm",
+  },
+}
+`;
+
+exports[`castIntoDeclaredAwsVpcTunnel given: a unique ref with account and region when: cast into tunnel then: all unique fields are present 1`] = `
+DeclaredAwsVpcTunnel {
+  "account": "123456789012",
+  "from": DeclaredAwsVpcTunnelFrom {
+    "host": "localhost",
+    "port": 5432,
+  },
+  "into": DeclaredAwsVpcTunnelInto {
+    "cluster": RefByUnique {
+      "name": "test-db",
+    },
+  },
+  "pid": 12345,
+  "region": "us-east-1",
+  "status": "OPEN",
+  "via": DeclaredAwsVpcTunnelVia {
+    "bastion": RefByUnique {
+      "exid": "test-bastion",
+    },
+    "mechanism": "aws.ssm",
+  },
+}
+`;
+
+exports[`castIntoDeclaredAwsVpcTunnel given: edge case: high port boundary when: cast with port 65535 then: port is at boundary 1`] = `
+DeclaredAwsVpcTunnel {
+  "account": "111222333444",
+  "from": DeclaredAwsVpcTunnelFrom {
+    "host": "localhost",
+    "port": 65535,
+  },
+  "into": DeclaredAwsVpcTunnelInto {
+    "cluster": RefByUnique {
+      "name": "tokyo-db",
+    },
+  },
+  "pid": 55555,
+  "region": "ap-northeast-1",
+  "status": "OPEN",
+  "via": DeclaredAwsVpcTunnelVia {
+    "bastion": RefByUnique {
+      "exid": "tokyo-bastion",
+    },
+    "mechanism": "aws.ssm",
+  },
+}
+`;

@@ -24,7 +24,7 @@ export const getVpcTunnel = async (
   context: ContextAwsApi & ContextLogTrail,
 ): Promise<HasReadonly<typeof DeclaredAwsVpcTunnel>> => {
   // compute cache file path
-  const hash = getTunnelHash({ for: { tunnel: input.by.unique } }, context);
+  const hash = getTunnelHash({ for: { tunnel: input.by.unique } });
   const cacheFilePath = path.join(
     context.aws.cache.DeclaredAwsVpcTunnel.processes.dir,
     `${hash}.json`,
