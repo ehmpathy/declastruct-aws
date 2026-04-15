@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.4](https://github.com/ehmpathy/declastruct-aws/compare/v1.4.3...v1.4.4) (2026-04-15)
+
+
+### Bug Fixes
+
+* **pkg:** update description on pkg ([#37](https://github.com/ehmpathy/declastruct-aws/issues/37)) ([ab14dff](https://github.com/ehmpathy/declastruct-aws/commit/ab14dff9f22c93fef22faf84f811b4cddc35e604))
+* **vpc-tunnel:** include account+region in unique key for env isolation ([#39](https://github.com/ehmpathy/declastruct-aws/issues/39)) ([b62b939](https://github.com/ehmpathy/declastruct-aws/commit/b62b9397a38686fc78a5d9e6a9ede84d4971252c))
+
 ## [1.4.3](https://github.com/ehmpathy/declastruct-aws/compare/v1.4.2...v1.4.3) (2025-12-16)
 
 
