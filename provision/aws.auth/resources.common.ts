@@ -147,6 +147,22 @@ export const demoPermissionsPolicy: DeclaredAwsIamPolicyBundle =
           ],
           resource: '*',
         }),
+        // Secrets Manager: read/write for integration tests
+        new DeclaredAwsIamPolicyStatement({
+          effect: 'Allow',
+          action: [
+            'secretsmanager:GetSecretValue',
+            'secretsmanager:CreateSecret',
+            'secretsmanager:DeleteSecret',
+          ],
+          resource: '*',
+        }),
+        // SSM Parameter Store: read/write for integration tests
+        new DeclaredAwsIamPolicyStatement({
+          effect: 'Allow',
+          action: ['ssm:PutParameter', 'ssm:DeleteParameter'],
+          resource: '*',
+        }),
       ],
     }),
   });

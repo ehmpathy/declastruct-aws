@@ -4,3 +4,6 @@ env.prep:
   - AWS_PROFILE
 env.test:
   - AWS_PROFILE
+extends:
+  - .agent/repo=bhrain/role=reviewer/keyrack.yml
+  - .agent/repo=ehmpathy/role=mechanic/keyrack.yml
