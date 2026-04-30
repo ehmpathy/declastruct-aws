@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.5](https://github.com/ehmpathy/declastruct-aws/compare/v1.4.4...v1.4.5) (2026-04-30)
+
+
+### Bug Fixes
+
+* **provision:** add secrets manager and ssm permissions for demo agent ([#40](https://github.com/ehmpathy/declastruct-aws/issues/40)) ([146d627](https://github.com/ehmpathy/declastruct-aws/commit/146d627ac52c3a5ccfed9597dc091764c37af0b1))
+
 ## [1.4.4](https://github.com/ehmpathy/declastruct-aws/compare/v1.4.3...v1.4.4) (2026-04-15)
 
 
