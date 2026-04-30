@@ -30,84 +30,18 @@ resources provisioned in the management (root) account.
 2. verify setup via declastruct (all resources should show as KEEP):
 
 ```bash
-use.ehmpathy.root.admin
+use.ehmpathy.root --owner admin
 source provision/aws.auth/account=.root/.env
 npx declastruct plan --wish provision/aws.auth/account=.root/resources.ts --into provision/aws.auth/account=.root/.temp/plan.json
 npx declastruct apply --plan provision/aws.auth/account=.root/.temp/plan.json
 ```
 
-**after.p1:** configure your cli to enable admin access under the new account
-
-```bash
-# findsert the profile block into ~/.aws/config
-grep -q '^\[profile ehmpathy\.demo\.admin\]' ~/.aws/config 2>/dev/null || cat >> ~/.aws/config << 'EOF'
-
-[profile ehmpathy.demo.admin]
-sso_session = ehmpathy.demo.admin
-sso_account_id = xxxxxxxxx
-sso_role_name = AdministratorAccess
-region = us-east-1
-EOF
-
-# findsert the session block into ~/.aws/config
-grep -q '^\[sso-session ehmpathy\.demo\.admin\]' ~/.aws/config 2>/dev/null || cat >> ~/.aws/config << 'EOF'
-
-[sso-session ehmpathy.demo.admin]
-sso_start_url = https://d-xxxxxxxx.awsapps.com/start
-sso_region = us-east-1
-sso_registration_scopes = sso:account:access
-EOF
-
-# add a bash alias for convenience
-findsert_alias() {
-  local func_def='use_ehmpathy_demo_admin() { export AWS_PROFILE=ehmpathy.demo.admin; aws sts get-caller-identity &>/dev/null || aws sso login; }'
-  local alias_def='alias use.ehmpathy.demo.admin=use_ehmpathy_demo_admin'
-  grep -qxF "$func_def" ~/.bash_aliases || echo "$func_def" >> ~/.bash_aliases
-  grep -qxF "$alias_def" ~/.bash_aliases || echo "$alias_def" >> ~/.bash_aliases
-  source ~/.bash_aliases
-}
-findsert_alias
-```
-
-
-**after.p2:** manually send sso user invitations to new users
+**after:** manually send sso user invitations to new users
 1. go to [iam identity center → users](https://us-east-1.console.aws.amazon.com/singlesignon/home)
 2. select the user(s) you created
 3. click **"Send email verification"** or **"Reset password"**
 
 (aws does not support this via api - [wontfix](https://github.com/aws/aws-sdk-js/issues/4226))
-
-**after.p3** configure your cli to enable demo access under the new account
-```bash
-# findsert the profile block into ~/.aws/config
-grep -q '^\[profile ehmpathy\.demo\]' ~/.aws/config 2>/dev/null || cat >> ~/.aws/config << 'EOF'
-
-[profile ehmpathy.demo]
-sso_session = ehmpathy.demo
-sso_account_id = xxxxxxxxx
-sso_role_name = ehmpathy-demo-sso
-region = us-east-1
-EOF
-
-# findsert the session block into ~/.aws/config
-grep -q '^\[sso-session ehmpathy\.demo\]' ~/.aws/config 2>/dev/null || cat >> ~/.aws/config << 'EOF'
-
-[sso-session ehmpathy.demo]
-sso_start_url = https://d-xxxxxxxx.awsapps.com/start
-sso_region = us-east-1
-sso_registration_scopes = sso:account:access
-EOF
-
-# add a bash alias for convenience
-findsert_alias() {
-  local func_def='use_ehmpathy_demo() { export AWS_PROFILE=ehmpathy.demo; aws sts get-caller-identity &>/dev/null || aws sso login; }'
-  local alias_def='alias use.ehmpathy.demo=use_ehmpathy_demo'
-  grep -qxF "$func_def" ~/.bash_aliases || echo "$func_def" >> ~/.bash_aliases
-  grep -qxF "$alias_def" ~/.bash_aliases || echo "$alias_def" >> ~/.bash_aliases
-  source ~/.bash_aliases
-}
-findsert_alias
-```
 
 ## account=demo
 
@@ -121,14 +55,55 @@ resources provisioned in the demo account (requires demo account credentials).
 
 **setup:**
 ```bash
-use.ehmpathy.demo.admin
+use.ehmpathy.demo --owner admin
 npx declastruct plan --wish provision/aws.auth/account=demo/resources.ts --into provision/aws.auth/account=demo/.temp/plan.json
 npx declastruct apply --plan provision/aws.auth/account=demo/.temp/plan.json
+```
+
+## update demo permissions
+
+`resources.common.ts` defines `demoPermissionsPolicy` which is shared by:
+- **root account** — SSO permission set (`resources.demo.sso.ts`)
+- **demo account** — OIDC role for github actions (`resources.oidc.ts`)
+
+to update permissions, apply to both accounts:
+
+```bash
+# 1. update SSO permission set in root account
+use.ehmpathy.root --owner admin
+source provision/aws.auth/account=.root/.env
+npx declastruct plan --wish provision/aws.auth/account=.root/resources.ts --into provision/aws.auth/account=.root/.temp/plan.json
+npx declastruct apply --plan provision/aws.auth/account=.root/.temp/plan.json
+
+# 2. update OIDC role in demo account
+use.ehmpathy.demo --owner admin
+npx declastruct plan --wish provision/aws.auth/account=demo/resources.ts --into provision/aws.auth/account=demo/.temp/plan.json
+npx declastruct apply --plan provision/aws.auth/account=demo/.temp/plan.json
+```
+
+## keyrack credentials
+
+store aws profiles in keyrack:
+
+```bash
+# root account admin (env=sudo)
+rhx keyrack set --key AWS_PROFILE --env sudo --owner admin --vault aws.config
+
+# demo account admin (env=test)
+rhx keyrack set --key AWS_PROFILE --env test --owner admin --vault aws.config
+```
+
+unlock credentials:
+
+```bash
+use.ehmpathy.root --owner admin   # root account admin (env=sudo)
+use.ehmpathy.demo --owner admin   # demo account admin (env=test)
+use.ehmpathy.demo                 # demo account standard access
 ```
 
 ## order of operations
 
 1. bootstrap identity center manually (see `account=.root/bootstrap.md`)
-2. provision `account=.root/resources.ts` with admin sso
-3. configure demo account sso profile
-4. provision `account=demo/resources.ts` with demo account credentials
+2. store aws profile in keyrack (see keyrack credentials above)
+3. provision `account=.root/resources.ts` with `use.ehmpathy.root --owner admin`
+4. provision `account=demo/resources.ts` with `use.ehmpathy.demo --owner admin`
