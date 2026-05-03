@@ -125,6 +125,9 @@ export const demoPermissionsPolicy: DeclaredAwsIamPolicyBundle =
           effect: 'Allow',
           action: [
             'logs:CreateLogGroup',
+            'logs:CreateLogStream',
+            'logs:PutLogEvents',
+            'logs:GetLogEvents',
             'logs:DeleteLogGroup',
             'logs:PutRetentionPolicy',
             'logs:DeleteRetentionPolicy',

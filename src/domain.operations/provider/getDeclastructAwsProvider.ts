@@ -18,6 +18,9 @@ import { DeclaredAwsLogGroupReportCostOfIngestionDao } from '@src/access/daos/De
 import { DeclaredAwsLogGroupReportDistOfPatternDao } from '@src/access/daos/DeclaredAwsLogGroupReportDistOfPatternDao';
 import { DeclaredAwsOrganizationAccountDao } from '@src/access/daos/DeclaredAwsOrganizationAccountDao';
 import { DeclaredAwsOrganizationDao } from '@src/access/daos/DeclaredAwsOrganizationDao';
+import { DeclaredAwsOrganizationPolicyEligibilityDao } from '@src/access/daos/DeclaredAwsOrganizationPolicyEligibilityDao';
+import { DeclaredAwsOrganizationServiceControlPolicyAttachmentDao } from '@src/access/daos/DeclaredAwsOrganizationServiceControlPolicyAttachmentDao';
+import { DeclaredAwsOrganizationServiceControlPolicyDao } from '@src/access/daos/DeclaredAwsOrganizationServiceControlPolicyDao';
 import { DeclaredAwsRdsClusterDao } from '@src/access/daos/DeclaredAwsRdsClusterDao';
 import { DeclaredAwsSsoAccountAssignmentDao } from '@src/access/daos/DeclaredAwsSsoAccountAssignmentDao';
 import { DeclaredAwsSsoInstanceDao } from '@src/access/daos/DeclaredAwsSsoInstanceDao';
@@ -83,6 +86,12 @@ export const getDeclastructAwsProvider = async (
       DeclaredAwsLogGroupReportCostOfIngestionDao,
     DeclaredAwsOrganization: DeclaredAwsOrganizationDao,
     DeclaredAwsOrganizationAccount: DeclaredAwsOrganizationAccountDao,
+    DeclaredAwsOrganizationPolicyEligibility:
+      DeclaredAwsOrganizationPolicyEligibilityDao,
+    DeclaredAwsOrganizationServiceControlPolicy:
+      DeclaredAwsOrganizationServiceControlPolicyDao,
+    DeclaredAwsOrganizationServiceControlPolicyAttachment:
+      DeclaredAwsOrganizationServiceControlPolicyAttachmentDao,
     DeclaredAwsRdsCluster: DeclaredAwsRdsClusterDao,
     DeclaredAwsSsoAccountAssignment: DeclaredAwsSsoAccountAssignmentDao,
     DeclaredAwsSsoInstance: DeclaredAwsSsoInstanceDao,

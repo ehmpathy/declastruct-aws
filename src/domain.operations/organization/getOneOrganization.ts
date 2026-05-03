@@ -1,5 +1,6 @@
 import {
   DescribeOrganizationCommand,
+  ListRootsCommand,
   OrganizationsClient,
 } from '@aws-sdk/client-organizations';
 import { asProcedure } from 'as-procedure';
@@ -61,8 +62,16 @@ export const getOneOrganization = asProcedure(
       // return null if no organization
       if (!response.Organization) return null;
 
+      // fetch root id (requires separate API call)
+      const rootsResponse = await client.send(new ListRootsCommand({}));
+      const rootId = rootsResponse.Roots?.[0]?.Id;
+      if (!rootId) return null;
+
       // cast to domain object
-      const found = castIntoDeclaredAwsOrganization(response.Organization);
+      const found = castIntoDeclaredAwsOrganization({
+        organization: response.Organization,
+        rootId,
+      });
 
       // by auth: return directly (no validation needed)
       if (input.by.auth) return found;

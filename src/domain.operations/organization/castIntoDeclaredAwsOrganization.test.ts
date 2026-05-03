@@ -19,13 +19,17 @@ describe('castIntoDeclaredAwsOrganization', () => {
             'arn:aws:organizations::123456789012:account/o-abc123xyz789/123456789012',
           MasterAccountEmail: 'management@example.com',
         };
-        result = castIntoDeclaredAwsOrganization(awsOrganization);
+        result = castIntoDeclaredAwsOrganization({
+          organization: awsOrganization,
+          rootId: 'r-abc1',
+        });
       });
 
       then('it should have all properties mapped', () => {
         expect(result).toMatchObject({
           id: 'o-abc123xyz789',
           arn: 'arn:aws:organizations::123456789012:organization/o-abc123xyz789',
+          rootId: 'r-abc1',
           featureSet: 'ALL',
           managementAccount: {
             id: '123456789012',
@@ -46,7 +50,10 @@ describe('castIntoDeclaredAwsOrganization', () => {
           MasterAccountEmail: 'billing@example.com',
         };
 
-        const result = castIntoDeclaredAwsOrganization(awsOrganization);
+        const result = castIntoDeclaredAwsOrganization({
+          organization: awsOrganization,
+          rootId: 'r-abc1',
+        });
 
         expect(result.featureSet).toBe('CONSOLIDATED_BILLING');
       });
@@ -63,7 +70,10 @@ describe('castIntoDeclaredAwsOrganization', () => {
         } as Organization;
 
         const error = await getError(() =>
-          castIntoDeclaredAwsOrganization(awsOrganization),
+          castIntoDeclaredAwsOrganization({
+            organization: awsOrganization,
+            rootId: 'r-abc1',
+          }),
         );
         expect(error).toBeDefined();
       });
@@ -77,11 +87,14 @@ describe('castIntoDeclaredAwsOrganization', () => {
           Id: 'o-abc123xyz789',
           Arn: 'arn:aws:organizations::123456789012:organization/o-abc123xyz789',
           FeatureSet: 'ALL',
-          // MasterAccountId is missing
+          // MasterAccountId is absent
         } as Organization;
 
         const error = await getError(() =>
-          castIntoDeclaredAwsOrganization(awsOrganization),
+          castIntoDeclaredAwsOrganization({
+            organization: awsOrganization,
+            rootId: 'r-abc1',
+          }),
         );
         expect(error).toBeDefined();
       });

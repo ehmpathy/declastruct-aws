@@ -162,8 +162,15 @@ export const getResources = async () => {
       range: logGroupReportRange,
     });
 
-  // get provider context for fetching current access keys
+  // get provider context to fetch current access keys
   const [provider] = await getProviders();
+
+  /**
+   * .skip = SCP resources require management account credentials
+   *   - test profile (ehmpathy.demo) is a member account
+   *   - Organizations API returns AccessDeniedException from member accounts
+   *   - verify SCP via yalc in consumer repo with management account access
+   */
 
   // get all IAM access keys and mark for deletion
   const accessKeysToDelete = await getAllIamUserAccessKeys(
@@ -181,6 +188,7 @@ export const getResources = async () => {
     logGroupWithRetention,
     logGroupReportDistOfPattern,
     logGroupReportCostOfIngestion,
+    // SCP resources skipped — require management account credentials (see .skip note above)
     ...accessKeysToDelete,
   ];
 };

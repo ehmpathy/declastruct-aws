@@ -1,5 +1,6 @@
 import {
   CreateOrganizationCommand,
+  ListRootsCommand,
   OrganizationsClient,
 } from '@aws-sdk/client-organizations';
 import { asProcedure } from 'as-procedure';
@@ -74,8 +75,19 @@ export const setOrganization = asProcedure(
           response,
         });
 
+      // fetch root id (requires separate API call)
+      const rootsResponse = await client.send(new ListRootsCommand({}));
+      const rootId = rootsResponse.Roots?.[0]?.Id;
+      if (!rootId)
+        HelpfulError.throw('CreateOrganization did not create root', {
+          response,
+        });
+
       // cast the result
-      const foundAfter = castIntoDeclaredAwsOrganization(response.Organization);
+      const foundAfter = castIntoDeclaredAwsOrganization({
+        organization: response.Organization,
+        rootId,
+      });
 
       // validate that the created org's managementAccount matches the desired
       if (foundAfter.managementAccount.id !== desired.managementAccount.id)

@@ -1,5 +1,6 @@
 import {
   CreateOrganizationCommand,
+  ListRootsCommand,
   OrganizationsClient,
 } from '@aws-sdk/client-organizations';
 import { given, then } from 'test-fns';
@@ -72,6 +73,9 @@ describe('setOrganization', () => {
         if (command instanceof CreateOrganizationCommand) {
           return Promise.resolve({ Organization: awsOrganization });
         }
+        if (command instanceof ListRootsCommand) {
+          return Promise.resolve({ Roots: [{ Id: 'r-abc123' }] });
+        }
         return Promise.resolve({});
       });
       (castModule.castIntoDeclaredAwsOrganization as jest.Mock).mockReturnValue(
@@ -104,6 +108,9 @@ describe('setOrganization', () => {
       mockSend.mockImplementation((command) => {
         if (command instanceof CreateOrganizationCommand) {
           return Promise.resolve({ Organization: awsOrganization });
+        }
+        if (command instanceof ListRootsCommand) {
+          return Promise.resolve({ Roots: [{ Id: 'r-abc123' }] });
         }
         return Promise.resolve({});
       });
@@ -206,6 +213,9 @@ describe('setOrganization', () => {
       mockSend.mockImplementation((command) => {
         if (command instanceof CreateOrganizationCommand) {
           return Promise.resolve({ Organization: awsOrganization });
+        }
+        if (command instanceof ListRootsCommand) {
+          return Promise.resolve({ Roots: [{ Id: 'r-abc123' }] });
         }
         return Promise.resolve({});
       });

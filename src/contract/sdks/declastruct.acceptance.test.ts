@@ -65,6 +65,19 @@ describe('declastruct CLI workflow', () => {
         expect(Array.isArray(prep.plan.changes)).toBe(true);
       });
 
+      then('plan structure matches snapshot', () => {
+        /**
+         * .what = snapshots the plan structure for PR vibecheck
+         * .why = enables reviewers to see plan output without execution
+         */
+        const planSummary = prep.plan.changes.map((change) => ({
+          action: change.action,
+          class: change.forResource.class,
+          slug: change.forResource.slug,
+        }));
+        expect(planSummary).toMatchSnapshot();
+      });
+
       // TODO: provision vpc, bastion machine, and rds db in demo account
       // then('plan includes VPC tunnel resource', () => {
       //   /**
@@ -155,6 +168,8 @@ describe('declastruct CLI workflow', () => {
         );
         expect(logGroupChange).toBeDefined();
       });
+
+      // SCP tests skipped — require management account credentials (see resources.acceptance.ts)
     });
 
     when('applying a plan via declastruct CLI', () => {
@@ -241,9 +256,11 @@ describe('declastruct CLI workflow', () => {
         expect(logGroupChange).toBeDefined();
       });
 
-      then('is idempotent - applying same plan twice succeeds', () => {
+      // SCP tests skipped — require management account credentials (see resources.acceptance.ts)
+
+      then('is idempotent - apply same plan twice succeeds', () => {
         /**
-         * .what = validates applying the same plan multiple times is safe
+         * .what = validates apply of the same plan multiple times is safe
          * .why = ensures declastruct operations follow idempotency requirements
          */
 
@@ -276,12 +293,25 @@ describe('declastruct CLI workflow', () => {
       then('all resources show KEEP after apply', () => {
         /**
          * .what = validates all resources were applied correctly
-         * .why = ensures idempotency — applying same plan twice results in no changes
+         * .why = ensures idempotency — same plan applied twice results in no changes
          */
         const nonKeepChanges = prep.plan.changes.filter(
           (r: DeclastructChange) => r.action !== 'KEEP',
         );
         expect(nonKeepChanges).toHaveLength(0);
+      });
+
+      then('idempotent plan structure matches snapshot', () => {
+        /**
+         * .what = snapshots the post-apply plan for PR vibecheck
+         * .why = proves all resources reached KEEP state (no drift)
+         */
+        const planSummary = prep.plan.changes.map((change) => ({
+          action: change.action,
+          class: change.forResource.class,
+          slug: change.forResource.slug,
+        }));
+        expect(planSummary).toMatchSnapshot();
       });
 
       then('log group with retention shows KEEP', () => {
@@ -297,6 +327,8 @@ describe('declastruct CLI workflow', () => {
         expect(logGroupChange).toBeDefined();
         expect(logGroupChange!.action).toBe('KEEP');
       });
+
+      // SCP tests skipped — require management account credentials (see resources.acceptance.ts)
     });
 
     when('fetching log group reports after lambda invocation', () => {

@@ -15,6 +15,9 @@ import type { DeclaredAwsLogGroupReportCostOfIngestion } from './DeclaredAwsLogG
 import type { DeclaredAwsLogGroupReportDistOfPattern } from './DeclaredAwsLogGroupReportDistOfPattern';
 import type { DeclaredAwsOrganization } from './DeclaredAwsOrganization';
 import type { DeclaredAwsOrganizationAccount } from './DeclaredAwsOrganizationAccount';
+import type { DeclaredAwsOrganizationPolicyEligibility } from './DeclaredAwsOrganizationPolicyEligibility';
+import type { DeclaredAwsOrganizationServiceControlPolicy } from './DeclaredAwsOrganizationServiceControlPolicy';
+import type { DeclaredAwsOrganizationServiceControlPolicyAttachment } from './DeclaredAwsOrganizationServiceControlPolicyAttachment';
 import type { DeclaredAwsRdsCluster } from './DeclaredAwsRdsCluster';
 import type { DeclaredAwsSsoAccountAssignment } from './DeclaredAwsSsoAccountAssignment';
 import type { DeclaredAwsSsoInstance } from './DeclaredAwsSsoInstance';
@@ -78,6 +81,18 @@ export type DeclastructAwsProvider = DeclastructProvider<
     >;
     DeclaredAwsOrganizationAccount: DeclastructDao<
       typeof DeclaredAwsOrganizationAccount,
+      ContextAwsApi & ContextLogTrail
+    >;
+    DeclaredAwsOrganizationPolicyEligibility: DeclastructDao<
+      typeof DeclaredAwsOrganizationPolicyEligibility,
+      ContextAwsApi & ContextLogTrail
+    >;
+    DeclaredAwsOrganizationServiceControlPolicy: DeclastructDao<
+      typeof DeclaredAwsOrganizationServiceControlPolicy,
+      ContextAwsApi & ContextLogTrail
+    >;
+    DeclaredAwsOrganizationServiceControlPolicyAttachment: DeclastructDao<
+      typeof DeclaredAwsOrganizationServiceControlPolicyAttachment,
       ContextAwsApi & ContextLogTrail
     >;
     DeclaredAwsRdsCluster: DeclastructDao<

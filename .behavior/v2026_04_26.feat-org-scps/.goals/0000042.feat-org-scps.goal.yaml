@@ -1,0 +1,15 @@
+slug: 'feat-org-scps'
+source: 'peer:human'
+status:
+  choice: 'blocked'
+  reason: 'awaiting human approval of 1.vision stone'
+updatedAt: '2026-05-02'
+why:
+  ask: 'implement AWS Organizations Service Control Policy support'
+  purpose: 'enable org-wide security guardrails that block dangerous actions'
+  benefit: 'prevent exfiltration, audit tampering, and org escape across all accounts'
+what:
+  outcome: 'DeclaredAwsOrganizationServiceControlPolicy and attachment domain objects with get/set/del operations'
+how:
+  task: 'complete 1.vision stone: illustrate vision, emit to yield file'
+  gate: 'vision yield reviewed and stone marked passed'
