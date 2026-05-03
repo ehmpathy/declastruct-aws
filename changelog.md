@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0](https://github.com/ehmpathy/declastruct-aws/compare/v1.4.5...v1.5.0) (2026-05-03)
+
+
+### Features
+
+* **org:** add service control policy support ([#43](https://github.com/ehmpathy/declastruct-aws/issues/43)) ([f2a2bf4](https://github.com/ehmpathy/declastruct-aws/commit/f2a2bf416b709d895304c8b905a5bea1773bdeb7))
+
 ## [1.4.5](https://github.com/ehmpathy/declastruct-aws/compare/v1.4.4...v1.4.5) (2026-04-30)
 
 
