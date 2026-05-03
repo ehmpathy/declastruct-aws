@@ -34,7 +34,7 @@ if (existsSync(keyrackYmlPath))
   keyrack.source({
     env: 'test',
     owner: 'ehmpath',
-    mode: hasAwsCredentials ? 'soft' : 'strict',
+    mode: hasAwsCredentials ? 'lenient' : 'strict',
   });
 
 /**
