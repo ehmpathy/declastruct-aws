@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`getOneAccountAlias given: an authenticated AWS account when: getOneAccountAlias is called then: it should return either an alias or null 1`] = `null`;

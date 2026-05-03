@@ -1,0 +1,85 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`validateAccountAliasFormat given: an alias that ends with hyphen when: validated then: it should throw BadRequestError 1`] = `
+[Error: BadRequestError: invalid account alias format: 'ehmpathy-'
+
+{
+  "details": [
+    "must end with alphanumeric character"
+  ]
+}]
+`;
+
+exports[`validateAccountAliasFormat given: an alias that is too long when: validated then: it should throw BadRequestError 1`] = `
+[Error: BadRequestError: invalid account alias format: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+
+{
+  "details": [
+    "must be 3-63 characters"
+  ]
+}]
+`;
+
+exports[`validateAccountAliasFormat given: an alias that is too short when: validated then: it should throw BadRequestError 1`] = `
+[Error: BadRequestError: invalid account alias format: 'ab'
+
+{
+  "details": [
+    "must be 3-63 characters"
+  ]
+}]
+`;
+
+exports[`validateAccountAliasFormat given: an alias that starts with hyphen when: validated then: it should throw BadRequestError 1`] = `
+[Error: BadRequestError: invalid account alias format: '-ehmpathy'
+
+{
+  "details": [
+    "must start with alphanumeric character"
+  ]
+}]
+`;
+
+exports[`validateAccountAliasFormat given: an alias with consecutive hyphens when: validated then: it should throw BadRequestError 1`] = `
+[Error: BadRequestError: invalid account alias format: 'ehmpathy--demo'
+
+{
+  "details": [
+    "must not contain consecutive hyphens"
+  ]
+}]
+`;
+
+exports[`validateAccountAliasFormat given: an alias with invalid characters when: validated then: it should throw BadRequestError 1`] = `
+[Error: BadRequestError: invalid account alias format: 'ehmpathy_demo'
+
+{
+  "details": [
+    "must contain only lowercase letters, numbers, and hyphens"
+  ]
+}]
+`;
+
+exports[`validateAccountAliasFormat given: an alias with multiple violations when: validated then: it should list all violations 1`] = `
+[Error: BadRequestError: invalid account alias format: '-a--b-'
+
+{
+  "details": [
+    "must start with alphanumeric character",
+    "must end with alphanumeric character",
+    "must not contain consecutive hyphens"
+  ]
+}]
+`;
+
+exports[`validateAccountAliasFormat given: an alias with uppercase letters when: validated then: it should throw BadRequestError 1`] = `
+[Error: BadRequestError: invalid account alias format: 'UPPERCASE'
+
+{
+  "details": [
+    "must contain only lowercase letters, numbers, and hyphens",
+    "must start with alphanumeric character",
+    "must end with alphanumeric character"
+  ]
+}]
+`;

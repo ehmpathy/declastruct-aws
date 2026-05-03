@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`delAccountAlias given: an authenticated AWS account when: delAccountAlias is called then: it should return deleted: true (idempotent) 1`] = `
+{
+  "deleted": true,
+}
+`;
+
+exports[`delAccountAlias given: an authenticated AWS account when: delAccountAlias is called twice then: both calls should return deleted: true 1`] = `
+{
+  "deleted": true,
+}
+`;
+
+exports[`delAccountAlias given: an authenticated AWS account when: delAccountAlias is called twice then: both calls should return deleted: true 2`] = `
+{
+  "deleted": true,
+}
+`;

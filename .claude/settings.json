@@ -22,8 +22,6 @@
       "Bash(jq)",
       "Bash(echo:*)",
       "Bash(printf:*)",
-      "Bash(git mv:*)",
-      "Bash(git rm:*)",
       "Bash(git log:*)",
       "Bash(git status:*)",
       "Bash(git diff:*)",
@@ -343,6 +341,12 @@
             "command": "./node_modules/.bin/rhachet run --repo ehmpathy --role mechanic --init claude.hooks/pretooluse.check-permissions",
             "timeout": 5,
             "author": "repo=ehmpathy/role=mechanic"
+          },
+          {
+            "type": "command",
+            "command": "./node_modules/.bin/rhachet run --repo ehmpathy --role mechanic --init claude.hooks/pretooluse.forbid-test-background",
+            "timeout": 5,
+            "author": "repo=ehmpathy/role=mechanic"
           }
         ]
       },
@@ -399,12 +403,6 @@
         "hooks": [
           {
             "type": "command",
-            "command": "./node_modules/.bin/rhx route.drive --mode hook",
-            "timeout": 5,
-            "author": "repo=bhrain/role=driver"
-          },
-          {
-            "type": "command",
             "command": "./node_modules/.bin/rhachet roles boot --repo ehmpathy --role architect",
             "timeout": 60,
             "author": "repo=ehmpathy/role=architect"
@@ -438,6 +436,36 @@
             "command": "./node_modules/.bin/rhachet run --repo bhuild --role behaver --init claude.hooks/sessionstart.boot-behavior",
             "timeout": 10,
             "author": "repo=bhuild/role=behaver"
+          },
+          {
+            "type": "command",
+            "command": "./node_modules/.bin/rhachet roles boot --role driver",
+            "timeout": 30,
+            "author": "repo=bhrain/role=driver"
+          },
+          {
+            "type": "command",
+            "command": "./node_modules/.bin/rhx route.drive --when hook.onBoot",
+            "timeout": 5,
+            "author": "repo=bhrain/role=driver"
+          },
+          {
+            "type": "command",
+            "command": "./node_modules/.bin/rhachet roles boot --role reviewer",
+            "timeout": 30,
+            "author": "repo=bhrain/role=reviewer"
+          },
+          {
+            "type": "command",
+            "command": "./node_modules/.bin/rhachet roles boot --role behaver",
+            "timeout": 10,
+            "author": "repo=bhuild/role=behaver"
+          },
+          {
+            "type": "command",
+            "command": "./node_modules/.bin/rhachet roles boot --role dreamer",
+            "timeout": 10,
+            "author": "repo=bhuild/role=dreamer"
           }
         ]
       },
@@ -452,6 +480,7 @@
           }
         ]
       }
-    ]
+    ],
+    "UserPromptSubmit": []
   }
 }

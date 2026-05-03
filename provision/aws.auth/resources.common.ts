@@ -163,6 +163,16 @@ export const demoPermissionsPolicy: DeclaredAwsIamPolicyBundle =
           action: ['ssm:PutParameter', 'ssm:DeleteParameter'],
           resource: '*',
         }),
+        // IAM Account Alias: full access
+        new DeclaredAwsIamPolicyStatement({
+          effect: 'Allow',
+          action: [
+            'iam:CreateAccountAlias',
+            'iam:DeleteAccountAlias',
+            'iam:ListAccountAliases',
+          ],
+          resource: '*',
+        }),
       ],
     }),
   });

@@ -28,6 +28,8 @@ export { DeclaredAwsSsoPermissionSetDao } from '@src/access/daos/DeclaredAwsSsoP
 // note: DeclaredAwsSsoInstance does not have its own DAO - use getOneSsoInstance/setSsoInstance directly
 export { DeclaredAwsSsoUserDao } from '@src/access/daos/DeclaredAwsSsoUserDao';
 export { DeclaredAwsVpcTunnelDao } from '@src/access/daos/DeclaredAwsVpcTunnelDao';
+// aws account alias domain object
+export { DeclaredAwsAccountAlias } from '@src/domain.objects/DeclaredAwsAccountAlias';
 // aws domain objects
 export { DeclaredAwsEc2Instance } from '@src/domain.objects/DeclaredAwsEc2Instance';
 // aws iam oidc provider domain objects
@@ -69,6 +71,10 @@ export { DeclaredAwsSsoPermissionSet } from '@src/domain.objects/DeclaredAwsSsoP
 export { DeclaredAwsSsoUser } from '@src/domain.objects/DeclaredAwsSsoUser';
 export { DeclaredAwsVpcTunnel } from '@src/domain.objects/DeclaredAwsVpcTunnel';
 export type { DeclastructAwsProvider } from '@src/domain.objects/DeclastructAwsProvider';
+// aws account alias operations
+export { delAccountAlias } from '@src/domain.operations/accountAlias/delAccountAlias';
+export { getOneAccountAlias } from '@src/domain.operations/accountAlias/getOneAccountAlias';
+export { setAccountAlias } from '@src/domain.operations/accountAlias/setAccountAlias';
 // aws ec2 operations
 export { getEc2Instance } from '@src/domain.operations/ec2Instance/getEc2Instance';
 export { setEc2InstanceStatus } from '@src/domain.operations/ec2Instance/setEc2InstanceStatus';

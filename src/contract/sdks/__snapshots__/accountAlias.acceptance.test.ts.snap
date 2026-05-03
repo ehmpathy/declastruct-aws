@@ -1,0 +1,59 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`accountAlias acceptance given: [case1] complete lifecycle when: [t0] getOneAccountAlias is called before any changes then: it returns null 1`] = `null`;
+
+exports[`accountAlias acceptance given: [case1] complete lifecycle when: [t1] setAccountAlias is called to create then: it returns the created alias 1`] = `
+{
+  "alias": Any<String>,
+}
+`;
+
+exports[`accountAlias acceptance given: [case1] complete lifecycle when: [t2] getOneAccountAlias is called after create then: it returns the alias 1`] = `
+{
+  "alias": Any<String>,
+}
+`;
+
+exports[`accountAlias acceptance given: [case1] complete lifecycle when: [t3] setAccountAlias is called with same alias (idempotent) then: it returns the same alias 1`] = `
+{
+  "alias": Any<String>,
+}
+`;
+
+exports[`accountAlias acceptance given: [case1] complete lifecycle when: [t4] delAccountAlias is called then: it returns deleted: true 1`] = `
+{
+  "deleted": true,
+}
+`;
+
+exports[`accountAlias acceptance given: [case1] complete lifecycle when: [t5] getOneAccountAlias is called after delete then: it returns null 1`] = `null`;
+
+exports[`accountAlias acceptance given: [case1] complete lifecycle when: [t6] delAccountAlias is called again (idempotent) then: it returns deleted: true 1`] = `
+{
+  "deleted": true,
+}
+`;
+
+exports[`accountAlias acceptance given: [case2] alias rebrand when: [t0] setAccountAlias is called with new alias then: it returns the new alias 1`] = `
+{
+  "alias": Any<String>,
+}
+`;
+
+exports[`accountAlias acceptance given: [case2] alias rebrand when: [t1] getOneAccountAlias is called after rebrand then: it returns the new alias 1`] = `
+{
+  "alias": Any<String>,
+}
+`;
+
+exports[`accountAlias acceptance given: [case3] validation error when: [t0] setAccountAlias is called with invalid alias then: it throws BadRequestError with format details 1`] = `
+"BadRequestError: invalid account alias format: 'INVALID_UPPERCASE'
+
+{
+  "details": [
+    "must contain only lowercase letters, numbers, and hyphens",
+    "must start with alphanumeric character",
+    "must end with alphanumeric character"
+  ]
+}"
+`;

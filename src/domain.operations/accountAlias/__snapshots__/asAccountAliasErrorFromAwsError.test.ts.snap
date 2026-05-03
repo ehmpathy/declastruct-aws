@@ -1,0 +1,62 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`asAccountAliasErrorFromAwsError given: AccessDeniedException error when: transformed then: it throws HelpfulError with cause and context 1`] = `
+[Error: aws.setAccountAlias error
+
+{
+  "context": {
+    "errorName": "AccessDeniedException",
+    "errorMessage": "User: arn:aws:iam::123:user/test is not authorized",
+    "alias": "my-alias",
+    "previousAlias": null
+  }
+}]
+`;
+
+exports[`asAccountAliasErrorFromAwsError given: EntityAlreadyExistsException error when: transformed then: it throws BadRequestError with partition hint 1`] = `
+[Error: BadRequestError: alias 'taken-alias' already in use in partition
+
+{
+  "hint": "AWS account aliases must be unique across all accounts in your partition (aws, aws-cn, aws-us-gov). Try a namespaced alias like 'yourorg-commonly-used-name'.",
+  "alias": "taken-alias"
+}]
+`;
+
+exports[`asAccountAliasErrorFromAwsError given: LimitExceededException error when: transformed then: it throws HelpfulError with cause and context 1`] = `
+[Error: aws.setAccountAlias error
+
+{
+  "context": {
+    "errorName": "LimitExceededException",
+    "errorMessage": "Rate exceeded",
+    "alias": "my-alias",
+    "previousAlias": null
+  }
+}]
+`;
+
+exports[`asAccountAliasErrorFromAwsError given: ServiceException error when: transformed then: it throws HelpfulError with cause and context 1`] = `
+[Error: aws.setAccountAlias error
+
+{
+  "context": {
+    "errorName": "ServiceException",
+    "errorMessage": "Service temporarily unavailable",
+    "alias": "my-alias",
+    "previousAlias": "old-alias"
+  }
+}]
+`;
+
+exports[`asAccountAliasErrorFromAwsError given: network error when: transformed then: it throws HelpfulError with cause and context 1`] = `
+[Error: aws.setAccountAlias error
+
+{
+  "context": {
+    "errorName": "Error",
+    "errorMessage": "getaddrinfo ENOTFOUND iam.amazonaws.com",
+    "alias": "my-alias",
+    "previousAlias": null
+  }
+}]
+`;

@@ -1,0 +1,46 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`setAccountAlias given: [case1] no alias present when: [t0] setAccountAlias is called to create then: it should return the created alias 1`] = `
+DeclaredAwsAccountAlias {
+  "alias": "declastruct-test-alias",
+}
+`;
+
+exports[`setAccountAlias given: [case1] no alias present when: [t1] getOneAccountAlias is called after create then: it should return the alias 1`] = `
+DeclaredAwsAccountAlias {
+  "alias": "declastruct-test-alias",
+}
+`;
+
+exports[`setAccountAlias given: [case1] no alias present when: [t2] setAccountAlias is called with same alias then: it should return the same alias (idempotent) 1`] = `
+DeclaredAwsAccountAlias {
+  "alias": "declastruct-test-alias",
+}
+`;
+
+exports[`setAccountAlias given: [case2] alias rebrand when: [t0] setAccountAlias is called with different alias then: it should return the new alias 1`] = `
+DeclaredAwsAccountAlias {
+  "alias": "declastruct-test-new",
+}
+`;
+
+exports[`setAccountAlias given: [case2] alias rebrand when: [t1] getOneAccountAlias is called after rebrand then: it should return the new alias 1`] = `
+DeclaredAwsAccountAlias {
+  "alias": "declastruct-test-new",
+}
+`;
+
+exports[`setAccountAlias given: [case3] invalid alias format when: [t0] setAccountAlias is called with uppercase alias then: it should throw BadRequestError 1`] = `
+{
+  "message": "BadRequestError: invalid account alias format: 'UPPERCASE'
+
+{
+  "details": [
+    "must contain only lowercase letters, numbers, and hyphens",
+    "must start with alphanumeric character",
+    "must end with alphanumeric character"
+  ]
+}",
+  "name": "Error",
+}
+`;

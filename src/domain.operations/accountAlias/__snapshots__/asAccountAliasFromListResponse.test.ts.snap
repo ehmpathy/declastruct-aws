@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`asAccountAliasFromListResponse given: accountAliases with multiple aliases when: transformed then: it returns the first alias 1`] = `"first-alias"`;
+
+exports[`asAccountAliasFromListResponse given: accountAliases with one alias when: transformed then: it returns the alias 1`] = `"ehmpathy-demo"`;
+
+exports[`asAccountAliasFromListResponse given: empty accountAliases array when: transformed then: it returns null 1`] = `null`;
+
+exports[`asAccountAliasFromListResponse given: undefined accountAliases when: transformed then: it returns null 1`] = `null`;
