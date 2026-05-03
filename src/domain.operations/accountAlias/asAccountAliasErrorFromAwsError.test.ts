@@ -94,7 +94,9 @@ describe('asAccountAliasErrorFromAwsError', () => {
   given('network error', () => {
     when('transformed', () => {
       then('it throws HelpfulError with cause and context', async () => {
-        const networkError = new Error('getaddrinfo ENOTFOUND iam.amazonaws.com');
+        const networkError = new Error(
+          'getaddrinfo ENOTFOUND iam.amazonaws.com',
+        );
         networkError.name = 'Error';
 
         const error = await getError(() =>
