@@ -8,7 +8,7 @@ import { HelpfulError } from 'helpful-errors';
 import type { VisualogicContext } from 'visualogic';
 
 import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
-import { DeclaredAwsOrganizationPolicyEligibility } from '@src/domain.objects/DeclaredAwsOrganizationPolicyEligibility';
+import type { DeclaredAwsOrganizationPolicyEligibility } from '@src/domain.objects/DeclaredAwsOrganizationPolicyEligibility';
 import { getOrganizationRootId } from '@src/domain.operations/organization/getOrganizationRootId';
 
 import { getOneOrganizationPolicyEligibility } from './getOneOrganizationPolicyEligibility';

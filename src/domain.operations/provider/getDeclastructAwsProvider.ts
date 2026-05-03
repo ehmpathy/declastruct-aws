@@ -86,7 +86,8 @@ export const getDeclastructAwsProvider = async (
       DeclaredAwsLogGroupReportCostOfIngestionDao,
     DeclaredAwsOrganization: DeclaredAwsOrganizationDao,
     DeclaredAwsOrganizationAccount: DeclaredAwsOrganizationAccountDao,
-    DeclaredAwsOrganizationPolicyEligibility: DeclaredAwsOrganizationPolicyEligibilityDao,
+    DeclaredAwsOrganizationPolicyEligibility:
+      DeclaredAwsOrganizationPolicyEligibilityDao,
     DeclaredAwsOrganizationServiceControlPolicy:
       DeclaredAwsOrganizationServiceControlPolicyDao,
     DeclaredAwsOrganizationServiceControlPolicyAttachment:

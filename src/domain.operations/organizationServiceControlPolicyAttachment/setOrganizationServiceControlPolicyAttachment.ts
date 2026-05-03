@@ -16,11 +16,11 @@ import type { VisualogicContext } from 'visualogic';
 import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
 import type { DeclaredAwsOrganization } from '@src/domain.objects/DeclaredAwsOrganization';
 import type { DeclaredAwsOrganizationAccount } from '@src/domain.objects/DeclaredAwsOrganizationAccount';
+import type { DeclaredAwsOrganizationServiceControlPolicy } from '@src/domain.objects/DeclaredAwsOrganizationServiceControlPolicy';
 import {
   DeclaredAwsOrganizationServiceControlPolicyAttachment,
   type ServiceControlPolicyAttachmentTarget,
 } from '@src/domain.objects/DeclaredAwsOrganizationServiceControlPolicyAttachment';
-import type { DeclaredAwsOrganizationServiceControlPolicy } from '@src/domain.objects/DeclaredAwsOrganizationServiceControlPolicy';
 import { getOneOrganizationServiceControlPolicy } from '@src/domain.operations/organizationServiceControlPolicy/getOneOrganizationServiceControlPolicy';
 
 import { asTargetId } from './asTargetId';

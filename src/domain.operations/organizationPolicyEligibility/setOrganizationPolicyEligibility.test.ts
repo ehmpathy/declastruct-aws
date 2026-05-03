@@ -7,8 +7,8 @@ import { given, then } from 'test-fns';
 
 import { getMockedAwsApiContext } from '@src/.test/getMockedAwsApiContext';
 
-import * as getOneModule from './getOneOrganizationPolicyEligibility';
 import * as getRootIdModule from '../organization/getOrganizationRootId';
+import * as getOneModule from './getOneOrganizationPolicyEligibility';
 import { setOrganizationPolicyEligibility } from './setOrganizationPolicyEligibility';
 
 jest.mock('@aws-sdk/client-organizations');
@@ -32,25 +32,30 @@ describe('setOrganizationPolicyEligibility', () => {
   });
 
   given('choice is ENABLED', () => {
-    then('we should enable the policy type when not currently enabled', async () => {
-      (
-        getOneModule.getOneOrganizationPolicyEligibility as jest.Mock
-      ).mockResolvedValue(null);
+    then(
+      'we should enable the policy type when not currently enabled',
+      async () => {
+        (
+          getOneModule.getOneOrganizationPolicyEligibility as jest.Mock
+        ).mockResolvedValue(null);
 
-      const result = await setOrganizationPolicyEligibility(
-        {
-          findsert: {
-            type: 'SERVICE_CONTROL_POLICY',
-            choice: 'ENABLED',
+        const result = await setOrganizationPolicyEligibility(
+          {
+            findsert: {
+              type: 'SERVICE_CONTROL_POLICY',
+              choice: 'ENABLED',
+            },
           },
-        },
-        context,
-      );
+          context,
+        );
 
-      expect(mockSend).toHaveBeenCalledWith(expect.any(EnablePolicyTypeCommand));
-      expect(result.type).toBe('SERVICE_CONTROL_POLICY');
-      expect(result.choice).toBe('ENABLED');
-    });
+        expect(mockSend).toHaveBeenCalledWith(
+          expect.any(EnablePolicyTypeCommand),
+        );
+        expect(result.type).toBe('SERVICE_CONTROL_POLICY');
+        expect(result.choice).toBe('ENABLED');
+      },
+    );
 
     then('we should return extant when already enabled', async () => {
       const extant = {
@@ -75,99 +80,113 @@ describe('setOrganizationPolicyEligibility', () => {
       expect(result).toBe(extant);
     });
 
-    then('we should handle PolicyTypeAlreadyEnabledException idempotently', async () => {
-      (
-        getOneModule.getOneOrganizationPolicyEligibility as jest.Mock
-      ).mockResolvedValue(null);
+    then(
+      'we should handle PolicyTypeAlreadyEnabledException idempotently',
+      async () => {
+        (
+          getOneModule.getOneOrganizationPolicyEligibility as jest.Mock
+        ).mockResolvedValue(null);
 
-      const error = new Error('Already enabled');
-      error.name = 'PolicyTypeAlreadyEnabledException';
-      mockSend.mockRejectedValue(error);
+        const error = new Error('Already enabled');
+        error.name = 'PolicyTypeAlreadyEnabledException';
+        mockSend.mockRejectedValue(error);
 
-      const result = await setOrganizationPolicyEligibility(
-        {
-          findsert: {
-            type: 'SERVICE_CONTROL_POLICY',
-            choice: 'ENABLED',
+        const result = await setOrganizationPolicyEligibility(
+          {
+            findsert: {
+              type: 'SERVICE_CONTROL_POLICY',
+              choice: 'ENABLED',
+            },
           },
-        },
-        context,
-      );
+          context,
+        );
 
-      expect(result.type).toBe('SERVICE_CONTROL_POLICY');
-      expect(result.choice).toBe('ENABLED');
-    });
+        expect(result.type).toBe('SERVICE_CONTROL_POLICY');
+        expect(result.choice).toBe('ENABLED');
+      },
+    );
   });
 
   given('choice is DISABLED', () => {
-    then('we should disable the policy type when currently enabled', async () => {
-      (
-        getOneModule.getOneOrganizationPolicyEligibility as jest.Mock
-      ).mockResolvedValue({
-        type: 'SERVICE_CONTROL_POLICY',
-        choice: 'ENABLED',
-      });
+    then(
+      'we should disable the policy type when currently enabled',
+      async () => {
+        (
+          getOneModule.getOneOrganizationPolicyEligibility as jest.Mock
+        ).mockResolvedValue({
+          type: 'SERVICE_CONTROL_POLICY',
+          choice: 'ENABLED',
+        });
 
-      const result = await setOrganizationPolicyEligibility(
-        {
-          findsert: {
-            type: 'SERVICE_CONTROL_POLICY',
-            choice: 'DISABLED',
+        const result = await setOrganizationPolicyEligibility(
+          {
+            findsert: {
+              type: 'SERVICE_CONTROL_POLICY',
+              choice: 'DISABLED',
+            },
           },
-        },
-        context,
-      );
+          context,
+        );
 
-      expect(mockSend).toHaveBeenCalledWith(expect.any(DisablePolicyTypeCommand));
-      expect(result.type).toBe('SERVICE_CONTROL_POLICY');
-      expect(result.choice).toBe('DISABLED');
-    });
+        expect(mockSend).toHaveBeenCalledWith(
+          expect.any(DisablePolicyTypeCommand),
+        );
+        expect(result.type).toBe('SERVICE_CONTROL_POLICY');
+        expect(result.choice).toBe('DISABLED');
+      },
+    );
 
-    then('we should return immediately when not currently enabled', async () => {
-      (
-        getOneModule.getOneOrganizationPolicyEligibility as jest.Mock
-      ).mockResolvedValue(null);
+    then(
+      'we should return immediately when not currently enabled',
+      async () => {
+        (
+          getOneModule.getOneOrganizationPolicyEligibility as jest.Mock
+        ).mockResolvedValue(null);
 
-      const result = await setOrganizationPolicyEligibility(
-        {
-          findsert: {
-            type: 'SERVICE_CONTROL_POLICY',
-            choice: 'DISABLED',
+        const result = await setOrganizationPolicyEligibility(
+          {
+            findsert: {
+              type: 'SERVICE_CONTROL_POLICY',
+              choice: 'DISABLED',
+            },
           },
-        },
-        context,
-      );
+          context,
+        );
 
-      expect(mockSend).not.toHaveBeenCalled();
-      expect(result.type).toBe('SERVICE_CONTROL_POLICY');
-      expect(result.choice).toBe('DISABLED');
-    });
+        expect(mockSend).not.toHaveBeenCalled();
+        expect(result.type).toBe('SERVICE_CONTROL_POLICY');
+        expect(result.choice).toBe('DISABLED');
+      },
+    );
 
-    then('we should handle PolicyTypeNotEnabledException idempotently', async () => {
-      (
-        getOneModule.getOneOrganizationPolicyEligibility as jest.Mock
-      ).mockResolvedValue({
-        type: 'SERVICE_CONTROL_POLICY',
-        choice: 'ENABLED',
-      });
+    then(
+      'we should handle PolicyTypeNotEnabledException idempotently',
+      async () => {
+        (
+          getOneModule.getOneOrganizationPolicyEligibility as jest.Mock
+        ).mockResolvedValue({
+          type: 'SERVICE_CONTROL_POLICY',
+          choice: 'ENABLED',
+        });
 
-      const error = new Error('Not enabled');
-      error.name = 'PolicyTypeNotEnabledException';
-      mockSend.mockRejectedValue(error);
+        const error = new Error('Not enabled');
+        error.name = 'PolicyTypeNotEnabledException';
+        mockSend.mockRejectedValue(error);
 
-      const result = await setOrganizationPolicyEligibility(
-        {
-          findsert: {
-            type: 'SERVICE_CONTROL_POLICY',
-            choice: 'DISABLED',
+        const result = await setOrganizationPolicyEligibility(
+          {
+            findsert: {
+              type: 'SERVICE_CONTROL_POLICY',
+              choice: 'DISABLED',
+            },
           },
-        },
-        context,
-      );
+          context,
+        );
 
-      expect(result.type).toBe('SERVICE_CONTROL_POLICY');
-      expect(result.choice).toBe('DISABLED');
-    });
+        expect(result.type).toBe('SERVICE_CONTROL_POLICY');
+        expect(result.choice).toBe('DISABLED');
+      },
+    );
   });
 
   given('not in an organization', () => {

@@ -1,4 +1,7 @@
-import { ListRootsCommand, OrganizationsClient } from '@aws-sdk/client-organizations';
+import {
+  ListRootsCommand,
+  OrganizationsClient,
+} from '@aws-sdk/client-organizations';
 import { given, then } from 'test-fns';
 
 import { getMockedAwsApiContext } from '@src/.test/getMockedAwsApiContext';
@@ -138,18 +141,21 @@ describe('getOneOrganizationPolicyEligibility', () => {
       expect(result).toBeNull();
     });
 
-    then('we should return null for AWSOrganizationsNotInUseException', async () => {
-      const error = new Error('Not in organization');
-      error.name = 'AWSOrganizationsNotInUseException';
-      mockSend.mockRejectedValue(error);
+    then(
+      'we should return null for AWSOrganizationsNotInUseException',
+      async () => {
+        const error = new Error('Not in organization');
+        error.name = 'AWSOrganizationsNotInUseException';
+        mockSend.mockRejectedValue(error);
 
-      const result = await getOneOrganizationPolicyEligibility(
-        { by: { unique: { type: 'SERVICE_CONTROL_POLICY' } } },
-        context,
-      );
+        const result = await getOneOrganizationPolicyEligibility(
+          { by: { unique: { type: 'SERVICE_CONTROL_POLICY' } } },
+          context,
+        );
 
-      expect(result).toBeNull();
-    });
+        expect(result).toBeNull();
+      },
+    );
   });
 
   given('an unexpected error occurs', () => {

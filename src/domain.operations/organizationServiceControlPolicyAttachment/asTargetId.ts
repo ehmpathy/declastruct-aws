@@ -2,8 +2,8 @@ import type { VisualogicContext } from 'visualogic';
 
 import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
 import type { ServiceControlPolicyAttachmentTarget } from '@src/domain.objects/DeclaredAwsOrganizationServiceControlPolicyAttachment';
-import { getOneOrganizationAccount } from '@src/domain.operations/organizationAccount/getOneOrganizationAccount';
 import { getOrganizationRootId } from '@src/domain.operations/organization/getOrganizationRootId';
+import { getOneOrganizationAccount } from '@src/domain.operations/organizationAccount/getOneOrganizationAccount';
 
 import { isOrgRef } from './isOrgRef';
 

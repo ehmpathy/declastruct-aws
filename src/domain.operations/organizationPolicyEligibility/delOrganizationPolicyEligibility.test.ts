@@ -6,9 +6,9 @@ import { given, then } from 'test-fns';
 
 import { getMockedAwsApiContext } from '@src/.test/getMockedAwsApiContext';
 
-import * as getOneModule from './getOneOrganizationPolicyEligibility';
 import * as getRootIdModule from '../organization/getOrganizationRootId';
 import { delOrganizationPolicyEligibility } from './delOrganizationPolicyEligibility';
+import * as getOneModule from './getOneOrganizationPolicyEligibility';
 
 jest.mock('@aws-sdk/client-organizations');
 jest.mock('./getOneOrganizationPolicyEligibility');
@@ -44,7 +44,9 @@ describe('delOrganizationPolicyEligibility', () => {
         context,
       );
 
-      expect(mockSend).toHaveBeenCalledWith(expect.any(DisablePolicyTypeCommand));
+      expect(mockSend).toHaveBeenCalledWith(
+        expect.any(DisablePolicyTypeCommand),
+      );
       expect(result).toEqual({ deleted: true });
     });
   });
@@ -64,25 +66,28 @@ describe('delOrganizationPolicyEligibility', () => {
       expect(result).toEqual({ deleted: true });
     });
 
-    then('we should handle PolicyTypeNotEnabledException idempotently', async () => {
-      (
-        getOneModule.getOneOrganizationPolicyEligibility as jest.Mock
-      ).mockResolvedValue({
-        type: 'SERVICE_CONTROL_POLICY',
-        choice: 'ENABLED',
-      });
+    then(
+      'we should handle PolicyTypeNotEnabledException idempotently',
+      async () => {
+        (
+          getOneModule.getOneOrganizationPolicyEligibility as jest.Mock
+        ).mockResolvedValue({
+          type: 'SERVICE_CONTROL_POLICY',
+          choice: 'ENABLED',
+        });
 
-      const error = new Error('Not enabled');
-      error.name = 'PolicyTypeNotEnabledException';
-      mockSend.mockRejectedValue(error);
+        const error = new Error('Not enabled');
+        error.name = 'PolicyTypeNotEnabledException';
+        mockSend.mockRejectedValue(error);
 
-      const result = await delOrganizationPolicyEligibility(
-        { by: { unique: { type: 'SERVICE_CONTROL_POLICY' } } },
-        context,
-      );
+        const result = await delOrganizationPolicyEligibility(
+          { by: { unique: { type: 'SERVICE_CONTROL_POLICY' } } },
+          context,
+        );
 
-      expect(result).toEqual({ deleted: true });
-    });
+        expect(result).toEqual({ deleted: true });
+      },
+    );
   });
 
   given('not in an organization', () => {

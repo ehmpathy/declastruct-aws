@@ -40,8 +40,9 @@ export const DeclaredAwsOrganizationPolicyEligibilityDao = genDeclastructDao<
     upsert: null, // no upsert for policy eligibility (enable is idempotent)
     delete: async (input, context) => {
       // input is Ref<typeof PolicyEligibility> which is RefByUnique since no primary
-      const unique =
-        input as RefByUnique<typeof DeclaredAwsOrganizationPolicyEligibility>;
+      const unique = input as RefByUnique<
+        typeof DeclaredAwsOrganizationPolicyEligibility
+      >;
       await delOrganizationPolicyEligibility({ by: { unique } }, context);
     },
   },

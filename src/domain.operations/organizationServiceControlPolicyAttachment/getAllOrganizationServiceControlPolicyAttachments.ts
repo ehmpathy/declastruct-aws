@@ -25,9 +25,9 @@ import {
 } from '@src/domain.objects/DeclaredAwsOrganizationServiceControlPolicyAttachment';
 import { getOneOrganizationServiceControlPolicy } from '@src/domain.operations/organizationServiceControlPolicy/getOneOrganizationServiceControlPolicy';
 
+import { getOneOrganization } from '../organization/getOneOrganization';
 import { asTargetId } from './asTargetId';
 import { isOrgRef } from './isOrgRef';
-import { getOneOrganization } from '../organization/getOneOrganization';
 
 /**
  * .what = wraps target in appropriate Ref type for domain object instantiation

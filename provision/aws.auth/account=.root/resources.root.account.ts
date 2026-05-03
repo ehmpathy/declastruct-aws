@@ -3,7 +3,7 @@ import { type DomainEntity, RefByPrimary, RefByUnique } from 'domain-objects';
 import {
   DeclaredAwsIamPolicyDocument,
   DeclaredAwsIamPolicyStatement,
-  DeclaredAwsOrganization,
+  type DeclaredAwsOrganization,
   DeclaredAwsOrganizationPolicyEligibility,
   DeclaredAwsOrganizationServiceControlPolicy,
   DeclaredAwsOrganizationServiceControlPolicyAttachment,
@@ -104,5 +104,9 @@ export const getResourcesOfRootAccount = async (): Promise<
       target: RefByPrimary.as<typeof DeclaredAwsOrganization>({ id: org.id }),
     });
 
-  return [scpPolicyEligibility, scpDenyDangerousActions, scpAttachmentToOrgRoot];
+  return [
+    scpPolicyEligibility,
+    scpDenyDangerousActions,
+    scpAttachmentToOrgRoot,
+  ];
 };

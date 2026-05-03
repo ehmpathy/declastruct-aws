@@ -10,11 +10,16 @@ describe('DeclaredAwsOrganizationPolicyEligibility', () => {
       then('it should instantiate', () => {
         policyType = new DeclaredAwsOrganizationPolicyEligibility({
           type: 'SERVICE_CONTROL_POLICY',
+          choice: 'ENABLED',
         });
       });
 
       then('it should have the type', () => {
         expect(policyType.type).toBe('SERVICE_CONTROL_POLICY');
+      });
+
+      then('it should have the choice', () => {
+        expect(policyType.choice).toBe('ENABLED');
       });
     });
 
@@ -24,11 +29,16 @@ describe('DeclaredAwsOrganizationPolicyEligibility', () => {
       then('it should instantiate', () => {
         policyType = new DeclaredAwsOrganizationPolicyEligibility({
           type: 'TAG_POLICY',
+          choice: 'DISABLED',
         });
       });
 
       then('it should have the type', () => {
         expect(policyType.type).toBe('TAG_POLICY');
+      });
+
+      then('it should have the choice', () => {
+        expect(policyType.choice).toBe('DISABLED');
       });
     });
   });

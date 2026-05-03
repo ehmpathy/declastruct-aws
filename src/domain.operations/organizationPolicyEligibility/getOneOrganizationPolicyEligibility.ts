@@ -1,4 +1,7 @@
-import { ListRootsCommand, OrganizationsClient } from '@aws-sdk/client-organizations';
+import {
+  ListRootsCommand,
+  OrganizationsClient,
+} from '@aws-sdk/client-organizations';
 import { asProcedure } from 'as-procedure';
 import type { RefByUnique } from 'domain-objects';
 import { HelpfulError } from 'helpful-errors';

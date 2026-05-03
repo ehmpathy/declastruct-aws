@@ -3,8 +3,8 @@ import { given, then, when } from 'test-fns';
 
 import type { DeclaredAwsOrganization } from './DeclaredAwsOrganization';
 import type { DeclaredAwsOrganizationAccount } from './DeclaredAwsOrganizationAccount';
-import { DeclaredAwsOrganizationServiceControlPolicyAttachment } from './DeclaredAwsOrganizationServiceControlPolicyAttachment';
 import type { DeclaredAwsOrganizationServiceControlPolicy } from './DeclaredAwsOrganizationServiceControlPolicy';
+import { DeclaredAwsOrganizationServiceControlPolicyAttachment } from './DeclaredAwsOrganizationServiceControlPolicyAttachment';
 
 describe('DeclaredAwsOrganizationServiceControlPolicyAttachment', () => {
   given('a valid policy reference and account target by id', () => {
