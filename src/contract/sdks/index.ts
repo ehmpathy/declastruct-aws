@@ -20,6 +20,9 @@ export { DeclaredAwsLogGroupReportCostOfIngestionDao } from '@src/access/daos/De
 export { DeclaredAwsLogGroupReportDistOfPatternDao } from '@src/access/daos/DeclaredAwsLogGroupReportDistOfPatternDao';
 export { DeclaredAwsOrganizationAccountDao } from '@src/access/daos/DeclaredAwsOrganizationAccountDao';
 export { DeclaredAwsOrganizationDao } from '@src/access/daos/DeclaredAwsOrganizationDao';
+export { DeclaredAwsOrganizationPolicyEligibilityDao } from '@src/access/daos/DeclaredAwsOrganizationPolicyEligibilityDao';
+export { DeclaredAwsOrganizationServiceControlPolicyAttachmentDao } from '@src/access/daos/DeclaredAwsOrganizationServiceControlPolicyAttachmentDao';
+export { DeclaredAwsOrganizationServiceControlPolicyDao } from '@src/access/daos/DeclaredAwsOrganizationServiceControlPolicyDao';
 export { DeclaredAwsRdsClusterDao } from '@src/access/daos/DeclaredAwsRdsClusterDao';
 // aws sso daos
 export { DeclaredAwsSsoAccountAssignmentDao } from '@src/access/daos/DeclaredAwsSsoAccountAssignmentDao';
@@ -61,12 +64,16 @@ export {
 // aws organization + organization account domain objects
 export { DeclaredAwsOrganization } from '@src/domain.objects/DeclaredAwsOrganization';
 export { DeclaredAwsOrganizationAccount } from '@src/domain.objects/DeclaredAwsOrganizationAccount';
+export { DeclaredAwsOrganizationPolicyEligibility } from '@src/domain.objects/DeclaredAwsOrganizationPolicyEligibility';
+export { DeclaredAwsOrganizationServiceControlPolicy } from '@src/domain.objects/DeclaredAwsOrganizationServiceControlPolicy';
+export { DeclaredAwsOrganizationServiceControlPolicyAttachment } from '@src/domain.objects/DeclaredAwsOrganizationServiceControlPolicyAttachment';
 export { DeclaredAwsRdsCluster } from '@src/domain.objects/DeclaredAwsRdsCluster';
 // aws sso domain objects
 export { DeclaredAwsSsoAccountAssignment } from '@src/domain.objects/DeclaredAwsSsoAccountAssignment';
 export { DeclaredAwsSsoInstance } from '@src/domain.objects/DeclaredAwsSsoInstance';
 export { DeclaredAwsSsoPermissionSet } from '@src/domain.objects/DeclaredAwsSsoPermissionSet';
 export { DeclaredAwsSsoUser } from '@src/domain.objects/DeclaredAwsSsoUser';
+export { DeclaredAwsTags } from '@src/domain.objects/DeclaredAwsTags';
 export { DeclaredAwsVpcTunnel } from '@src/domain.objects/DeclaredAwsVpcTunnel';
 export type { DeclastructAwsProvider } from '@src/domain.objects/DeclastructAwsProvider';
 // aws ec2 operations
@@ -121,12 +128,23 @@ export { getOneLogGroupReportDistOfPattern } from '@src/domain.operations/logGro
 // aws organization operations
 export { delOrganization } from '@src/domain.operations/organization/delOrganization';
 export { getOneOrganization } from '@src/domain.operations/organization/getOneOrganization';
+export { getOrganizationRootId } from '@src/domain.operations/organization/getOrganizationRootId';
 export { setOrganization } from '@src/domain.operations/organization/setOrganization';
 // aws organization account operations
 export { delOrganizationAccount } from '@src/domain.operations/organizationAccount/delOrganizationAccount';
 export { getAllOrganizationAccounts } from '@src/domain.operations/organizationAccount/getAllOrganizationAccounts';
 export { getOneOrganizationAccount } from '@src/domain.operations/organizationAccount/getOneOrganizationAccount';
 export { setOrganizationAccount } from '@src/domain.operations/organizationAccount/setOrganizationAccount';
+// aws organization service control policy operations
+export { delOrganizationServiceControlPolicy } from '@src/domain.operations/organizationServiceControlPolicy/delOrganizationServiceControlPolicy';
+export { getAllOrganizationServiceControlPolicies } from '@src/domain.operations/organizationServiceControlPolicy/getAllOrganizationServiceControlPolicies';
+export { getOneOrganizationServiceControlPolicy } from '@src/domain.operations/organizationServiceControlPolicy/getOneOrganizationServiceControlPolicy';
+export { setOrganizationServiceControlPolicy } from '@src/domain.operations/organizationServiceControlPolicy/setOrganizationServiceControlPolicy';
+// aws organization service control policy attachment operations
+export { delOrganizationServiceControlPolicyAttachment } from '@src/domain.operations/organizationServiceControlPolicyAttachment/delOrganizationServiceControlPolicyAttachment';
+export { getAllOrganizationServiceControlPolicyAttachments } from '@src/domain.operations/organizationServiceControlPolicyAttachment/getAllOrganizationServiceControlPolicyAttachments';
+export { getOneOrganizationServiceControlPolicyAttachment } from '@src/domain.operations/organizationServiceControlPolicyAttachment/getOneOrganizationServiceControlPolicyAttachment';
+export { setOrganizationServiceControlPolicyAttachment } from '@src/domain.operations/organizationServiceControlPolicyAttachment/setOrganizationServiceControlPolicyAttachment';
 // aws provider
 export { getDeclastructAwsProvider } from '@src/domain.operations/provider/getDeclastructAwsProvider';
 // aws rds operations

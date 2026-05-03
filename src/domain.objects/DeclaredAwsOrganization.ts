@@ -49,6 +49,15 @@ export interface DeclaredAwsOrganization {
   arn?: string;
 
   /**
+   * .what = the root ID of the organization
+   * .note
+   *   - is @readonly — fetched via ListRoots API
+   *   - used as target for org-wide SCP attachments
+   *   - pattern: r-[a-z0-9]{4,32}
+   */
+  rootId?: string;
+
+  /**
    * .what = the management account that owns this organization
    * .note
    *   - the account creating the org becomes the management account
@@ -87,9 +96,9 @@ export class DeclaredAwsOrganization
   public static metadata = ['id', 'arn'] as const;
 
   /**
-   * .what = no readonly fields — all fields are either metadata or user-defined
+   * .what = readonly fields fetched via separate API call
    */
-  public static readonly = [] as const;
+  public static readonly = ['rootId'] as const;
 
   /**
    * .what = nested domain object definitions

@@ -10,19 +10,23 @@ import {
 /**
  * .what = transforms AWS SDK Organization to DeclaredAwsOrganization
  * .why = ensures type safety and readonly field enforcement
- * .note = AWS API uses legacy "MasterAccountId" but we map to "managementAccount"
+ * .note
+ *   - AWS API uses legacy "MasterAccountId" but we map to "managementAccount"
+ *   - rootId is passed separately (requires ListRoots call)
  */
-export const castIntoDeclaredAwsOrganization = (
-  input: Organization,
-): HasReadonly<typeof DeclaredAwsOrganization> => {
+export const castIntoDeclaredAwsOrganization = (input: {
+  organization: Organization;
+  rootId: string;
+}): HasReadonly<typeof DeclaredAwsOrganization> => {
   return assure(
     DeclaredAwsOrganization.as({
-      id: assure(input.Id, isPresent),
-      arn: input.Arn,
+      id: assure(input.organization.Id, isPresent),
+      arn: input.organization.Arn,
+      rootId: input.rootId,
       managementAccount: {
-        id: assure(input.MasterAccountId, isPresent),
+        id: assure(input.organization.MasterAccountId, isPresent),
       },
-      featureSet: input.FeatureSet as OrganizationFeatureSet,
+      featureSet: input.organization.FeatureSet as OrganizationFeatureSet,
     }),
     hasReadonly({ of: DeclaredAwsOrganization }),
   );

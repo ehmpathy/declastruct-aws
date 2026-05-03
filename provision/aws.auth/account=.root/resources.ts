@@ -5,6 +5,7 @@ import { getDeclastructAwsProvider } from '../../../src/contract/sdks';
 import { getResourcesOfAdminSso } from './resources.admin.sso';
 import { getResourcesOfDemoAccount } from './resources.demo.account';
 import { getResourcesOfDemoSso } from './resources.demo.sso';
+import { getResourcesOfRootAccount } from './resources.root.account';
 
 const log = {
   info: console.info,
@@ -33,10 +34,11 @@ export const getProviders = async (): Promise<DeclastructProvider[]> => [
 ];
 
 export const getResources = async (): Promise<DomainEntity<any>[]> => {
-  const [adminSso, demoAccount, demoSso] = await Promise.all([
+  const [adminSso, demoAccount, demoSso, rootAccount] = await Promise.all([
     getResourcesOfAdminSso(),
     getResourcesOfDemoAccount(),
     getResourcesOfDemoSso(),
+    getResourcesOfRootAccount(),
   ]);
 
   return [
@@ -46,5 +48,8 @@ export const getResources = async (): Promise<DomainEntity<any>[]> => {
     // then provision the agent ssos
     ...adminSso,
     ...demoSso,
+
+    // then provision the root account resources (scps)
+    ...rootAccount,
   ];
 };

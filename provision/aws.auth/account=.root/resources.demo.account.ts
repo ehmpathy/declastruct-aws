@@ -24,7 +24,7 @@ export const demoAccountRef: RefByUnique<
 
 /**
  * .what = demo account in the organization
- * .why = creates a separate account for demo/testing purposes
+ * .why = creates a separate account for demo/test purposes
  */
 export const getResourcesOfDemoAccount = async (): Promise<
   DomainEntity<any>[]
@@ -32,7 +32,6 @@ export const getResourcesOfDemoAccount = async (): Promise<
   const provider = await getDeclastructAwsProvider({}, { log });
   const managementAccountId = provider.context.aws.credentials.account;
 
-  // organization
   const organization = DeclaredAwsOrganization.as({
     managementAccount: RefByPrimary.as<typeof DeclaredAwsOrganizationAccount>({
       id: managementAccountId,
