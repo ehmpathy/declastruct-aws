@@ -21,5 +21,7 @@ export THOROUGH=true && npm run test:unit
 how to integration test
 
 ```sh
-source .agent/repo=.this/skills/use.demorepo.token.sh && export THOROUGH=true && npm run test:integration
+export THOROUGH=true && npm run test:integration
 ```
+
+Note: keyrack credentials are auto-unlocked by the test harness.

@@ -11,8 +11,12 @@ import {
   getDeclastructAwsProvider,
   getOneSsoInstance,
 } from '../../../src/contract/sdks';
-import { log, SSO_ADMIN_EMAIL, SSO_ADMIN_USERNAME } from '../resources.common';
-import { demoAccountRef } from './resources.demo.account';
+import {
+  getOneSsoAdminEmail,
+  getOneSsoAdminUsername,
+  log,
+} from '../resources.common';
+import { getOneDemoAccountRef } from './resources.demo.account';
 
 /**
  * .what = admin sso resources for human administrators
@@ -48,11 +52,11 @@ export const getResourcesOfAdminSso = async (): Promise<
   // admin user
   const adminUser = new DeclaredAwsSsoUser({
     instance: refByUnique<typeof DeclaredAwsSsoInstance>(ssoInstance),
-    userName: SSO_ADMIN_USERNAME,
-    displayName: SSO_ADMIN_USERNAME,
-    givenName: SSO_ADMIN_USERNAME,
-    familyName: SSO_ADMIN_USERNAME,
-    email: SSO_ADMIN_EMAIL,
+    userName: getOneSsoAdminUsername(),
+    displayName: getOneSsoAdminUsername(),
+    givenName: getOneSsoAdminUsername(),
+    familyName: getOneSsoAdminUsername(),
+    email: getOneSsoAdminEmail(),
   });
 
   // admin assignment to root account
@@ -76,7 +80,7 @@ export const getResourcesOfAdminSso = async (): Promise<
     principalType: 'USER',
     principal: refByUnique<typeof DeclaredAwsSsoUser>(adminUser),
     targetType: 'AWS_ACCOUNT',
-    target: demoAccountRef,
+    target: getOneDemoAccountRef(),
   });
 
   return [

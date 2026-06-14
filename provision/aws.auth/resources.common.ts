@@ -14,17 +14,21 @@ export const log: LogMethods = {
   error: console.error,
 };
 
-export const SSO_ADMIN_USERNAME: string =
+/**
+ * .what = lazy getters for SSO env vars
+ * .why = only needed for root account SSO resources, not demo OIDC
+ */
+export const getOneSsoAdminUsername = (): string =>
   process.env.SSO_ADMIN_USERNAME ??
   UnexpectedCodePathError.throw(
     'dont forget to declare the SSO_ADMIN_USERNAME. not checked in',
   );
-export const SSO_ADMIN_EMAIL: string =
+export const getOneSsoAdminEmail = (): string =>
   process.env.SSO_ADMIN_EMAIL ??
   UnexpectedCodePathError.throw(
     'dont forget to declare the SSO_ADMIN_EMAIL. not checked in',
   );
-export const SSO_DEMO_EMAIL: string =
+export const getOneSsoDemoEmail = (): string =>
   process.env.SSO_DEMO_EMAIL ??
   UnexpectedCodePathError.throw(
     'dont forget to declare the SSO_DEMO_EMAIL. not checked in',
