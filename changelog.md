@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.1](https://github.com/ehmpathy/declastruct-aws/compare/v1.5.0...v1.5.1) (2026-06-14)
+
+
+### Bug Fixes
+
+* **provision:** make SSO env vars lazy for demo-only provisioning ([#45](https://github.com/ehmpathy/declastruct-aws/issues/45)) ([07606f2](https://github.com/ehmpathy/declastruct-aws/commit/07606f230635d0afe6c80f7fd26c0a852f838ee9))
+
 ## [1.5.0](https://github.com/ehmpathy/declastruct-aws/compare/v1.4.5...v1.5.0) (2026-05-03)
 
 
