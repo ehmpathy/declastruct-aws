@@ -6,7 +6,7 @@ import {
   DeclaredAwsOrganizationAccount,
   getDeclastructAwsProvider,
 } from '../../../src/contract/sdks';
-import { SSO_DEMO_EMAIL } from '../resources.common';
+import { getOneSsoDemoEmail } from '../resources.common';
 
 const log: LogMethods = {
   info: console.info,
@@ -15,12 +15,16 @@ const log: LogMethods = {
   error: console.error,
 };
 
-// demo account reference
-export const demoAccountRef: RefByUnique<
+/**
+ * .what = lazy getter for demo account reference
+ * .why = defer env var access until actually needed
+ */
+export const getOneDemoAccountRef = (): RefByUnique<
   typeof DeclaredAwsOrganizationAccount
-> = RefByUnique.as<typeof DeclaredAwsOrganizationAccount>({
-  email: SSO_DEMO_EMAIL,
-});
+> =>
+  RefByUnique.as<typeof DeclaredAwsOrganizationAccount>({
+    email: getOneSsoDemoEmail(),
+  });
 
 /**
  * .what = demo account in the organization
@@ -43,7 +47,7 @@ export const getResourcesOfDemoAccount = async (): Promise<
   const demoAccount = new DeclaredAwsOrganizationAccount({
     organization,
     name: 'ehmpathy-demo',
-    email: demoAccountRef.email,
+    email: getOneDemoAccountRef().email,
     iamUserAccessToBilling: 'ALLOW',
     roleName: 'OrganizationAccountAccessRole',
     tags: {

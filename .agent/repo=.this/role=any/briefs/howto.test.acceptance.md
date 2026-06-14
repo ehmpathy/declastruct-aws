@@ -4,26 +4,23 @@ How to run acceptance tests for declastruct-aws.
 
 ## Prerequisites
 
-1. **AWS Profile**: You must have AWS credentials configured. Source the dev profile:
-   ```sh
-   source .agent/repo=.this/skills/use.demo.awsprofile.sh
-   ```
+Build the project first — acceptance tests use the `dist/` output:
+```sh
+npm run build
+```
 
-2. **Build the project**: Acceptance tests use the `dist/` output, so you must build first:
-   ```sh
-   npm run build
-   ```
-
-## Running Acceptance Tests
+## Run Acceptance Tests
 
 ```sh
-source .agent/repo=.this/skills/use.demo.awsprofile.sh && npm run build && npm run test:acceptance
+npm run build && npm run test:acceptance
 ```
 
 Or with the locally flag if needed:
 ```sh
-source .agent/repo=.this/skills/use.demo.awsprofile.sh && npm run build && npm run test:acceptance:locally
+npm run build && npm run test:acceptance:locally
 ```
+
+Note: keyrack credentials are auto-unlocked by the test harness.
 
 ## How It Works
 

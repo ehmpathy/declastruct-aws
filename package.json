@@ -52,7 +52,7 @@
     "postversion": "git push origin HEAD --tags --no-verify",
     "prepare:husky": "npx husky install && chmod ug+x .husky/*",
     "prepare": "[ -e .git ] && npm run prepare:husky || exit 0 && npm run prepare:rhachet",
-    "prepare:rhachet": "rhachet init --hooks --roles mechanic architect ergonomist driver achiever reviewer dreamer behaver"
+    "prepare:rhachet": "rhachet init --hooks --roles mechanic behaver driver architect ergonomist reviewer dreamer dispatcher"
   },
   "dependencies": {
     "@aws-sdk/client-cloudwatch": "3.943.0",

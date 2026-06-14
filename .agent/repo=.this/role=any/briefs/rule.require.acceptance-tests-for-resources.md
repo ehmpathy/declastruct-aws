@@ -84,12 +84,12 @@ absent acceptance test coverage means:
 ### run acceptance tests
 
 ```sh
-source .agent/repo=.this/skills/use.demo.awsprofile.sh && npm run build && npm run test:acceptance
+npm run build && npm run test:acceptance
 ```
 
 ## .note
 
-- acceptance tests require AWS credentials via `source .agent/repo=.this/skills/use.demo.awsprofile.sh`
+- keyrack credentials are auto-unlocked by the test harness
 - tests use `dist/` output, so `npm run build` must run first
 - resources should use `managedBy: 'declastruct', purpose: 'acceptance-test'` tags for identification
 

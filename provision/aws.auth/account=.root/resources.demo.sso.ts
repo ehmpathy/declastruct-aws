@@ -10,10 +10,10 @@ import {
 } from '../../../src/contract/sdks';
 import {
   demoPermissionsPolicy,
+  getOneSsoDemoEmail,
   log,
-  SSO_DEMO_EMAIL,
 } from '../resources.common';
-import { demoAccountRef } from './resources.demo.account';
+import { getOneDemoAccountRef } from './resources.demo.account';
 
 /**
  * .what = demo sso resources for agent access
@@ -45,7 +45,7 @@ export const getResourcesOfDemoSso = async (): Promise<DomainEntity<any>[]> => {
     displayName: 'Demo Agent',
     givenName: 'Demo',
     familyName: 'Agent',
-    email: SSO_DEMO_EMAIL,
+    email: getOneSsoDemoEmail(),
   });
 
   // demo assignment
@@ -56,7 +56,7 @@ export const getResourcesOfDemoSso = async (): Promise<DomainEntity<any>[]> => {
     principalType: 'USER',
     principal: refByUnique<typeof DeclaredAwsSsoUser>(demoUser),
     targetType: 'AWS_ACCOUNT',
-    target: demoAccountRef,
+    target: getOneDemoAccountRef(),
   });
 
   return [demoPermissionSet, demoUser, demoAssignment];
