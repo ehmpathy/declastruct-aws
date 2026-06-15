@@ -4,6 +4,7 @@ import {
   UpdateFunctionConfigurationCommand,
 } from '@aws-sdk/client-lambda';
 import * as fs from 'fs/promises';
+import type { Hash } from 'hash-fns';
 import * as path from 'path';
 
 import { getMockedAwsApiContext } from '@src/.test/getMockedAwsApiContext';
@@ -34,7 +35,10 @@ const lambdaSample: DeclaredAwsLambda = {
   timeout: 30,
   memory: 128,
   envars: {},
-  codeZipUri: './src/.test/lambda.sample.zip',
+  code: {
+    zipUri: './src/.test/lambda.sample.zip',
+    hash: '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08' as Hash,
+  },
 };
 
 describe('setLambda', () => {
@@ -68,7 +72,10 @@ describe('setLambda', () => {
     (castModule.castIntoDeclaredAwsLambda as jest.Mock).mockReturnValue({
       ...lambdaSample,
       arn: 'arn',
-      codeSha256: 'abc',
+      code: {
+        zipUri: lambdaSample.code?.zipUri ?? null,
+        hash: 'abc123def456' as Hash,
+      },
     });
 
     const result = await setLambda({ upsert: lambdaSample }, context);
@@ -95,17 +102,20 @@ describe('setLambda', () => {
     (castModule.castIntoDeclaredAwsLambda as jest.Mock).mockReturnValue({
       ...lambdaSample,
       arn: 'arn',
-      codeSha256: 'def',
+      code: {
+        zipUri: lambdaSample.code?.zipUri ?? null,
+        hash: 'def789ghi012' as Hash,
+      },
     });
 
     const result = await setLambda({ findsert: lambdaSample }, context);
 
     expect(getLambdaModule.getOneLambda).toHaveBeenCalled();
     expect(mockSend).toHaveBeenCalledWith(expect.any(CreateFunctionCommand));
-    expect(result.codeSha256).toEqual('def');
+    expect(result.code?.hash).toEqual('def789ghi012');
   });
 
-  it('reads from disk using codeZipUri', async () => {
+  it('reads from disk using code.zipUri', async () => {
     (getLambdaModule.getOneLambda as jest.Mock).mockResolvedValue(null);
     (fs.readFile as jest.Mock).mockResolvedValue(Buffer.from('zipcontent'));
     mockSend.mockResolvedValue({});
@@ -116,7 +126,7 @@ describe('setLambda', () => {
     await setLambda({ upsert: lambdaSample }, context);
 
     expect(fs.readFile).toHaveBeenCalledWith(
-      path.resolve(lambdaSample.codeZipUri!),
+      path.resolve(lambdaSample.code!.zipUri!),
     );
   });
 });

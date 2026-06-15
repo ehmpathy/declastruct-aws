@@ -3,6 +3,7 @@ import {
   LambdaClient,
   UpdateAliasCommand,
 } from '@aws-sdk/client-lambda';
+import type { Hash } from 'hash-fns';
 import { given, then, when } from 'test-fns';
 
 import { getMockedAwsApiContext } from '@src/.test/getMockedAwsApiContext';
@@ -30,8 +31,7 @@ const aliasSample: DeclaredAwsLambdaAlias = {
   lambda: { name: 'test-function' },
   version: {
     lambda: { name: 'test-function' },
-    codeSha256: 'abc',
-    configSha256: 'def',
+    hash: { code: 'abc' as Hash, config: 'def' as Hash },
   },
 };
 
@@ -50,8 +50,7 @@ const versionSample = {
   arn: 'arn:aws:lambda:us-east-1:123456789012:function:test-function:5',
   version: '5',
   lambda: { name: 'test-function' },
-  codeSha256: 'abc',
-  configSha256: 'def',
+  hash: { code: 'abc' as Hash, config: 'def' as Hash },
 };
 
 describe('setLambdaAlias', () => {

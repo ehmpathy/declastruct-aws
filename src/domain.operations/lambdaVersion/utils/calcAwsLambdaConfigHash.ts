@@ -1,4 +1,4 @@
-import { createHash } from 'crypto';
+import { asHashSha256, type Hash } from 'hash-fns';
 
 import type { DeclaredAwsLambda } from '@src/domain.objects/DeclaredAwsLambda';
 
@@ -20,12 +20,12 @@ export type DeclaredAwsLambdaConfigFields = Pick<
  *   - Environment.Variables, Role
  *
  * .note
- *   - configSha256 is part of version unique key
- *   - deterministic ordering via sorted keys
+ *   - configHash is part of version unique key
+ *   - deterministic order via sorted keys
  */
-export const calcConfigSha256 = (input: {
+export const calcAwsLambdaConfigHash = (input: {
   of: DeclaredAwsLambdaConfigFields;
-}): string => {
+}): Hash => {
   // build config state from locked attributes
   const configState = {
     handler: input.of.handler,
@@ -36,7 +36,7 @@ export const calcConfigSha256 = (input: {
     envars: input.of.envars,
   };
 
-  // recursively sort keys for deterministic hashing
+  // recursively sort keys for deterministic hash
   const sortedJson = JSON.stringify(configState, (_, value) =>
     value && typeof value === 'object' && !Array.isArray(value)
       ? Object.keys(value)
@@ -51,6 +51,6 @@ export const calcConfigSha256 = (input: {
       : value,
   );
 
-  // compute sha256 hash
-  return createHash('sha256').update(sortedJson).digest('base64');
+  // compute sha256 hash (hex encoded via hash-fns)
+  return asHashSha256(sortedJson);
 };

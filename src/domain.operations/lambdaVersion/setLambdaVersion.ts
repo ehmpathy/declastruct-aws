@@ -8,11 +8,12 @@ import type { VisualogicContext } from 'visualogic';
 import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
 import type { DeclaredAwsLambdaVersion } from '@src/domain.objects/DeclaredAwsLambdaVersion';
 import { getOneLambda } from '@src/domain.operations/lambda/getOneLambda';
+import { asBase64FromHash } from '@src/domain.operations/lambda/utils/asBase64FromHash';
 import { parseRoleArnIntoRef } from '@src/domain.operations/lambda/utils/parseRoleArnIntoRef';
 
 import { castIntoDeclaredAwsLambdaVersion } from './castIntoDeclaredAwsLambdaVersion';
 import { getOneLambdaVersion } from './getOneLambdaVersion';
-import { calcConfigSha256 } from './utils/calcConfigSha256';
+import { calcAwsLambdaConfigHash } from './utils/calcAwsLambdaConfigHash';
 
 /**
  * .what = publishes a new lambda version
@@ -38,8 +39,7 @@ export const setLambdaVersion = asProcedure(
         by: {
           unique: {
             lambda: versionDesired.lambda,
-            codeSha256: versionDesired.codeSha256,
-            configSha256: versionDesired.configSha256,
+            hash: versionDesired.hash,
           },
         },
       },
@@ -66,17 +66,17 @@ export const setLambdaVersion = asProcedure(
       region: context.aws.credentials.region,
     });
 
-    // publish version
+    // publish version (AWS expects base64 for CodeSha256)
     const result = await lambdaClient.send(
       new PublishVersionCommand({
         FunctionName: lambda.name,
-        CodeSha256: versionDesired.codeSha256,
+        CodeSha256: asBase64FromHash(versionDesired.hash.code),
         Description: versionDesired.description ?? undefined,
       }),
     );
 
     // verify published version matches expected fingerprint
-    const publishedConfigSha256 = calcConfigSha256({
+    const publishedConfigHash = calcAwsLambdaConfigHash({
       of: {
         handler: result.Handler!,
         runtime: result.Runtime!,
@@ -86,10 +86,10 @@ export const setLambdaVersion = asProcedure(
         envars: result.Environment?.Variables ?? {},
       },
     });
-    if (publishedConfigSha256 !== versionDesired.configSha256) {
+    if (publishedConfigHash !== versionDesired.hash.config) {
       UnexpectedCodePathError.throw('config hash mismatch after publish', {
-        expected: versionDesired.configSha256,
-        actual: publishedConfigSha256,
+        expected: versionDesired.hash.config,
+        actual: publishedConfigHash,
       });
     }
 

@@ -1,14 +1,15 @@
+import type { Hash } from 'hash-fns';
 import { given, then, when } from 'test-fns';
 
 import {
-  calcConfigSha256,
+  calcAwsLambdaConfigHash,
   type DeclaredAwsLambdaConfigFields,
-} from './calcConfigSha256';
+} from './calcAwsLambdaConfigHash';
 
-describe('calcConfigSha256', () => {
+describe('calcAwsLambdaConfigHash', () => {
   given('a lambda configuration', () => {
     when('hash is computed', () => {
-      let result: string;
+      let result: Hash;
 
       const lambda: DeclaredAwsLambdaConfigFields = {
         runtime: 'nodejs18.x',
@@ -20,15 +21,15 @@ describe('calcConfigSha256', () => {
       };
 
       then('it should return a hash string', () => {
-        result = calcConfigSha256({ of: lambda });
+        result = calcAwsLambdaConfigHash({ of: lambda });
         expect(typeof result).toBe('string');
         expect(result.length).toBeGreaterThan(0);
       });
 
-      then('it should be a base64 encoded sha256', () => {
-        result = calcConfigSha256({ of: lambda });
-        // base64 sha256 is always 44 characters
-        expect(result.length).toBe(44);
+      then('it should be a hex-encoded sha256', () => {
+        result = calcAwsLambdaConfigHash({ of: lambda });
+        // hex sha256 is always 64 characters
+        expect(result.length).toBe(64);
       });
     });
   });
@@ -54,8 +55,8 @@ describe('calcConfigSha256', () => {
           envars: { NODE_ENV: 'production' },
         };
 
-        const hash1 = calcConfigSha256({ of: config1 });
-        const hash2 = calcConfigSha256({ of: config2 });
+        const hash1 = calcAwsLambdaConfigHash({ of: config1 });
+        const hash2 = calcAwsLambdaConfigHash({ of: config2 });
 
         expect(hash1).toBe(hash2);
       });
@@ -83,8 +84,8 @@ describe('calcConfigSha256', () => {
           envars: {},
         };
 
-        const hash1 = calcConfigSha256({ of: config1 });
-        const hash2 = calcConfigSha256({ of: config2 });
+        const hash1 = calcAwsLambdaConfigHash({ of: config1 });
+        const hash2 = calcAwsLambdaConfigHash({ of: config2 });
 
         expect(hash1).not.toBe(hash2);
       });
@@ -112,8 +113,8 @@ describe('calcConfigSha256', () => {
           envars: { NODE_ENV: 'development' }, // different envar
         };
 
-        const hash1 = calcConfigSha256({ of: config1 });
-        const hash2 = calcConfigSha256({ of: config2 });
+        const hash1 = calcAwsLambdaConfigHash({ of: config1 });
+        const hash2 = calcAwsLambdaConfigHash({ of: config2 });
 
         expect(hash1).not.toBe(hash2);
       });

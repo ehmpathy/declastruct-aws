@@ -49,7 +49,9 @@ export { DeclaredAwsIamUser } from '@src/domain.objects/DeclaredAwsIamUser';
 export { DeclaredAwsIamUserAccessKey } from '@src/domain.objects/DeclaredAwsIamUserAccessKey';
 export { DeclaredAwsLambda } from '@src/domain.objects/DeclaredAwsLambda';
 export { DeclaredAwsLambdaAlias } from '@src/domain.objects/DeclaredAwsLambdaAlias';
+export { DeclaredAwsLambdaCode } from '@src/domain.objects/DeclaredAwsLambdaCode';
 export { DeclaredAwsLambdaVersion } from '@src/domain.objects/DeclaredAwsLambdaVersion';
+export { DeclaredAwsLambdaVersionHash } from '@src/domain.objects/DeclaredAwsLambdaVersionHash';
 // aws log group domain objects
 export { DeclaredAwsLogGroup } from '@src/domain.objects/DeclaredAwsLogGroup';
 export {
@@ -103,11 +105,12 @@ export { getOneIamUser } from '@src/domain.operations/iamUser/getOneIamUser';
 export { delIamUserAccessKey } from '@src/domain.operations/iamUserAccessKey/delIamUserAccessKey';
 export { getAllIamUserAccessKeys } from '@src/domain.operations/iamUserAccessKey/getAllIamUserAccessKeys';
 export { getOneIamUserAccessKey } from '@src/domain.operations/iamUserAccessKey/getOneIamUserAccessKey';
+export { genDeclaredAwsLambdaCode } from '@src/domain.operations/lambda/genDeclaredAwsLambdaCode';
 export { getAllLambdas } from '@src/domain.operations/lambda/getAllLambdas';
 // aws lambda operations
 export { getOneLambda } from '@src/domain.operations/lambda/getOneLambda';
 export { setLambda } from '@src/domain.operations/lambda/setLambda';
-export { calcCodeSha256 } from '@src/domain.operations/lambda/utils/calcCodeSha256';
+export { calcAwsLambdaCodeHash } from '@src/domain.operations/lambda/utils/calcAwsLambdaCodeHash';
 export { delLambdaAlias } from '@src/domain.operations/lambdaAlias/delLambdaAlias';
 export { getAllLambdaAliases } from '@src/domain.operations/lambdaAlias/getAllLambdaAliases';
 // aws lambda alias operations
@@ -118,7 +121,7 @@ export { getAllLambdaVersions } from '@src/domain.operations/lambdaVersion/getAl
 // aws lambda version operations
 export { getOneLambdaVersion } from '@src/domain.operations/lambdaVersion/getOneLambdaVersion';
 export { setLambdaVersion } from '@src/domain.operations/lambdaVersion/setLambdaVersion';
-export { calcConfigSha256 } from '@src/domain.operations/lambdaVersion/utils/calcConfigSha256';
+export { calcAwsLambdaConfigHash } from '@src/domain.operations/lambdaVersion/utils/calcAwsLambdaConfigHash';
 // aws log group operations
 export { getAllLogGroups } from '@src/domain.operations/logGroup/getAllLogGroups';
 export { getOneLogGroup } from '@src/domain.operations/logGroup/getOneLogGroup';

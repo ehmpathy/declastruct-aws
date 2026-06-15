@@ -97,13 +97,14 @@ export const getResources = async (): Promise<DomainEntity<any>[]> => {
 
 ```ts
 import { RefByUnique } from 'domain-objects';
+import { ConstraintError } from 'helpful-errors';
 import {
-  calcCodeSha256,
-  calcConfigSha256,
+  calcAwsLambdaConfigHash,
   DeclaredAwsIamRole,
   DeclaredAwsLambda,
   DeclaredAwsLambdaAlias,
   DeclaredAwsLambdaVersion,
+  genDeclaredAwsLambdaCode,
   getDeclastructAwsProvider,
 } from 'declastruct-aws';
 
@@ -132,7 +133,7 @@ export const getResources = async (): Promise<DomainEntity<any>[]> => {
     tags: { managedBy: 'declastruct' },
   });
 
-  // declare lambda function ($LATEST)
+  // declare lambda function ($LATEST) with code from zip
   const lambda = DeclaredAwsLambda.as({
     name: 'svc-sea-turtle.prod.getSandbars',
     runtime: 'nodejs18.x',
@@ -141,15 +142,17 @@ export const getResources = async (): Promise<DomainEntity<any>[]> => {
     memory: 128,
     role: RefByUnique.as<typeof DeclaredAwsIamRole>(lambdaRole),
     envars: { NODE_ENV: 'production' },
-    codeZipUri: '.artifact/contents.zip',
+    code: genDeclaredAwsLambdaCode({ zipUri: '.artifact/contents.zip' }),
     tags: { managedBy: 'declastruct' },
   });
 
-  // publish immutable version (fingerprinted by code + config sha256)
+  // publish immutable version (fingerprinted by code + config hash)
   const lambdaVersion = DeclaredAwsLambdaVersion.as({
     lambda: RefByUnique.as<typeof DeclaredAwsLambda>(lambda),
-    codeSha256: calcCodeSha256({ of: lambda }),
-    configSha256: calcConfigSha256({ of: lambda }),
+    hash: {
+      code: lambda.code?.hash ?? ConstraintError.throw('lambda.code.hash is required'),
+      config: calcAwsLambdaConfigHash({ of: lambda }),
+    },
   });
 
   // point LIVE alias to this version
@@ -165,7 +168,8 @@ export const getResources = async (): Promise<DomainEntity<any>[]> => {
 ```
 
 this pattern enables:
-- **immutable versions**: each deploy publishes a new version fingerprinted by code + config sha256
+- **change detection**: `code.hash` enables declastruct to detect when code changed and deploy only when needed
+- **immutable versions**: each deploy publishes a new version fingerprinted by `hash: { code, config }`
 - **aliased endpoints**: invoke via `function:LIVE` for stable endpoints across deploys
-- **safe rollbacks**: retarget aliases to previous versions without redeploying code
+- **safe rollbacks**: retarget aliases to previous versions without redeploy
 - **canary deploys**: use `routingConfig.additionalVersionWeights` to split traffic between versions

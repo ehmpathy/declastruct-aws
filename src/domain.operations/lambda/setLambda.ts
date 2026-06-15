@@ -3,8 +3,10 @@ import {
   type CreateFunctionRequest,
   LambdaClient,
   ResourceConflictException,
+  UpdateFunctionCodeCommand,
   type UpdateFunctionCodeRequest,
   UpdateFunctionConfigurationCommand,
+  waitUntilFunctionUpdatedV2,
 } from '@aws-sdk/client-lambda';
 import { asProcedure } from 'as-procedure';
 import type { HasReadonly } from 'domain-objects';
@@ -51,14 +53,14 @@ export const setLambda = asProcedure(
     // if it's a findsert and had a before, then return that
     if (before && input.findsert) return before;
 
-    // fail fast if codeZipUri is not provided
-    if (!lambdaDesired.codeZipUri)
-      throw new BadRequestError('codeZipUri is required to set a lambda', {
+    // fail fast if code is not provided
+    if (!lambdaDesired.code)
+      throw new BadRequestError('code is required to set a lambda', {
         lambdaDesired,
       });
 
-    // lookup the base64 of the zip at that uri
-    const codeZipBuffer = await fs.readFile(resolve(lambdaDesired.codeZipUri));
+    // lookup the buffer of the zip at that uri
+    const codeZipBuffer = await fs.readFile(resolve(lambdaDesired.code.zipUri));
 
     // construct role ARN from RefByUnique name
     const roleArn = `arn:aws:iam::${context.aws.credentials.account}:role/${lambdaDesired.role.name}`;
@@ -79,17 +81,43 @@ export const setLambda = asProcedure(
       },
       Tags: {
         ...lambdaDesired.tags,
-        codeZipUri: lambdaDesired.codeZipUri,
+        codeZipUri: lambdaDesired.code.zipUri,
       },
       Publish: true,
     };
 
     // if its an upsert and had a before, then this requires an update operation
     if (before && input.upsert) {
+      // wait for function to be ready before update
+      await waitUntilFunctionUpdatedV2(
+        { client: awsLambdaSdk, maxWaitTime: 60 },
+        { FunctionName: lambdaDesired.name },
+      );
+
+      // update config
       await awsLambdaSdk.send(
         new UpdateFunctionConfigurationCommand(setRequest),
       );
-      // fetch full state after update (UpdateFunctionConfiguration response is partial)
+
+      // update code only if hash changed
+      const codeHashChanged = before.code?.hash !== lambdaDesired.code.hash;
+      if (codeHashChanged) {
+        // wait for config update to complete before code update
+        await waitUntilFunctionUpdatedV2(
+          { client: awsLambdaSdk, maxWaitTime: 60 },
+          { FunctionName: lambdaDesired.name },
+        );
+
+        await awsLambdaSdk.send(
+          new UpdateFunctionCodeCommand({
+            FunctionName: lambdaDesired.name,
+            ZipFile: codeZipBuffer,
+            Publish: true,
+          }),
+        );
+      }
+
+      // fetch full state after update
       const updated = await getOneLambda(
         { by: { unique: { name: lambdaDesired.name } } },
         context,

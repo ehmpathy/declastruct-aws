@@ -12,8 +12,9 @@ import type { DeclaredAwsLambda } from '@src/domain.objects/DeclaredAwsLambda';
 import type { DeclaredAwsLambdaAlias } from '@src/domain.objects/DeclaredAwsLambdaAlias';
 import type { DeclaredAwsLambdaVersion } from '@src/domain.objects/DeclaredAwsLambdaVersion';
 import { getOneLambda } from '@src/domain.operations/lambda/getOneLambda';
+import { asHashFromBase64 } from '@src/domain.operations/lambda/utils/asHashFromBase64';
 import { parseRoleArnIntoRef } from '@src/domain.operations/lambda/utils/parseRoleArnIntoRef';
-import { calcConfigSha256 } from '@src/domain.operations/lambdaVersion/utils/calcConfigSha256';
+import { calcAwsLambdaConfigHash } from '@src/domain.operations/lambdaVersion/utils/calcAwsLambdaConfigHash';
 
 import { castIntoDeclaredAwsLambdaAlias } from './castIntoDeclaredAwsLambdaAlias';
 
@@ -75,8 +76,8 @@ export const getAllLambdaAliases = asProcedure(
         }),
       );
 
-      // compute configSha256 from version config
-      const configSha256 = calcConfigSha256({
+      // compute config hash from version config
+      const configHash = calcAwsLambdaConfigHash({
         of: {
           handler: versionConfig.Handler!,
           runtime: versionConfig.Runtime!,
@@ -87,11 +88,13 @@ export const getAllLambdaAliases = asProcedure(
         },
       });
 
-      // build version ref with real sha256 values
+      // build version ref with real hash values
       const versionRef: RefByUnique<typeof DeclaredAwsLambdaVersion> = {
         lambda: lambdaRef,
-        codeSha256: versionConfig.CodeSha256 ?? '',
-        configSha256,
+        hash: {
+          code: asHashFromBase64(versionConfig.CodeSha256 ?? ''),
+          config: configHash,
+        },
       };
 
       results.push(

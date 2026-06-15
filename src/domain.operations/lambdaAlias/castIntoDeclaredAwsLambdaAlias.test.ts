@@ -1,4 +1,5 @@
 import type { AliasConfiguration } from '@aws-sdk/client-lambda';
+import type { Hash } from 'hash-fns';
 import { getError } from 'helpful-errors';
 import { given, then, when } from 'test-fns';
 
@@ -23,8 +24,10 @@ describe('castIntoDeclaredAwsLambdaAlias', () => {
         const lambda = { name: 'my-func' };
         const version = {
           lambda,
-          codeSha256: 'abc',
-          configSha256: 'def',
+          hash: {
+            code: 'abc' as Hash,
+            config: 'def' as Hash,
+          },
         };
 
         result = castIntoDeclaredAwsLambdaAlias({
@@ -61,8 +64,10 @@ describe('castIntoDeclaredAwsLambdaAlias', () => {
             lambda: { name: 'my-func' },
             version: {
               lambda: { name: 'my-func' },
-              codeSha256: 'abc',
-              configSha256: 'def',
+              hash: {
+                code: 'abc' as Hash,
+                config: 'def' as Hash,
+              },
             },
           }),
         );
@@ -84,8 +89,10 @@ describe('castIntoDeclaredAwsLambdaAlias', () => {
             lambda: { name: 'my-func' },
             version: {
               lambda: { name: 'my-func' },
-              codeSha256: 'abc',
-              configSha256: 'def',
+              hash: {
+                code: 'abc' as Hash,
+                config: 'def' as Hash,
+              },
             },
           }),
         );
@@ -94,11 +101,11 @@ describe('castIntoDeclaredAwsLambdaAlias', () => {
     });
   });
 
-  given('an alias configuration without routing config', () => {
+  given('an alias configuration without route config', () => {
     when('cast to domain object', () => {
       let result: ReturnType<typeof castIntoDeclaredAwsLambdaAlias>;
 
-      then('it should cast with undefined routing config', () => {
+      then('it should cast with undefined route config', () => {
         const aliasConfig: AliasConfiguration = {
           AliasArn:
             'arn:aws:lambda:us-east-1:123456789012:function:my-func:LIVE',
@@ -110,13 +117,15 @@ describe('castIntoDeclaredAwsLambdaAlias', () => {
           lambda: { name: 'my-func' },
           version: {
             lambda: { name: 'my-func' },
-            codeSha256: 'abc',
-            configSha256: 'def',
+            hash: {
+              code: 'abc' as Hash,
+              config: 'def' as Hash,
+            },
           },
         });
       });
 
-      then('routing config should be undefined', () => {
+      then('route config should be undefined', () => {
         expect(result.routingConfig).toBeUndefined();
       });
     });

@@ -9,9 +9,10 @@ import { assure } from 'type-fns';
 
 import type { DeclaredAwsLambda } from '@src/domain.objects/DeclaredAwsLambda';
 import { DeclaredAwsLambdaVersion } from '@src/domain.objects/DeclaredAwsLambdaVersion';
+import { asHashFromBase64 } from '@src/domain.operations/lambda/utils/asHashFromBase64';
 import { parseRoleArnIntoRef } from '@src/domain.operations/lambda/utils/parseRoleArnIntoRef';
 
-import { calcConfigSha256 } from './utils/calcConfigSha256';
+import { calcAwsLambdaConfigHash } from './utils/calcAwsLambdaConfigHash';
 
 /**
  * .what = transforms aws sdk FunctionConfiguration into DeclaredAwsLambdaVersion
@@ -75,8 +76,8 @@ export const castIntoDeclaredAwsLambdaVersion = (input: {
       { input },
     );
 
-  // compute configSha256 from function configuration
-  const configSha256 = calcConfigSha256({
+  // compute config hash from function configuration
+  const configHash = calcAwsLambdaConfigHash({
     of: {
       handler: input.functionConfig.Handler,
       runtime: input.functionConfig.Runtime,
@@ -87,15 +88,20 @@ export const castIntoDeclaredAwsLambdaVersion = (input: {
     },
   });
 
+  // convert AWS base64 code hash to hex
+  const codeHash = asHashFromBase64(input.functionConfig.CodeSha256);
+
   // cast and assure readonly fields are present
   return assure(
     DeclaredAwsLambdaVersion.as({
       arn: input.functionConfig.FunctionArn,
       version: input.functionConfig.Version,
       lambda: input.lambda,
-      codeSha256: input.functionConfig.CodeSha256,
-      configSha256,
-      // normalize empty string to undefined to avoid spurious diffs
+      hash: {
+        code: codeHash,
+        config: configHash,
+      },
+      // omit empty description to avoid spurious diffs
       ...(input.functionConfig.Description && {
         description: input.functionConfig.Description,
       }),

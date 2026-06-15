@@ -1,20 +1,21 @@
 import { DomainEntity, RefByUnique } from 'domain-objects';
 
 import type { DeclaredAwsLambda } from './DeclaredAwsLambda';
+import { DeclaredAwsLambdaVersionHash } from './DeclaredAwsLambdaVersionHash';
 
 /**
  * .what = an immutable version of a lambda function
  * .why = represents a published snapshot that can be referenced by aliases
  *
  * .identity
- *   - @primary = [arn] — qualified arn including version number (e.g., :5)
- *   - @unique = [lambda, codeSha256, configSha256] — a version is uniquely identified by function + code + config fingerprint
+ *   - @primary = [arn] — qualified arn with version number (e.g., :5)
+ *   - @unique = [lambda, hash] — version uniquely identified by function + hashes
  *
  * .note
  *   - versions are immutable — once published, they cannot be modified
  *   - the version number is assigned sequentially by aws and never reused
  *   - PublishVersion is idempotent — if code+config unchanged, returns same version
- *   - configSha256 is computed by declastruct since aws does not expose it
+ *   - hash.config is computed by declastruct since aws does not expose it
  */
 export interface DeclaredAwsLambdaVersion {
   /**
@@ -36,19 +37,10 @@ export interface DeclaredAwsLambdaVersion {
   lambda: RefByUnique<typeof DeclaredAwsLambda>;
 
   /**
-   * .what = the sha256 hash of the code at publish time
-   * .note = part of the unique key — same code = same hash
+   * .what = content hashes that uniquely identify this version
+   * .note = code hash from aws, config hash computed by declastruct
    */
-  codeSha256: string;
-
-  /**
-   * .what = the sha256 hash of the config at publish time
-   * .note
-   *   - computed by declastruct (aws does not expose this)
-   *   - includes: handler, runtime, memory, timeout, envars, role, vpc, layers, etc.
-   *   - part of the unique key — same config = same hash
-   */
-  configSha256: string;
+  hash: DeclaredAwsLambdaVersionHash;
 
   /**
    * .what = optional description for this version
@@ -67,10 +59,10 @@ export class DeclaredAwsLambdaVersion
   public static primary = ['arn'] as const;
 
   /**
-   * .what = version is uniquely identified by function + code + config fingerprint
+   * .what = version is uniquely identified by function + content hashes
    * .note = this enables idempotent version lookup — find version by content hash
    */
-  public static unique = ['lambda', 'codeSha256', 'configSha256'] as const;
+  public static unique = ['lambda', 'hash'] as const;
 
   /**
    * .what = identity attributes assigned by aws
@@ -84,9 +76,9 @@ export class DeclaredAwsLambdaVersion
 
   /**
    * .what = nested domain object definitions
-   * .note = lambda is RefByUnique ref, not full domain object
    */
   public static nested = {
     lambda: RefByUnique<typeof DeclaredAwsLambda>,
+    hash: DeclaredAwsLambdaVersionHash,
   };
 }

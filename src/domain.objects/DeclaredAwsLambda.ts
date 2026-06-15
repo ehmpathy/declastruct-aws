@@ -3,6 +3,7 @@ import type { UniDateTime } from '@ehmpathy/uni-time';
 import { DomainEntity, DomainLiteral, RefByUnique } from 'domain-objects';
 
 import type { DeclaredAwsIamRole } from './DeclaredAwsIamRole';
+import { DeclaredAwsLambdaCode } from './DeclaredAwsLambdaCode';
 import { DeclaredAwsTags } from './DeclaredAwsTags';
 
 /**
@@ -62,17 +63,13 @@ export interface DeclaredAwsLambda {
   updatedAt?: UniDateTime;
 
   /**
-   * .what = the sha256 of the lambda's code
-   */
-  codeSha256?: string;
-
-  /**
-   * .what = the uri to the lambda's code
+   * .what = the lambda's code configuration
    * .note
-   *   - this is persisted via tags, by this package specifically
    *   - null if lambda was not created by declastruct
+   *   - zipUri is the local path to the deployment package
+   *   - hash is the sha256 of the zip; compute via calcAwsLambdaCodeHash({ of: { zipUri } })
    */
-  codeZipUri: string | null;
+  code: DeclaredAwsLambdaCode | null;
 
   /**
    * .what = the environmental variables available at runtime
@@ -247,7 +244,7 @@ export class DeclaredAwsLambda
    * .what = intrinsic attributes resolved from AWS, not user-settable
    * .note = these are real attributes of the resource, but derived from the source of truth
    */
-  public static readonly = ['codeSize', 'codeSha256'] as const;
+  public static readonly = ['codeSize'] as const;
 
   /**
    * .what = nested domain object definitions
@@ -257,6 +254,7 @@ export class DeclaredAwsLambda
    */
   public static nested = {
     role: RefByUnique<typeof DeclaredAwsIamRole>,
+    code: DeclaredAwsLambdaCode,
     envars: DomainLiteral,
     tags: DeclaredAwsTags,
   };
