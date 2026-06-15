@@ -32,10 +32,7 @@ const validConfigHash =
 
 const versionSample: DeclaredAwsLambdaVersion = {
   lambda: { name: 'test-function' },
-  hash: {
-    code: validCodeSha256Hex,
-    config: validConfigHash,
-  },
+  hash: { code: validCodeSha256Hex, config: validConfigHash },
 };
 
 const lambdaSample = {

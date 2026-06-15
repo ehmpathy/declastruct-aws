@@ -58,10 +58,7 @@ describe('DeclaredAwsLambdaAlias', () => {
           lambda: { name: 'my-func' },
           version: {
             lambda: { name: 'my-func' },
-            hash: {
-              code: 'abc' as Hash,
-              config: 'def' as Hash,
-            },
+            hash: { code: 'abc' as Hash, config: 'def' as Hash },
           },
           description: 'Production alias',
           routingConfig: {

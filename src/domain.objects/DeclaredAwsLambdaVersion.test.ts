@@ -4,7 +4,7 @@ import { given, then, when } from 'test-fns';
 import { DeclaredAwsLambdaVersion } from './DeclaredAwsLambdaVersion';
 
 describe('DeclaredAwsLambdaVersion', () => {
-  given('a valid lambda reference and hashes', () => {
+  given('a valid lambda reference and hash', () => {
     when('instantiated', () => {
       let version: DeclaredAwsLambdaVersion;
 
@@ -57,12 +57,10 @@ describe('DeclaredAwsLambdaVersion', () => {
         expect(version).toMatchObject({
           arn: 'arn:aws:lambda:us-east-1:123456789012:function:my-func:5',
           version: '5',
-          hash: {
-            code: 'abc123',
-            config: 'def456',
-          },
           description: 'Version 5 deployment',
         });
+        expect(version.hash.code).toBe('abc123');
+        expect(version.hash.config).toBe('def456');
       });
     });
   });
@@ -82,6 +80,10 @@ describe('DeclaredAwsLambdaVersion', () => {
 
     then('readonly is defined as version', () => {
       expect(DeclaredAwsLambdaVersion.readonly).toEqual(['version']);
+    });
+
+    then('nested includes hash', () => {
+      expect(DeclaredAwsLambdaVersion.nested).toHaveProperty('hash');
     });
   });
 });

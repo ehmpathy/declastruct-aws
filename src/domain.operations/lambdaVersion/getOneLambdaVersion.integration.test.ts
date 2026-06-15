@@ -69,10 +69,7 @@ describe('getOneLambdaVersion', () => {
           by: {
             unique: {
               lambda: { name: 'declastruct-nonexistent-lambda' },
-              hash: {
-                code: 'abc123' as Hash,
-                config: 'def456' as Hash,
-              },
+              hash: { code: 'abc123' as Hash, config: 'def456' as Hash },
             },
           },
         },
