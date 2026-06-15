@@ -1,8 +1,7 @@
 import { DomainEntity, RefByUnique } from 'domain-objects';
 
 import type { DeclaredAwsLambda } from './DeclaredAwsLambda';
-import type { DeclaredAwsLambdaVersion } from './DeclaredAwsLambdaVersion';
-import { DeclaredAwsLambdaVersionRef } from './DeclaredAwsLambdaVersionRef';
+import { DeclaredAwsLambdaVersion } from './DeclaredAwsLambdaVersion';
 
 /**
  * .what = a named pointer to a lambda version
@@ -94,9 +93,8 @@ export class DeclaredAwsLambdaAlias
 
   /**
    * .what = nested domain object definitions
-   * .note = version uses DeclaredAwsLambdaVersionRef for proper nested hash traversal
    */
   public static nested = {
-    version: DeclaredAwsLambdaVersionRef,
+    version: DeclaredAwsLambdaVersion,
   };
 }

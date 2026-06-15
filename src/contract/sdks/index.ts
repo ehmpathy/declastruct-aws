@@ -52,7 +52,6 @@ export { DeclaredAwsLambdaAlias } from '@src/domain.objects/DeclaredAwsLambdaAli
 export { DeclaredAwsLambdaCode } from '@src/domain.objects/DeclaredAwsLambdaCode';
 export { DeclaredAwsLambdaVersion } from '@src/domain.objects/DeclaredAwsLambdaVersion';
 export { DeclaredAwsLambdaVersionHash } from '@src/domain.objects/DeclaredAwsLambdaVersionHash';
-export { DeclaredAwsLambdaVersionRef } from '@src/domain.objects/DeclaredAwsLambdaVersionRef';
 // aws log group domain objects
 export { DeclaredAwsLogGroup } from '@src/domain.objects/DeclaredAwsLogGroup';
 export {
