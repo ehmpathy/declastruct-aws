@@ -4,11 +4,36 @@ import type { Hash } from 'hash-fns';
 import type { DeclaredAwsLambda } from './DeclaredAwsLambda';
 
 /**
+ * .what = the content hashes that uniquely identify a lambda version
+ * .why = enables idempotent version lookup — same code+config = same version
+ */
+export interface DeclaredAwsLambdaVersionHash {
+  /**
+   * .what = the sha256 hash of the code at publish time
+   * .note = part of the unique key — same code = same hash
+   */
+  code: Hash;
+
+  /**
+   * .what = the sha256 hash of the config at publish time
+   * .note
+   *   - computed by declastruct (aws does not expose this)
+   *   - includes: handler, runtime, memory, timeout, envars, role, vpc, layers, etc.
+   *   - part of the unique key — same config = same hash
+   */
+  config: Hash;
+}
+
+export class DeclaredAwsLambdaVersionHash
+  extends DomainLiteral<DeclaredAwsLambdaVersionHash>
+  implements DeclaredAwsLambdaVersionHash {}
+
+/**
  * .what = an immutable version of a lambda function
  * .why = represents a published snapshot that can be referenced by aliases
  *
  * .identity
- *   - @primary = [arn] — qualified arn including version number (e.g., :5)
+ *   - @primary = [arn] — qualified arn with version number (e.g., :5)
  *   - @unique = [lambda, hash] — a version is uniquely identified by function + code + config fingerprint
  *
  * .note
@@ -40,22 +65,7 @@ export interface DeclaredAwsLambdaVersion {
    * .what = the hashes that uniquely identify this version's content
    * .note = part of the unique key — same code+config = same version
    */
-  hash: {
-    /**
-     * .what = the sha256 hash of the code at publish time
-     * .note = part of the unique key — same code = same hash
-     */
-    code: Hash;
-
-    /**
-     * .what = the sha256 hash of the config at publish time
-     * .note
-     *   - computed by declastruct (aws does not expose this)
-     *   - includes: handler, runtime, memory, timeout, envars, role, vpc, layers, etc.
-     *   - part of the unique key — same config = same hash
-     */
-    config: Hash;
-  };
+  hash: DeclaredAwsLambdaVersionHash;
 
   /**
    * .what = optional description for this version
@@ -95,6 +105,6 @@ export class DeclaredAwsLambdaVersion
    */
   public static nested = {
     lambda: RefByUnique<typeof DeclaredAwsLambda>,
-    hash: DomainLiteral,
+    hash: DeclaredAwsLambdaVersionHash,
   };
 }

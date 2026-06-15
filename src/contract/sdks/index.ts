@@ -50,7 +50,10 @@ export { DeclaredAwsIamUserAccessKey } from '@src/domain.objects/DeclaredAwsIamU
 export { DeclaredAwsLambda } from '@src/domain.objects/DeclaredAwsLambda';
 export { DeclaredAwsLambdaAlias } from '@src/domain.objects/DeclaredAwsLambdaAlias';
 export { DeclaredAwsLambdaCode } from '@src/domain.objects/DeclaredAwsLambdaCode';
-export { DeclaredAwsLambdaVersion } from '@src/domain.objects/DeclaredAwsLambdaVersion';
+export {
+  DeclaredAwsLambdaVersion,
+  DeclaredAwsLambdaVersionHash,
+} from '@src/domain.objects/DeclaredAwsLambdaVersion';
 // aws log group domain objects
 export { DeclaredAwsLogGroup } from '@src/domain.objects/DeclaredAwsLogGroup';
 export {
