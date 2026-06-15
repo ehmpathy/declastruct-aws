@@ -1,4 +1,4 @@
-import { DomainEntity, RefByUnique } from 'domain-objects';
+import { DomainEntity, type RefByUnique } from 'domain-objects';
 
 import type { DeclaredAwsLambda } from './DeclaredAwsLambda';
 import { DeclaredAwsLambdaVersion } from './DeclaredAwsLambdaVersion';
