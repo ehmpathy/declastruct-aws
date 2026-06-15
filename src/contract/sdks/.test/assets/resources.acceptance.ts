@@ -2,10 +2,10 @@ import { asUniDateTime, UniDateTime } from '@ehmpathy/uni-time';
 import { endOfDay, startOfDay, subDays } from 'date-fns';
 import { del } from 'declastruct';
 import { RefByUnique } from 'domain-objects';
+import { ConstraintError } from 'helpful-errors';
 
 import {
-  calcCodeSha256,
-  calcConfigSha256,
+  calcAwsLambdaConfigHash,
   DeclaredAwsIamRole,
   DeclaredAwsIamRolePolicyAttachedInline,
   DeclaredAwsLambda,
@@ -15,6 +15,7 @@ import {
   DeclaredAwsLogGroupReportCostOfIngestion,
   DeclaredAwsLogGroupReportDistOfPattern,
   DeclaredAwsVpcTunnel,
+  genDeclaredAwsLambdaCode,
   getAllIamUserAccessKeys,
   getDeclastructAwsProvider,
 } from '../../../../../dist/contract/sdks';
@@ -103,7 +104,8 @@ export const getResources = async () => {
     },
   });
 
-  // declare lambda function
+  // declare lambda function with code from zip
+  const zipUri = './src/contract/sdks/.test/assets/lambda.sample.zip';
   const lambda = DeclaredAwsLambda.as({
     name: 'declastruct-acceptance-lambda',
     runtime: 'nodejs18.x',
@@ -112,16 +114,19 @@ export const getResources = async () => {
     memory: 128,
     role: RefByUnique.as<typeof DeclaredAwsIamRole>(lambdaRole),
     envars: { purpose: 'acceptance-test' },
-    codeZipUri: './src/contract/sdks/.test/assets/lambda.sample.zip',
+    code: genDeclaredAwsLambdaCode({ zipUri }),
     tags: { managedBy: 'declastruct', purpose: 'acceptance-test' },
   });
 
   // declare lambda version (publishes immutable snapshot)
-  const lambdaWithCode = lambda as typeof lambda & { codeZipUri: string };
   const lambdaVersion = DeclaredAwsLambdaVersion.as({
     lambda: RefByUnique.as<typeof DeclaredAwsLambda>(lambda),
-    codeSha256: calcCodeSha256({ of: lambdaWithCode }),
-    configSha256: calcConfigSha256({ of: lambda }),
+    hash: {
+      code:
+        lambda.code?.hash ??
+        ConstraintError.throw('lambda.code.hash is required'),
+      config: calcAwsLambdaConfigHash({ of: lambda }),
+    },
   });
 
   // declare lambda alias pointing to the version

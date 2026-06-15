@@ -49,8 +49,10 @@ describe('setLambdaAlias', () => {
             lambda: { name: testLambdaName },
             version: {
               lambda: { name: testLambdaName },
-              codeSha256: versionToAlias.codeSha256,
-              configSha256: versionToAlias.configSha256,
+              hash: {
+                code: versionToAlias.hash.code,
+                config: versionToAlias.hash.config,
+              },
             },
           },
         },
@@ -94,7 +96,7 @@ describe('setLambdaAlias', () => {
 
       const versionToAlias = publishedVersions[0]!;
 
-      // findsert same alias - should return existing
+      // findsert same alias - should return extant
       const alias = await setLambdaAlias(
         {
           findsert: {
@@ -102,8 +104,10 @@ describe('setLambdaAlias', () => {
             lambda: { name: testLambdaName },
             version: {
               lambda: { name: testLambdaName },
-              codeSha256: versionToAlias.codeSha256,
-              configSha256: versionToAlias.configSha256,
+              hash: {
+                code: versionToAlias.hash.code,
+                config: versionToAlias.hash.config,
+              },
             },
           },
         },

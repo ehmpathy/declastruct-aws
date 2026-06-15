@@ -4,7 +4,9 @@ import { type HasReadonly, hasReadonly } from 'domain-objects';
 import { assure, isPresent } from 'type-fns';
 
 import { DeclaredAwsLambda } from '@src/domain.objects/DeclaredAwsLambda';
+import { DeclaredAwsLambdaCode } from '@src/domain.objects/DeclaredAwsLambdaCode';
 
+import { asHashFromBase64 } from './utils/asHashFromBase64';
 import { parseRoleArnIntoRef } from './utils/parseRoleArnIntoRef';
 
 /**
@@ -28,6 +30,12 @@ export const castIntoDeclaredAwsLambda = (
   // parse tags (only include if present)
   const tags = Object.keys(userTags).length > 0 ? userTags : undefined;
 
+  // build code object (null if not created by declastruct)
+  const codeHash = asHashFromBase64(assure(input.CodeSha256, isPresent));
+  const code = codeZipUri
+    ? DeclaredAwsLambdaCode.as({ zipUri: codeZipUri, hash: codeHash })
+    : null;
+
   // cast and assure readonly fields are present
   return assure(
     DeclaredAwsLambda.as({
@@ -35,8 +43,8 @@ export const castIntoDeclaredAwsLambda = (
       name: assure(input.FunctionName, isPresent),
 
       handler: assure(input.Handler, isPresent),
-      codeSha256: assure(input.CodeSha256, isPresent),
       codeSize: assure(input.CodeSize, isPresent),
+      code,
 
       runtime: assure(input.Runtime, isPresent),
       timeout: assure(input.Timeout, isPresent),
@@ -47,7 +55,6 @@ export const castIntoDeclaredAwsLambda = (
         assure(input.LastModified, isPresent).replace('+0000', 'Z'),
       ),
       envars: input.Environment?.Variables ?? {},
-      codeZipUri: codeZipUri ?? null,
       ...(tags !== undefined && { tags }),
     }),
     hasReadonly({ of: DeclaredAwsLambda }),

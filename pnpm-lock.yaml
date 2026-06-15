@@ -53,6 +53,9 @@ importers:
       domain-objects:
         specifier: 0.31.7
         version: 0.31.7(@huggingface/transformers@4.0.1)(@tensorflow/tfjs@4.22.0(seedrandom@3.0.5))(@types/node@22.15.21)(zod@4.3.4)
+      hash-fns:
+        specifier: 3.0.0
+        version: 3.0.0
       helpful-errors:
         specifier: 1.5.3
         version: 1.5.3
@@ -3554,6 +3557,10 @@ packages:
 
   hash-fns@1.1.0:
     resolution: {integrity: sha512-U5qEFLH3QMR70vAmNkODMv0dff41bek64IM+8eUXvWHMAF55pX0jLWZOFZn7pvyOMibAKN+gjCAqdNtBn4N5qw==}
+    engines: {node: '>=8.0.0'}
+
+  hash-fns@3.0.0:
+    resolution: {integrity: sha512-JNwsi2z19Ge6Vjq2bwfmVnSrUkiRs1fUEiFaBPwRo8AQ9Vo/q/C+r0fj2MsRnpzY6McWWMH1HvD1gKVAUGfaQg==}
     engines: {node: '>=8.0.0'}
 
   hasown@2.0.2:
@@ -10214,6 +10221,12 @@ snapshots:
     dependencies:
       domain-glossaries: 1.0.0
       type-fns: 1.17.0
+
+  hash-fns@3.0.0:
+    dependencies:
+      '@noble/hashes': 2.0.1
+      domain-glossaries: 1.0.0
+      type-fns: 1.21.0
 
   hasown@2.0.2:
     dependencies:

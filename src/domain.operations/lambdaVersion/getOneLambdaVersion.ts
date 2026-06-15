@@ -20,12 +20,11 @@ import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
 import type { DeclaredAwsLambda } from '@src/domain.objects/DeclaredAwsLambda';
 import { DeclaredAwsLambdaVersion } from '@src/domain.objects/DeclaredAwsLambdaVersion';
 import { getOneLambda } from '@src/domain.operations/lambda/getOneLambda';
+import { asHashFromBase64 } from '@src/domain.operations/lambda/utils/asHashFromBase64';
 import { parseRoleArnIntoRef } from '@src/domain.operations/lambda/utils/parseRoleArnIntoRef';
 
 import { castIntoDeclaredAwsLambdaVersion } from './castIntoDeclaredAwsLambdaVersion';
-import { calcConfigSha256 } from './utils/calcConfigSha256';
-
-// still needed for unique key comparison
+import { calcAwsLambdaConfigHash } from './utils/calcAwsLambdaConfigHash';
 
 /**
  * .what = retrieves a lambda version by primary (arn) or unique (lambda + hashes)
@@ -128,15 +127,16 @@ export const getOneLambdaVersion = asProcedure(
         nextMarker = response.NextMarker;
       } while (nextMarker);
 
-      // find version matching codeSha256 and configSha256
+      // find version that matches hash.code and hash.config
       for (const ver of versions) {
         // skip $LATEST
         if (ver.Version === '$LATEST') continue;
 
-        // check codeSha256 match
-        if (ver.CodeSha256 !== by.unique.codeSha256) continue;
+        // check code hash match (convert AWS base64 to hex for comparison)
+        const codeHash = asHashFromBase64(ver.CodeSha256!);
+        if (codeHash !== by.unique.hash.code) continue;
 
-        // get full config to compute configSha256
+        // get full config to compute config hash
         const versionConfig = await lambdaClient.send(
           new GetFunctionConfigurationCommand({
             FunctionName: lambda.name,
@@ -145,7 +145,7 @@ export const getOneLambdaVersion = asProcedure(
         );
 
         // compute config hash to check for match
-        const configHash = calcConfigSha256({
+        const configHash = calcAwsLambdaConfigHash({
           of: {
             handler: versionConfig.Handler!,
             runtime: versionConfig.Runtime!,
@@ -156,10 +156,10 @@ export const getOneLambdaVersion = asProcedure(
           },
         });
 
-        // check configSha256 match
-        if (configHash !== by.unique.configSha256) continue;
+        // check config hash match
+        if (configHash !== by.unique.hash.config) continue;
 
-        // found matching version
+        // found matched version
         return castIntoDeclaredAwsLambdaVersion({
           functionConfig: versionConfig,
           lambda: by.unique.lambda,

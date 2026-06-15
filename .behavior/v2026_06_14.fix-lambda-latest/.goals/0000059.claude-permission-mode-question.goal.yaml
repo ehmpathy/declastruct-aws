@@ -1,0 +1,14 @@
+slug: 'claude-permission-mode-question'
+source: 'peer:human'
+status:
+  choice: 'fulfilled'
+  reason: 'answered with claude-code-guide agent'
+why:
+  ask: 'how to spawn claude with allow edits by default'
+  purpose: 'human wants to work more efficiently without permission prompts'
+  benefit: 'faster iteration on edits'
+what:
+  outcome: 'human knows how to use --permission-mode acceptEdits'
+how:
+  task: 'answer the question'
+  gate: 'answer provided'

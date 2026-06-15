@@ -1,3 +1,4 @@
+import type { Hash } from 'hash-fns';
 import { UnexpectedCodePathError } from 'helpful-errors';
 import { given, then, useBeforeAll } from 'test-fns';
 
@@ -42,8 +43,10 @@ describe('getOneLambdaVersion', () => {
             by: {
               unique: {
                 lambda: { name: lambdaToCheck.name },
-                codeSha256: versionToGet.codeSha256,
-                configSha256: versionToGet.configSha256,
+                hash: {
+                  code: versionToGet.hash.code,
+                  config: versionToGet.hash.config,
+                },
               },
             },
           },
@@ -66,8 +69,10 @@ describe('getOneLambdaVersion', () => {
           by: {
             unique: {
               lambda: { name: 'declastruct-nonexistent-lambda' },
-              codeSha256: 'abc123',
-              configSha256: 'def456',
+              hash: {
+                code: 'abc123' as Hash,
+                config: 'def456' as Hash,
+              },
             },
           },
         },

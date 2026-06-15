@@ -9,7 +9,7 @@ import { setLambda } from '@src/domain.operations/lambda/setLambda';
 /**
  * .what = declastruct DAO for AWS Lambda resources
  * .why = wraps Lambda operations to conform to declastruct interface
- * .note = codeZipUri is required for set operations but not returned from get
+ * .note = code is required for set operations
  */
 export const DeclaredAwsLambdaDao = genDeclastructDao<
   typeof DeclaredAwsLambda,

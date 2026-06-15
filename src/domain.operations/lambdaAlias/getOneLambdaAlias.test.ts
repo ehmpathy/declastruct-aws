@@ -16,6 +16,9 @@ const mockSend = jest.fn();
 
 const context = getMockedAwsApiContext();
 
+// valid base64-encoded sha256 hash for test data
+const validCodeSha256Base64 = 'n4bQgYhMfWWaL+qgxVrQFaO/TxsrC4Is0V1sFbDwCgg=';
+
 describe('getOneLambdaAlias', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -45,7 +48,7 @@ describe('getOneLambdaAlias', () => {
             Timeout: 30,
             Role: 'arn:aws:iam::123456789012:role/test-role',
             Environment: { Variables: {} },
-            CodeSha256: 'abc123',
+            CodeSha256: validCodeSha256Base64,
           });
 
         const result = await getOneLambdaAlias(
@@ -87,7 +90,7 @@ describe('getOneLambdaAlias', () => {
             Timeout: 30,
             Role: 'arn:aws:iam::123456789012:role/test-role',
             Environment: { Variables: {} },
-            CodeSha256: 'abc123',
+            CodeSha256: validCodeSha256Base64,
           });
 
         const result = await getOneLambdaAlias(

@@ -5,6 +5,9 @@ import { given, then, when } from 'test-fns';
 import { castIntoDeclaredAwsLambdaVersion } from './castIntoDeclaredAwsLambdaVersion';
 
 describe('castIntoDeclaredAwsLambdaVersion', () => {
+  // valid base64-encoded sha256 hash for test data (sha256 of 'test')
+  const validCodeSha256 = 'n4bQgYhMfWWaL+qgxVrQFaO/TxsrC4Is0V1sFbDwCgg=';
+
   // helper to create complete function config
   const createFunctionConfig = (
     overrides: Partial<FunctionConfiguration> = {},
@@ -12,7 +15,7 @@ describe('castIntoDeclaredAwsLambdaVersion', () => {
     FunctionArn: 'arn:aws:lambda:us-east-1:123456789012:function:my-func:5',
     FunctionName: 'my-func',
     Version: '5',
-    CodeSha256: 'abc123codesha',
+    CodeSha256: validCodeSha256,
     Description: 'Version 5',
     Handler: 'index.handler',
     Runtime: 'nodejs18.x',
@@ -41,15 +44,17 @@ describe('castIntoDeclaredAwsLambdaVersion', () => {
         expect(result).toMatchObject({
           arn: 'arn:aws:lambda:us-east-1:123456789012:function:my-func:5',
           version: '5',
-          codeSha256: 'abc123codesha',
           description: 'Version 5',
         });
         expect(result.lambda).toMatchObject({
           name: 'my-func',
         });
-        // configSha256 should be computed
-        expect(result.configSha256).toBeDefined();
-        expect(typeof result.configSha256).toBe('string');
+        // hash.code should be present (converted from base64 to hex)
+        expect(result.hash.code).toBeDefined();
+        expect(typeof result.hash.code).toBe('string');
+        // hash.config should be computed
+        expect(result.hash.config).toBeDefined();
+        expect(typeof result.hash.config).toBe('string');
       });
     });
   });
@@ -133,10 +138,14 @@ describe('castIntoDeclaredAwsLambdaVersion', () => {
   });
 
   given('two function configs with same config but different code', () => {
+    // two distinct valid base64-encoded sha256 hashes
+    const codeSha256A = 'n4bQgYhMfWWaL+qgxVrQFaO/TxsrC4Is0V1sFbDwCgg='; // sha256('test')
+    const codeSha256B = 'LCa0a2j/xo/5m0U8HTBBNBNCLXBkg7+g+YpeiGJm564='; // sha256('foo')
+
     when('cast to domain objects', () => {
-      then('they should have same configSha256', () => {
-        const config1 = createFunctionConfig({ CodeSha256: 'code1' });
-        const config2 = createFunctionConfig({ CodeSha256: 'code2' });
+      then('they should have same hash.config', () => {
+        const config1 = createFunctionConfig({ CodeSha256: codeSha256A });
+        const config2 = createFunctionConfig({ CodeSha256: codeSha256B });
 
         const result1 = castIntoDeclaredAwsLambdaVersion({
           functionConfig: config1,
@@ -147,14 +156,14 @@ describe('castIntoDeclaredAwsLambdaVersion', () => {
           lambda: { name: 'my-func' },
         });
 
-        expect(result1.configSha256).toBe(result2.configSha256);
+        expect(result1.hash.config).toBe(result2.hash.config);
       });
     });
   });
 
   given('two function configs with different memory', () => {
     when('cast to domain objects', () => {
-      then('they should have different configSha256', () => {
+      then('they should have different hash.config', () => {
         const config1 = createFunctionConfig({ MemorySize: 256 });
         const config2 = createFunctionConfig({ MemorySize: 512 });
 
@@ -167,7 +176,7 @@ describe('castIntoDeclaredAwsLambdaVersion', () => {
           lambda: { name: 'my-func' },
         });
 
-        expect(result1.configSha256).not.toBe(result2.configSha256);
+        expect(result1.hash.config).not.toBe(result2.hash.config);
       });
     });
   });

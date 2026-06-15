@@ -45,8 +45,11 @@ describe('delLambdaAlias', () => {
             lambda: { name: 'test-function' },
             version: {
               lambda: { name: 'test-function' },
-              codeSha256: 'abc',
-              configSha256: 'def',
+              hash: {
+                code: '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08',
+                config:
+                  'def456789012345678901234567890123456789012345678901234567890abcd',
+              },
             },
           },
         );
@@ -106,8 +109,11 @@ describe('delLambdaAlias', () => {
             lambda: { name: 'test-function' },
             version: {
               lambda: { name: 'test-function' },
-              codeSha256: 'abc',
-              configSha256: 'def',
+              hash: {
+                code: '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08',
+                config:
+                  'def456789012345678901234567890123456789012345678901234567890abcd',
+              },
             },
           },
         );

@@ -1,3 +1,4 @@
+import type { Hash } from 'hash-fns';
 import { given, then, when } from 'test-fns';
 
 import { DeclaredAwsLambdaVersion } from './DeclaredAwsLambdaVersion';
@@ -10,8 +11,10 @@ describe('DeclaredAwsLambdaVersion', () => {
       then('it should instantiate', () => {
         version = new DeclaredAwsLambdaVersion({
           lambda: { name: 'my-function' },
-          codeSha256: 'abc123hash',
-          configSha256: 'def456hash',
+          hash: {
+            code: 'abc123hash' as Hash,
+            config: 'def456hash' as Hash,
+          },
         });
       });
 
@@ -21,12 +24,9 @@ describe('DeclaredAwsLambdaVersion', () => {
         });
       });
 
-      then('it should have the code hash', () => {
-        expect(version.codeSha256).toBe('abc123hash');
-      });
-
-      then('it should have the config hash', () => {
-        expect(version.configSha256).toBe('def456hash');
+      then('it should have the hash object', () => {
+        expect(version.hash.code).toBe('abc123hash');
+        expect(version.hash.config).toBe('def456hash');
       });
 
       then('metadata is undefined by default', () => {
@@ -45,8 +45,10 @@ describe('DeclaredAwsLambdaVersion', () => {
           arn: 'arn:aws:lambda:us-east-1:123456789012:function:my-func:5',
           version: '5',
           lambda: { name: 'my-func' },
-          codeSha256: 'abc123',
-          configSha256: 'def456',
+          hash: {
+            code: 'abc123' as Hash,
+            config: 'def456' as Hash,
+          },
           description: 'Version 5 deployment',
         });
       });
@@ -55,8 +57,10 @@ describe('DeclaredAwsLambdaVersion', () => {
         expect(version).toMatchObject({
           arn: 'arn:aws:lambda:us-east-1:123456789012:function:my-func:5',
           version: '5',
-          codeSha256: 'abc123',
-          configSha256: 'def456',
+          hash: {
+            code: 'abc123',
+            config: 'def456',
+          },
           description: 'Version 5 deployment',
         });
       });
@@ -68,12 +72,8 @@ describe('DeclaredAwsLambdaVersion', () => {
       expect(DeclaredAwsLambdaVersion.primary).toEqual(['arn']);
     });
 
-    then('unique is defined as lambda, codeSha256, configSha256', () => {
-      expect(DeclaredAwsLambdaVersion.unique).toEqual([
-        'lambda',
-        'codeSha256',
-        'configSha256',
-      ]);
+    then('unique is defined as lambda, hash', () => {
+      expect(DeclaredAwsLambdaVersion.unique).toEqual(['lambda', 'hash']);
     });
 
     then('metadata is defined as arn', () => {
