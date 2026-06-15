@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.2](https://github.com/ehmpathy/declastruct-aws/compare/v1.5.1...v1.5.2) (2026-06-15)
+
+
+### Bug Fixes
+
+* **lambda:** add genDeclaredAwsLambdaCode factory for auto hash computation ([#49](https://github.com/ehmpathy/declastruct-aws/issues/49)) ([ca734e8](https://github.com/ehmpathy/declastruct-aws/commit/ca734e8aec881d4239dddea1d37392fd11c1e15f))
+
 ## [1.5.1](https://github.com/ehmpathy/declastruct-aws/compare/v1.5.0...v1.5.1) (2026-06-14)
 
 
