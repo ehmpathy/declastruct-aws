@@ -20,7 +20,7 @@ exports[`declastruct CLI workflow given: a declastruct resources file when: gene
   {
     "action": "KEEP",
     "class": "DeclaredAwsLambdaVersion",
-    "slug": "DeclaredAwsLambdaVersion.BKumK0g1EM67cuTqBnLRRr3QgOPL8jgXpyGSQl37aJ0.KsPR3AHdg4SO2UdrWtfCRFg0BJOC534IAWdKsvkwXY.namedeclastruct-.03cfe20747f959888654df4fdf9b608b",
+    "slug": "DeclaredAwsLambdaVersion.code04aba62b483510cebb72e4ea0672d146bdd080e3cbf23817a72192425dfb689dconfig2ac3d1dc01dd83848ed9476b5ad7c.5078e007ae0f5368ba5baef0fcb3f887",
   },
   {
     "action": "KEEP",
@@ -35,12 +35,12 @@ exports[`declastruct CLI workflow given: a declastruct resources file when: gene
   {
     "action": "KEEP",
     "class": "DeclaredAwsLogGroupReportDistOfPattern",
-    "slug": "DeclaredAwsLogGroupReportDistOfPattern.null.100.nameawslambdadeclastruct-acceptance-lambda.message.since2026-06-07T000000.000Zun.67985de527e557a88f96b1cb23981352",
+    "slug": "DeclaredAwsLogGroupReportDistOfPattern.null.100.nameawslambdadeclastruct-acceptance-lambda.message.since2026-06-08T000000.000Zun.9a9ae4baf8515e2686274aecd10be28c",
   },
   {
     "action": "KEEP",
     "class": "DeclaredAwsLogGroupReportCostOfIngestion",
-    "slug": "DeclaredAwsLogGroupReportCostOfIngestion.namesawslambdadeclastruct-acceptance-lambda.since2026-06-07T000000.000Zuntil2026-06-14T.573fe37b6dac5313906d65a8a7a1ed56",
+    "slug": "DeclaredAwsLogGroupReportCostOfIngestion.namesawslambdadeclastruct-acceptance-lambda.since2026-06-08T000000.000Zuntil2026-06-15T.00a24ba5c2695a2f94c55758de5876d1",
   },
 ]
 `;
@@ -65,7 +65,7 @@ exports[`declastruct CLI workflow given: a declastruct resources file when: re-p
   {
     "action": "KEEP",
     "class": "DeclaredAwsLambdaVersion",
-    "slug": "DeclaredAwsLambdaVersion.BKumK0g1EM67cuTqBnLRRr3QgOPL8jgXpyGSQl37aJ0.KsPR3AHdg4SO2UdrWtfCRFg0BJOC534IAWdKsvkwXY.namedeclastruct-.03cfe20747f959888654df4fdf9b608b",
+    "slug": "DeclaredAwsLambdaVersion.code04aba62b483510cebb72e4ea0672d146bdd080e3cbf23817a72192425dfb689dconfig2ac3d1dc01dd83848ed9476b5ad7c.5078e007ae0f5368ba5baef0fcb3f887",
   },
   {
     "action": "KEEP",
@@ -80,12 +80,12 @@ exports[`declastruct CLI workflow given: a declastruct resources file when: re-p
   {
     "action": "KEEP",
     "class": "DeclaredAwsLogGroupReportDistOfPattern",
-    "slug": "DeclaredAwsLogGroupReportDistOfPattern.null.100.nameawslambdadeclastruct-acceptance-lambda.message.since2026-06-07T000000.000Zun.67985de527e557a88f96b1cb23981352",
+    "slug": "DeclaredAwsLogGroupReportDistOfPattern.null.100.nameawslambdadeclastruct-acceptance-lambda.message.since2026-06-08T000000.000Zun.9a9ae4baf8515e2686274aecd10be28c",
   },
   {
     "action": "KEEP",
     "class": "DeclaredAwsLogGroupReportCostOfIngestion",
-    "slug": "DeclaredAwsLogGroupReportCostOfIngestion.namesawslambdadeclastruct-acceptance-lambda.since2026-06-07T000000.000Zuntil2026-06-14T.573fe37b6dac5313906d65a8a7a1ed56",
+    "slug": "DeclaredAwsLogGroupReportCostOfIngestion.namesawslambdadeclastruct-acceptance-lambda.since2026-06-08T000000.000Zuntil2026-06-15T.00a24ba5c2695a2f94c55758de5876d1",
   },
 ]
 `;
