@@ -35,16 +35,9 @@ import { setVpc } from './setVpc';
  *     ec2:AssociateRouteTable, and their delete counterparts
  *   - set DECLASTRUCT_VPC_ENABLED=true to run
  */
-describe('vpc.journey', () => {
-  // failfast if VPC permissions not enabled
-  // note: uses Error instead of ConstraintError since test-fns 1.7.2 doesn't export it
-  beforeAll(() => {
-    if (!process.env.DECLASTRUCT_VPC_ENABLED)
-      throw new Error(
-        'VPC integration tests require DECLASTRUCT_VPC_ENABLED=true. ' +
-          'Run with admin credentials that have VPC permissions, then set DECLASTRUCT_VPC_ENABLED=true.',
-      );
-  });
+const vpcEnabled = !!process.env.DECLASTRUCT_VPC_ENABLED;
+
+(vpcEnabled ? describe : describe.skip)('vpc.journey', () => {
   // generate unique exid prefix for this test run
   const testId = genTestUuid().slice(0, 8);
   const exidPrefix = `declastruct-test-${testId}`;
