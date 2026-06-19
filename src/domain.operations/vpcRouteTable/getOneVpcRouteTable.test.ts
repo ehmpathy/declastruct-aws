@@ -2,12 +2,18 @@ import { DescribeRouteTablesCommand, EC2Client } from '@aws-sdk/client-ec2';
 import { given, then } from 'test-fns';
 
 import { getMockedAwsApiContext } from '@src/.test/getMockedAwsApiContext';
+import { getOneVpcExid } from '@src/domain.operations/vpc/getOneVpcExid';
+import { getOneVpcInternetGateway } from '@src/domain.operations/vpcInternetGateway/getOneVpcInternetGateway';
+import { getOneVpcSubnet } from '@src/domain.operations/vpcSubnet/getOneVpcSubnet';
 
 import * as castModule from './castIntoDeclaredAwsVpcRouteTable';
 import { getOneVpcRouteTable } from './getOneVpcRouteTable';
 
 jest.mock('@aws-sdk/client-ec2');
 jest.mock('./castIntoDeclaredAwsVpcRouteTable');
+jest.mock('@src/domain.operations/vpc/getOneVpcExid');
+jest.mock('@src/domain.operations/vpcInternetGateway/getOneVpcInternetGateway');
+jest.mock('@src/domain.operations/vpcSubnet/getOneVpcSubnet');
 
 const mockSend = jest.fn();
 (EC2Client as jest.Mock).mockImplementation(() => ({
@@ -19,6 +25,14 @@ const context = getMockedAwsApiContext();
 describe('getOneVpcRouteTable', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // set up default mocks for vpc exid lookup
+    (getOneVpcExid as jest.Mock).mockResolvedValue('test-vpc-exid');
+    (getOneVpcInternetGateway as jest.Mock).mockResolvedValue({
+      exid: 'test-igw-exid',
+    });
+    (getOneVpcSubnet as jest.Mock).mockResolvedValue({
+      exid: 'test-subnet-exid',
+    });
   });
 
   given('a route table ref by unique', () => {

@@ -5,12 +5,14 @@ import {
 import { given, then } from 'test-fns';
 
 import { getMockedAwsApiContext } from '@src/.test/getMockedAwsApiContext';
+import { getOneVpcExid } from '@src/domain.operations/vpc/getOneVpcExid';
 
 import * as castModule from './castIntoDeclaredAwsVpcInternetGateway';
 import { getOneVpcInternetGateway } from './getOneVpcInternetGateway';
 
 jest.mock('@aws-sdk/client-ec2');
 jest.mock('./castIntoDeclaredAwsVpcInternetGateway');
+jest.mock('@src/domain.operations/vpc/getOneVpcExid');
 
 const mockSend = jest.fn();
 (EC2Client as jest.Mock).mockImplementation(() => ({
@@ -22,6 +24,8 @@ const context = getMockedAwsApiContext();
 describe('getOneVpcInternetGateway', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // set up default mock for vpc exid lookup
+    (getOneVpcExid as jest.Mock).mockResolvedValue('test-vpc-exid');
   });
 
   given('an internet gateway ref by unique', () => {

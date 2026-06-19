@@ -2,12 +2,14 @@ import { DescribeSecurityGroupsCommand, EC2Client } from '@aws-sdk/client-ec2';
 import { given, then } from 'test-fns';
 
 import { getMockedAwsApiContext } from '@src/.test/getMockedAwsApiContext';
+import { getOneVpcExid } from '@src/domain.operations/vpc/getOneVpcExid';
 
 import * as castModule from './castIntoDeclaredAwsVpcSecurityGroup';
 import { getOneVpcSecurityGroup } from './getOneVpcSecurityGroup';
 
 jest.mock('@aws-sdk/client-ec2');
 jest.mock('./castIntoDeclaredAwsVpcSecurityGroup');
+jest.mock('@src/domain.operations/vpc/getOneVpcExid');
 
 const mockSend = jest.fn();
 (EC2Client as jest.Mock).mockImplementation(() => ({
@@ -19,6 +21,8 @@ const context = getMockedAwsApiContext();
 describe('getOneVpcSecurityGroup', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // set up default mock for vpc exid lookup
+    (getOneVpcExid as jest.Mock).mockResolvedValue('test-vpc-exid');
   });
 
   given('a security group ref by unique', () => {

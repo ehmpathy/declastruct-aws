@@ -10,7 +10,9 @@ describe('castIntoDeclaredAwsVpcInternetGateway', () => {
       then('it should cast with all properties mapped', () => {
         const awsIgw: InternetGateway = {
           InternetGatewayId: 'igw-1234567890abcdef0',
-          Attachments: [{ VpcId: 'vpc-abc123', State: 'available' }],
+          Attachments: [
+            { VpcId: 'vpc-abc123', State: 'available' as 'attached' },
+          ],
           Tags: [
             { Key: 'exid', Value: 'test-igw' },
             { Key: 'managedBy', Value: 'declastruct' },
@@ -35,7 +37,9 @@ describe('castIntoDeclaredAwsVpcInternetGateway', () => {
       then('it should throw UnexpectedCodePathError', async () => {
         const awsIgw: InternetGateway = {
           InternetGatewayId: 'igw-abc',
-          Attachments: [{ VpcId: 'vpc-abc123', State: 'available' }],
+          Attachments: [
+            { VpcId: 'vpc-abc123', State: 'available' as 'attached' },
+          ],
           Tags: [{ Key: 'Name', Value: 'some-name' }],
         };
         const error = await getError(() =>
@@ -67,7 +71,9 @@ describe('castIntoDeclaredAwsVpcInternetGateway', () => {
       then('it should cast', () => {
         const awsIgw: InternetGateway = {
           InternetGatewayId: 'igw-attached',
-          Attachments: [{ VpcId: 'vpc-abc123', State: 'available' }],
+          Attachments: [
+            { VpcId: 'vpc-abc123', State: 'available' as 'attached' },
+          ],
           Tags: [{ Key: 'exid', Value: 'attached-igw' }],
         };
         const result = castIntoDeclaredAwsVpcInternetGateway(
@@ -84,7 +90,9 @@ describe('castIntoDeclaredAwsVpcInternetGateway', () => {
       then('it should cast without tags property', () => {
         const awsIgw: InternetGateway = {
           InternetGatewayId: 'igw-minimal',
-          Attachments: [{ VpcId: 'vpc-abc123', State: 'available' }],
+          Attachments: [
+            { VpcId: 'vpc-abc123', State: 'available' as 'attached' },
+          ],
           Tags: [{ Key: 'exid', Value: 'minimal-igw' }],
         };
         const result = castIntoDeclaredAwsVpcInternetGateway(

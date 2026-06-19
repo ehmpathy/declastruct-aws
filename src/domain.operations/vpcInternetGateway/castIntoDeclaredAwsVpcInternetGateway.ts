@@ -34,8 +34,7 @@ export const castIntoDeclaredAwsVpcInternetGateway = (
     );
 
   // get attached vpc (should be exactly one)
-  // note: AWS SDK types define AttachmentStatus as 'attached' | 'attaching' | 'detached' | 'detaching'
-  // but internet gateway attachments use 'available' when attached
+  // note: AWS SDK types define AttachmentStatus as 'attached' | ... but internet gateways use 'available'
   const attachment = input.Attachments?.find(
     (a) => (a.State as string) === 'available',
   );

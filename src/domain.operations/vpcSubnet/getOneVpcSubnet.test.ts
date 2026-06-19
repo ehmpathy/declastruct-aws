@@ -2,12 +2,14 @@ import { DescribeSubnetsCommand, EC2Client } from '@aws-sdk/client-ec2';
 import { given, then } from 'test-fns';
 
 import { getMockedAwsApiContext } from '@src/.test/getMockedAwsApiContext';
+import { getOneVpcExid } from '@src/domain.operations/vpc/getOneVpcExid';
 
 import * as castModule from './castIntoDeclaredAwsVpcSubnet';
 import { getOneVpcSubnet } from './getOneVpcSubnet';
 
 jest.mock('@aws-sdk/client-ec2');
 jest.mock('./castIntoDeclaredAwsVpcSubnet');
+jest.mock('@src/domain.operations/vpc/getOneVpcExid');
 
 const mockSend = jest.fn();
 (EC2Client as jest.Mock).mockImplementation(() => ({
@@ -19,6 +21,8 @@ const context = getMockedAwsApiContext();
 describe('getOneVpcSubnet', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // set up default mock for vpc exid lookup
+    (getOneVpcExid as jest.Mock).mockResolvedValue('test-vpc-exid');
   });
 
   given('a subnet ref by unique', () => {
