@@ -33,11 +33,8 @@ import { setVpc } from './setVpc';
  *   - requires ec2:CreateVpc, ec2:CreateSubnet, ec2:CreateSecurityGroup,
  *     ec2:CreateInternetGateway, ec2:CreateRouteTable, ec2:AttachInternetGateway,
  *     ec2:AssociateRouteTable, and their delete counterparts
- *   - set DECLASTRUCT_VPC_ENABLED=true to run
  */
-const vpcEnabled = !!process.env.DECLASTRUCT_VPC_ENABLED;
-
-(vpcEnabled ? describe : describe.skip)('vpc.journey', () => {
+describe('vpc.journey', () => {
   // generate unique exid prefix for this test run
   const testId = genTestUuid().slice(0, 8);
   const exidPrefix = `declastruct-test-${testId}`;
