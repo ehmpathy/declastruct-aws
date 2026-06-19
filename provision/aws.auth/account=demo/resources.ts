@@ -12,19 +12,10 @@ const log = {
 };
 
 /**
- * .what = demo account resources (oidc for github actions)
- * .why = enables github actions ci/cd access to demo account
+ * .what = demo account resources (OIDC for GitHub Actions)
+ * .why = enables GitHub Actions CI/CD access to demo account
  *
- * .auth = demo account credentials (via sso or assume role)
- *
- * .usage
- *   use.declastruct.demo.admin
- *   npx declastruct plan provision/aws.auth/account=demo/resources.ts
- *   npx declastruct apply provision/aws.auth/account=demo/resources.ts
- *
- * .prereq
- *   - demo account must exist (provisioned via account=.root/resources.ts)
- *   - must be authenticated to demo account, not management account
+ * @see readme.md for prereqs and apply instructions
  */
 export const getProviders = async (): Promise<DeclastructProvider[]> => [
   await getDeclastructAwsProvider({}, { log }),

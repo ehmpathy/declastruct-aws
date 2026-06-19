@@ -14,6 +14,13 @@ import {
   DeclaredAwsLogGroup,
   DeclaredAwsLogGroupReportCostOfIngestion,
   DeclaredAwsLogGroupReportDistOfPattern,
+  DeclaredAwsVpc,
+  DeclaredAwsVpcCidrBlock,
+  DeclaredAwsVpcInternetGateway,
+  DeclaredAwsVpcRouteTable,
+  DeclaredAwsVpcSecurityGroup,
+  DeclaredAwsVpcSecurityGroupRule,
+  DeclaredAwsVpcSubnet,
   DeclaredAwsVpcTunnel,
   genDeclaredAwsLambdaCode,
   getAllIamUserAccessKeys,
@@ -53,6 +60,69 @@ export const getProviders = async () => [
  * .why = defines desired state of resources for testing
  */
 export const getResources = async () => {
+  // declare vpc
+  const vpc = DeclaredAwsVpc.as({
+    exid: 'declastruct-acceptance-vpc',
+    cidr: {
+      v4: '10.0.0.0/16',
+    },
+    dns: {
+      hostnames: 'enabled',
+      support: 'enabled',
+    },
+    tags: { managedBy: 'declastruct', purpose: 'acceptance-test' },
+  });
+
+  // declare subnet
+  const subnet = DeclaredAwsVpcSubnet.as({
+    exid: 'declastruct-acceptance-subnet-1a',
+    vpc: { exid: vpc.exid },
+    cidr: { v4: '10.0.1.0/24' },
+    zone: { availability: 'us-east-1a' },
+    tags: { managedBy: 'declastruct', purpose: 'acceptance-test' },
+  });
+
+  // declare security group
+  const securityGroup = DeclaredAwsVpcSecurityGroup.as({
+    exid: 'declastruct-acceptance-sg',
+    vpc: { exid: vpc.exid },
+    name: 'declastruct-acceptance-sg',
+    description: 'security group for declastruct acceptance instances',
+    rules: {
+      ingress: [],
+      egress: [
+        DeclaredAwsVpcSecurityGroupRule.as({
+          protocol: 'all',
+          port: { from: 0, upto: 0 },
+          cidrs: [DeclaredAwsVpcCidrBlock.as({ v4: '0.0.0.0/0' })],
+          description: 'allow all outbound',
+        }),
+      ],
+    },
+    tags: { managedBy: 'declastruct', purpose: 'acceptance-test' },
+  });
+
+  // declare internet gateway
+  const internetGateway = DeclaredAwsVpcInternetGateway.as({
+    exid: 'declastruct-acceptance-igw',
+    vpc: { exid: vpc.exid },
+    tags: { managedBy: 'declastruct', purpose: 'acceptance-test' },
+  });
+
+  // declare route table
+  const routeTable = DeclaredAwsVpcRouteTable.as({
+    exid: 'declastruct-acceptance-rtb',
+    vpc: { exid: vpc.exid },
+    routes: [
+      {
+        destination: { cidr: DeclaredAwsVpcCidrBlock.as({ v4: '0.0.0.0/0' }) },
+        target: { gatewayInternet: { exid: internetGateway.exid } },
+      },
+    ],
+    associations: [{ subnet: { exid: subnet.exid } }],
+    tags: { managedBy: 'declastruct', purpose: 'acceptance-test' },
+  });
+
   // TODO: provision vpc, bastion machine, and rds db in demo account
   // // declare tunnel to open
   // const tunnel = DeclaredAwsVpcTunnel.as({
@@ -184,6 +254,12 @@ export const getResources = async () => {
   ).then((keys) => keys.map((key) => del(key)));
 
   return [
+    // vpc infrastructure
+    vpc,
+    subnet,
+    securityGroup,
+    internetGateway,
+    routeTable,
     // tunnel,
     lambdaRole,
     lambdaRolePolicy,

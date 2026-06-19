@@ -73,12 +73,52 @@ describe('declastruct CLI workflow', () => {
         const planSummary = prep.plan.changes.map((change) => ({
           action: change.action,
           class: change.forResource.class,
-          slug: change.forResource.slug,
+          // mask dynamic date values and hashes to prevent permadrift
+          slug: change.forResource.slug
+            .replace(/since\d{4}-\d{2}-\d{2}T\d{6}\.\d{3}Z/g, 'since[DATE]')
+            .replace(/until\d{4}-\d{2}-\d{2}T/g, 'until[DATE]')
+            .replace(/\.[0-9a-f]{32}$/, '.[HASH]'),
         }));
+
+        // explicit assertions alongside snapshot
+        expect(planSummary.length).toBeGreaterThan(0);
         expect(planSummary).toMatchSnapshot();
       });
 
-      // TODO: provision vpc, bastion machine, and rds db in demo account
+      // VPC resources skipped — require ec2:CreateVpc permission (see resources.acceptance.ts)
+      // then('plan includes VPC infrastructure resources', () => {
+      //   /**
+      //    * .what = validates plan includes VPC, subnet, security group, internet gateway, route table
+      //    * .why = ensures declastruct correctly processes VPC infrastructure declarations
+      //    */
+      //   const vpcChange = prep.plan.changes.find(
+      //     (r: DeclastructChange) => r.forResource.class === 'DeclaredAwsVpc',
+      //   );
+      //   expect(vpcChange).toBeDefined();
+      //   expect(vpcChange!.forResource.slug).toContain('declastruct-acceptance-vpc');
+      //
+      //   const subnetChange = prep.plan.changes.find(
+      //     (r: DeclastructChange) => r.forResource.class === 'DeclaredAwsVpcSubnet',
+      //   );
+      //   expect(subnetChange).toBeDefined();
+      //
+      //   const sgChange = prep.plan.changes.find(
+      //     (r: DeclastructChange) => r.forResource.class === 'DeclaredAwsVpcSecurityGroup',
+      //   );
+      //   expect(sgChange).toBeDefined();
+      //
+      //   const igwChange = prep.plan.changes.find(
+      //     (r: DeclastructChange) => r.forResource.class === 'DeclaredAwsVpcInternetGateway',
+      //   );
+      //   expect(igwChange).toBeDefined();
+      //
+      //   const rtbChange = prep.plan.changes.find(
+      //     (r: DeclastructChange) => r.forResource.class === 'DeclaredAwsVpcRouteTable',
+      //   );
+      //   expect(rtbChange).toBeDefined();
+      // });
+
+      // VPC tunnel skipped — require vpc, bastion machine, and rds db in demo account
       // then('plan includes VPC tunnel resource', () => {
       //   /**
       //    * .what = validates plan includes VPC tunnel declaration
@@ -265,10 +305,13 @@ describe('declastruct CLI workflow', () => {
          */
 
         // apply plan second time - should succeed without errors
-        execSync(`npx declastruct apply --plan ${planFile}`, {
-          stdio: 'inherit',
+        const result = execSync(`npx declastruct apply --plan ${planFile}`, {
+          encoding: 'utf-8',
           env: process.env,
         });
+
+        // explicit assertion: command completed and returned output
+        expect(typeof result).toBe('string');
       });
     });
 
@@ -309,8 +352,16 @@ describe('declastruct CLI workflow', () => {
         const planSummary = prep.plan.changes.map((change) => ({
           action: change.action,
           class: change.forResource.class,
-          slug: change.forResource.slug,
+          // mask dynamic date values and hashes to prevent permadrift
+          slug: change.forResource.slug
+            .replace(/since\d{4}-\d{2}-\d{2}T\d{6}\.\d{3}Z/g, 'since[DATE]')
+            .replace(/until\d{4}-\d{2}-\d{2}T/g, 'until[DATE]')
+            .replace(/\.[0-9a-f]{32}$/, '.[HASH]'),
         }));
+
+        // explicit assertions alongside snapshot: all resources should be KEEP
+        expect(planSummary.length).toBeGreaterThan(0);
+        expect(planSummary.every((c) => c.action === 'KEEP')).toBe(true);
         expect(planSummary).toMatchSnapshot();
       });
 

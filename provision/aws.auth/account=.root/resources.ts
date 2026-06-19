@@ -18,16 +18,7 @@ const log = {
  * .what = all root account resources
  * .why = aggregates admin sso, demo account, and demo sso resources
  *
- * .auth = AWS_PROFILE=use.ehmpathy.root.admin
- *
- * .usage
- *   use.ehmpathy.root.admin
- *   npx declastruct plan provision/aws.auth/account=.root/resources.ts
- *   npx declastruct apply provision/aws.auth/account=.root/resources.ts
- *
- * .prereq
- *   - identity center must be enabled manually in console (one-time)
- *   - see bootstrap.md for first-time setup
+ * @see readme.md for prereqs and apply instructions
  */
 export const getProviders = async (): Promise<DeclastructProvider[]> => [
   await getDeclastructAwsProvider({}, { log }),
