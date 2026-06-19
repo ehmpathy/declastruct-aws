@@ -1,4 +1,4 @@
-import { DomainEntity, RefByUnique, type Ref } from 'domain-objects';
+import { DomainEntity, type Ref, RefByUnique } from 'domain-objects';
 
 import { DeclaredAwsTags } from './DeclaredAwsTags';
 import type { DeclaredAwsVpc } from './DeclaredAwsVpc';

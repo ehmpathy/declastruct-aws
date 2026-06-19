@@ -16,7 +16,10 @@ describe('castIntoDeclaredAwsVpcInternetGateway', () => {
             { Key: 'managedBy', Value: 'declastruct' },
           ],
         };
-        const result = castIntoDeclaredAwsVpcInternetGateway(awsIgw, 'test-vpc-exid');
+        const result = castIntoDeclaredAwsVpcInternetGateway(
+          awsIgw,
+          'test-vpc-exid',
+        );
         expect(result).toMatchObject({
           id: 'igw-1234567890abcdef0',
           exid: 'test-igw',
@@ -67,7 +70,10 @@ describe('castIntoDeclaredAwsVpcInternetGateway', () => {
           Attachments: [{ VpcId: 'vpc-abc123', State: 'available' }],
           Tags: [{ Key: 'exid', Value: 'attached-igw' }],
         };
-        const result = castIntoDeclaredAwsVpcInternetGateway(awsIgw, 'test-vpc-exid');
+        const result = castIntoDeclaredAwsVpcInternetGateway(
+          awsIgw,
+          'test-vpc-exid',
+        );
         expect(result.vpc).toEqual({ exid: 'test-vpc-exid' });
       });
     });
@@ -81,7 +87,10 @@ describe('castIntoDeclaredAwsVpcInternetGateway', () => {
           Attachments: [{ VpcId: 'vpc-abc123', State: 'available' }],
           Tags: [{ Key: 'exid', Value: 'minimal-igw' }],
         };
-        const result = castIntoDeclaredAwsVpcInternetGateway(awsIgw, 'test-vpc-exid');
+        const result = castIntoDeclaredAwsVpcInternetGateway(
+          awsIgw,
+          'test-vpc-exid',
+        );
         expect(result.tags).toBeNull();
       });
     });

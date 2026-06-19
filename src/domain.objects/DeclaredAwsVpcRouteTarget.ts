@@ -1,5 +1,4 @@
-import { DomainLiteral, RefByUnique, type Ref } from 'domain-objects';
-import type { PickOne } from 'type-fns';
+import { DomainLiteral, type Ref, RefByUnique } from 'domain-objects';
 
 import type { DeclaredAwsVpcInternetGateway } from './DeclaredAwsVpcInternetGateway';
 import { DeclaredAwsVpcRouteTargetNatGateway } from './DeclaredAwsVpcRouteTargetNatGateway';

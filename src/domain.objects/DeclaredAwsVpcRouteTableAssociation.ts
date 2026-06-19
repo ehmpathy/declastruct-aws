@@ -1,4 +1,4 @@
-import { DomainLiteral, RefByUnique, type Ref } from 'domain-objects';
+import { DomainLiteral, type Ref, RefByUnique } from 'domain-objects';
 
 import type { DeclaredAwsVpcSubnet } from './DeclaredAwsVpcSubnet';
 

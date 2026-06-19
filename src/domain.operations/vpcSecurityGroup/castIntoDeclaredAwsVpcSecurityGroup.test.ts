@@ -36,7 +36,10 @@ describe('castIntoDeclaredAwsVpcSecurityGroup', () => {
             { Key: 'managedBy', Value: 'declastruct' },
           ],
         };
-        const result = castIntoDeclaredAwsVpcSecurityGroup(awsSg, 'test-vpc-exid');
+        const result = castIntoDeclaredAwsVpcSecurityGroup(
+          awsSg,
+          'test-vpc-exid',
+        );
         expect(result).toMatchObject({
           id: 'sg-1234567890abcdef0',
           exid: 'test-sg',
@@ -105,7 +108,10 @@ describe('castIntoDeclaredAwsVpcSecurityGroup', () => {
           IpPermissionsEgress: [],
           Tags: [{ Key: 'exid', Value: 'ipv6-sg' }],
         };
-        const result = castIntoDeclaredAwsVpcSecurityGroup(awsSg, 'test-vpc-exid');
+        const result = castIntoDeclaredAwsVpcSecurityGroup(
+          awsSg,
+          'test-vpc-exid',
+        );
         expect(result.rules.ingress[0]).toMatchObject({
           protocol: 'tcp',
           port: { from: 80, upto: 80 },
@@ -128,7 +134,10 @@ describe('castIntoDeclaredAwsVpcSecurityGroup', () => {
           IpPermissionsEgress: [],
           Tags: [{ Key: 'exid', Value: 'norules-sg' }],
         };
-        const result = castIntoDeclaredAwsVpcSecurityGroup(awsSg, 'test-vpc-exid');
+        const result = castIntoDeclaredAwsVpcSecurityGroup(
+          awsSg,
+          'test-vpc-exid',
+        );
         expect(result.rules).toEqual({ ingress: [], egress: [] });
       });
     });

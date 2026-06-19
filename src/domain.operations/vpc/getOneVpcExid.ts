@@ -16,7 +16,10 @@ export const getOneVpcExid = asProcedure(
     context: ContextAwsApi & VisualogicContext,
   ): Promise<string> => {
     // lookup vpc by primary key
-    const vpc = await getOneVpc({ by: { primary: { id: input.vpcId } } }, context);
+    const vpc = await getOneVpc(
+      { by: { primary: { id: input.vpcId } } },
+      context,
+    );
 
     // failfast if vpc not found
     if (!vpc)
