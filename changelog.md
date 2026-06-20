@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.0](https://github.com/ehmpathy/declastruct-aws/compare/v1.5.2...v1.6.0) (2026-06-20)
+
+
+### Features
+
+* **vpc:** add vpc infrastructure resources ([#51](https://github.com/ehmpathy/declastruct-aws/issues/51)) ([89d1d25](https://github.com/ehmpathy/declastruct-aws/commit/89d1d25fe68934534dad949b8b826c8b12cb142e))
+
 ## [1.5.2](https://github.com/ehmpathy/declastruct-aws/compare/v1.5.1...v1.5.2) (2026-06-15)
 
 
