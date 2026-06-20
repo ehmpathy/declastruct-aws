@@ -30,6 +30,12 @@ export { DeclaredAwsSsoInstanceDao } from '@src/access/daos/DeclaredAwsSsoInstan
 export { DeclaredAwsSsoPermissionSetDao } from '@src/access/daos/DeclaredAwsSsoPermissionSetDao';
 // note: DeclaredAwsSsoInstance does not have its own DAO - use getOneSsoInstance/setSsoInstance directly
 export { DeclaredAwsSsoUserDao } from '@src/access/daos/DeclaredAwsSsoUserDao';
+// aws vpc daos
+export { DeclaredAwsVpcDao } from '@src/access/daos/DeclaredAwsVpcDao';
+export { DeclaredAwsVpcInternetGatewayDao } from '@src/access/daos/DeclaredAwsVpcInternetGatewayDao';
+export { DeclaredAwsVpcRouteTableDao } from '@src/access/daos/DeclaredAwsVpcRouteTableDao';
+export { DeclaredAwsVpcSecurityGroupDao } from '@src/access/daos/DeclaredAwsVpcSecurityGroupDao';
+export { DeclaredAwsVpcSubnetDao } from '@src/access/daos/DeclaredAwsVpcSubnetDao';
 export { DeclaredAwsVpcTunnelDao } from '@src/access/daos/DeclaredAwsVpcTunnelDao';
 // aws domain objects
 export { DeclaredAwsEc2Instance } from '@src/domain.objects/DeclaredAwsEc2Instance';
@@ -76,6 +82,18 @@ export { DeclaredAwsSsoInstance } from '@src/domain.objects/DeclaredAwsSsoInstan
 export { DeclaredAwsSsoPermissionSet } from '@src/domain.objects/DeclaredAwsSsoPermissionSet';
 export { DeclaredAwsSsoUser } from '@src/domain.objects/DeclaredAwsSsoUser';
 export { DeclaredAwsTags } from '@src/domain.objects/DeclaredAwsTags';
+// aws vpc domain objects
+export { DeclaredAwsVpc } from '@src/domain.objects/DeclaredAwsVpc';
+export { DeclaredAwsVpcCidrBlock } from '@src/domain.objects/DeclaredAwsVpcCidrBlock';
+export { DeclaredAwsVpcInternetGateway } from '@src/domain.objects/DeclaredAwsVpcInternetGateway';
+export { DeclaredAwsVpcRoute } from '@src/domain.objects/DeclaredAwsVpcRoute';
+export { DeclaredAwsVpcRouteDestination } from '@src/domain.objects/DeclaredAwsVpcRouteDestination';
+export { DeclaredAwsVpcRouteTable } from '@src/domain.objects/DeclaredAwsVpcRouteTable';
+export { DeclaredAwsVpcRouteTableAssociation } from '@src/domain.objects/DeclaredAwsVpcRouteTableAssociation';
+export { DeclaredAwsVpcSecurityGroup } from '@src/domain.objects/DeclaredAwsVpcSecurityGroup';
+export { DeclaredAwsVpcSecurityGroupRule } from '@src/domain.objects/DeclaredAwsVpcSecurityGroupRule';
+export { DeclaredAwsVpcSecurityGroupRules } from '@src/domain.objects/DeclaredAwsVpcSecurityGroupRules';
+export { DeclaredAwsVpcSubnet } from '@src/domain.objects/DeclaredAwsVpcSubnet';
 export { DeclaredAwsVpcTunnel } from '@src/domain.objects/DeclaredAwsVpcTunnel';
 export type { DeclastructAwsProvider } from '@src/domain.objects/DeclastructAwsProvider';
 // aws ec2 operations
@@ -170,6 +188,26 @@ export { delSsoUser } from '@src/domain.operations/ssoUser/delSsoUser';
 export { getAllSsoUsers } from '@src/domain.operations/ssoUser/getAllSsoUsers';
 export { getOneSsoUser } from '@src/domain.operations/ssoUser/getOneSsoUser';
 export { setSsoUser } from '@src/domain.operations/ssoUser/setSsoUser';
+// aws vpc operations
+export { delVpc } from '@src/domain.operations/vpc/delVpc';
+export { getOneVpc } from '@src/domain.operations/vpc/getOneVpc';
+export { setVpc } from '@src/domain.operations/vpc/setVpc';
+// aws vpc internet gateway operations
+export { delVpcInternetGateway } from '@src/domain.operations/vpcInternetGateway/delVpcInternetGateway';
+export { getOneVpcInternetGateway } from '@src/domain.operations/vpcInternetGateway/getOneVpcInternetGateway';
+export { setVpcInternetGateway } from '@src/domain.operations/vpcInternetGateway/setVpcInternetGateway';
+// aws vpc route table operations
+export { delVpcRouteTable } from '@src/domain.operations/vpcRouteTable/delVpcRouteTable';
+export { getOneVpcRouteTable } from '@src/domain.operations/vpcRouteTable/getOneVpcRouteTable';
+export { setVpcRouteTable } from '@src/domain.operations/vpcRouteTable/setVpcRouteTable';
+// aws vpc security group operations
+export { delVpcSecurityGroup } from '@src/domain.operations/vpcSecurityGroup/delVpcSecurityGroup';
+export { getOneVpcSecurityGroup } from '@src/domain.operations/vpcSecurityGroup/getOneVpcSecurityGroup';
+export { setVpcSecurityGroup } from '@src/domain.operations/vpcSecurityGroup/setVpcSecurityGroup';
+// aws vpc subnet operations
+export { delVpcSubnet } from '@src/domain.operations/vpcSubnet/delVpcSubnet';
+export { getOneVpcSubnet } from '@src/domain.operations/vpcSubnet/getOneVpcSubnet';
+export { setVpcSubnet } from '@src/domain.operations/vpcSubnet/setVpcSubnet';
 // aws vpc tunnel operations
 export { getVpcTunnel } from '@src/domain.operations/vpcTunnel/getVpcTunnel';
 export { setVpcTunnel } from '@src/domain.operations/vpcTunnel/setVpcTunnel';

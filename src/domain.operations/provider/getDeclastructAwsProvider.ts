@@ -26,6 +26,11 @@ import { DeclaredAwsSsoAccountAssignmentDao } from '@src/access/daos/DeclaredAws
 import { DeclaredAwsSsoInstanceDao } from '@src/access/daos/DeclaredAwsSsoInstanceDao';
 import { DeclaredAwsSsoPermissionSetDao } from '@src/access/daos/DeclaredAwsSsoPermissionSetDao';
 import { DeclaredAwsSsoUserDao } from '@src/access/daos/DeclaredAwsSsoUserDao';
+import { DeclaredAwsVpcDao } from '@src/access/daos/DeclaredAwsVpcDao';
+import { DeclaredAwsVpcInternetGatewayDao } from '@src/access/daos/DeclaredAwsVpcInternetGatewayDao';
+import { DeclaredAwsVpcRouteTableDao } from '@src/access/daos/DeclaredAwsVpcRouteTableDao';
+import { DeclaredAwsVpcSecurityGroupDao } from '@src/access/daos/DeclaredAwsVpcSecurityGroupDao';
+import { DeclaredAwsVpcSubnetDao } from '@src/access/daos/DeclaredAwsVpcSubnetDao';
 import { DeclaredAwsVpcTunnelDao } from '@src/access/daos/DeclaredAwsVpcTunnelDao';
 import { DeclaredAwsIamRolePolicyAttachedManagedDao } from '@src/contract/sdks';
 import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
@@ -97,6 +102,11 @@ export const getDeclastructAwsProvider = async (
     DeclaredAwsSsoInstance: DeclaredAwsSsoInstanceDao,
     DeclaredAwsSsoPermissionSet: DeclaredAwsSsoPermissionSetDao,
     DeclaredAwsSsoUser: DeclaredAwsSsoUserDao,
+    DeclaredAwsVpc: DeclaredAwsVpcDao,
+    DeclaredAwsVpcInternetGateway: DeclaredAwsVpcInternetGatewayDao,
+    DeclaredAwsVpcRouteTable: DeclaredAwsVpcRouteTableDao,
+    DeclaredAwsVpcSecurityGroup: DeclaredAwsVpcSecurityGroupDao,
+    DeclaredAwsVpcSubnet: DeclaredAwsVpcSubnetDao,
     DeclaredAwsVpcTunnel: DeclaredAwsVpcTunnelDao,
     DeclaredAwsIamRolePolicyAttachedInline:
       DeclaredAwsIamRolePolicyAttachedInlineDao,
@@ -136,6 +146,7 @@ export const getCredentials = async (): Promise<{
   if (!region)
     BadRequestError.throw(
       'AWS region not specified. Set AWS_REGION, AWS_DEFAULT_REGION env var, or configure region in ~/.aws/config.',
+      { hint: 'export AWS_REGION=us-east-1 or configure ~/.aws/config' },
     );
 
   // resolve account from STS identity
@@ -173,6 +184,8 @@ const getAccountFromSts = async (): Promise<string> => {
   const identity = await sts.send(new GetCallerIdentityCommand({}));
   return (
     identity.Account ??
-    UnexpectedCodePathError.throw('failed to resolve AWS account id from STS')
+    UnexpectedCodePathError.throw('failed to get AWS account id from STS', {
+      identity,
+    })
   );
 };
