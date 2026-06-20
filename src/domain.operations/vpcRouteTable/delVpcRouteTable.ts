@@ -1,4 +1,9 @@
-import { DeleteRouteTableCommand, EC2Client } from '@aws-sdk/client-ec2';
+import {
+  DeleteRouteTableCommand,
+  DescribeRouteTablesCommand,
+  DisassociateRouteTableCommand,
+  EC2Client,
+} from '@aws-sdk/client-ec2';
 import { asProcedure } from 'as-procedure';
 import type { Ref } from 'domain-objects';
 import type { VisualogicContext } from 'visualogic';
@@ -14,7 +19,7 @@ import { getOneVpcRouteTable } from './getOneVpcRouteTable';
  *
  * .note
  *   - idempotent: no error if route table doesn't exist
- *   - all subnet associations must be removed first
+ *   - automatically disassociates all subnet associations before delete
  */
 export const delVpcRouteTable = asProcedure(
   async (
@@ -31,6 +36,37 @@ export const delVpcRouteTable = asProcedure(
 
     // if absent, no work to do (idempotent)
     if (!rt) return;
+
+    // fetch raw associations from AWS to get association IDs
+    // note: association IDs are not part of the domain model (metadata)
+    const describeResponse = await ec2.send(
+      new DescribeRouteTablesCommand({
+        RouteTableIds: [rt.id],
+      }),
+    );
+    const rawAssociations =
+      describeResponse.RouteTables?.[0]?.Associations ?? [];
+
+    // disassociate all non-main subnet associations before delete
+    for (const assoc of rawAssociations) {
+      if (assoc.Main) continue; // skip main association (cannot be disassociated)
+      if (!assoc.RouteTableAssociationId) continue;
+      try {
+        await ec2.send(
+          new DisassociateRouteTableCommand({
+            AssociationId: assoc.RouteTableAssociationId,
+          }),
+        );
+      } catch (error) {
+        // ignore if already disassociated
+        if (
+          error instanceof Error &&
+          error.name === 'InvalidAssociationID.NotFound'
+        )
+          continue;
+        throw error;
+      }
+    }
 
     // delete the route table
     try {
