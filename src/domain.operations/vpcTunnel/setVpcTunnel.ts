@@ -9,7 +9,8 @@ import type { ContextLogTrail } from 'simple-log-methods';
 import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
 import { DeclaredAwsVpcTunnel } from '@src/domain.objects/DeclaredAwsVpcTunnel';
 import { getEc2Instance } from '@src/domain.operations/ec2Instance/getEc2Instance';
-import { setEc2InstanceStatus } from '@src/domain.operations/ec2Instance/setEc2InstanceStatus';
+import { getEc2InstanceSession } from '@src/domain.operations/ec2InstanceSession/getEc2InstanceSession';
+import { setEc2InstanceSession } from '@src/domain.operations/ec2InstanceSession/setEc2InstanceSession';
 import { getRdsCluster } from '@src/domain.operations/rdsCluster/getRdsCluster';
 
 import { castIntoDeclaredAwsVpcTunnel } from './castIntoDeclaredAwsVpcTunnel';
@@ -113,10 +114,14 @@ export const setVpcTunnel = async (
     }
   }
 
-  // start bastion if not running
-  if (bastion.status !== 'running')
-    await setEc2InstanceStatus(
-      { by: { instance: input.via.bastion }, to: { status: 'running' } },
+  // start bastion if not active (uses session per 3-layer vision)
+  const bastionSession = await getEc2InstanceSession(
+    { by: { instance: input.via.bastion } },
+    context,
+  );
+  if (bastionSession?.status !== 'active')
+    await setEc2InstanceSession(
+      { session: { instance: input.via.bastion, status: 'active' } },
       context,
     );
 

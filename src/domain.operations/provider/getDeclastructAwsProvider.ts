@@ -7,6 +7,8 @@ import * as path from 'path';
 import type { ContextLogTrail } from 'simple-log-methods';
 
 import { DeclaredAwsEc2InstanceDao } from '@src/access/daos/DeclaredAwsEc2InstanceDao';
+import { DeclaredAwsEc2InstanceSessionDao } from '@src/access/daos/DeclaredAwsEc2InstanceSessionDao';
+import { DeclaredAwsEc2LaunchTemplateDao } from '@src/access/daos/DeclaredAwsEc2LaunchTemplateDao';
 import { DeclaredAwsIamOidcProviderDao } from '@src/access/daos/DeclaredAwsIamOidcProviderDao';
 import { DeclaredAwsIamRoleDao } from '@src/access/daos/DeclaredAwsIamRoleDao';
 import { DeclaredAwsIamRolePolicyAttachedInlineDao } from '@src/access/daos/DeclaredAwsIamRolePolicyAttachedInlineDao';
@@ -79,6 +81,8 @@ export const getDeclastructAwsProvider = async (
   // assemble DAOs for all aws resource types
   const daos = {
     DeclaredAwsEc2Instance: DeclaredAwsEc2InstanceDao,
+    DeclaredAwsEc2InstanceSession: DeclaredAwsEc2InstanceSessionDao,
+    DeclaredAwsEc2LaunchTemplate: DeclaredAwsEc2LaunchTemplateDao,
     DeclaredAwsIamOidcProvider: DeclaredAwsIamOidcProviderDao,
     DeclaredAwsIamRole: DeclaredAwsIamRoleDao,
     DeclaredAwsLambda: DeclaredAwsLambdaDao,

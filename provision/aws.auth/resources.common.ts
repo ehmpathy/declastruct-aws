@@ -142,15 +142,29 @@ export const demoPermissionsPolicy: DeclaredAwsIamPolicyBundle =
           ],
           resource: '*',
         }),
-        // EC2: start/stop instances
+        // EC2: instance lifecycle (start/stop/hibernate)
         new DeclaredAwsIamPolicyStatement({
           effect: 'Allow',
           action: [
+            'ec2:RunInstances',
             'ec2:StartInstances',
             'ec2:StopInstances',
+            'ec2:TerminateInstances',
             'ec2:RebootInstances',
             'ec2:CreateTags',
             'ec2:DeleteTags',
+          ],
+          resource: '*',
+        }),
+        // EC2: launch templates
+        new DeclaredAwsIamPolicyStatement({
+          effect: 'Allow',
+          action: [
+            'ec2:CreateLaunchTemplate',
+            'ec2:CreateLaunchTemplateVersion',
+            'ec2:ModifyLaunchTemplate',
+            'ec2:DeleteLaunchTemplate',
+            'ec2:DeleteLaunchTemplateVersions',
           ],
           resource: '*',
         }),

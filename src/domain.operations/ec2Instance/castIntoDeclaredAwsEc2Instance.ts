@@ -8,12 +8,20 @@ import { DeclaredAwsEc2Instance } from '@src/domain.objects/DeclaredAwsEc2Instan
 /**
  * .what = casts an AWS SDK Instance to a DeclaredAwsEc2Instance
  * .why = maps AWS response shape to domain object
+ *
+ * @param input.instance - the AWS SDK Instance response
+ * @param input.subnetExid - the exid of the subnet (resolved by caller)
+ * @param input.securityGroupExids - the exids of the security groups (resolved by caller)
+ * @param input.templateExid - the exid of the launch template (resolved by caller, null if none)
  */
-export const castIntoDeclaredAwsEc2Instance = (
-  input: Instance,
-): HasReadonly<typeof DeclaredAwsEc2Instance> => {
+export const castIntoDeclaredAwsEc2Instance = (input: {
+  instance: Instance;
+  subnetExid: string;
+  securityGroupExids: string[];
+  templateExid: string | null;
+}): HasReadonly<typeof DeclaredAwsEc2Instance> => {
   // extract exid from tags
-  const exidTag = input.Tags?.find((tag) => tag.Key === 'exid');
+  const exidTag = input.instance.Tags?.find((tag) => tag.Key === 'exid');
 
   // failfast if exid tag is not defined
   if (!exidTag?.Value)
@@ -22,16 +30,33 @@ export const castIntoDeclaredAwsEc2Instance = (
       { input },
     );
 
-  // map status to domain status type
-  const status = input.State?.Name as DeclaredAwsEc2Instance['status'];
+  // extract tags (exclude system tags and internal metadata tags)
+  const tags = (input.instance.Tags ?? [])
+    .filter(
+      (tag) =>
+        tag.Key &&
+        !tag.Key.startsWith('aws:') &&
+        tag.Key !== 'exid' &&
+        tag.Key !== 'templateExid',
+    )
+    .reduce(
+      (acc, tag) => {
+        if (tag.Key && tag.Value) acc[tag.Key] = tag.Value;
+        return acc;
+      },
+      {} as Record<string, string>,
+    );
 
   // cast and assure readonly fields are present
   return assure(
     DeclaredAwsEc2Instance.as({
-      id: input.InstanceId,
+      id: input.instance.InstanceId,
       exid: exidTag.Value,
-      status,
-      privateIp: input.PrivateIpAddress,
+      template: input.templateExid ? { exid: input.templateExid } : null,
+      subnet: { exid: input.subnetExid },
+      securityGroups: input.securityGroupExids.map((exid) => ({ exid })),
+      tags: Object.keys(tags).length > 0 ? tags : null,
+      privateIp: input.instance.PrivateIpAddress,
     }),
     hasReadonly({ of: DeclaredAwsEc2Instance }),
   );

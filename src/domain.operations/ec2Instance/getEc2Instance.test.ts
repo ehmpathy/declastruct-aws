@@ -30,6 +30,8 @@ describe('getEc2Instance', () => {
                   Tags: [{ Key: 'exid', Value: 'test-bastion' }],
                   State: { Name: 'running' },
                   PrivateIpAddress: '10.0.1.50',
+                  SubnetId: 'subnet-abc',
+                  SecurityGroups: [{ GroupId: 'sg-123' }],
                 },
               ],
             },
@@ -46,8 +48,9 @@ describe('getEc2Instance', () => {
         expect(result).toMatchObject({
           id: 'i-123',
           exid: 'test-bastion',
-          status: 'running',
           privateIp: '10.0.1.50',
+          subnet: { id: 'subnet-abc' },
+          securityGroups: [{ id: 'sg-123' }],
         });
       });
     });
@@ -67,6 +70,7 @@ describe('getEc2Instance', () => {
                   Tags: [{ Key: 'exid', Value: 'my-instance' }],
                   State: { Name: 'stopped' },
                   PrivateIpAddress: '10.0.1.51',
+                  SubnetId: 'subnet-xyz',
                 },
               ],
             },
@@ -83,7 +87,7 @@ describe('getEc2Instance', () => {
         expect(result).toMatchObject({
           id: 'i-abc',
           exid: 'my-instance',
-          status: 'stopped',
+          subnet: { id: 'subnet-xyz' },
         });
       });
     });
@@ -122,12 +126,14 @@ describe('getEc2Instance', () => {
                   Tags: [{ Key: 'exid', Value: 'dup' }],
                   State: { Name: 'running' },
                   PrivateIpAddress: '10.0.1.1',
+                  SubnetId: 'subnet-1',
                 },
                 {
                   InstanceId: 'i-2',
                   Tags: [{ Key: 'exid', Value: 'dup' }],
                   State: { Name: 'running' },
                   PrivateIpAddress: '10.0.1.2',
+                  SubnetId: 'subnet-2',
                 },
               ],
             },

@@ -6,6 +6,9 @@ import { ConstraintError } from 'helpful-errors';
 
 import {
   calcAwsLambdaConfigHash,
+  DeclaredAwsEc2Instance,
+  DeclaredAwsEc2InstanceSession,
+  DeclaredAwsEc2LaunchTemplate,
   DeclaredAwsIamRole,
   DeclaredAwsIamRolePolicyAttachedInline,
   DeclaredAwsLambda,
@@ -240,6 +243,36 @@ export const getResources = async () => {
   // get provider context to fetch current access keys
   const [provider] = await getProviders();
 
+  // declare EC2 launch template with hibernation support
+  const ec2LaunchTemplate = DeclaredAwsEc2LaunchTemplate.as({
+    exid: 'declastruct-acceptance-template',
+    instanceType: 't3.micro',
+    imageId: 'ami-0453ec754f44f9a4a', // Amazon Linux 2023 (us-east-1) — supports hibernation
+    hibernation: true,
+    rootVolumeSize: 16, // hibernation needs enough space for RAM
+    rootVolumeEncrypted: true, // required for hibernation
+    iamInstanceProfile: null,
+    userData: null,
+    tags: { managedBy: 'declastruct', purpose: 'acceptance-test' },
+  });
+
+  // declare EC2 instance with acceptance VPC resources
+  const ec2Instance = DeclaredAwsEc2Instance.as({
+    exid: 'declastruct-acceptance-instance',
+    template: RefByUnique.as<typeof DeclaredAwsEc2LaunchTemplate>(
+      ec2LaunchTemplate,
+    ),
+    subnet: { exid: subnet.exid },
+    securityGroups: [{ exid: securityGroup.exid }],
+    tags: { managedBy: 'declastruct', purpose: 'acceptance-test' },
+  });
+
+  // declare EC2 instance session (stopped to avoid charges when idle)
+  const ec2InstanceSession = DeclaredAwsEc2InstanceSession.as({
+    instance: RefByUnique.as<typeof DeclaredAwsEc2Instance>(ec2Instance),
+    status: 'stopped',
+  });
+
   /**
    * .skip = SCP resources require management account credentials
    *   - test profile (ehmpathy.demo) is a member account
@@ -269,6 +302,10 @@ export const getResources = async () => {
     logGroupWithRetention,
     logGroupReportDistOfPattern,
     logGroupReportCostOfIngestion,
+    // ec2 infrastructure
+    ec2LaunchTemplate,
+    ec2Instance,
+    ec2InstanceSession,
     // SCP resources skipped — require management account credentials (see .skip note above)
     ...accessKeysToDelete,
   ];

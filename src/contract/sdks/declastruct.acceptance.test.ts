@@ -73,11 +73,14 @@ describe('declastruct CLI workflow', () => {
         const planSummary = prep.plan.changes.map((change) => ({
           action: change.action,
           class: change.forResource.class,
-          // mask dynamic date values and hashes to prevent permadrift
-          slug: change.forResource.slug
-            .replace(/since\d{4}-\d{2}-\d{2}T\d{6}\.\d{3}Z/g, 'since[DATE]')
-            .replace(/until\d{4}-\d{2}-\d{2}T/g, 'until[DATE]')
-            .replace(/\.[0-9a-f]{32}$/, '.[HASH]'),
+          // mask time-based slugs and their hashes to prevent daily snapshot drift
+          slug: (() => {
+            const masked = change.forResource.slug
+              .replace(/since\d{4}-\d{2}-\d{2}T\d{6}\.\d{3}Z/g, 'since[DATE]')
+              .replace(/until\d{4}-\d{2}-\d{2}T/g, 'until[DATE]');
+            // mask final hash for stable snapshots
+            return masked.replace(/\.[a-f0-9]{32}$/, '.[HASH]');
+          })(),
         }));
 
         // explicit assertions alongside snapshot
@@ -352,11 +355,14 @@ describe('declastruct CLI workflow', () => {
         const planSummary = prep.plan.changes.map((change) => ({
           action: change.action,
           class: change.forResource.class,
-          // mask dynamic date values and hashes to prevent permadrift
-          slug: change.forResource.slug
-            .replace(/since\d{4}-\d{2}-\d{2}T\d{6}\.\d{3}Z/g, 'since[DATE]')
-            .replace(/until\d{4}-\d{2}-\d{2}T/g, 'until[DATE]')
-            .replace(/\.[0-9a-f]{32}$/, '.[HASH]'),
+          // mask time-based slugs and their hashes to prevent daily snapshot drift
+          slug: (() => {
+            const masked = change.forResource.slug
+              .replace(/since\d{4}-\d{2}-\d{2}T\d{6}\.\d{3}Z/g, 'since[DATE]')
+              .replace(/until\d{4}-\d{2}-\d{2}T/g, 'until[DATE]');
+            // mask final hash for stable snapshots
+            return masked.replace(/\.[a-f0-9]{32}$/, '.[HASH]');
+          })(),
         }));
 
         // explicit assertions alongside snapshot: all resources should be KEEP

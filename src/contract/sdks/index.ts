@@ -5,6 +5,8 @@
 
 // aws daos
 export { DeclaredAwsEc2InstanceDao } from '@src/access/daos/DeclaredAwsEc2InstanceDao';
+export { DeclaredAwsEc2InstanceSessionDao } from '@src/access/daos/DeclaredAwsEc2InstanceSessionDao';
+export { DeclaredAwsEc2LaunchTemplateDao } from '@src/access/daos/DeclaredAwsEc2LaunchTemplateDao';
 // aws iam oidc provider dao
 export { DeclaredAwsIamOidcProviderDao } from '@src/access/daos/DeclaredAwsIamOidcProviderDao';
 export { DeclaredAwsIamPolicyDao } from '@src/access/daos/DeclaredAwsIamPolicyDao';
@@ -39,6 +41,8 @@ export { DeclaredAwsVpcSubnetDao } from '@src/access/daos/DeclaredAwsVpcSubnetDa
 export { DeclaredAwsVpcTunnelDao } from '@src/access/daos/DeclaredAwsVpcTunnelDao';
 // aws domain objects
 export { DeclaredAwsEc2Instance } from '@src/domain.objects/DeclaredAwsEc2Instance';
+export { DeclaredAwsEc2InstanceSession } from '@src/domain.objects/DeclaredAwsEc2InstanceSession';
+export { DeclaredAwsEc2LaunchTemplate } from '@src/domain.objects/DeclaredAwsEc2LaunchTemplate';
 // aws iam oidc provider domain objects
 export { DeclaredAwsIamOidcProvider } from '@src/domain.objects/DeclaredAwsIamOidcProvider';
 export { DeclaredAwsIamPolicy } from '@src/domain.objects/DeclaredAwsIamPolicy';
@@ -97,8 +101,16 @@ export { DeclaredAwsVpcSubnet } from '@src/domain.objects/DeclaredAwsVpcSubnet';
 export { DeclaredAwsVpcTunnel } from '@src/domain.objects/DeclaredAwsVpcTunnel';
 export type { DeclastructAwsProvider } from '@src/domain.objects/DeclastructAwsProvider';
 // aws ec2 operations
+export { delEc2Instance } from '@src/domain.operations/ec2Instance/delEc2Instance';
 export { getEc2Instance } from '@src/domain.operations/ec2Instance/getEc2Instance';
-export { setEc2InstanceStatus } from '@src/domain.operations/ec2Instance/setEc2InstanceStatus';
+export { setEc2Instance } from '@src/domain.operations/ec2Instance/setEc2Instance';
+// aws ec2 instance session operations
+export { getEc2InstanceSession } from '@src/domain.operations/ec2InstanceSession/getEc2InstanceSession';
+export { setEc2InstanceSession } from '@src/domain.operations/ec2InstanceSession/setEc2InstanceSession';
+// aws ec2 launch template operations
+export { delEc2LaunchTemplate } from '@src/domain.operations/ec2LaunchTemplate/delEc2LaunchTemplate';
+export { getEc2LaunchTemplate } from '@src/domain.operations/ec2LaunchTemplate/getEc2LaunchTemplate';
+export { setEc2LaunchTemplate } from '@src/domain.operations/ec2LaunchTemplate/setEc2LaunchTemplate';
 // aws iam oidc provider operations
 export { delIamOidcProvider } from '@src/domain.operations/iamOidcProvider/delIamOidcProvider';
 export { getAllIamOidcProviders } from '@src/domain.operations/iamOidcProvider/getAllIamOidcProviders';
