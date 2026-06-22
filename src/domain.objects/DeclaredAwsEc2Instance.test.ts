@@ -3,21 +3,32 @@ import { given, then, when } from 'test-fns';
 import { DeclaredAwsEc2Instance } from './DeclaredAwsEc2Instance';
 
 describe('DeclaredAwsEc2Instance', () => {
-  given('a valid exid', () => {
+  given('required properties', () => {
     when('instantiated', () => {
       let instance: DeclaredAwsEc2Instance;
 
       then('it should instantiate', () => {
-        instance = new DeclaredAwsEc2Instance({ exid: 'test-bastion' });
+        instance = new DeclaredAwsEc2Instance({
+          exid: 'test-bastion',
+          template: null,
+          subnet: { exid: 'my-subnet' },
+          securityGroups: [{ exid: 'my-sg' }],
+          tags: null,
+        });
       });
 
-      then('it should have the exid', () => {
-        expect(instance).toMatchObject({ exid: 'test-bastion' });
+      then('it should have the required properties', () => {
+        expect(instance).toMatchObject({
+          exid: 'test-bastion',
+          template: null,
+          subnet: { exid: 'my-subnet' },
+          securityGroups: [{ exid: 'my-sg' }],
+          tags: null,
+        });
       });
 
       then('metadata and readonly are undefined by default', () => {
         expect(instance.id).toBeUndefined();
-        expect(instance.status).toBeUndefined();
         expect(instance.privateIp).toBeUndefined();
       });
     });
@@ -31,7 +42,10 @@ describe('DeclaredAwsEc2Instance', () => {
         instance = new DeclaredAwsEc2Instance({
           id: 'i-1234567890abcdef0',
           exid: 'test-bastion',
-          status: 'running',
+          template: { exid: 'my-template' },
+          subnet: { id: 'subnet-abc123' },
+          securityGroups: [{ id: 'sg-xyz789' }],
+          tags: { managedBy: 'declastruct', purpose: 'test' },
           privateIp: '10.0.1.100',
         });
       });
@@ -40,7 +54,10 @@ describe('DeclaredAwsEc2Instance', () => {
         expect(instance).toMatchObject({
           id: 'i-1234567890abcdef0',
           exid: 'test-bastion',
-          status: 'running',
+          template: { exid: 'my-template' },
+          subnet: { id: 'subnet-abc123' },
+          securityGroups: [{ id: 'sg-xyz789' }],
+          tags: { managedBy: 'declastruct', purpose: 'test' },
           privateIp: '10.0.1.100',
         });
       });
@@ -60,8 +77,8 @@ describe('DeclaredAwsEc2Instance', () => {
       expect(DeclaredAwsEc2Instance.metadata).toEqual(['id']);
     });
 
-    then('readonly is defined as status, privateIp', () => {
-      expect(DeclaredAwsEc2Instance.readonly).toEqual(['status', 'privateIp']);
+    then('readonly is defined as privateIp', () => {
+      expect(DeclaredAwsEc2Instance.readonly).toEqual(['privateIp']);
     });
   });
 });

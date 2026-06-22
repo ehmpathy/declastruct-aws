@@ -1,4 +1,11 @@
-import { DescribeInstancesCommand, EC2Client } from '@aws-sdk/client-ec2';
+import {
+  DescribeInstancesCommand,
+  DescribeSecurityGroupsCommand,
+  DescribeSubnetsCommand,
+  DescribeVpcAttributeCommand,
+  DescribeVpcsCommand,
+  EC2Client,
+} from '@aws-sdk/client-ec2';
 import { mockClient } from 'aws-sdk-client-mock';
 import { given, then, when } from 'test-fns';
 
@@ -30,10 +37,46 @@ describe('getEc2Instance', () => {
                   Tags: [{ Key: 'exid', Value: 'test-bastion' }],
                   State: { Name: 'running' },
                   PrivateIpAddress: '10.0.1.50',
+                  SubnetId: 'subnet-abc',
+                  SecurityGroups: [{ GroupId: 'sg-123' }],
                 },
               ],
             },
           ],
+        });
+        ec2Mock.on(DescribeSubnetsCommand).resolves({
+          Subnets: [
+            {
+              SubnetId: 'subnet-abc',
+              VpcId: 'vpc-123',
+              AvailabilityZone: 'us-east-1a',
+              CidrBlock: '10.0.1.0/24',
+              Tags: [{ Key: 'exid', Value: 'test-subnet' }],
+            },
+          ],
+        });
+        ec2Mock.on(DescribeSecurityGroupsCommand).resolves({
+          SecurityGroups: [
+            {
+              GroupId: 'sg-123',
+              GroupName: 'test-sg',
+              VpcId: 'vpc-123',
+              Tags: [{ Key: 'exid', Value: 'test-sg' }],
+            },
+          ],
+        });
+        ec2Mock.on(DescribeVpcsCommand).resolves({
+          Vpcs: [
+            {
+              VpcId: 'vpc-123',
+              CidrBlock: '10.0.0.0/16',
+              Tags: [{ Key: 'exid', Value: 'test-vpc' }],
+            },
+          ],
+        });
+        ec2Mock.on(DescribeVpcAttributeCommand).resolves({
+          EnableDnsHostnames: { Value: true },
+          EnableDnsSupport: { Value: true },
         });
 
         result = await getEc2Instance(
@@ -46,8 +89,9 @@ describe('getEc2Instance', () => {
         expect(result).toMatchObject({
           id: 'i-123',
           exid: 'test-bastion',
-          status: 'running',
           privateIp: '10.0.1.50',
+          subnet: { exid: 'test-subnet' },
+          securityGroups: [{ exid: 'test-sg' }],
         });
       });
     });
@@ -67,10 +111,38 @@ describe('getEc2Instance', () => {
                   Tags: [{ Key: 'exid', Value: 'my-instance' }],
                   State: { Name: 'stopped' },
                   PrivateIpAddress: '10.0.1.51',
+                  SubnetId: 'subnet-xyz',
                 },
               ],
             },
           ],
+        });
+        ec2Mock.on(DescribeSubnetsCommand).resolves({
+          Subnets: [
+            {
+              SubnetId: 'subnet-xyz',
+              VpcId: 'vpc-456',
+              AvailabilityZone: 'us-east-1b',
+              CidrBlock: '10.0.2.0/24',
+              Tags: [{ Key: 'exid', Value: 'my-subnet' }],
+            },
+          ],
+        });
+        ec2Mock.on(DescribeSecurityGroupsCommand).resolves({
+          SecurityGroups: [],
+        });
+        ec2Mock.on(DescribeVpcsCommand).resolves({
+          Vpcs: [
+            {
+              VpcId: 'vpc-456',
+              CidrBlock: '10.0.0.0/16',
+              Tags: [{ Key: 'exid', Value: 'my-vpc' }],
+            },
+          ],
+        });
+        ec2Mock.on(DescribeVpcAttributeCommand).resolves({
+          EnableDnsHostnames: { Value: true },
+          EnableDnsSupport: { Value: true },
         });
 
         result = await getEc2Instance(
@@ -83,7 +155,7 @@ describe('getEc2Instance', () => {
         expect(result).toMatchObject({
           id: 'i-abc',
           exid: 'my-instance',
-          status: 'stopped',
+          subnet: { exid: 'my-subnet' },
         });
       });
     });
@@ -122,12 +194,14 @@ describe('getEc2Instance', () => {
                   Tags: [{ Key: 'exid', Value: 'dup' }],
                   State: { Name: 'running' },
                   PrivateIpAddress: '10.0.1.1',
+                  SubnetId: 'subnet-1',
                 },
                 {
                   InstanceId: 'i-2',
                   Tags: [{ Key: 'exid', Value: 'dup' }],
                   State: { Name: 'running' },
                   PrivateIpAddress: '10.0.1.2',
+                  SubnetId: 'subnet-2',
                 },
               ],
             },

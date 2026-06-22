@@ -1,15 +1,14 @@
 import { genDeclastructDao } from 'declastruct';
-import { BadRequestError } from 'helpful-errors';
 import type { ContextLogTrail } from 'simple-log-methods';
 
 import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
 import { DeclaredAwsEc2Instance } from '@src/domain.objects/DeclaredAwsEc2Instance';
 import { getEc2Instance } from '@src/domain.operations/ec2Instance/getEc2Instance';
+import { setEc2Instance } from '@src/domain.operations/ec2Instance/setEc2Instance';
 
 /**
  * .what = declastruct DAO for AWS EC2 instance resources
- * .why = wraps existing EC2 operations to conform to declastruct interface
- * .note = EC2 instance creation not yet implemented; currently read-only
+ * .why = wraps EC2 operations to conform to declastruct interface
  */
 export const DeclaredAwsEc2InstanceDao = genDeclastructDao<
   typeof DeclaredAwsEc2Instance,
@@ -27,14 +26,12 @@ export const DeclaredAwsEc2InstanceDao = genDeclastructDao<
     },
   },
   set: {
-    findsert: async (input) => {
-      // todo: EC2 instance creation not yet implemented
-      BadRequestError.throw(
-        'EC2 instance creation not yet supported by this DAO',
-        { input },
-      );
+    findsert: async (input, context) => {
+      return setEc2Instance({ findsert: input }, context);
     },
-    upsert: null,
+    upsert: async (input, context) => {
+      return setEc2Instance({ upsert: input }, context);
+    },
     delete: null,
   },
 });

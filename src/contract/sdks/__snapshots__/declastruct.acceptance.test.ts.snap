@@ -67,6 +67,21 @@ exports[`declastruct CLI workflow given: a declastruct resources file when: gene
     "class": "DeclaredAwsLogGroupReportCostOfIngestion",
     "slug": "DeclaredAwsLogGroupReportCostOfIngestion.namesawslambdadeclastruct-acceptance-lambda.since[DATE]until[DATE].[HASH]",
   },
+  {
+    "action": "KEEP",
+    "class": "DeclaredAwsEc2LaunchTemplate",
+    "slug": "DeclaredAwsEc2LaunchTemplate.declastruct-acceptance-template.[HASH]",
+  },
+  {
+    "action": "KEEP",
+    "class": "DeclaredAwsEc2Instance",
+    "slug": "DeclaredAwsEc2Instance.declastruct-acceptance-instance.[HASH]",
+  },
+  {
+    "action": "KEEP",
+    "class": "DeclaredAwsEc2InstanceSession",
+    "slug": "DeclaredAwsEc2InstanceSession.exiddeclastruct-acceptance-instance.[HASH]",
+  },
 ]
 `;
 
@@ -136,6 +151,21 @@ exports[`declastruct CLI workflow given: a declastruct resources file when: re-p
     "action": "KEEP",
     "class": "DeclaredAwsLogGroupReportCostOfIngestion",
     "slug": "DeclaredAwsLogGroupReportCostOfIngestion.namesawslambdadeclastruct-acceptance-lambda.since[DATE]until[DATE].[HASH]",
+  },
+  {
+    "action": "KEEP",
+    "class": "DeclaredAwsEc2LaunchTemplate",
+    "slug": "DeclaredAwsEc2LaunchTemplate.declastruct-acceptance-template.[HASH]",
+  },
+  {
+    "action": "KEEP",
+    "class": "DeclaredAwsEc2Instance",
+    "slug": "DeclaredAwsEc2Instance.declastruct-acceptance-instance.[HASH]",
+  },
+  {
+    "action": "KEEP",
+    "class": "DeclaredAwsEc2InstanceSession",
+    "slug": "DeclaredAwsEc2InstanceSession.exiddeclastruct-acceptance-instance.[HASH]",
   },
 ]
 `;

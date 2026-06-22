@@ -1,0 +1,28 @@
+{"stone":"1.vision","status":"blocked","blocker":"review.self","reason":"review.self required: has-grounded-in-reality"}
+{"stone":"1.vision","status":"blocked","blocker":"approval","reason":"wait for human approval"}
+{"stone":"1.vision","status":"approved"}
+{"stone":"1.vision","status":"passed"}
+{"stone":"5.1.execution.from_vision","status":"blocked","blocker":"review.self","reason":"review.self required: has-pruned-yagni"}
+{"stone":"5.1.execution.from_vision","status":"blocked","blocker":"review.self","reason":"review.self required: has-pruned-yagni"}
+{"stone":"5.1.execution.from_vision","status":"blocked"}
+{"stone":"5.1.execution.from_vision","status":"blocked","blocker":"review.self","reason":"review.self required: behavior-declaration-coverage"}
+{"stone":"5.1.execution.from_vision","status":"blocked","blocker":"review.peer","reason":"blockers exceed threshold (37 > 0)"}
+{"stone":"5.1.execution.from_vision","status":"blocked","blocker":"review.peer","reason":"no review files found for hash 58887ab0"}
+{"stone":"5.1.execution.from_vision","status":"blocked","blocker":"review.peer","reason":"blockers exceed threshold (21 > 0)"}
+{"stone":"5.1.execution.from_vision","status":"blocked","blocker":"review.peer","reason":"blockers exceed threshold (30 > 0)"}
+{"stone":"5.1.execution.from_vision","status":"malfunction"}
+{"stone":"5.1.execution.from_vision","status":"blocked","blocker":"review.peer.exhausted","reason":"peer reviewer budget exhausted: mech-failhides, mech-decode-friction, enroll-impl-behavior-intent"}
+{"stone":"5.1.execution.from_vision","status":"blocked","blocker":"review.peer.exhausted","reason":"peer reviewer budget exhausted: mech-failhides, mech-decode-friction, enroll-impl-behavior-intent"}
+{"stone":"5.1.execution.from_vision","status":"blocked","blocker":"review.peer","reason":"blockers exceed threshold (32 > 0)"}
+{"stone":"5.1.execution.from_vision","status":"blocked"}
+{"stone":"5.1.execution.from_vision","status":"blocked","blocker":"review.peer","reason":"blockers exceed threshold (38 > 0)"}
+{"stone":"5.1.execution.from_vision","status":"blocked","blocker":"review.peer","reason":"blockers exceed threshold (36 > 0)"}
+{"stone":"5.1.execution.from_vision","status":"blocked"}
+{"stone":"5.1.execution.from_vision","status":"blocked","blocker":"review.peer","reason":"blockers exceed threshold (36 > 0)"}
+{"stone":"5.1.execution.from_vision","status":"passed"}
+{"stone":"5.3.verification","status":"blocked","blocker":"review.self","reason":"review.self required: has-behavior-coverage"}
+{"stone":"5.3.verification","status":"blocked","blocker":"review.self","reason":"review.self required: has-behavior-coverage"}
+{"stone":"5.3.verification","status":"blocked"}
+{"stone":"5.3.verification","status":"blocked"}
+{"stone":"5.3.verification","status":"blocked"}
+{"stone":"5.3.verification","status":"blocked"}

@@ -142,15 +142,56 @@ export const demoPermissionsPolicy: DeclaredAwsIamPolicyBundle =
           ],
           resource: '*',
         }),
-        // EC2: start/stop instances
+        // EC2: instance lifecycle (start/stop/hibernate)
         new DeclaredAwsIamPolicyStatement({
           effect: 'Allow',
           action: [
+            'ec2:RunInstances',
             'ec2:StartInstances',
             'ec2:StopInstances',
+            'ec2:TerminateInstances',
             'ec2:RebootInstances',
             'ec2:CreateTags',
             'ec2:DeleteTags',
+          ],
+          resource: '*',
+        }),
+        // EC2: network interfaces (required for RunInstances)
+        new DeclaredAwsIamPolicyStatement({
+          effect: 'Allow',
+          action: [
+            'ec2:CreateNetworkInterface',
+            'ec2:DeleteNetworkInterface',
+            'ec2:ModifyNetworkInterfaceAttribute',
+            'ec2:AttachNetworkInterface',
+            'ec2:DetachNetworkInterface',
+            'ec2:AssignPrivateIpAddresses',
+            'ec2:UnassignPrivateIpAddresses',
+          ],
+          resource: '*',
+        }),
+        // EC2: EBS volumes (required for instances)
+        new DeclaredAwsIamPolicyStatement({
+          effect: 'Allow',
+          action: [
+            'ec2:CreateVolume',
+            'ec2:DeleteVolume',
+            'ec2:AttachVolume',
+            'ec2:DetachVolume',
+            'ec2:ModifyVolume',
+          ],
+          resource: '*',
+        }),
+        // EC2: launch templates
+        new DeclaredAwsIamPolicyStatement({
+          effect: 'Allow',
+          action: [
+            'ec2:CreateLaunchTemplate',
+            'ec2:CreateLaunchTemplateVersion',
+            'ec2:ModifyLaunchTemplate',
+            'ec2:DeleteLaunchTemplate',
+            'ec2:DeleteLaunchTemplateVersions',
+            'ec2:GetLaunchTemplateData',
           ],
           resource: '*',
         }),

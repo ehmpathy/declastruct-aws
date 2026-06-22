@@ -1,0 +1,224 @@
+# handoff: EC2 VPC infrastructure
+
+## .what
+
+to run EC2 integration tests, we need VPC infrastructure resources that don't yet exist in declastruct-aws.
+
+## .why
+
+EC2 instances require:
+- a VPC to live in
+- a subnet for network placement
+- security groups for traffic control
+- a launch template for instance configuration
+
+the integration tests are currently `describe.skip` because the demo account lacks this infrastructure.
+
+## .resources needed
+
+### tier 1: minimal viable (enables basic EC2 tests)
+
+| resource | purpose | declastruct type needed |
+|----------|---------|------------------------|
+| VPC | virtual network | `DeclaredAwsVpc` |
+| Subnet | network segment for instance placement | `DeclaredAwsVpcSubnet` |
+| Security Group | firewall rules | `DeclaredAwsVpcSecurityGroup` |
+| Internet Gateway | outbound internet (optional, for public subnet) | `DeclaredAwsVpcInternetGateway` |
+| Route Table | route rules | `DeclaredAwsVpcRouteTable` |
+
+### tier 2: hibernation support (enables full EC2 tests)
+
+hibernation requires:
+- launch template with `hibernation: true`
+- root volume encryption (`rootVolumeEncrypted: true`)
+- sufficient root volume size for RAM dump
+- hibernation-capable instance type (most t3/m5/r5 types)
+- EBS-backed AMI (not instance-store)
+
+the `DeclaredAwsEc2LaunchTemplate` already supports these fields.
+
+## .domain object sketches
+
+### DeclaredAwsVpc
+
+```typescript
+interface DeclaredAwsVpc {
+  id?: string;                    // metadata, assigned by AWS
+  exid: string;                   // unique key for declastruct
+  cidrBlock: string;              // e.g., '10.0.0.0/16'
+  enableDnsHostnames: boolean;
+  enableDnsSupport: boolean;
+  tags: Record<string, string> | null;
+}
+```
+
+### DeclaredAwsVpcSubnet
+
+```typescript
+interface DeclaredAwsVpcSubnet {
+  id?: string;                    // metadata, assigned by AWS
+  exid: string;                   // unique key for declastruct
+  vpc: Ref<typeof DeclaredAwsVpc>;
+  cidrBlock: string;              // e.g., '10.0.1.0/24'
+  availabilityZone: string;       // e.g., 'us-east-1a'
+  mapPublicIpOnLaunch: boolean;
+  tags: Record<string, string> | null;
+}
+```
+
+### DeclaredAwsVpcSecurityGroup
+
+```typescript
+interface DeclaredAwsVpcSecurityGroup {
+  id?: string;                    // metadata, assigned by AWS
+  exid: string;                   // unique key for declastruct
+  vpc: Ref<typeof DeclaredAwsVpc>;
+  name: string;
+  description: string;
+  ingressRules: SecurityGroupRule[];
+  egressRules: SecurityGroupRule[];
+  tags: Record<string, string> | null;
+}
+
+interface SecurityGroupRule {
+  protocol: 'tcp' | 'udp' | 'icmp' | '-1';  // -1 = all
+  fromPort: number;
+  toPort: number;
+  cidrBlocks: string[];           // e.g., ['0.0.0.0/0']
+  description: string | null;
+}
+```
+
+### DeclaredAwsVpcInternetGateway
+
+```typescript
+interface DeclaredAwsVpcInternetGateway {
+  id?: string;                    // metadata, assigned by AWS
+  exid: string;                   // unique key for declastruct
+  vpc: Ref<typeof DeclaredAwsVpc>;
+  tags: Record<string, string> | null;
+}
+```
+
+### DeclaredAwsVpcRouteTable
+
+```typescript
+interface DeclaredAwsVpcRouteTable {
+  id?: string;                    // metadata, assigned by AWS
+  exid: string;                   // unique key for declastruct
+  vpc: Ref<typeof DeclaredAwsVpc>;
+  routes: Route[];
+  associations: RouteTableAssociation[];
+  tags: Record<string, string> | null;
+}
+
+interface Route {
+  destinationCidrBlock: string;   // e.g., '0.0.0.0/0'
+  gatewayId: string | null;       // internet gateway
+  natGatewayId: string | null;
+  // ... other targets
+}
+
+interface RouteTableAssociation {
+  subnet: Ref<typeof DeclaredAwsVpcSubnet>;
+}
+```
+
+## .demo account provision
+
+once the domain objects exist, provision in demo account:
+
+```typescript
+// provision/aws.demo/resources.vpc.ts
+
+const vpc = DeclaredAwsVpc.as({
+  exid: 'declastruct-demo-vpc',
+  cidrBlock: '10.0.0.0/16',
+  enableDnsHostnames: true,
+  enableDnsSupport: true,
+  tags: { managedBy: 'declastruct', purpose: 'demo' },
+});
+
+const subnet = DeclaredAwsVpcSubnet.as({
+  exid: 'declastruct-demo-subnet-1a',
+  vpc: { exid: vpc.exid },
+  cidrBlock: '10.0.1.0/24',
+  availabilityZone: 'us-east-1a',
+  mapPublicIpOnLaunch: false,
+  tags: { managedBy: 'declastruct', purpose: 'demo' },
+});
+
+const securityGroup = DeclaredAwsVpcSecurityGroup.as({
+  exid: 'declastruct-demo-sg',
+  vpc: { exid: vpc.exid },
+  name: 'declastruct-demo-sg',
+  description: 'security group for declastruct demo instances',
+  ingressRules: [],  // no inbound by default
+  egressRules: [
+    {
+      protocol: '-1',
+      fromPort: 0,
+      toPort: 0,
+      cidrBlocks: ['0.0.0.0/0'],
+      description: 'allow all outbound',
+    },
+  ],
+  tags: { managedBy: 'declastruct', purpose: 'demo' },
+});
+```
+
+## .test file updates needed
+
+after provision, update the test files to use real resource IDs:
+
+```typescript
+// ec2Instance.journey.integration.test.ts
+
+const testInstance = DeclaredAwsEc2Instance.as({
+  exid: testExid,
+  template: { exid: 'declastruct-demo-template' },
+  subnetId: 'subnet-xxxxx',  // real subnet id from provisioned infrastructure
+  securityGroupIds: ['sg-xxxxx'],  // real sg id
+});
+```
+
+or better: read from environment/config:
+
+```typescript
+const vpcConfig = {
+  subnetId: process.env.DECLASTRUCT_DEMO_SUBNET_ID ?? 'subnet-placeholder',
+  securityGroupIds: [process.env.DECLASTRUCT_DEMO_SG_ID ?? 'sg-placeholder'],
+  templateExid: process.env.DECLASTRUCT_DEMO_TEMPLATE_EXID ?? 'declastruct-demo-template',
+};
+```
+
+## .scope estimate
+
+| work | effort |
+|------|--------|
+| DeclaredAwsVpc + operations | 1-2 days |
+| DeclaredAwsVpcSubnet + operations | 1 day |
+| DeclaredAwsVpcSecurityGroup + operations | 1-2 days |
+| DeclaredAwsVpcInternetGateway + operations | 0.5 day |
+| DeclaredAwsVpcRouteTable + operations | 1 day |
+| demo account provision | 0.5 day |
+| test file updates | 0.5 day |
+| **total** | **5-7 days** |
+
+## .alternative: manual provision
+
+if VPC resources don't need declastruct management, manually create in AWS console:
+1. create VPC with CIDR 10.0.0.0/16
+2. create subnet in one AZ
+3. create security group that allows outbound only
+4. create launch template with hibernation enabled
+5. export IDs to test config
+
+this avoids the need to build DeclaredAwsVpc* but doesn't provide declarative infra-as-code for VPC resources.
+
+## .files touched
+
+integration tests that need real VPC resources:
+- `src/domain.operations/ec2Instance/ec2Instance.journey.integration.test.ts`
+- `src/domain.operations/ec2LaunchTemplate/ec2LaunchTemplate.journey.integration.test.ts`
+- `src/domain.operations/ec2InstanceSession/ec2InstanceSession.journey.integration.test.ts`
