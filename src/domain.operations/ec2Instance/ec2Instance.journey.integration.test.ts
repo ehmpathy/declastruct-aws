@@ -4,6 +4,7 @@ import { genTestUuid, given, then, useBeforeAll, when } from 'test-fns';
 import { getSampleAwsApiContext } from '@src/.test/getSampleAwsApiContext';
 import { DeclaredAwsEc2Instance } from '@src/domain.objects/DeclaredAwsEc2Instance';
 
+import { getEc2LaunchTemplate } from '../ec2LaunchTemplate/getEc2LaunchTemplate';
 import { getEc2Instance } from './getEc2Instance';
 import { setEc2Instance } from './setEc2Instance';
 
@@ -204,12 +205,20 @@ describe('ec2Instance.journey', () => {
     when('[t0] create instance with template by id', () => {
       then('instance references template', async () => {
         const { context } = scene;
+
+        // look up acceptance template to get its real ID
+        const acceptanceTemplate = await getEc2LaunchTemplate(
+          { by: { unique: { exid: 'declastruct-acceptance-template' } } },
+          context,
+        );
+        expect(acceptanceTemplate).not.toBeNull();
+
         const templateIdExid = `declastruct-test-byid-${genTestUuid().slice(0, 8)}`;
         const instance = await setEc2Instance(
           {
             findsert: DeclaredAwsEc2Instance.as({
               exid: templateIdExid,
-              template: { id: 'lt-placeholder' }, // ref by id
+              template: { id: acceptanceTemplate!.id }, // ref by real id
               subnet: testInstance.subnet,
               securityGroups: testInstance.securityGroups,
               tags: null,
