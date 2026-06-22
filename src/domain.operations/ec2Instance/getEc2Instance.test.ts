@@ -1,4 +1,11 @@
-import { DescribeInstancesCommand, EC2Client } from '@aws-sdk/client-ec2';
+import {
+  DescribeInstancesCommand,
+  DescribeSecurityGroupsCommand,
+  DescribeSubnetsCommand,
+  DescribeVpcAttributeCommand,
+  DescribeVpcsCommand,
+  EC2Client,
+} from '@aws-sdk/client-ec2';
 import { mockClient } from 'aws-sdk-client-mock';
 import { given, then, when } from 'test-fns';
 
@@ -37,6 +44,40 @@ describe('getEc2Instance', () => {
             },
           ],
         });
+        ec2Mock.on(DescribeSubnetsCommand).resolves({
+          Subnets: [
+            {
+              SubnetId: 'subnet-abc',
+              VpcId: 'vpc-123',
+              AvailabilityZone: 'us-east-1a',
+              CidrBlock: '10.0.1.0/24',
+              Tags: [{ Key: 'exid', Value: 'test-subnet' }],
+            },
+          ],
+        });
+        ec2Mock.on(DescribeSecurityGroupsCommand).resolves({
+          SecurityGroups: [
+            {
+              GroupId: 'sg-123',
+              GroupName: 'test-sg',
+              VpcId: 'vpc-123',
+              Tags: [{ Key: 'exid', Value: 'test-sg' }],
+            },
+          ],
+        });
+        ec2Mock.on(DescribeVpcsCommand).resolves({
+          Vpcs: [
+            {
+              VpcId: 'vpc-123',
+              CidrBlock: '10.0.0.0/16',
+              Tags: [{ Key: 'exid', Value: 'test-vpc' }],
+            },
+          ],
+        });
+        ec2Mock.on(DescribeVpcAttributeCommand).resolves({
+          EnableDnsHostnames: { Value: true },
+          EnableDnsSupport: { Value: true },
+        });
 
         result = await getEc2Instance(
           { by: { unique: { exid: 'test-bastion' } } },
@@ -49,8 +90,8 @@ describe('getEc2Instance', () => {
           id: 'i-123',
           exid: 'test-bastion',
           privateIp: '10.0.1.50',
-          subnet: { id: 'subnet-abc' },
-          securityGroups: [{ id: 'sg-123' }],
+          subnet: { exid: 'test-subnet' },
+          securityGroups: [{ exid: 'test-sg' }],
         });
       });
     });
@@ -76,6 +117,33 @@ describe('getEc2Instance', () => {
             },
           ],
         });
+        ec2Mock.on(DescribeSubnetsCommand).resolves({
+          Subnets: [
+            {
+              SubnetId: 'subnet-xyz',
+              VpcId: 'vpc-456',
+              AvailabilityZone: 'us-east-1b',
+              CidrBlock: '10.0.2.0/24',
+              Tags: [{ Key: 'exid', Value: 'my-subnet' }],
+            },
+          ],
+        });
+        ec2Mock.on(DescribeSecurityGroupsCommand).resolves({
+          SecurityGroups: [],
+        });
+        ec2Mock.on(DescribeVpcsCommand).resolves({
+          Vpcs: [
+            {
+              VpcId: 'vpc-456',
+              CidrBlock: '10.0.0.0/16',
+              Tags: [{ Key: 'exid', Value: 'my-vpc' }],
+            },
+          ],
+        });
+        ec2Mock.on(DescribeVpcAttributeCommand).resolves({
+          EnableDnsHostnames: { Value: true },
+          EnableDnsSupport: { Value: true },
+        });
 
         result = await getEc2Instance(
           { by: { primary: { id: 'i-abc' } } },
@@ -87,7 +155,7 @@ describe('getEc2Instance', () => {
         expect(result).toMatchObject({
           id: 'i-abc',
           exid: 'my-instance',
-          subnet: { id: 'subnet-xyz' },
+          subnet: { exid: 'my-subnet' },
         });
       });
     });
