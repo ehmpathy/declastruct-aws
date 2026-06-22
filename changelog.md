@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.0](https://github.com/ehmpathy/declastruct-aws/compare/v1.6.0...v1.7.0) (2026-06-22)
+
+
+### Features
+
+* **ec2:** add launch templates and instance lifecycle operations ([#54](https://github.com/ehmpathy/declastruct-aws/issues/54)) ([d9d00bc](https://github.com/ehmpathy/declastruct-aws/commit/d9d00bcb929a24fa5acd5170a7aee7118d19607f))
+
 ## [1.6.0](https://github.com/ehmpathy/declastruct-aws/compare/v1.5.2...v1.6.0) (2026-06-20)
 
 
