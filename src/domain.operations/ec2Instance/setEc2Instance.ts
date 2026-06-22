@@ -1,4 +1,5 @@
 import { EC2Client, RunInstancesCommand } from '@aws-sdk/client-ec2';
+import { sleep } from '@ehmpathy/uni-time';
 import { type HasReadonly, isRefByPrimary, type Ref } from 'domain-objects';
 import { UnexpectedCodePathError } from 'helpful-errors';
 import type { ContextLogTrail } from 'simple-log-methods';
@@ -173,15 +174,22 @@ export const setEc2Instance = async (
     );
 
   // get the created instance to return full domain object
-  const created = await getEc2Instance(
-    { by: { primary: { id: instanceId } } },
-    context,
-  );
-
-  if (!created)
-    return UnexpectedCodePathError.throw(
-      'could not find newly created EC2 instance',
-      { instanceId, instance },
+  // note: retry with backoff due to AWS eventual consistency
+  const maxAttempts = 5;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    const created = await getEc2Instance(
+      { by: { primary: { id: instanceId } } },
+      context,
     );
-  return created;
+
+    if (created) return created;
+
+    // wait before retry (exponential backoff: 500ms, 1s, 2s, 4s)
+    if (attempt < maxAttempts) await sleep(500 * Math.pow(2, attempt - 1));
+  }
+
+  return UnexpectedCodePathError.throw(
+    'could not find newly created EC2 instance after retries',
+    { instanceId, instance, maxAttempts },
+  );
 };
