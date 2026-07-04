@@ -1,4 +1,8 @@
-import { EC2Client, TerminateInstancesCommand } from '@aws-sdk/client-ec2';
+import {
+  DescribeInstancesCommand,
+  EC2Client,
+  TerminateInstancesCommand,
+} from '@aws-sdk/client-ec2';
 import { genTestUuid, given, then, useBeforeAll, when } from 'test-fns';
 
 import { getSampleAwsApiContext } from '@src/.test/getSampleAwsApiContext';
@@ -21,7 +25,37 @@ describe('ec2Instance.journey', () => {
   // track instance IDs for cleanup
   const instanceIds: string[] = [];
 
-  // terminate all instances created in this test suite
+  // cleanup BEFORE: terminate orphans from prior crashed runs
+  // .why = if a test run crashes mid-execution, afterAll never runs,
+  //        leaving orphaned instances that consume vCPU quota
+  beforeAll(async () => {
+    const context = await getSampleAwsApiContext();
+    const ec2 = new EC2Client({ region: context.aws.credentials.region });
+
+    // find orphaned test instances by purpose tag
+    // note: 'running' and 'stopped' are AWS API state names
+    const orphans = await ec2.send(
+      new DescribeInstancesCommand({
+        Filters: [
+          { Name: 'tag:purpose', Values: ['integration-test'] },
+          { Name: 'instance-state-name', Values: ['running', 'stopped'] },
+        ],
+      }),
+    );
+
+    const orphanIds =
+      orphans.Reservations?.flatMap(
+        (r) => r.Instances?.map((i) => i.InstanceId).filter(Boolean) ?? [],
+      ) ?? [];
+
+    if (orphanIds.length > 0) {
+      await ec2.send(
+        new TerminateInstancesCommand({ InstanceIds: orphanIds as string[] }),
+      );
+    }
+  });
+
+  // cleanup AFTER: terminate instances created in this run
   afterAll(async () => {
     if (instanceIds.length === 0) return;
     const context = await getSampleAwsApiContext();
@@ -36,8 +70,11 @@ describe('ec2Instance.journey', () => {
   const testInstance = DeclaredAwsEc2Instance.as({
     exid: testExid,
     template: { exid: 'declastruct-acceptance-template' }, // ref to acceptance launch template
-    subnet: { exid: 'declastruct-acceptance-subnet-1a' }, // ref to acceptance subnet
-    securityGroups: [{ exid: 'declastruct-acceptance-sg' }], // ref to acceptance SG
+    network: {
+      subnet: { exid: 'declastruct-acceptance-subnet-private-1a' }, // ref to acceptance subnet
+      security: { groups: [{ exid: 'declastruct-acceptance-sg' }] }, // ref to acceptance SG
+      interface: { publicIpEnabled: false, sourceDestChecked: true },
+    },
     tags: { managedBy: 'declastruct', purpose: 'integration-test' },
   });
 
@@ -62,8 +99,10 @@ describe('ec2Instance.journey', () => {
         expect(created.id).toBeDefined();
         expect(created.id).toMatch(/^i-[a-z0-9]+$/);
         expect(created.exid).toBe(testExid);
-        expect(created.subnet).toBeDefined();
-        expect('id' in created.subnet || 'exid' in created.subnet).toBe(true);
+        expect(created.network.subnet).toBeDefined();
+        expect(
+          'id' in created.network.subnet || 'exid' in created.network.subnet,
+        ).toBe(true);
       });
     });
 
@@ -191,7 +230,12 @@ describe('ec2Instance.journey', () => {
             {
               upsert: {
                 ...testInstance,
-                subnet: { exid: 'declastruct-acceptance-subnet-1a' }, // same config
+                network: {
+                  ...testInstance.network,
+                  subnet: {
+                    exid: 'declastruct-acceptance-subnet-private-1a',
+                  }, // same config
+                },
               },
             },
             context,
@@ -219,8 +263,7 @@ describe('ec2Instance.journey', () => {
             findsert: DeclaredAwsEc2Instance.as({
               exid: templateIdExid,
               template: { id: acceptanceTemplate!.id }, // ref by real id
-              subnet: testInstance.subnet,
-              securityGroups: testInstance.securityGroups,
+              network: testInstance.network,
               tags: null,
             }),
           },
@@ -247,8 +290,7 @@ describe('ec2Instance.journey', () => {
               findsert: DeclaredAwsEc2Instance.as({
                 exid: noTemplateExid,
                 template: null, // no template
-                subnet: testInstance.subnet,
-                securityGroups: testInstance.securityGroups,
+                network: testInstance.network,
                 tags: null,
               }),
             },
@@ -269,11 +311,15 @@ describe('ec2Instance.journey', () => {
             findsert: DeclaredAwsEc2Instance.as({
               exid: multiSgExid,
               template: testInstance.template,
-              subnet: testInstance.subnet,
-              securityGroups: [
-                { exid: 'declastruct-acceptance-sg' },
-                { exid: 'declastruct-acceptance-sg' }, // same SG ref twice — tests multiple refs
-              ],
+              network: {
+                ...testInstance.network,
+                security: {
+                  groups: [
+                    { exid: 'declastruct-acceptance-sg' },
+                    { exid: 'declastruct-acceptance-sg' }, // same SG ref twice — tests multiple refs
+                  ],
+                },
+              },
               tags: null,
             }),
           },
@@ -283,7 +329,9 @@ describe('ec2Instance.journey', () => {
         // track for cleanup
         if (!instanceIds.includes(instance.id)) instanceIds.push(instance.id);
 
-        expect(instance.securityGroups.length).toBeGreaterThanOrEqual(1);
+        expect(instance.network.security.groups.length).toBeGreaterThanOrEqual(
+          1,
+        );
       });
     });
   });
@@ -297,9 +345,9 @@ describe('ec2Instance.journey', () => {
           context,
         );
 
-        // privateIp is readonly, resolved from AWS
-        expect(instance.privateIp).toBeDefined();
-        expect(instance.privateIp).toMatch(
+        // privateIp is readonly, resolved from AWS, nested under network.interface
+        expect(instance.network.interface.privateIp).toBeDefined();
+        expect(instance.network.interface.privateIp).toMatch(
           /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/,
         );
       });

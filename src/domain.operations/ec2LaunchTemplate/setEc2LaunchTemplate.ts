@@ -5,7 +5,7 @@ import {
 } from '@aws-sdk/client-ec2';
 import type { HasReadonly } from 'domain-objects';
 import { UnexpectedCodePathError } from 'helpful-errors';
-import type { ContextLogTrail } from 'simple-log-methods';
+import type { ContextLogTrail } from 'sdk-logs';
 import type { PickOne } from 'type-fns';
 
 import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
@@ -73,7 +73,7 @@ export const setEc2LaunchTemplate = async (
           },
         ],
         IamInstanceProfile: template.iamInstanceProfile
-          ? { Name: template.iamInstanceProfile }
+          ? { Name: template.iamInstanceProfile.name }
           : undefined,
         UserData: template.userData
           ? Buffer.from(template.userData).toString('base64')

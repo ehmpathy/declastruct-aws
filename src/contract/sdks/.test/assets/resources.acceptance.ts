@@ -1,22 +1,32 @@
 import { asUniDateTime, UniDateTime } from '@ehmpathy/uni-time';
 import { endOfDay, startOfDay, subDays } from 'date-fns';
 import { del } from 'declastruct';
-import { RefByUnique } from 'domain-objects';
-import { ConstraintError } from 'helpful-errors';
+import { RefByPrimary, RefByUnique } from 'domain-objects';
+import { UnexpectedCodePathError } from 'helpful-errors';
+import { keyrack } from 'rhachet/keyrack';
+import { genLogMethods, LogLevel } from 'sdk-logs';
+
+// source aws credentials from keyrack
+keyrack.source({ env: 'test', owner: 'ehmpath', mode: 'lenient' });
 
 import {
   calcAwsLambdaConfigHash,
   DeclaredAwsEc2Instance,
   DeclaredAwsEc2InstanceSession,
   DeclaredAwsEc2LaunchTemplate,
+  DeclaredAwsEc2SshKeyAuthorized,
+  DeclaredAwsIamInstanceProfile,
+  DeclaredAwsIamPolicy,
   DeclaredAwsIamRole,
   DeclaredAwsIamRolePolicyAttachedInline,
+  DeclaredAwsIamRolePolicyAttachedManaged,
   DeclaredAwsLambda,
   DeclaredAwsLambdaAlias,
   DeclaredAwsLambdaVersion,
   DeclaredAwsLogGroup,
   DeclaredAwsLogGroupReportCostOfIngestion,
   DeclaredAwsLogGroupReportDistOfPattern,
+  DeclaredAwsSsmSshTunnel,
   DeclaredAwsVpc,
   DeclaredAwsVpcCidrBlock,
   DeclaredAwsVpcInternetGateway,
@@ -24,7 +34,7 @@ import {
   DeclaredAwsVpcSecurityGroup,
   DeclaredAwsVpcSecurityGroupRule,
   DeclaredAwsVpcSubnet,
-  DeclaredAwsVpcTunnel,
+  DeclaredAwsSsmVpcTunnel,
   genDeclaredAwsLambdaCode,
   getAllIamUserAccessKeys,
   getDeclastructAwsProvider,
@@ -40,6 +50,74 @@ const logGroupReportRange = {
 };
 
 /**
+ * .what = Amazon Linux 2023 AMI (x86_64, us-east-1) used for the NAT instance
+ * .why = stable base image with the tools the NAT user data needs
+ */
+const AL2023_AMI_US_EAST_1 = 'ami-0453ec754f44f9a4a';
+
+/**
+ * .what = a stable, throwaway ed25519 public key for the ssh key authorization
+ * .why = EC2 Instance Connect needs a syntactically valid key; the private half is
+ *   discarded (acceptance verifies the authorization is recorded, never sshes in).
+ *   it must stay stable so the declared publicKey matches the recorded one -> KEEP.
+ * .note = to rotate, see the .reseed steps on the ec2SshKeyAuthorized declaration
+ */
+const ACCEPTANCE_SSH_PUBLIC_KEY =
+  'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAID5+jzBfFTQMe+mQrsxNcg93UbqhqV8sCb8e+sG47JCD declastruct-acceptance-seed';
+
+/**
+ * .what = user data that turns a plain instance into a NAT (fck-nat style)
+ * .why = enables IP forward + iptables masquerade so the private subnet can egress
+ * .note
+ *   - detects the primary interface dynamically (AL2023/Nitro names it ens5)
+ *   - masquerade rules persist across stop/start via iptables-services + sysctl
+ *   - auto-stops 90 min after each boot for cost control; a systemd timer re-arms
+ *     on every boot (a one-shot user-data sleep would fire only on first boot)
+ *   - a self-stop survives test crashes, so an orphaned NAT cannot bill forever
+ *   - source/dest check is disabled declaratively via the instance, not here
+ */
+const NAT_USER_DATA = `#!/bin/bash
+set -e
+
+# detect the primary network interface (the one with the default route)
+PRIMARY_IFACE=$(ip -o -4 route show to default | awk '{print $5}' | head -n1)
+
+# enable IP forward (persists across reboots via sysctl.conf)
+echo 1 > /proc/sys/net/ipv4/ip_forward
+echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf
+
+# configure iptables NAT (masquerade); iptables-services restores it on each boot
+yum install -y iptables-services
+systemctl enable iptables
+iptables -t nat -A POSTROUTING -o "$PRIMARY_IFACE" -j MASQUERADE
+iptables -A FORWARD -i "$PRIMARY_IFACE" -o "$PRIMARY_IFACE" -m state --state RELATED,ESTABLISHED -j ACCEPT
+iptables -A FORWARD -i "$PRIMARY_IFACE" -o "$PRIMARY_IFACE" -j ACCEPT
+service iptables save
+
+# auto-stop 90 min after each boot (cost control; survives test crashes)
+cat > /etc/systemd/system/nat-idle-stop.service <<'UNIT'
+[Unit]
+Description=stop this NAT for idle cost control
+
+[Service]
+Type=oneshot
+ExecStart=/sbin/shutdown -h now
+UNIT
+cat > /etc/systemd/system/nat-idle-stop.timer <<'UNIT'
+[Unit]
+Description=stop this NAT 90 min after boot
+
+[Timer]
+OnBootSec=5400
+
+[Install]
+WantedBy=timers.target
+UNIT
+systemctl daemon-reload
+systemctl enable --now nat-idle-stop.timer
+`;
+
+/**
  * .what = provider configuration for AWS acceptance tests
  * .why = enables declastruct CLI to interact with AWS API
  * .note = requires AWS_PROFILE to be set via: source .agent/repo=.this/skills/use.demo.awsprofile.sh
@@ -47,14 +125,7 @@ const logGroupReportRange = {
 export const getProviders = async () => [
   await getDeclastructAwsProvider(
     {},
-    {
-      log: {
-        info: () => {},
-        debug: () => {},
-        warn: console.warn,
-        error: console.error,
-      },
-    },
+    { log: genLogMethods({ level: { minimum: LogLevel.WARN } }) },
   ),
 ];
 
@@ -76,11 +147,20 @@ export const getResources = async () => {
     tags: { managedBy: 'declastruct', purpose: 'acceptance-test' },
   });
 
-  // declare subnet
-  const subnet = DeclaredAwsVpcSubnet.as({
-    exid: 'declastruct-acceptance-subnet-1a',
+  // declare public subnet (for fck-nat gateway — needs public IP and IGW route)
+  const subnetPublic = DeclaredAwsVpcSubnet.as({
+    exid: 'declastruct-acceptance-subnet-public-1a',
     vpc: { exid: vpc.exid },
     cidr: { v4: '10.0.1.0/24' },
+    zone: { availability: 'us-east-1a' },
+    tags: { managedBy: 'declastruct', purpose: 'acceptance-test' },
+  });
+
+  // declare private subnet (for EC2 instances — no public IP, routes via NAT)
+  const subnetPrivate = DeclaredAwsVpcSubnet.as({
+    exid: 'declastruct-acceptance-subnet-private-1a',
+    vpc: { exid: vpc.exid },
+    cidr: { v4: '10.0.2.0/24' },
     zone: { availability: 'us-east-1a' },
     tags: { managedBy: 'declastruct', purpose: 'acceptance-test' },
   });
@@ -92,7 +172,15 @@ export const getResources = async () => {
     name: 'declastruct-acceptance-sg',
     description: 'security group for declastruct acceptance instances',
     rules: {
-      ingress: [],
+      ingress: [
+        DeclaredAwsVpcSecurityGroupRule.as({
+          protocol: 'all',
+          port: { from: 0, upto: 0 },
+          cidrs: [DeclaredAwsVpcCidrBlock.as({ v4: '10.0.0.0/16' })],
+          description:
+            'allow all inbound from within vpc - required so the ephemeral NAT instance can receive and forward egress traffic from the private subnet',
+        }),
+      ],
       egress: [
         DeclaredAwsVpcSecurityGroupRule.as({
           protocol: 'all',
@@ -112,9 +200,9 @@ export const getResources = async () => {
     tags: { managedBy: 'declastruct', purpose: 'acceptance-test' },
   });
 
-  // declare route table
-  const routeTable = DeclaredAwsVpcRouteTable.as({
-    exid: 'declastruct-acceptance-rtb',
+  // declare public route table (routes to internet gateway for fck-nat egress)
+  const routeTablePublic = DeclaredAwsVpcRouteTable.as({
+    exid: 'declastruct-acceptance-rtb-public',
     vpc: { exid: vpc.exid },
     routes: [
       {
@@ -122,13 +210,27 @@ export const getResources = async () => {
         target: { gatewayInternet: { exid: internetGateway.exid } },
       },
     ],
-    associations: [{ subnet: { exid: subnet.exid } }],
+    associations: [{ subnet: { exid: subnetPublic.exid } }],
+    tags: { managedBy: 'declastruct', purpose: 'acceptance-test' },
+  });
+
+  // declare private route table (egress routes through the declared NAT instance)
+  const routeTablePrivate = DeclaredAwsVpcRouteTable.as({
+    exid: 'declastruct-acceptance-rtb-private',
+    vpc: { exid: vpc.exid },
+    routes: [
+      {
+        destination: { cidr: DeclaredAwsVpcCidrBlock.as({ v4: '0.0.0.0/0' }) },
+        target: { instanceNat: { instance: { exid: 'declastruct-acceptance-nat' } } },
+      },
+    ],
+    associations: [{ subnet: { exid: subnetPrivate.exid } }],
     tags: { managedBy: 'declastruct', purpose: 'acceptance-test' },
   });
 
   // TODO: provision vpc, bastion machine, and rds db in demo account
   // // declare tunnel to open
-  // const tunnel = DeclaredAwsVpcTunnel.as({
+  // const tunnel = DeclaredAwsSsmVpcTunnel.as({
   //   via: {
   //     mechanism: 'aws.ssm',
   //     bastion: { exid: 'vpc-main-bastion' },
@@ -177,6 +279,72 @@ export const getResources = async () => {
     },
   });
 
+  // declare IAM role for EC2 instances (enables SSM connectivity)
+  const ec2Role = DeclaredAwsIamRole.as({
+    name: 'declastruct-acceptance-ec2-role',
+    path: '/',
+    description: 'Role for declastruct acceptance test EC2 instances',
+    policies: [
+      {
+        effect: 'Allow',
+        principal: { service: 'ec2.amazonaws.com' },
+        action: 'sts:AssumeRole',
+      },
+    ],
+    tags: { managedBy: 'declastruct', purpose: 'acceptance-test' },
+  });
+
+  // attach AWS managed SSM policy for SSM agent connectivity
+  const ec2RoleSsmPolicy = DeclaredAwsIamRolePolicyAttachedManaged.as({
+    role: RefByUnique.as<typeof DeclaredAwsIamRole>(ec2Role),
+    policy: RefByPrimary.as<typeof DeclaredAwsIamPolicy>({
+      arn: 'arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore',
+    }),
+  });
+
+  // declare instance profile for EC2 instances
+  const ec2InstanceProfile = DeclaredAwsIamInstanceProfile.as({
+    name: 'declastruct-acceptance-ec2-profile',
+    role: RefByUnique.as<typeof DeclaredAwsIamRole>(ec2Role),
+    path: '/',
+    tags: { managedBy: 'declastruct', purpose: 'acceptance-test' },
+  });
+
+  // declare NAT launch template (masquerade via user data; reuses the SSM profile)
+  const natLaunchTemplate = DeclaredAwsEc2LaunchTemplate.as({
+    exid: 'declastruct-acceptance-nat-template',
+    instanceType: 't3.micro', // free-tier eligible
+    imageId: AL2023_AMI_US_EAST_1,
+    hibernation: false,
+    rootVolumeSize: 8,
+    rootVolumeEncrypted: false,
+    iamInstanceProfile: RefByUnique.as<typeof DeclaredAwsIamInstanceProfile>(
+      ec2InstanceProfile,
+    ),
+    userData: NAT_USER_DATA,
+    tags: { managedBy: 'declastruct', purpose: 'acceptance-test' },
+  });
+
+  // declare NAT instance in the public subnet (egress for the private subnet)
+  // note: publicIpEnabled -> reachable internet; sourceDestChecked:false -> can forward
+  const natInstance = DeclaredAwsEc2Instance.as({
+    exid: 'declastruct-acceptance-nat',
+    template: RefByUnique.as<typeof DeclaredAwsEc2LaunchTemplate>(
+      natLaunchTemplate,
+    ),
+    network: {
+      subnet: { exid: subnetPublic.exid },
+      security: { groups: [{ exid: securityGroup.exid }] },
+      interface: { publicIpEnabled: true, sourceDestChecked: false },
+    },
+    tags: { managedBy: 'declastruct', purpose: 'acceptance-test' },
+  });
+
+  // note: the NAT instance's lifecycle state is intentionally NOT declared.
+  //   - the NAT auto-stops 90 min after boot (cost control via its user data)
+  //   - a declared `active` session would then show perpetual drift
+  //   - tests that need egress start it on demand in beforeAll, idempotently
+
   // declare lambda function with code from zip
   const zipUri = './src/contract/sdks/.test/assets/lambda.sample.zip';
   const lambda = DeclaredAwsLambda.as({
@@ -197,7 +365,7 @@ export const getResources = async () => {
     hash: {
       code:
         lambda.code?.hash ??
-        ConstraintError.throw('lambda.code.hash is required'),
+        UnexpectedCodePathError.throw('lambda.code.hash is required'),
       config: calcAwsLambdaConfigHash({ of: lambda }),
     },
   });
@@ -251,7 +419,9 @@ export const getResources = async () => {
     hibernation: true,
     rootVolumeSize: 16, // hibernation needs enough space for RAM
     rootVolumeEncrypted: true, // required for hibernation
-    iamInstanceProfile: null,
+    iamInstanceProfile: RefByUnique.as<typeof DeclaredAwsIamInstanceProfile>(
+      ec2InstanceProfile,
+    ),
     userData: null,
     tags: { managedBy: 'declastruct', purpose: 'acceptance-test' },
   });
@@ -262,8 +432,11 @@ export const getResources = async () => {
     template: RefByUnique.as<typeof DeclaredAwsEc2LaunchTemplate>(
       ec2LaunchTemplate,
     ),
-    subnet: { exid: subnet.exid },
-    securityGroups: [{ exid: securityGroup.exid }],
+    network: {
+      subnet: { exid: subnetPrivate.exid },
+      security: { groups: [{ exid: securityGroup.exid }] },
+      interface: { publicIpEnabled: false, sourceDestChecked: true },
+    },
     tags: { managedBy: 'declastruct', purpose: 'acceptance-test' },
   });
 
@@ -271,6 +444,49 @@ export const getResources = async () => {
   const ec2InstanceSession = DeclaredAwsEc2InstanceSession.as({
     instance: RefByUnique.as<typeof DeclaredAwsEc2Instance>(ec2Instance),
     status: 'stopped',
+  });
+
+  /**
+   * .what = an SSH key authorization, driven via plan/apply through
+   *   DeclaredAwsEc2SshKeyAuthorizedDao
+   * .why = dogfoods the declarative flow for the ssh key resource, same as every
+   *   other declared resource (see rule.require.dao-and-acceptance-per-declared-resource)
+   *
+   * .seed = REQUIRED once per instance, because the durable append runs over SSM and
+   *   so needs a RUNNING instance, yet this fixture keeps the instance stopped for
+   *   cost. so the acceptance test's beforeAll seeds it once (start -> authorize ->
+   *   the fixture apply stops it again; the key stays on the EBS disk + is recorded in
+   *   the SSM param track layer). thereafter the DAO.findsert finds the key in the
+   *   param store and returns it without a re-append, so plan/apply converge to KEEP
+   *   at zero cost.
+   *
+   * .reseed = if you CHANGE the instance (new exid, new launch template, teardown +
+   *   recreate), the old param no longer matches the new instance. to re-seed:
+   *     1. bump/confirm ACCEPTANCE_SSH_PUBLIC_KEY below (any valid ed25519 pubkey;
+   *        generate one with `ssh-keygen -t ed25519 -f /tmp/k -N '' && cat /tmp/k.pub`)
+   *     2. delete the stale param if the comment/exid changed:
+   *        `aws ssm delete-parameter --name /declastruct/ec2/ssh-keys/<exid>/<comment>`
+   *     3. run the acceptance suite once — its beforeAll starts the instance, appends
+   *        the key over SSM, and records it; the fixture then stops the box
+   *     4. subsequent runs find the param and show KEEP (no instance start, no cost)
+   *   the very first run on a brand-new account may fail (instance absent + key absent);
+   *   re-run once the instance exists and the beforeAll seeds it.
+   */
+  const ec2SshKeyAuthorized = DeclaredAwsEc2SshKeyAuthorized.as({
+    instance: RefByUnique.as<typeof DeclaredAwsEc2Instance>(ec2Instance),
+    publicKey: ACCEPTANCE_SSH_PUBLIC_KEY,
+    comment: 'declastruct-acceptance-seed',
+    user: 'ec2-user',
+  });
+
+  // declare SSM SSH tunnel (CLOSED status = no subprocess, safe for acceptance)
+  // note: driven via plan/apply through DeclaredAwsSsmSshTunnelDao — a CLOSED
+  //   tunnel has no cache file, so get -> CLOSED, apply -> no-op, idempotent
+  const ssmSshTunnel = DeclaredAwsSsmSshTunnel.as({
+    instance: RefByUnique.as<typeof DeclaredAwsEc2Instance>(ec2Instance),
+    from: { port: 35432 },
+    into: { port: 22 },
+    status: 'CLOSED',
   });
 
   /**
@@ -289,10 +505,11 @@ export const getResources = async () => {
   return [
     // vpc infrastructure
     vpc,
-    subnet,
+    subnetPublic,
+    subnetPrivate,
     securityGroup,
     internetGateway,
-    routeTable,
+    routeTablePublic,
     // tunnel,
     lambdaRole,
     lambdaRolePolicy,
@@ -302,10 +519,24 @@ export const getResources = async () => {
     logGroupWithRetention,
     logGroupReportDistOfPattern,
     logGroupReportCostOfIngestion,
+    // ec2 iam infrastructure (enables SSM connectivity)
+    ec2Role,
+    ec2RoleSsmPolicy,
+    ec2InstanceProfile,
+    // nat instance (egress for the private subnet) — must precede the private
+    // route table, whose 0.0.0.0/0 route targets it by ref
+    // note: no session — the NAT self-stops when idle; tests start it on demand
+    natLaunchTemplate,
+    natInstance,
+    routeTablePrivate,
     // ec2 infrastructure
     ec2LaunchTemplate,
     ec2Instance,
     ec2InstanceSession,
+    // ssm ssh tunnel (CLOSED — driven via plan/apply, no live subprocess)
+    ssmSshTunnel,
+    // ssh key authorization (seeded once via the acceptance beforeAll; see its .seed note)
+    ec2SshKeyAuthorized,
     // SCP resources skipped — require management account credentials (see .skip note above)
     ...accessKeysToDelete,
   ];

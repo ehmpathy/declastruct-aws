@@ -89,9 +89,11 @@ describe('getEc2Instance', () => {
         expect(result).toMatchObject({
           id: 'i-123',
           exid: 'test-bastion',
-          privateIp: '10.0.1.50',
-          subnet: { exid: 'test-subnet' },
-          securityGroups: [{ exid: 'test-sg' }],
+          network: {
+            subnet: { exid: 'test-subnet' },
+            security: { groups: [{ exid: 'test-sg' }] },
+            interface: { privateIp: '10.0.1.50' },
+          },
         });
       });
     });
@@ -155,7 +157,7 @@ describe('getEc2Instance', () => {
         expect(result).toMatchObject({
           id: 'i-abc',
           exid: 'my-instance',
-          subnet: { exid: 'my-subnet' },
+          network: { subnet: { exid: 'my-subnet' } },
         });
       });
     });

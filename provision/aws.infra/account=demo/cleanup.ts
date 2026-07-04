@@ -1,10 +1,12 @@
+import { genLogMethods } from 'sdk-logs';
+
 import {
   delEc2Instance,
   delEc2LaunchTemplate,
   getDeclastructAwsProvider,
 } from '../../../src/contract/sdks';
 
-const log = console;
+const log = genLogMethods();
 
 /**
  * .what = cleanup old EC2 resources before re-provision

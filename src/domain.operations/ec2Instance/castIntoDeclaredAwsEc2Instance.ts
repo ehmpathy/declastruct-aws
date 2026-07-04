@@ -53,10 +53,23 @@ export const castIntoDeclaredAwsEc2Instance = (input: {
       id: input.instance.InstanceId,
       exid: exidTag.Value,
       template: input.templateExid ? { exid: input.templateExid } : null,
-      subnet: { exid: input.subnetExid },
-      securityGroups: input.securityGroupExids.map((exid) => ({ exid })),
+      network: {
+        subnet: { exid: input.subnetExid },
+        security: {
+          groups: input.securityGroupExids.map((exid) => ({ exid })),
+        },
+        interface: {
+          // a public ip address present means it was enabled
+          publicIpEnabled: !!input.instance.PublicIpAddress,
+          // aws defaults source/dest check to true when absent
+          sourceDestChecked: input.instance.SourceDestCheck ?? true,
+          // resolved nic ip addresses (@readonly)
+          // note: publicIp is null when no public ip was assigned (not absent)
+          privateIp: input.instance.PrivateIpAddress,
+          publicIp: input.instance.PublicIpAddress ?? null,
+        },
+      },
       tags: Object.keys(tags).length > 0 ? tags : null,
-      privateIp: input.instance.PrivateIpAddress,
     }),
     hasReadonly({ of: DeclaredAwsEc2Instance }),
   );

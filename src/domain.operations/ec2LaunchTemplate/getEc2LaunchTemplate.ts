@@ -13,7 +13,7 @@ import {
   type RefByUnique,
 } from 'domain-objects';
 import { HelpfulError, UnexpectedCodePathError } from 'helpful-errors';
-import type { ContextLogTrail } from 'simple-log-methods';
+import type { ContextLogTrail } from 'sdk-logs';
 import type { PickOne } from 'type-fns';
 
 import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';

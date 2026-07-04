@@ -1,15 +1,11 @@
 import type { DeclastructProvider } from 'declastruct';
 import type { DomainEntity } from 'domain-objects';
+import { genLogMethods } from 'sdk-logs';
 
 import { getDeclastructAwsProvider } from '../../../src/contract/sdks';
 import { getResourcesOfOidc } from './resources.oidc';
 
-const log = {
-  info: console.info,
-  debug: (): void => {},
-  warn: console.warn,
-  error: console.error,
-};
+const log = genLogMethods();
 
 /**
  * .what = demo account resources (OIDC for GitHub Actions)

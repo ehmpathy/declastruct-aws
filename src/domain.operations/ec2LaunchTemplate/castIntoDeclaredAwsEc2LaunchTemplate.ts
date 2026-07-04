@@ -39,7 +39,9 @@ export const castIntoDeclaredAwsEc2LaunchTemplate = (input: {
       hibernation: input.data.HibernationOptions?.Configured ?? false,
       rootVolumeSize: rootVolume?.Ebs?.VolumeSize ?? 8,
       rootVolumeEncrypted: rootVolume?.Ebs?.Encrypted ?? false,
-      iamInstanceProfile: input.data.IamInstanceProfile?.Name ?? null,
+      iamInstanceProfile: input.data.IamInstanceProfile?.Name
+        ? { name: input.data.IamInstanceProfile.Name }
+        : null,
       userData: input.data.UserData
         ? Buffer.from(input.data.UserData, 'base64').toString('utf-8')
         : null,

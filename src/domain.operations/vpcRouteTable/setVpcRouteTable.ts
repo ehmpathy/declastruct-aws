@@ -14,6 +14,7 @@ import type { VisualogicContext } from 'visualogic';
 
 import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
 import type { DeclaredAwsVpcRouteTable } from '@src/domain.objects/DeclaredAwsVpcRouteTable';
+import { getEc2Instance } from '@src/domain.operations/ec2Instance/getEc2Instance';
 import { getOneVpcId } from '@src/domain.operations/vpc/getOneVpcId';
 import { getOneVpcInternetGatewayId } from '@src/domain.operations/vpcInternetGateway/getOneVpcInternetGatewayId';
 import { getOneVpcSubnetId } from '@src/domain.operations/vpcSubnet/getOneVpcSubnetId';
@@ -52,18 +53,6 @@ export const setVpcRouteTable = asProcedure(
 
     // handle findsert: if found, return it
     if (foundBefore && input.findsert) return foundBefore;
-
-    // failfast if upsert would need to sync extant associations
-    // note: association sync requires DisassociateRouteTable with AssociationId,
-    //       which is not stored in the domain model
-    if (foundBefore && input.upsert && foundBefore.associations.length > 0)
-      throw new BadRequestError(
-        'upsert with extant associations not yet supported; association sync requires AssociationId which is not captured in domain model',
-        {
-          extantAssociations: foundBefore.associations,
-          desiredAssociations: rtDesired.associations,
-        },
-      );
 
     // create route table if not found, otherwise use extant id
     const rtId = await (async (): Promise<string> => {
@@ -150,6 +139,7 @@ export const setVpcRouteTable = asProcedure(
         const targetId = await (async (): Promise<{
           GatewayId?: string;
           NatGatewayId?: string;
+          InstanceId?: string;
         }> => {
           // extract internet gateway AWS id from ref
           if (route.target.gatewayInternet) {
@@ -165,6 +155,20 @@ export const setVpcRouteTable = asProcedure(
             return { NatGatewayId: route.target.gatewayNat.id };
           }
 
+          // NAT instance (fck-nat) — look up the instance id from its ref
+          if (route.target.instanceNat) {
+            const instance = await getEc2Instance(
+              { by: { ref: route.target.instanceNat.instance } },
+              context,
+            );
+            if (!instance)
+              throw new UnexpectedCodePathError(
+                'nat instance not found for route target',
+                { ref: route.target.instanceNat.instance },
+              );
+            return { InstanceId: instance.id };
+          }
+
           throw new UnexpectedCodePathError('route lacks target', { route });
         })();
 
@@ -178,12 +182,36 @@ export const setVpcRouteTable = asProcedure(
         );
       }
 
-      // add desired associations
-      for (const assoc of rtDesired.associations) {
-        const subnetId = await getOneVpcSubnetId(
-          { subnet: assoc.subnet },
-          context,
+      // sync associations
+      // note: declastruct only adds associations; a removal needs
+      //       DisassociateRouteTable with an AssociationId we do not capture, so
+      //       it is failfast-unsupported
+      const extantSubnetIds = await Promise.all(
+        (foundBefore?.associations ?? []).map((assoc) =>
+          getOneVpcSubnetId({ subnet: assoc.subnet }, context),
+        ),
+      );
+      const desiredSubnetIds = await Promise.all(
+        rtDesired.associations.map((assoc) =>
+          getOneVpcSubnetId({ subnet: assoc.subnet }, context),
+        ),
+      );
+
+      // failfast if an extant association is absent from the desired set
+      const removedSubnetIds = extantSubnetIds.filter(
+        (id) => !desiredSubnetIds.includes(id),
+      );
+      if (removedSubnetIds.length)
+        throw new BadRequestError(
+          'route table association removal not yet supported; requires AssociationId which is not captured in domain model',
+          { removedSubnetIds, extantSubnetIds, desiredSubnetIds },
         );
+
+      // associate only the subnets not already associated
+      const subnetIdsToAdd = desiredSubnetIds.filter(
+        (id) => !extantSubnetIds.includes(id),
+      );
+      for (const subnetId of subnetIdsToAdd) {
         await ec2.send(
           new AssociateRouteTableCommand({
             RouteTableId: rtId,

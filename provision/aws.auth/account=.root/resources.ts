@@ -1,5 +1,6 @@
 import type { DeclastructProvider } from 'declastruct';
 import type { DomainEntity } from 'domain-objects';
+import { genLogMethods } from 'sdk-logs';
 
 import { getDeclastructAwsProvider } from '../../../src/contract/sdks';
 import { getResourcesOfAdminSso } from './resources.admin.sso';
@@ -7,12 +8,7 @@ import { getResourcesOfDemoAccount } from './resources.demo.account';
 import { getResourcesOfDemoSso } from './resources.demo.sso';
 import { getResourcesOfRootAccount } from './resources.root.account';
 
-const log = {
-  info: console.info,
-  debug: (): void => {},
-  warn: console.warn,
-  error: console.error,
-};
+const log = genLogMethods();
 
 /**
  * .what = all root account resources

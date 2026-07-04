@@ -4,11 +4,13 @@ import { DeclastructProvider } from 'declastruct';
 import { BadRequestError, UnexpectedCodePathError } from 'helpful-errors';
 import * as os from 'os';
 import * as path from 'path';
-import type { ContextLogTrail } from 'simple-log-methods';
+import type { ContextLogTrail } from 'sdk-logs';
 
 import { DeclaredAwsEc2InstanceDao } from '@src/access/daos/DeclaredAwsEc2InstanceDao';
 import { DeclaredAwsEc2InstanceSessionDao } from '@src/access/daos/DeclaredAwsEc2InstanceSessionDao';
 import { DeclaredAwsEc2LaunchTemplateDao } from '@src/access/daos/DeclaredAwsEc2LaunchTemplateDao';
+import { DeclaredAwsEc2SshKeyAuthorizedDao } from '@src/access/daos/DeclaredAwsEc2SshKeyAuthorizedDao';
+import { DeclaredAwsIamInstanceProfileDao } from '@src/access/daos/DeclaredAwsIamInstanceProfileDao';
 import { DeclaredAwsIamOidcProviderDao } from '@src/access/daos/DeclaredAwsIamOidcProviderDao';
 import { DeclaredAwsIamRoleDao } from '@src/access/daos/DeclaredAwsIamRoleDao';
 import { DeclaredAwsIamRolePolicyAttachedInlineDao } from '@src/access/daos/DeclaredAwsIamRolePolicyAttachedInlineDao';
@@ -24,6 +26,8 @@ import { DeclaredAwsOrganizationPolicyEligibilityDao } from '@src/access/daos/De
 import { DeclaredAwsOrganizationServiceControlPolicyAttachmentDao } from '@src/access/daos/DeclaredAwsOrganizationServiceControlPolicyAttachmentDao';
 import { DeclaredAwsOrganizationServiceControlPolicyDao } from '@src/access/daos/DeclaredAwsOrganizationServiceControlPolicyDao';
 import { DeclaredAwsRdsClusterDao } from '@src/access/daos/DeclaredAwsRdsClusterDao';
+import { DeclaredAwsSsmSshTunnelDao } from '@src/access/daos/DeclaredAwsSsmSshTunnelDao';
+import { DeclaredAwsSsmVpcTunnelDao } from '@src/access/daos/DeclaredAwsSsmVpcTunnelDao';
 import { DeclaredAwsSsoAccountAssignmentDao } from '@src/access/daos/DeclaredAwsSsoAccountAssignmentDao';
 import { DeclaredAwsSsoInstanceDao } from '@src/access/daos/DeclaredAwsSsoInstanceDao';
 import { DeclaredAwsSsoPermissionSetDao } from '@src/access/daos/DeclaredAwsSsoPermissionSetDao';
@@ -33,7 +37,6 @@ import { DeclaredAwsVpcInternetGatewayDao } from '@src/access/daos/DeclaredAwsVp
 import { DeclaredAwsVpcRouteTableDao } from '@src/access/daos/DeclaredAwsVpcRouteTableDao';
 import { DeclaredAwsVpcSecurityGroupDao } from '@src/access/daos/DeclaredAwsVpcSecurityGroupDao';
 import { DeclaredAwsVpcSubnetDao } from '@src/access/daos/DeclaredAwsVpcSubnetDao';
-import { DeclaredAwsVpcTunnelDao } from '@src/access/daos/DeclaredAwsVpcTunnelDao';
 import { DeclaredAwsIamRolePolicyAttachedManagedDao } from '@src/contract/sdks';
 import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
 import type { DeclastructAwsProvider } from '@src/domain.objects/DeclastructAwsProvider';
@@ -46,7 +49,12 @@ import type { DeclastructAwsProvider } from '@src/domain.objects/DeclastructAwsP
 export const getDeclastructAwsProvider = async (
   input: {
     cache?: {
-      DeclaredAwsVpcTunnel?: {
+      DeclaredAwsSsmVpcTunnel?: {
+        processes?: {
+          dir?: string;
+        };
+      };
+      DeclaredAwsSsmSshTunnel?: {
         processes?: {
           dir?: string;
         };
@@ -55,8 +63,13 @@ export const getDeclastructAwsProvider = async (
   },
   context: ContextLogTrail,
 ): Promise<DeclastructAwsProvider> => {
-  // resolve default tunnels cache directory
+  // derive default tunnels cache directories
   const defaultTunnelsDir = path.join(os.homedir(), '.declastruct', 'tunnels');
+  const defaultSshTunnelsDir = path.join(
+    os.homedir(),
+    '.declastruct',
+    'ssh-tunnels',
+  );
 
   // resolve credentials from current auth
   const credentials = await getCredentials();
@@ -67,11 +80,18 @@ export const getDeclastructAwsProvider = async (
     aws: {
       credentials,
       cache: {
-        DeclaredAwsVpcTunnel: {
+        DeclaredAwsSsmVpcTunnel: {
           processes: {
             dir:
-              input.cache?.DeclaredAwsVpcTunnel?.processes?.dir ??
+              input.cache?.DeclaredAwsSsmVpcTunnel?.processes?.dir ??
               defaultTunnelsDir,
+          },
+        },
+        DeclaredAwsSsmSshTunnel: {
+          processes: {
+            dir:
+              input.cache?.DeclaredAwsSsmSshTunnel?.processes?.dir ??
+              defaultSshTunnelsDir,
           },
         },
       },
@@ -83,6 +103,8 @@ export const getDeclastructAwsProvider = async (
     DeclaredAwsEc2Instance: DeclaredAwsEc2InstanceDao,
     DeclaredAwsEc2InstanceSession: DeclaredAwsEc2InstanceSessionDao,
     DeclaredAwsEc2LaunchTemplate: DeclaredAwsEc2LaunchTemplateDao,
+    DeclaredAwsEc2SshKeyAuthorized: DeclaredAwsEc2SshKeyAuthorizedDao,
+    DeclaredAwsIamInstanceProfile: DeclaredAwsIamInstanceProfileDao,
     DeclaredAwsIamOidcProvider: DeclaredAwsIamOidcProviderDao,
     DeclaredAwsIamRole: DeclaredAwsIamRoleDao,
     DeclaredAwsLambda: DeclaredAwsLambdaDao,
@@ -111,7 +133,8 @@ export const getDeclastructAwsProvider = async (
     DeclaredAwsVpcRouteTable: DeclaredAwsVpcRouteTableDao,
     DeclaredAwsVpcSecurityGroup: DeclaredAwsVpcSecurityGroupDao,
     DeclaredAwsVpcSubnet: DeclaredAwsVpcSubnetDao,
-    DeclaredAwsVpcTunnel: DeclaredAwsVpcTunnelDao,
+    DeclaredAwsSsmVpcTunnel: DeclaredAwsSsmVpcTunnelDao,
+    DeclaredAwsSsmSshTunnel: DeclaredAwsSsmSshTunnelDao,
     DeclaredAwsIamRolePolicyAttachedInline:
       DeclaredAwsIamRolePolicyAttachedInlineDao,
     DeclaredAwsIamRolePolicyAttachedManaged:

@@ -10,7 +10,12 @@ exports[`declastruct CLI workflow given: a declastruct resources file when: gene
   {
     "action": "KEEP",
     "class": "DeclaredAwsVpcSubnet",
-    "slug": "DeclaredAwsVpcSubnet.declastruct-acceptance-subnet-1a.[HASH]",
+    "slug": "DeclaredAwsVpcSubnet.declastruct-acceptance-subnet-public-1a.[HASH]",
+  },
+  {
+    "action": "KEEP",
+    "class": "DeclaredAwsVpcSubnet",
+    "slug": "DeclaredAwsVpcSubnet.declastruct-acceptance-subnet-private-1a.[HASH]",
   },
   {
     "action": "KEEP",
@@ -25,7 +30,7 @@ exports[`declastruct CLI workflow given: a declastruct resources file when: gene
   {
     "action": "KEEP",
     "class": "DeclaredAwsVpcRouteTable",
-    "slug": "DeclaredAwsVpcRouteTable.declastruct-acceptance-rtb.[HASH]",
+    "slug": "DeclaredAwsVpcRouteTable.declastruct-acceptance-rtb-public.[HASH]",
   },
   {
     "action": "KEEP",
@@ -69,6 +74,36 @@ exports[`declastruct CLI workflow given: a declastruct resources file when: gene
   },
   {
     "action": "KEEP",
+    "class": "DeclaredAwsIamRole",
+    "slug": "DeclaredAwsIamRole.declastruct-acceptance-ec2-role.[HASH]",
+  },
+  {
+    "action": "KEEP",
+    "class": "DeclaredAwsIamRolePolicyAttachedManaged",
+    "slug": "DeclaredAwsIamRolePolicyAttachedManaged.arnarnawsiamawspolicyAmazonSSMManagedInstanceCore.namedeclastruct-acceptance-ec2-role.[HASH]",
+  },
+  {
+    "action": "KEEP",
+    "class": "DeclaredAwsIamInstanceProfile",
+    "slug": "DeclaredAwsIamInstanceProfile.declastruct-acceptance-ec2-profile.[HASH]",
+  },
+  {
+    "action": "KEEP",
+    "class": "DeclaredAwsEc2LaunchTemplate",
+    "slug": "DeclaredAwsEc2LaunchTemplate.declastruct-acceptance-nat-template.[HASH]",
+  },
+  {
+    "action": "KEEP",
+    "class": "DeclaredAwsEc2Instance",
+    "slug": "DeclaredAwsEc2Instance.declastruct-acceptance-nat.[HASH]",
+  },
+  {
+    "action": "KEEP",
+    "class": "DeclaredAwsVpcRouteTable",
+    "slug": "DeclaredAwsVpcRouteTable.declastruct-acceptance-rtb-private.[HASH]",
+  },
+  {
+    "action": "KEEP",
     "class": "DeclaredAwsEc2LaunchTemplate",
     "slug": "DeclaredAwsEc2LaunchTemplate.declastruct-acceptance-template.[HASH]",
   },
@@ -81,6 +116,16 @@ exports[`declastruct CLI workflow given: a declastruct resources file when: gene
     "action": "KEEP",
     "class": "DeclaredAwsEc2InstanceSession",
     "slug": "DeclaredAwsEc2InstanceSession.exiddeclastruct-acceptance-instance.[HASH]",
+  },
+  {
+    "action": "KEEP",
+    "class": "DeclaredAwsSsmSshTunnel",
+    "slug": "DeclaredAwsSsmSshTunnel.port35432.exiddeclastruct-acceptance-instance.[HASH]",
+  },
+  {
+    "action": "KEEP",
+    "class": "DeclaredAwsEc2SshKeyAuthorized",
+    "slug": "DeclaredAwsEc2SshKeyAuthorized.declastruct-acceptance-seed.exiddeclastruct-acceptance-instance.[HASH]",
   },
 ]
 `;
@@ -95,7 +140,12 @@ exports[`declastruct CLI workflow given: a declastruct resources file when: re-p
   {
     "action": "KEEP",
     "class": "DeclaredAwsVpcSubnet",
-    "slug": "DeclaredAwsVpcSubnet.declastruct-acceptance-subnet-1a.[HASH]",
+    "slug": "DeclaredAwsVpcSubnet.declastruct-acceptance-subnet-public-1a.[HASH]",
+  },
+  {
+    "action": "KEEP",
+    "class": "DeclaredAwsVpcSubnet",
+    "slug": "DeclaredAwsVpcSubnet.declastruct-acceptance-subnet-private-1a.[HASH]",
   },
   {
     "action": "KEEP",
@@ -110,7 +160,7 @@ exports[`declastruct CLI workflow given: a declastruct resources file when: re-p
   {
     "action": "KEEP",
     "class": "DeclaredAwsVpcRouteTable",
-    "slug": "DeclaredAwsVpcRouteTable.declastruct-acceptance-rtb.[HASH]",
+    "slug": "DeclaredAwsVpcRouteTable.declastruct-acceptance-rtb-public.[HASH]",
   },
   {
     "action": "KEEP",
@@ -154,6 +204,36 @@ exports[`declastruct CLI workflow given: a declastruct resources file when: re-p
   },
   {
     "action": "KEEP",
+    "class": "DeclaredAwsIamRole",
+    "slug": "DeclaredAwsIamRole.declastruct-acceptance-ec2-role.[HASH]",
+  },
+  {
+    "action": "KEEP",
+    "class": "DeclaredAwsIamRolePolicyAttachedManaged",
+    "slug": "DeclaredAwsIamRolePolicyAttachedManaged.arnarnawsiamawspolicyAmazonSSMManagedInstanceCore.namedeclastruct-acceptance-ec2-role.[HASH]",
+  },
+  {
+    "action": "KEEP",
+    "class": "DeclaredAwsIamInstanceProfile",
+    "slug": "DeclaredAwsIamInstanceProfile.declastruct-acceptance-ec2-profile.[HASH]",
+  },
+  {
+    "action": "KEEP",
+    "class": "DeclaredAwsEc2LaunchTemplate",
+    "slug": "DeclaredAwsEc2LaunchTemplate.declastruct-acceptance-nat-template.[HASH]",
+  },
+  {
+    "action": "KEEP",
+    "class": "DeclaredAwsEc2Instance",
+    "slug": "DeclaredAwsEc2Instance.declastruct-acceptance-nat.[HASH]",
+  },
+  {
+    "action": "KEEP",
+    "class": "DeclaredAwsVpcRouteTable",
+    "slug": "DeclaredAwsVpcRouteTable.declastruct-acceptance-rtb-private.[HASH]",
+  },
+  {
+    "action": "KEEP",
     "class": "DeclaredAwsEc2LaunchTemplate",
     "slug": "DeclaredAwsEc2LaunchTemplate.declastruct-acceptance-template.[HASH]",
   },
@@ -166,6 +246,16 @@ exports[`declastruct CLI workflow given: a declastruct resources file when: re-p
     "action": "KEEP",
     "class": "DeclaredAwsEc2InstanceSession",
     "slug": "DeclaredAwsEc2InstanceSession.exiddeclastruct-acceptance-instance.[HASH]",
+  },
+  {
+    "action": "KEEP",
+    "class": "DeclaredAwsSsmSshTunnel",
+    "slug": "DeclaredAwsSsmSshTunnel.port35432.exiddeclastruct-acceptance-instance.[HASH]",
+  },
+  {
+    "action": "KEEP",
+    "class": "DeclaredAwsEc2SshKeyAuthorized",
+    "slug": "DeclaredAwsEc2SshKeyAuthorized.declastruct-acceptance-seed.exiddeclastruct-acceptance-instance.[HASH]",
   },
 ]
 `;

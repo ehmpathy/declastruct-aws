@@ -1,8 +1,12 @@
-import { EC2Client, RunInstancesCommand } from '@aws-sdk/client-ec2';
+import {
+  EC2Client,
+  ModifyInstanceAttributeCommand,
+  RunInstancesCommand,
+} from '@aws-sdk/client-ec2';
 import { sleep } from '@ehmpathy/uni-time';
 import { type HasReadonly, isRefByPrimary, type Ref } from 'domain-objects';
 import { UnexpectedCodePathError } from 'helpful-errors';
-import type { ContextLogTrail } from 'simple-log-methods';
+import type { ContextLogTrail } from 'sdk-logs';
 import type { PickOne } from 'type-fns';
 
 import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
@@ -94,19 +98,23 @@ export const setEc2Instance = async (
   // lookup subnet id from ref
   const subnetId = await (async (): Promise<string> => {
     // if ref has id, use it directly
-    if (isRefByPrimary({ of: DeclaredAwsVpcSubnet })(instance.subnet))
-      return instance.subnet.id;
+    if (isRefByPrimary({ of: DeclaredAwsVpcSubnet })(instance.network.subnet))
+      return instance.network.subnet.id;
 
     // otherwise, look up subnet by unique key
     const subnet = await getOneVpcSubnet(
-      { by: { ref: instance.subnet as Ref<typeof DeclaredAwsVpcSubnet> } },
+      {
+        by: {
+          ref: instance.network.subnet as Ref<typeof DeclaredAwsVpcSubnet>,
+        },
+      },
       context,
     );
 
     if (!subnet)
       return UnexpectedCodePathError.throw(
         'subnet not found; cannot create instance',
-        { subnetRef: instance.subnet },
+        { subnetRef: instance.network.subnet },
       );
 
     return subnet.id;
@@ -114,7 +122,7 @@ export const setEc2Instance = async (
 
   // lookup security group ids from refs
   const securityGroupIds = await Promise.all(
-    instance.securityGroups.map(async (sgRef) => {
+    instance.network.security.groups.map(async (sgRef) => {
       // if ref has id, use it directly
       if (isRefByPrimary({ of: DeclaredAwsVpcSecurityGroup })(sgRef))
         return sgRef.id;
@@ -144,6 +152,26 @@ export const setEc2Instance = async (
       : []),
   ];
 
+  // determine placement params
+  // note: when a public ip is desired, AWS requires NetworkInterfaces (which
+  //       carries AssociatePublicIpAddress) instead of top-level SubnetId /
+  //       SecurityGroupIds — the two forms cannot be mixed
+  const placement = instance.network.interface.publicIpEnabled
+    ? {
+        NetworkInterfaces: [
+          {
+            DeviceIndex: 0,
+            SubnetId: subnetId,
+            Groups: securityGroupIds,
+            AssociatePublicIpAddress: true,
+          },
+        ],
+      }
+    : {
+        SubnetId: subnetId,
+        SecurityGroupIds: securityGroupIds,
+      };
+
   // create new instance from launch template
   const response = await ec2.send(
     new RunInstancesCommand({
@@ -153,8 +181,7 @@ export const setEc2Instance = async (
         LaunchTemplateId: launchTemplate.id,
         Version: '$Latest',
       },
-      SubnetId: subnetId,
-      SecurityGroupIds: securityGroupIds,
+      ...placement,
       TagSpecifications: [
         {
           ResourceType: 'instance',
@@ -173,6 +200,16 @@ export const setEc2Instance = async (
       { response, instance },
     );
 
+  // disable the source/dest check when requested (required so a nat can forward)
+  // note: aws default is true; only modify when the declared value is false
+  if (!instance.network.interface.sourceDestChecked)
+    await ec2.send(
+      new ModifyInstanceAttributeCommand({
+        InstanceId: instanceId,
+        SourceDestCheck: { Value: false },
+      }),
+    );
+
   // get the created instance to return full domain object
   // note: retry with backoff due to AWS eventual consistency
   const maxAttempts = 5;
@@ -185,7 +222,7 @@ export const setEc2Instance = async (
     if (created) return created;
 
     // wait before retry (exponential backoff: 500ms, 1s, 2s, 4s)
-    if (attempt < maxAttempts) await sleep(500 * Math.pow(2, attempt - 1));
+    if (attempt < maxAttempts) await sleep(500 * 2 ** (attempt - 1));
   }
 
   return UnexpectedCodePathError.throw(

@@ -1,0 +1,37 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`ssmSshTunnel.journey given: [case1] SSH tunnel open/close lifecycle when: [t0] tunnel is opened to instance then: tunnel opens with OPEN status and valid pid 1`] = `
+{
+  "intoPort": 22,
+  "pid": "[pid]",
+  "spawnedAt": "[spawnedAt]",
+  "status": "OPEN",
+}
+`;
+
+exports[`ssmSshTunnel.journey given: [case1] SSH tunnel open/close lifecycle when: [t1] getOneSsmSshTunnel is called then: reports OPEN status with valid pid 1`] = `
+{
+  "intoPort": 22,
+  "pid": "[pid]",
+  "spawnedAt": "[spawnedAt]",
+  "status": "OPEN",
+}
+`;
+
+exports[`ssmSshTunnel.journey given: [case1] SSH tunnel open/close lifecycle when: [t3] tunnel is closed then: tunnel closes with CLOSED status and null pid 1`] = `
+{
+  "intoPort": 22,
+  "pid": null,
+  "spawnedAt": null,
+  "status": "CLOSED",
+}
+`;
+
+exports[`ssmSshTunnel.journey given: [case1] SSH tunnel open/close lifecycle when: [t4] getOneSsmSshTunnel is called after close then: reports CLOSED status 1`] = `
+{
+  "intoPort": 22,
+  "pid": null,
+  "spawnedAt": null,
+  "status": "CLOSED",
+}
+`;

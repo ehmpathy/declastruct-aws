@@ -7,7 +7,7 @@ import {
 } from '@aws-sdk/client-ec2';
 import type { Ref } from 'domain-objects';
 import { BadRequestError, UnexpectedCodePathError } from 'helpful-errors';
-import type { ContextLogTrail } from 'simple-log-methods';
+import type { ContextLogTrail } from 'sdk-logs';
 
 import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
 import type { DeclaredAwsEc2Instance } from '@src/domain.objects/DeclaredAwsEc2Instance';
@@ -85,12 +85,30 @@ export const setEc2InstanceSession = async (
 
     // hibernate instance if desired status is hibernated
     if (input.session.status === 'hibernated') {
-      await ec2.send(
-        new StopInstancesCommand({
-          InstanceIds: [instance.id],
-          Hibernate: true,
-        }),
-      );
+      // note: a freshly booted instance reports "not ready to hibernate yet"
+      //       until its hibernation agent signals readiness; retry with backoff
+      const maxAttempts = 20;
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        try {
+          await ec2.send(
+            new StopInstancesCommand({
+              InstanceIds: [instance.id],
+              Hibernate: true,
+            }),
+          );
+          break;
+        } catch (error) {
+          const notReady =
+            error instanceof Error &&
+            error.message.includes('not ready to hibernate yet');
+          if (!notReady || attempt === maxAttempts) throw error;
+          context.log.info('instance not ready to hibernate yet, retry', {
+            instanceId: instance.id,
+            attempt,
+          });
+          await new Promise((done) => setTimeout(done, 15_000));
+        }
+      }
       await waitUntilInstanceStopped(
         { client: ec2, maxWaitTime: 300 },
         { InstanceIds: [instance.id] },

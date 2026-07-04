@@ -1,6 +1,6 @@
 import { DescribeInstancesCommand, EC2Client } from '@aws-sdk/client-ec2';
 import type { Ref } from 'domain-objects';
-import type { ContextLogTrail } from 'simple-log-methods';
+import type { ContextLogTrail } from 'sdk-logs';
 
 import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
 import type { DeclaredAwsEc2Instance } from '@src/domain.objects/DeclaredAwsEc2Instance';

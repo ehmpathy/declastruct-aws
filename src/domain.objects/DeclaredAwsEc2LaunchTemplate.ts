@@ -1,5 +1,6 @@
-import { DomainEntity } from 'domain-objects';
+import { DomainEntity, RefByUnique } from 'domain-objects';
 
+import type { DeclaredAwsIamInstanceProfile } from './DeclaredAwsIamInstanceProfile';
 import { DeclaredAwsTags } from './DeclaredAwsTags';
 
 /**
@@ -49,10 +50,10 @@ export interface DeclaredAwsEc2LaunchTemplate {
   rootVolumeEncrypted: boolean;
 
   /**
-   * .what = the IAM instance profile name
+   * .what = reference to the IAM instance profile
    * .note = null if no profile
    */
-  iamInstanceProfile: string | null;
+  iamInstanceProfile: RefByUnique<typeof DeclaredAwsIamInstanceProfile> | null;
 
   /**
    * .what = user data (base64-encoded)
@@ -90,6 +91,7 @@ export class DeclaredAwsEc2LaunchTemplate
    * .what = nested domain object definitions
    */
   public static nested = {
+    iamInstanceProfile: RefByUnique<typeof DeclaredAwsIamInstanceProfile>,
     tags: DeclaredAwsTags,
   };
 }

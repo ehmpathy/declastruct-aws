@@ -1,9 +1,8 @@
 import { DomainEntity, type Ref, RefByUnique } from 'domain-objects';
 
+import { DeclaredAwsEc2InstanceNetwork } from './DeclaredAwsEc2InstanceNetwork';
 import type { DeclaredAwsEc2LaunchTemplate } from './DeclaredAwsEc2LaunchTemplate';
 import { DeclaredAwsTags } from './DeclaredAwsTags';
-import type { DeclaredAwsVpcSecurityGroup } from './DeclaredAwsVpcSecurityGroup';
-import type { DeclaredAwsVpcSubnet } from './DeclaredAwsVpcSubnet';
 
 /**
  * .what = a declarative structure which represents an AWS EC2 instance
@@ -33,25 +32,14 @@ export interface DeclaredAwsEc2Instance {
   template: Ref<typeof DeclaredAwsEc2LaunchTemplate> | null;
 
   /**
-   * .what = reference to the subnet for placement
+   * .what = the network config (placement subnet, security groups, nic)
    */
-  subnet: Ref<typeof DeclaredAwsVpcSubnet>;
-
-  /**
-   * .what = references to the security groups
-   */
-  securityGroups: Ref<typeof DeclaredAwsVpcSecurityGroup>[];
+  network: DeclaredAwsEc2InstanceNetwork;
 
   /**
    * .what = tags for the instance
    */
   tags: DeclaredAwsTags | null;
-
-  /**
-   * .what = the private IP address
-   * .note = is @readonly -> resolved from AWS
-   */
-  privateIp?: string;
 }
 
 export class DeclaredAwsEc2Instance
@@ -68,16 +56,19 @@ export class DeclaredAwsEc2Instance
 
   /**
    * .what = intrinsic attributes resolved from AWS, not user-settable
+   * .note = nested via dot-path; the nic ip addresses live under network.interface
    */
-  public static readonly = ['privateIp'] as const;
+  public static readonly = [
+    'network.interface.privateIp',
+    'network.interface.publicIp',
+  ] as const;
 
   /**
    * .what = nested domain object definitions
    */
   public static nested = {
     template: RefByUnique<typeof DeclaredAwsEc2LaunchTemplate>,
-    subnet: RefByUnique<typeof DeclaredAwsVpcSubnet>,
-    securityGroups: [RefByUnique<typeof DeclaredAwsVpcSecurityGroup>],
+    network: DeclaredAwsEc2InstanceNetwork,
     tags: DeclaredAwsTags,
   };
 }

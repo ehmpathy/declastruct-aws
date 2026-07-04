@@ -3,6 +3,7 @@ import { mockClient } from 'aws-sdk-client-mock';
 import { BadRequestError } from 'helpful-errors';
 import * as os from 'os';
 import * as path from 'path';
+import { genLogMethods, LogLevel } from 'sdk-logs';
 import { getError } from 'test-fns';
 
 import { getDeclastructAwsProvider } from './getDeclastructAwsProvider';
@@ -16,12 +17,7 @@ jest.mock('@smithy/shared-ini-file-loader', () => ({
 const stsMock = mockClient(STSClient);
 
 const mockLogContext = {
-  log: {
-    debug: () => {},
-    info: () => {},
-    warn: () => {},
-    error: () => {},
-  },
+  log: genLogMethods({ level: { minimum: LogLevel.ERROR } }),
 };
 
 describe('getDeclastructAwsProvider', () => {
@@ -71,7 +67,7 @@ describe('getDeclastructAwsProvider', () => {
 
       const expectedDir = path.join(os.homedir(), '.declastruct', 'tunnels');
       expect(
-        provider.context.aws.cache.DeclaredAwsVpcTunnel.processes.dir,
+        provider.context.aws.cache.DeclaredAwsSsmVpcTunnel.processes.dir,
       ).toBe(expectedDir);
     });
 
@@ -82,7 +78,7 @@ describe('getDeclastructAwsProvider', () => {
 
       expect(provider.daos.DeclaredAwsEc2Instance).toBeDefined();
       expect(provider.daos.DeclaredAwsRdsCluster).toBeDefined();
-      expect(provider.daos.DeclaredAwsVpcTunnel).toBeDefined();
+      expect(provider.daos.DeclaredAwsSsmVpcTunnel).toBeDefined();
     });
 
     it('should have provider name as aws', async () => {
@@ -102,7 +98,7 @@ describe('getDeclastructAwsProvider', () => {
       const provider = await getDeclastructAwsProvider(
         {
           cache: {
-            DeclaredAwsVpcTunnel: {
+            DeclaredAwsSsmVpcTunnel: {
               processes: {
                 dir: customCacheDir,
               },
@@ -113,7 +109,7 @@ describe('getDeclastructAwsProvider', () => {
       );
 
       expect(
-        provider.context.aws.cache.DeclaredAwsVpcTunnel.processes.dir,
+        provider.context.aws.cache.DeclaredAwsSsmVpcTunnel.processes.dir,
       ).toBe(customCacheDir);
     });
   });

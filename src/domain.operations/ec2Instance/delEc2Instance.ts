@@ -1,6 +1,6 @@
 import { EC2Client, TerminateInstancesCommand } from '@aws-sdk/client-ec2';
 import type { RefByPrimary, RefByUnique } from 'domain-objects';
-import type { ContextLogTrail } from 'simple-log-methods';
+import type { ContextLogTrail } from 'sdk-logs';
 import type { PickOne } from 'type-fns';
 
 import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
