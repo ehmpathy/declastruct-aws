@@ -52,7 +52,7 @@
     "postversion": "git push origin HEAD --tags --no-verify",
     "prepare:husky": "npx husky install && chmod ug+x .husky/*",
     "prepare": "[ -e .git ] && npm run prepare:husky || exit 0 && npm run prepare:rhachet",
-    "prepare:rhachet": "rhachet init --keys --hooks --roles mechanic behaver driver reviewer librarian ergonomist architect dispatcher",
+    "prepare:rhachet": "rhachet init --keys --hooks --roles mechanic behaver driver reviewer librarian ergonomist architect dispatcher observer operator",
     "upgrade:rhachet": "rhachet upgrade"
   },
   "dependencies": {
