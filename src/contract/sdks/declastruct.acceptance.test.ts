@@ -72,29 +72,16 @@ describe('declastruct CLI workflow', () => {
     beforeAll(async () => {
       const provider = await getDeclastructAwsProvider({}, { log: testLog });
       const context = provider.context;
-      const unique = {
-        instance: { exid: ACCEPTANCE_INSTANCE_EXID },
-        comment: ACCEPTANCE_SSH_KEY_COMMENT,
-      };
 
-      // skip if already seeded — cheap param lookup, zero cost
-      const seeded = await getOneEc2SshKeyAuthorized(
-        { by: { unique } },
-        context,
-      );
-      if (seeded) return;
-
-      // skip if the instance does not exist yet — a fresh account creates it via the
-      //   apply below (the key fails that first run); a re-run then seeds here
-      const instance = await getEc2Instance(
-        { by: { unique: unique.instance } },
-        context,
-      );
-      if (!instance) return;
-
-      // start the NAT first — the acceptance instance has no public IP, so its SSM
-      // agent can only reach the SSM endpoints via the NAT's egress route. without an
-      // active NAT the agent never registers and the durable append fails.
+      // ensure the NAT is active FIRST, unconditionally — before the seed check and
+      // before any plan runs. the NAT self-stops (90-min idle timer for cost), and
+      // when stopped AWS releases its public IP and blackholes its route, so the plan
+      // would show the NAT instance (publicIpEnabled) + private route table (the NAT
+      // route) as UPDATE — a flaky snapshot that depends on whether the idle timer has
+      // fired since the last run. start it (idempotent: setEc2InstanceSession is a
+      // cheap no-op when already active, and waits until the box is active when not)
+      // so the plan always sees it active -> KEEP. it also gives the acceptance
+      // instance egress for the key seed below.
       const nat = await getEc2Instance(
         { by: { unique: { exid: ACCEPTANCE_NAT_EXID } } },
         context,
@@ -109,6 +96,26 @@ describe('declastruct CLI workflow', () => {
           },
           context,
         );
+
+      const unique = {
+        instance: { exid: ACCEPTANCE_INSTANCE_EXID },
+        comment: ACCEPTANCE_SSH_KEY_COMMENT,
+      };
+
+      // skip the key seed if already seeded — cheap param lookup, zero cost
+      const seeded = await getOneEc2SshKeyAuthorized(
+        { by: { unique } },
+        context,
+      );
+      if (seeded) return;
+
+      // skip if the instance does not exist yet — a fresh account creates it via the
+      //   apply below (the key fails that first run); a re-run then seeds here
+      const instance = await getEc2Instance(
+        { by: { unique: unique.instance } },
+        context,
+      );
+      if (!instance) return;
 
       // seed: start the target instance so the SSM append can reach it, then authorize
       await setEc2InstanceSession(
