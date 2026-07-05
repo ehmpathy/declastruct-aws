@@ -60,6 +60,18 @@ const countAuthorizedKeyLines = async (
 describe('ec2SshKeyAuthorized', () => {
   jest.setTimeout(600_000); // 10 min — start/stop instance + waiters + ssm
 
+  // gate the heavyweight real-infra flow out of CI.
+  // .why = the scene resumes the acceptance instance + NAT (300s waiters) and
+  //        drives live SSM SendCommand + EC2 Instance Connect. in CI this is both
+  //        slow and depends on the demo OIDC role's ssm:SendCommand /
+  //        ec2-instance-connect:SendSSHPublicKey grants (declared in
+  //        resources.common.ts but only applied to the SSO demo-agent used
+  //        locally). runIf (not .skip) is the blessed gate per
+  //        rule.forbid.skipped-tests — when every nested test skips, jest also
+  //        skips the describe's beforeAll/afterAll, so no instance is ever
+  //        resumed in CI.
+  const givenRealInfra = given.runIf(!process.env.CI);
+
   const instanceExid = 'declastruct-acceptance-instance';
   const natExid = 'declastruct-acceptance-nat';
   const comment = 'isolated-integration-test';
@@ -148,97 +160,106 @@ describe('ec2SshKeyAuthorized', () => {
     await fs.rm(scene.dir, { recursive: true, force: true });
   });
 
-  given('[case1] setEc2SshKeyAuthorized durably appends the key', () => {
-    when('[t0] a real key is authorized', () => {
-      // authorize once, share the result across the assertions below
-      const authorized = useBeforeAll(async () => {
-        const { context, publicKey } = scene;
-        return setEc2SshKeyAuthorized(
-          DeclaredAwsEc2SshKeyAuthorized.as({
-            instance: { exid: instanceExid },
-            publicKey,
-            comment,
-            user: 'ec2-user',
-          }),
-          context,
-        );
-      });
-
-      then('it records the authorization (get track layer)', () => {
-        expect(authorized.instance.exid).toBe(instanceExid);
-        expect(authorized.publicKey).toBe(scene.publicKey);
-        expect(authorized.comment).toBe(comment);
-        expect(authorized.fingerprint).toBeDefined();
-        expect(authorized.authorizedAt).toBeDefined();
-      });
-
-      then('the key line is present on disk in authorized_keys', async () => {
-        const { context, instance, publicKey } = scene;
-        const count = await countAuthorizedKeyLines(
-          { instanceId: instance.id, publicKey },
-          context,
-        );
-        expect(count).toBe(1);
-      });
-    });
-
-    when('[t1] the same key is authorized again', () => {
-      then('the append is idempotent — still exactly one line', async () => {
-        const { context, instance, publicKey } = scene;
-        await setEc2SshKeyAuthorized(
-          DeclaredAwsEc2SshKeyAuthorized.as({
-            instance: { exid: instanceExid },
-            publicKey,
-            comment,
-            user: 'ec2-user',
-          }),
-          context,
-        );
-        const count = await countAuthorizedKeyLines(
-          { instanceId: instance.id, publicKey },
-          context,
-        );
-        expect(count).toBe(1);
-      });
-    });
-  });
-
-  given('[case2] the authorization is durable across a stop/start', () => {
-    when('[t0] the instance is stopped and started again', () => {
-      then('the key line survives on disk without a re-authorize', async () => {
-        const { context, instance, publicKey } = scene;
-
-        // stop then start — proves the key lives on the EBS disk, not in memory
-        await setEc2InstanceSession(
-          {
-            session: DeclaredAwsEc2InstanceSession.as({
-              instance: { id: instance.id },
-              status: 'stopped',
+  givenRealInfra(
+    '[case1] setEc2SshKeyAuthorized durably appends the key',
+    () => {
+      when('[t0] a real key is authorized', () => {
+        // authorize once, share the result across the assertions below
+        const authorized = useBeforeAll(async () => {
+          const { context, publicKey } = scene;
+          return setEc2SshKeyAuthorized(
+            DeclaredAwsEc2SshKeyAuthorized.as({
+              instance: { exid: instanceExid },
+              publicKey,
+              comment,
+              user: 'ec2-user',
             }),
-          },
-          context,
-        );
-        await setEc2InstanceSession(
-          {
-            session: DeclaredAwsEc2InstanceSession.as({
-              instance: { id: instance.id },
-              status: 'active',
-            }),
-          },
-          context,
-        );
+            context,
+          );
+        });
 
-        // verify WITHOUT a second setEc2SshKeyAuthorized call
-        const count = await countAuthorizedKeyLines(
-          { instanceId: instance.id, publicKey },
-          context,
-        );
-        expect(count).toBe(1);
+        then('it records the authorization (get track layer)', () => {
+          expect(authorized.instance.exid).toBe(instanceExid);
+          expect(authorized.publicKey).toBe(scene.publicKey);
+          expect(authorized.comment).toBe(comment);
+          expect(authorized.fingerprint).toBeDefined();
+          expect(authorized.authorizedAt).toBeDefined();
+        });
+
+        then('the key line is present on disk in authorized_keys', async () => {
+          const { context, instance, publicKey } = scene;
+          const count = await countAuthorizedKeyLines(
+            { instanceId: instance.id, publicKey },
+            context,
+          );
+          expect(count).toBe(1);
+        });
       });
-    });
-  });
 
-  given('[case3] getOneEc2SshKeyAuthorized', () => {
+      when('[t1] the same key is authorized again', () => {
+        then('the append is idempotent — still exactly one line', async () => {
+          const { context, instance, publicKey } = scene;
+          await setEc2SshKeyAuthorized(
+            DeclaredAwsEc2SshKeyAuthorized.as({
+              instance: { exid: instanceExid },
+              publicKey,
+              comment,
+              user: 'ec2-user',
+            }),
+            context,
+          );
+          const count = await countAuthorizedKeyLines(
+            { instanceId: instance.id, publicKey },
+            context,
+          );
+          expect(count).toBe(1);
+        });
+      });
+    },
+  );
+
+  givenRealInfra(
+    '[case2] the authorization is durable across a stop/start',
+    () => {
+      when('[t0] the instance is stopped and started again', () => {
+        then(
+          'the key line survives on disk without a re-authorize',
+          async () => {
+            const { context, instance, publicKey } = scene;
+
+            // stop then start — proves the key lives on the EBS disk, not in memory
+            await setEc2InstanceSession(
+              {
+                session: DeclaredAwsEc2InstanceSession.as({
+                  instance: { id: instance.id },
+                  status: 'stopped',
+                }),
+              },
+              context,
+            );
+            await setEc2InstanceSession(
+              {
+                session: DeclaredAwsEc2InstanceSession.as({
+                  instance: { id: instance.id },
+                  status: 'active',
+                }),
+              },
+              context,
+            );
+
+            // verify WITHOUT a second setEc2SshKeyAuthorized call
+            const count = await countAuthorizedKeyLines(
+              { instanceId: instance.id, publicKey },
+              context,
+            );
+            expect(count).toBe(1);
+          },
+        );
+      });
+    },
+  );
+
+  givenRealInfra('[case3] getOneEc2SshKeyAuthorized', () => {
     when('[t0] the key exists', () => {
       then('it reads the tracked authorization from SSM', async () => {
         const { context, publicKey } = scene;
@@ -275,7 +296,7 @@ describe('ec2SshKeyAuthorized', () => {
     });
   });
 
-  given('[case4] setEc2SshKeyAuthorized on an absent instance', () => {
+  givenRealInfra('[case4] setEc2SshKeyAuthorized on an absent instance', () => {
     when('[t0] the instance cannot be found', () => {
       then('it fails fast with a BadRequestError', async () => {
         const { context, publicKey } = scene;

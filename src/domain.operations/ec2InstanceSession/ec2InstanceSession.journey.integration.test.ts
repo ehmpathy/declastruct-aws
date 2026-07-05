@@ -66,6 +66,15 @@ describe('ec2InstanceSession.journey', () => {
     await ec2.send(new TerminateInstancesCommand({ InstanceIds: instanceIds }));
   });
 
+  // gate the heavyweight real-infra flow out of CI.
+  // .why = each case boots a fresh EC2 instance and drives full stop/start/
+  //        hibernate transitions (300s waiters) plus SSM agent registration.
+  //        in CI this both exceeds vCPU quota and adds several minutes of flake.
+  //        runIf (not .skip) is the blessed gate per rule.forbid.skipped-tests —
+  //        when every nested test skips, jest also skips the describe's
+  //        beforeAll/afterAll, so no instance is ever launched in CI.
+  const givenRealInfra = given.runIf(!process.env.CI);
+
   // generate unique exid for this test run
   const testExid = `declastruct-test-session-${genTestUuid().slice(0, 8)}`;
 
@@ -96,7 +105,7 @@ describe('ec2InstanceSession.journey', () => {
     return { context, instance };
   });
 
-  given('[case1] session lifecycle', () => {
+  givenRealInfra('[case1] session lifecycle', () => {
     when('[t0] getEc2InstanceSession on new instance', () => {
       then('returns valid session with status', async () => {
         const { context, instance } = scene;
@@ -196,7 +205,7 @@ describe('ec2InstanceSession.journey', () => {
     });
   });
 
-  given('[case2] hibernation lifecycle', () => {
+  givenRealInfra('[case2] hibernation lifecycle', () => {
     when('[t0] setEc2InstanceSession to hibernated', () => {
       then('instance transitions to hibernated', async () => {
         const { context, instance } = scene;
@@ -272,7 +281,7 @@ describe('ec2InstanceSession.journey', () => {
     });
   });
 
-  given('[case3] boundary cases', () => {
+  givenRealInfra('[case3] boundary cases', () => {
     when('[t0] getEc2InstanceSession for nonexistent instance by id', () => {
       then('returns null', async () => {
         const { context } = scene;
@@ -316,7 +325,7 @@ describe('ec2InstanceSession.journey', () => {
     });
   });
 
-  given('[case4] instance ref variants', () => {
+  givenRealInfra('[case4] instance ref variants', () => {
     when('[t0] getEc2InstanceSession by instance exid', () => {
       then('routes to correct instance', async () => {
         const { context } = scene;
@@ -364,7 +373,7 @@ describe('ec2InstanceSession.journey', () => {
    *   - demo-agent lacks these permissions; run locally with proper credentials
    *   - test is kept simple: echo command verifies SSM reachability
    */
-  given('[case5] SSM connectivity after resume', () => {
+  givenRealInfra('[case5] SSM connectivity after resume', () => {
     when('[t0] resume from hibernated and execute SSM command', () => {
       then('SSM command succeeds', async () => {
         const { context, instance } = scene;
