@@ -1,5 +1,5 @@
 import { type DomainEntity, RefByPrimary, RefByUnique } from 'domain-objects';
-import type { LogMethods } from 'simple-log-methods';
+import { genLogMethods } from 'sdk-logs';
 
 import {
   DeclaredAwsOrganization,
@@ -8,12 +8,7 @@ import {
 } from '../../../src/contract/sdks';
 import { getOneSsoDemoEmail } from '../resources.common';
 
-const log: LogMethods = {
-  info: console.info,
-  debug: (): void => {},
-  warn: console.warn,
-  error: console.error,
-};
+const log = genLogMethods();
 
 /**
  * .what = lazy getter for demo account reference

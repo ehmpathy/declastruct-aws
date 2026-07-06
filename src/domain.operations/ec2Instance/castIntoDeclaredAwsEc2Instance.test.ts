@@ -28,7 +28,7 @@ describe('castIntoDeclaredAwsEc2Instance', () => {
         expect(result).toMatchObject({
           id: 'i-1234567890abcdef0',
           exid: 'test-bastion',
-          privateIp: '10.0.1.100',
+          network: { interface: { privateIp: '10.0.1.100' } },
         });
       });
 
@@ -39,7 +39,7 @@ describe('castIntoDeclaredAwsEc2Instance', () => {
           securityGroupExids: ['test-sg-1', 'test-sg-2'],
           templateExid: null,
         });
-        expect(result.subnet).toEqual({ exid: 'test-subnet' });
+        expect(result.network.subnet).toEqual({ exid: 'test-subnet' });
       });
 
       then('it should have securityGroups refs mapped by exid', () => {
@@ -49,7 +49,7 @@ describe('castIntoDeclaredAwsEc2Instance', () => {
           securityGroupExids: ['test-sg-1', 'test-sg-2'],
           templateExid: null,
         });
-        expect(result.securityGroups).toEqual([
+        expect(result.network.security.groups).toEqual([
           { exid: 'test-sg-1' },
           { exid: 'test-sg-2' },
         ]);
@@ -87,6 +87,66 @@ describe('castIntoDeclaredAwsEc2Instance', () => {
           expect(result.tags).toEqual({
             managedBy: 'declastruct',
             purpose: 'acceptance-test',
+          });
+        },
+      );
+    });
+  });
+
+  given(
+    'an AWS Instance with a public ip and source/dest check disabled',
+    () => {
+      const awsInstance: Instance = {
+        InstanceId: 'i-nat',
+        Tags: [{ Key: 'exid', Value: 'nat-instance' }],
+        State: { Name: 'stopped' },
+        PrivateIpAddress: '10.0.1.9',
+        PublicIpAddress: '52.0.0.1',
+        SourceDestCheck: false,
+      };
+
+      when('cast to domain object', () => {
+        then('publicIpEnabled is true and sourceDestChecked is false', () => {
+          const result = castIntoDeclaredAwsEc2Instance({
+            instance: awsInstance,
+            subnetExid: 'public-subnet',
+            securityGroupExids: ['nat-sg'],
+            templateExid: null,
+          });
+          expect(result.network.interface).toEqual({
+            publicIpEnabled: true,
+            sourceDestChecked: false,
+            privateIp: '10.0.1.9',
+            publicIp: '52.0.0.1',
+          });
+        });
+      });
+    },
+  );
+
+  given('an AWS Instance with no public ip and check absent', () => {
+    const awsInstance: Instance = {
+      InstanceId: 'i-plain',
+      Tags: [{ Key: 'exid', Value: 'plain-instance' }],
+      State: { Name: 'stopped' },
+      PrivateIpAddress: '10.0.2.9',
+    };
+
+    when('cast to domain object', () => {
+      then(
+        'publicIpEnabled is false and sourceDestChecked defaults true',
+        () => {
+          const result = castIntoDeclaredAwsEc2Instance({
+            instance: awsInstance,
+            subnetExid: 'private-subnet',
+            securityGroupExids: [],
+            templateExid: null,
+          });
+          expect(result.network.interface).toEqual({
+            publicIpEnabled: false,
+            sourceDestChecked: true,
+            privateIp: '10.0.2.9',
+            publicIp: null,
           });
         },
       );
@@ -142,14 +202,14 @@ describe('castIntoDeclaredAwsEc2Instance', () => {
     };
 
     when('cast to domain object', () => {
-      then('it should have privateIp', () => {
+      then('it should have privateIp nested under network.interface', () => {
         const result = castIntoDeclaredAwsEc2Instance({
           instance: awsInstance,
           subnetExid: 'test-subnet',
           securityGroupExids: [],
           templateExid: null,
         });
-        expect(result.privateIp).toBe('10.0.0.1');
+        expect(result.network.interface.privateIp).toBe('10.0.0.1');
       });
     });
   });
@@ -170,7 +230,7 @@ describe('castIntoDeclaredAwsEc2Instance', () => {
           securityGroupExids: [],
           templateExid: null,
         });
-        expect(result.securityGroups).toEqual([]);
+        expect(result.network.security.groups).toEqual([]);
       });
     });
   });

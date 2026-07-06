@@ -1,6 +1,6 @@
 import { genDeclastructDao } from 'declastruct';
 import type { RefByUnique } from 'domain-objects';
-import type { ContextLogTrail } from 'simple-log-methods';
+import type { ContextLogTrail } from 'sdk-logs';
 
 import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
 import { DeclaredAwsOrganizationPolicyEligibility } from '@src/domain.objects/DeclaredAwsOrganizationPolicyEligibility';

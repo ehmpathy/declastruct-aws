@@ -64,7 +64,7 @@ describe('castIntoDeclaredAwsEc2LaunchTemplate', () => {
           data,
           tags,
         });
-        expect(result.iamInstanceProfile).toBe('my-profile');
+        expect(result.iamInstanceProfile).toEqual({ name: 'my-profile' });
       });
 
       then('it should have userData', () => {

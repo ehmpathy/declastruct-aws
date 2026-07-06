@@ -2,6 +2,7 @@ import { DomainLiteral, type Ref, RefByUnique } from 'domain-objects';
 
 import type { DeclaredAwsVpcInternetGateway } from './DeclaredAwsVpcInternetGateway';
 import { DeclaredAwsVpcRouteTargetNatGateway } from './DeclaredAwsVpcRouteTargetNatGateway';
+import { DeclaredAwsVpcRouteTargetNatInstance } from './DeclaredAwsVpcRouteTargetNatInstance';
 
 /**
  * .what = the target for a VPC route
@@ -20,6 +21,12 @@ export interface DeclaredAwsVpcRouteTarget {
    * .note = NAT gateways are not managed by declastruct, so we use AWS id
    */
   gatewayNat?: DeclaredAwsVpcRouteTargetNatGateway;
+
+  /**
+   * .what = route to a NAT instance (fck-nat) by EC2 instance id
+   * .note = fck-nat instances are ephemeral and not managed by declastruct
+   */
+  instanceNat?: DeclaredAwsVpcRouteTargetNatInstance;
 }
 
 export class DeclaredAwsVpcRouteTarget
@@ -32,5 +39,6 @@ export class DeclaredAwsVpcRouteTarget
   public static nested = {
     gatewayInternet: RefByUnique<typeof DeclaredAwsVpcInternetGateway>,
     gatewayNat: DeclaredAwsVpcRouteTargetNatGateway,
+    instanceNat: DeclaredAwsVpcRouteTargetNatInstance,
   };
 }

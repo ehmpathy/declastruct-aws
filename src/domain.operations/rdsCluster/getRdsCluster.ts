@@ -1,7 +1,7 @@
 import { DescribeDBClustersCommand, RDSClient } from '@aws-sdk/client-rds';
 import type { HasReadonly, RefByUnique } from 'domain-objects';
 import { UnexpectedCodePathError } from 'helpful-errors';
-import type { ContextLogTrail } from 'simple-log-methods';
+import type { ContextLogTrail } from 'sdk-logs';
 
 import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
 import type { DeclaredAwsRdsCluster } from '@src/domain.objects/DeclaredAwsRdsCluster';

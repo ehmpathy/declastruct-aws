@@ -1,5 +1,5 @@
 import { UnexpectedCodePathError } from 'helpful-errors';
-import type { LogMethods } from 'simple-log-methods';
+import { genLogMethods } from 'sdk-logs';
 
 import {
   DeclaredAwsIamPolicyBundle,
@@ -7,12 +7,7 @@ import {
   DeclaredAwsIamPolicyStatement,
 } from '../../src/contract/sdks';
 
-export const log: LogMethods = {
-  info: console.info,
-  debug: (): void => {},
-  warn: console.warn,
-  error: console.error,
-};
+export const log = genLogMethods();
 
 /**
  * .what = lazy getters for SSO env vars
@@ -124,6 +119,20 @@ export const demoPermissionsPolicy: DeclaredAwsIamPolicyBundle =
           ],
           resource: '*',
         }),
+        // IAM Instance Profiles: full access (required for EC2 IAM role assignment)
+        new DeclaredAwsIamPolicyStatement({
+          effect: 'Allow',
+          action: [
+            'iam:CreateInstanceProfile',
+            'iam:DeleteInstanceProfile',
+            'iam:AddRoleToInstanceProfile',
+            'iam:RemoveRoleFromInstanceProfile',
+            'iam:GetInstanceProfile',
+            'iam:TagInstanceProfile',
+            'iam:UntagInstanceProfile',
+          ],
+          resource: '*',
+        }),
         // CloudWatch Logs: full access
         new DeclaredAwsIamPolicyStatement({
           effect: 'Allow',
@@ -151,6 +160,7 @@ export const demoPermissionsPolicy: DeclaredAwsIamPolicyBundle =
             'ec2:StopInstances',
             'ec2:TerminateInstances',
             'ec2:RebootInstances',
+            'ec2:ModifyInstanceAttribute',
             'ec2:CreateTags',
             'ec2:DeleteTags',
           ],
@@ -239,6 +249,29 @@ export const demoPermissionsPolicy: DeclaredAwsIamPolicyBundle =
         new DeclaredAwsIamPolicyStatement({
           effect: 'Allow',
           action: ['ssm:PutParameter', 'ssm:DeleteParameter'],
+          resource: '*',
+        }),
+        // SSM Sessions: for SSH/VPC tunnel connections
+        new DeclaredAwsIamPolicyStatement({
+          effect: 'Allow',
+          action: [
+            'ssm:StartSession',
+            'ssm:TerminateSession',
+            'ssm:ResumeSession',
+            'ssm:DescribeSessions',
+          ],
+          resource: '*',
+        }),
+        // SSM Commands: for remote command execution
+        new DeclaredAwsIamPolicyStatement({
+          effect: 'Allow',
+          action: ['ssm:SendCommand', 'ssm:GetCommandInvocation'],
+          resource: '*',
+        }),
+        // EC2 Instance Connect: push ephemeral SSH keys to instances
+        new DeclaredAwsIamPolicyStatement({
+          effect: 'Allow',
+          action: ['ec2-instance-connect:SendSSHPublicKey'],
           resource: '*',
         }),
       ],

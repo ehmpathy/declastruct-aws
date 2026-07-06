@@ -7,6 +7,9 @@
 export { DeclaredAwsEc2InstanceDao } from '@src/access/daos/DeclaredAwsEc2InstanceDao';
 export { DeclaredAwsEc2InstanceSessionDao } from '@src/access/daos/DeclaredAwsEc2InstanceSessionDao';
 export { DeclaredAwsEc2LaunchTemplateDao } from '@src/access/daos/DeclaredAwsEc2LaunchTemplateDao';
+export { DeclaredAwsEc2SshKeyAuthorizedDao } from '@src/access/daos/DeclaredAwsEc2SshKeyAuthorizedDao';
+// aws iam instance profile dao
+export { DeclaredAwsIamInstanceProfileDao } from '@src/access/daos/DeclaredAwsIamInstanceProfileDao';
 // aws iam oidc provider dao
 export { DeclaredAwsIamOidcProviderDao } from '@src/access/daos/DeclaredAwsIamOidcProviderDao';
 export { DeclaredAwsIamPolicyDao } from '@src/access/daos/DeclaredAwsIamPolicyDao';
@@ -26,6 +29,8 @@ export { DeclaredAwsOrganizationPolicyEligibilityDao } from '@src/access/daos/De
 export { DeclaredAwsOrganizationServiceControlPolicyAttachmentDao } from '@src/access/daos/DeclaredAwsOrganizationServiceControlPolicyAttachmentDao';
 export { DeclaredAwsOrganizationServiceControlPolicyDao } from '@src/access/daos/DeclaredAwsOrganizationServiceControlPolicyDao';
 export { DeclaredAwsRdsClusterDao } from '@src/access/daos/DeclaredAwsRdsClusterDao';
+export { DeclaredAwsSsmSshTunnelDao } from '@src/access/daos/DeclaredAwsSsmSshTunnelDao';
+export { DeclaredAwsSsmVpcTunnelDao } from '@src/access/daos/DeclaredAwsSsmVpcTunnelDao';
 // aws sso daos
 export { DeclaredAwsSsoAccountAssignmentDao } from '@src/access/daos/DeclaredAwsSsoAccountAssignmentDao';
 export { DeclaredAwsSsoInstanceDao } from '@src/access/daos/DeclaredAwsSsoInstanceDao';
@@ -38,11 +43,16 @@ export { DeclaredAwsVpcInternetGatewayDao } from '@src/access/daos/DeclaredAwsVp
 export { DeclaredAwsVpcRouteTableDao } from '@src/access/daos/DeclaredAwsVpcRouteTableDao';
 export { DeclaredAwsVpcSecurityGroupDao } from '@src/access/daos/DeclaredAwsVpcSecurityGroupDao';
 export { DeclaredAwsVpcSubnetDao } from '@src/access/daos/DeclaredAwsVpcSubnetDao';
-export { DeclaredAwsVpcTunnelDao } from '@src/access/daos/DeclaredAwsVpcTunnelDao';
 // aws domain objects
 export { DeclaredAwsEc2Instance } from '@src/domain.objects/DeclaredAwsEc2Instance';
+export { DeclaredAwsEc2InstanceNetwork } from '@src/domain.objects/DeclaredAwsEc2InstanceNetwork';
+export { DeclaredAwsEc2InstanceNetworkInterface } from '@src/domain.objects/DeclaredAwsEc2InstanceNetworkInterface';
+export { DeclaredAwsEc2InstanceNetworkSecurity } from '@src/domain.objects/DeclaredAwsEc2InstanceNetworkSecurity';
 export { DeclaredAwsEc2InstanceSession } from '@src/domain.objects/DeclaredAwsEc2InstanceSession';
 export { DeclaredAwsEc2LaunchTemplate } from '@src/domain.objects/DeclaredAwsEc2LaunchTemplate';
+export { DeclaredAwsEc2SshKeyAuthorized } from '@src/domain.objects/DeclaredAwsEc2SshKeyAuthorized';
+// aws iam instance profile domain objects
+export { DeclaredAwsIamInstanceProfile } from '@src/domain.objects/DeclaredAwsIamInstanceProfile';
 // aws iam oidc provider domain objects
 export { DeclaredAwsIamOidcProvider } from '@src/domain.objects/DeclaredAwsIamOidcProvider';
 export { DeclaredAwsIamPolicy } from '@src/domain.objects/DeclaredAwsIamPolicy';
@@ -80,6 +90,13 @@ export { DeclaredAwsOrganizationPolicyEligibility } from '@src/domain.objects/De
 export { DeclaredAwsOrganizationServiceControlPolicy } from '@src/domain.objects/DeclaredAwsOrganizationServiceControlPolicy';
 export { DeclaredAwsOrganizationServiceControlPolicyAttachment } from '@src/domain.objects/DeclaredAwsOrganizationServiceControlPolicyAttachment';
 export { DeclaredAwsRdsCluster } from '@src/domain.objects/DeclaredAwsRdsCluster';
+// aws ssm domain objects
+export { DeclaredAwsSsmSshTunnel } from '@src/domain.objects/DeclaredAwsSsmSshTunnel';
+/** @deprecated use DeclaredAwsSsmVpcTunnel */
+export {
+  DeclaredAwsSsmVpcTunnel,
+  DeclaredAwsSsmVpcTunnel as DeclaredAwsVpcTunnel,
+} from '@src/domain.objects/DeclaredAwsSsmVpcTunnel';
 // aws sso domain objects
 export { DeclaredAwsSsoAccountAssignment } from '@src/domain.objects/DeclaredAwsSsoAccountAssignment';
 export { DeclaredAwsSsoInstance } from '@src/domain.objects/DeclaredAwsSsoInstance';
@@ -94,11 +111,11 @@ export { DeclaredAwsVpcRoute } from '@src/domain.objects/DeclaredAwsVpcRoute';
 export { DeclaredAwsVpcRouteDestination } from '@src/domain.objects/DeclaredAwsVpcRouteDestination';
 export { DeclaredAwsVpcRouteTable } from '@src/domain.objects/DeclaredAwsVpcRouteTable';
 export { DeclaredAwsVpcRouteTableAssociation } from '@src/domain.objects/DeclaredAwsVpcRouteTableAssociation';
+export { DeclaredAwsVpcRouteTargetNatInstance } from '@src/domain.objects/DeclaredAwsVpcRouteTargetNatInstance';
 export { DeclaredAwsVpcSecurityGroup } from '@src/domain.objects/DeclaredAwsVpcSecurityGroup';
 export { DeclaredAwsVpcSecurityGroupRule } from '@src/domain.objects/DeclaredAwsVpcSecurityGroupRule';
 export { DeclaredAwsVpcSecurityGroupRules } from '@src/domain.objects/DeclaredAwsVpcSecurityGroupRules';
 export { DeclaredAwsVpcSubnet } from '@src/domain.objects/DeclaredAwsVpcSubnet';
-export { DeclaredAwsVpcTunnel } from '@src/domain.objects/DeclaredAwsVpcTunnel';
 export type { DeclastructAwsProvider } from '@src/domain.objects/DeclastructAwsProvider';
 // aws ec2 operations
 export { delEc2Instance } from '@src/domain.operations/ec2Instance/delEc2Instance';
@@ -111,6 +128,12 @@ export { setEc2InstanceSession } from '@src/domain.operations/ec2InstanceSession
 export { delEc2LaunchTemplate } from '@src/domain.operations/ec2LaunchTemplate/delEc2LaunchTemplate';
 export { getEc2LaunchTemplate } from '@src/domain.operations/ec2LaunchTemplate/getEc2LaunchTemplate';
 export { setEc2LaunchTemplate } from '@src/domain.operations/ec2LaunchTemplate/setEc2LaunchTemplate';
+// aws ec2 ssh key operations
+export { getOneEc2SshKeyAuthorized } from '@src/domain.operations/ec2SshKeyAuthorized/getOneEc2SshKeyAuthorized';
+export { setEc2SshKeyAuthorized } from '@src/domain.operations/ec2SshKeyAuthorized/setEc2SshKeyAuthorized';
+// aws iam instance profile operations
+export { getIamInstanceProfile } from '@src/domain.operations/iamInstanceProfile/getIamInstanceProfile';
+export { setIamInstanceProfile } from '@src/domain.operations/iamInstanceProfile/setIamInstanceProfile';
 // aws iam oidc provider operations
 export { delIamOidcProvider } from '@src/domain.operations/iamOidcProvider/delIamOidcProvider';
 export { getAllIamOidcProviders } from '@src/domain.operations/iamOidcProvider/getAllIamOidcProviders';
@@ -182,6 +205,23 @@ export { setOrganizationServiceControlPolicyAttachment } from '@src/domain.opera
 export { getDeclastructAwsProvider } from '@src/domain.operations/provider/getDeclastructAwsProvider';
 // aws rds operations
 export { getRdsCluster } from '@src/domain.operations/rdsCluster/getRdsCluster';
+// aws ssm command operations
+export { execSsmCommand } from '@src/domain.operations/ssmCommand/execSsmCommand';
+// aws ssm ssh tunnel operations
+export { getOneSsmSshTunnel } from '@src/domain.operations/ssmSshTunnel/getOneSsmSshTunnel';
+export { setSsmSshTunnel } from '@src/domain.operations/ssmSshTunnel/setSsmSshTunnel';
+// aws ssm vpc tunnel operations
+// aws ssm vpc tunnel backwards compat aliases (deprecated, will remove in next major)
+/** @deprecated use getOneSsmVpcTunnel */
+export {
+  getOneSsmVpcTunnel,
+  getOneSsmVpcTunnel as getVpcTunnel,
+} from '@src/domain.operations/ssmVpcTunnel/getOneSsmVpcTunnel';
+/** @deprecated use setSsmVpcTunnel */
+export {
+  setSsmVpcTunnel,
+  setSsmVpcTunnel as setVpcTunnel,
+} from '@src/domain.operations/ssmVpcTunnel/setSsmVpcTunnel';
 // aws sso account assignment operations
 export { delSsoAccountAssignment } from '@src/domain.operations/ssoAccountAssignment/delSsoAccountAssignment';
 export { getAllSsoAccountAssignments } from '@src/domain.operations/ssoAccountAssignment/getAllSsoAccountAssignments';
@@ -220,6 +260,3 @@ export { setVpcSecurityGroup } from '@src/domain.operations/vpcSecurityGroup/set
 export { delVpcSubnet } from '@src/domain.operations/vpcSubnet/delVpcSubnet';
 export { getOneVpcSubnet } from '@src/domain.operations/vpcSubnet/getOneVpcSubnet';
 export { setVpcSubnet } from '@src/domain.operations/vpcSubnet/setVpcSubnet';
-// aws vpc tunnel operations
-export { getVpcTunnel } from '@src/domain.operations/vpcTunnel/getVpcTunnel';
-export { setVpcTunnel } from '@src/domain.operations/vpcTunnel/setVpcTunnel';

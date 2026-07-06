@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`getOneSsmVpcTunnel.integration given: real aws credentials when: getOneSsmVpcTunnel is called for a non-extant tunnel then: it should return CLOSED status with null pid 1`] = `
+DeclaredAwsSsmVpcTunnel {
+  "account": "805192865516",
+  "from": DeclaredAwsSsmVpcTunnelFrom {
+    "host": "localhost",
+    "port": 29877,
+  },
+  "into": DeclaredAwsSsmVpcTunnelInto {
+    "cluster": RefByUnique {
+      "name": "test-db-integration-get",
+    },
+  },
+  "pid": null,
+  "region": "us-east-1",
+  "status": "CLOSED",
+  "via": DeclaredAwsSsmVpcTunnelVia {
+    "bastion": RefByUnique {
+      "exid": "test-bastion-integration-get",
+    },
+    "mechanism": "aws.ssm",
+  },
+}
+`;

@@ -4,7 +4,11 @@ provisions infrastructure resources in the demo account.
 
 ## resources
 
-- `resources.vpc.ts` — VPC, subnet, security group, internet gateway, route table
+- `resources.vpc.ts` — VPC, subnets, security group, internet gateway, route tables
+- `resources.iam.ts` — EC2 role + instance profile (SSM + self-hibernate)
+- `resources.ec2.nat.ts` — NAT instance (egress for the private subnet)
+- `resources.ec2.hibernator.ts` — SSH-able box that hibernates when idle
+  (see `resources.ec2.hibernator.readme.md`)
 - `resources.ts` — aggregates all above
 
 ## purpose

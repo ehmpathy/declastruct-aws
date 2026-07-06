@@ -1,4 +1,4 @@
-import type { ContextLogTrail } from 'simple-log-methods';
+import { type ContextLogTrail, genLogMethods, LogLevel } from 'sdk-logs';
 
 import { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
 
@@ -15,17 +15,12 @@ export const getMockedAwsApiContext = (input?: {
       account: '123456789012',
     },
     cache: {
-      DeclaredAwsVpcTunnel: {
+      DeclaredAwsSsmVpcTunnel: {
         processes: {
           dir: input?.cacheDir ?? '/tmp/declastruct-test/tunnels',
         },
       },
     },
   },
-  log: {
-    debug: () => {},
-    info: () => {},
-    warn: () => {},
-    error: () => {},
-  },
+  log: genLogMethods({ level: { minimum: LogLevel.ERROR } }),
 });

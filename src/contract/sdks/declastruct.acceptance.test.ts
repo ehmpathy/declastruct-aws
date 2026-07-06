@@ -4,12 +4,36 @@ import { endOfDay, startOfDay, subDays } from 'date-fns';
 import type { DeclastructChange } from 'declastruct';
 import { existsSync, mkdirSync, readFileSync } from 'fs';
 import { join } from 'path';
+import { genLogMethods, LogLevel } from 'sdk-logs';
 import { given, then, useBeforeAll, when } from 'test-fns';
 
 import { DeclaredAwsLogGroupReportCostOfIngestionDao } from '@src/access/daos/DeclaredAwsLogGroupReportCostOfIngestionDao';
 import { DeclaredAwsLogGroupReportDistOfPatternDao } from '@src/access/daos/DeclaredAwsLogGroupReportDistOfPatternDao';
+import { DeclaredAwsEc2InstanceSession } from '@src/domain.objects/DeclaredAwsEc2InstanceSession';
+import { DeclaredAwsEc2SshKeyAuthorized } from '@src/domain.objects/DeclaredAwsEc2SshKeyAuthorized';
+import { getEc2Instance } from '@src/domain.operations/ec2Instance/getEc2Instance';
+import { setEc2InstanceSession } from '@src/domain.operations/ec2InstanceSession/setEc2InstanceSession';
+import { getOneEc2SshKeyAuthorized } from '@src/domain.operations/ec2SshKeyAuthorized/getOneEc2SshKeyAuthorized';
+import { setEc2SshKeyAuthorized } from '@src/domain.operations/ec2SshKeyAuthorized/setEc2SshKeyAuthorized';
 import { getAllIamUserAccessKeys } from '@src/domain.operations/iamUserAccessKey/getAllIamUserAccessKeys';
 import { getDeclastructAwsProvider } from '@src/domain.operations/provider/getDeclastructAwsProvider';
+
+/**
+ * .what = the exid, comment, and public key of the acceptance ssh key authorization
+ * .why = must match resources.acceptance.ts so the seed lands on the same param the
+ *   declared resource reads; see that file's ec2SshKeyAuthorized .seed / .reseed notes
+ */
+const ACCEPTANCE_INSTANCE_EXID = 'declastruct-acceptance-instance';
+const ACCEPTANCE_NAT_EXID = 'declastruct-acceptance-nat';
+const ACCEPTANCE_SSH_KEY_COMMENT = 'declastruct-acceptance-seed';
+const ACCEPTANCE_SSH_PUBLIC_KEY =
+  'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAID5+jzBfFTQMe+mQrsxNcg93UbqhqV8sCb8e+sG47JCD declastruct-acceptance-seed';
+
+/**
+ * .what = a silent log for provider context in test setup
+ * .why = keeps seed setup quiet; real warnings and errors still reach the console
+ */
+const testLog = genLogMethods({ level: { minimum: LogLevel.WARN } });
 
 /**
  * .what = acceptance tests for declastruct CLI workflow
@@ -38,6 +62,106 @@ describe('declastruct CLI workflow', () => {
       // ensure clean test directory
       mkdirSync(testDir, { recursive: true });
     });
+
+    // seed the ssh key authorization once so its declared resource converges to KEEP
+    // note: the durable append runs over SSM and so needs a RUNNING instance, but this
+    //   fixture keeps the instance stopped for cost. so seed here (start -> authorize ->
+    //   the fixture apply stops it again; the key stays on the EBS disk + is recorded in
+    //   the param track layer). thereafter DAO.findsert finds the param -> KEEP, no cost.
+    //   see resources.acceptance.ts ec2SshKeyAuthorized .seed/.reseed for the full story.
+    beforeAll(async () => {
+      const provider = await getDeclastructAwsProvider({}, { log: testLog });
+      const context = provider.context;
+
+      // ensure the NAT is active FIRST, unconditionally — before the seed check and
+      // before any plan runs. the NAT self-stops (90-min idle timer for cost), and
+      // when stopped AWS releases its public IP and blackholes its route, so the plan
+      // would show the NAT instance (publicIpEnabled) + private route table (the NAT
+      // route) as UPDATE — a flaky snapshot that depends on whether the idle timer has
+      // fired since the last run. start it (idempotent: setEc2InstanceSession is a
+      // cheap no-op when already active, and waits until the box is active when not)
+      // so the plan always sees it active -> KEEP. it also gives the acceptance
+      // instance egress for the key seed below.
+      const nat = await getEc2Instance(
+        { by: { unique: { exid: ACCEPTANCE_NAT_EXID } } },
+        context,
+      );
+      if (nat)
+        await setEc2InstanceSession(
+          {
+            session: DeclaredAwsEc2InstanceSession.as({
+              instance: { exid: ACCEPTANCE_NAT_EXID },
+              status: 'active',
+            }),
+          },
+          context,
+        );
+
+      const unique = {
+        instance: { exid: ACCEPTANCE_INSTANCE_EXID },
+        comment: ACCEPTANCE_SSH_KEY_COMMENT,
+      };
+
+      // skip the key seed if already seeded — cheap param lookup, zero cost
+      const seeded = await getOneEc2SshKeyAuthorized(
+        { by: { unique } },
+        context,
+      );
+      if (seeded) return;
+
+      // skip if the instance does not exist yet — a fresh account creates it via the
+      //   apply below (the key fails that first run); a re-run then seeds here
+      const instance = await getEc2Instance(
+        { by: { unique: unique.instance } },
+        context,
+      );
+      if (!instance) return;
+
+      // seed: start the target instance so the SSM append can reach it, then authorize
+      await setEc2InstanceSession(
+        {
+          session: DeclaredAwsEc2InstanceSession.as({
+            instance: { exid: ACCEPTANCE_INSTANCE_EXID },
+            status: 'active',
+          }),
+        },
+        context,
+      );
+
+      // retry the push until the ssm agent registers after boot
+      for (let attempt = 1; attempt <= 10; attempt++) {
+        try {
+          await setEc2SshKeyAuthorized(
+            DeclaredAwsEc2SshKeyAuthorized.as({
+              instance: { exid: ACCEPTANCE_INSTANCE_EXID },
+              publicKey: ACCEPTANCE_SSH_PUBLIC_KEY,
+              comment: ACCEPTANCE_SSH_KEY_COMMENT,
+              user: 'ec2-user',
+            }),
+            context,
+          );
+          break;
+        } catch (error) {
+          if (attempt === 10) throw error;
+          await new Promise((done) => setTimeout(done, 15_000));
+        }
+      }
+
+      // stop the instance again so the plan matches its declared stopped state.
+      // note: the seed started it to append the key over SSM; if left active, the
+      //   first plan would show the session as UPDATE (active vs declared stopped),
+      //   which flips to KEEP on later already-seeded runs — a flaky snapshot. stop
+      //   it here so every run's plan converges to the same stopped -> KEEP shape.
+      await setEc2InstanceSession(
+        {
+          session: DeclaredAwsEc2InstanceSession.as({
+            instance: { exid: ACCEPTANCE_INSTANCE_EXID },
+            status: 'stopped',
+          }),
+        },
+        context,
+      );
+    }, 600_000);
 
     when('generating a plan via declastruct CLI', () => {
       const prep = useBeforeAll(async () => {
@@ -129,11 +253,11 @@ describe('declastruct CLI workflow', () => {
       //    */
       //   const tunnelResource = prep.plan.changes.find(
       //     (r: DeclastructChange) =>
-      //       r.forResource.class === 'DeclaredAwsVpcTunnel',
+      //       r.forResource.class === 'DeclaredAwsSsmVpcTunnel',
       //   );
       //   expect(tunnelResource).toBeDefined();
       //   expect(tunnelResource!.forResource.slug).toContain(
-      //     'DeclaredAwsVpcTunnel',
+      //     'DeclaredAwsSsmVpcTunnel',
       //   );
       // });
 
@@ -212,6 +336,78 @@ describe('declastruct CLI workflow', () => {
         expect(logGroupChange).toBeDefined();
       });
 
+      then('plan includes EC2 infrastructure resources', () => {
+        /**
+         * .what = validates plan includes EC2 launch template, instance, and session
+         * .why = ensures EC2 infrastructure declarations are captured in plan
+         */
+
+        // verify launch template resource is present
+        // note: two launch templates exist (nat + instance); match the instance
+        //   one by its exid so the NAT template is not picked up by class alone
+        const templateChange = prep.plan.changes.find(
+          (r: DeclastructChange) =>
+            r.forResource.class === 'DeclaredAwsEc2LaunchTemplate' &&
+            r.forResource.slug.includes('declastruct-acceptance-template'),
+        );
+        expect(templateChange).toBeDefined();
+        expect(templateChange!.forResource.slug).toContain(
+          'declastruct-acceptance-template',
+        );
+
+        // verify instance resource is present
+        // note: two instances exist (nat + acceptance); match by exid so the NAT
+        //   instance is not picked up by class alone
+        const instanceChange = prep.plan.changes.find(
+          (r: DeclastructChange) =>
+            r.forResource.class === 'DeclaredAwsEc2Instance' &&
+            r.forResource.slug.includes('declastruct-acceptance-instance'),
+        );
+        expect(instanceChange).toBeDefined();
+        expect(instanceChange!.forResource.slug).toContain(
+          'declastruct-acceptance-instance',
+        );
+
+        // verify instance session resource is present
+        const sessionChange = prep.plan.changes.find(
+          (r: DeclastructChange) =>
+            r.forResource.class === 'DeclaredAwsEc2InstanceSession',
+        );
+        expect(sessionChange).toBeDefined();
+      });
+
+      then('plan includes SSM SSH tunnel resource', () => {
+        /**
+         * .what = validates plan includes the declared SSM SSH tunnel
+         * .why = proves the tunnel is a first-class declarative resource, driven
+         *        via DeclaredAwsSsmSshTunnelDao through the plan/apply workflow
+         */
+        const tunnelChange = prep.plan.changes.find(
+          (r: DeclastructChange) =>
+            r.forResource.class === 'DeclaredAwsSsmSshTunnel',
+        );
+        expect(tunnelChange).toBeDefined();
+      });
+
+      then('plan includes SSH key authorization resource', () => {
+        /**
+         * .what = validates plan includes the declared SSH key authorization
+         * .why = proves the ssh key is a first-class declarative resource, driven
+         *        via DeclaredAwsEc2SshKeyAuthorizedDao through the plan/apply workflow
+         */
+        const keyChange = prep.plan.changes.find(
+          (r: DeclastructChange) =>
+            r.forResource.class === 'DeclaredAwsEc2SshKeyAuthorized',
+        );
+        expect(keyChange).toBeDefined();
+      });
+
+      /**
+       * .skip = SSH key resource uses direct operations, not declastruct plan/apply
+       *   - setEc2SshKeyAuthorized stores key in SSM Parameter Store
+       *   - verify via integration tests in ec2SshKeyAuthorized.integration.test.ts
+       */
+
       // SCP tests skipped — require management account credentials (see resources.acceptance.ts)
     });
 
@@ -246,7 +442,7 @@ describe('declastruct CLI workflow', () => {
       //    */
       //   const tunnelChange = prep.plan.changes.find(
       //     (r: DeclastructChange) =>
-      //       r.forResource.class === 'DeclaredAwsVpcTunnel',
+      //       r.forResource.class === 'DeclaredAwsSsmVpcTunnel',
       //   );
       //   expect(tunnelChange).toBeDefined();
       // });
@@ -297,6 +493,34 @@ describe('declastruct CLI workflow', () => {
             r.forResource.slug.includes('with-retention'),
         );
         expect(logGroupChange).toBeDefined();
+      });
+
+      then('applies EC2 infrastructure resources', () => {
+        /**
+         * .what = validates EC2 launch template, instance, and session are applied
+         * .why = ensures EC2 infrastructure works through declastruct workflow
+         */
+
+        // check launch template was applied
+        const templateChange = prep.plan.changes.find(
+          (r: DeclastructChange) =>
+            r.forResource.class === 'DeclaredAwsEc2LaunchTemplate',
+        );
+        expect(templateChange).toBeDefined();
+
+        // check instance was applied
+        const instanceChange = prep.plan.changes.find(
+          (r: DeclastructChange) =>
+            r.forResource.class === 'DeclaredAwsEc2Instance',
+        );
+        expect(instanceChange).toBeDefined();
+
+        // check session was applied
+        const sessionChange = prep.plan.changes.find(
+          (r: DeclastructChange) =>
+            r.forResource.class === 'DeclaredAwsEc2InstanceSession',
+        );
+        expect(sessionChange).toBeDefined();
       });
 
       // SCP tests skipped — require management account credentials (see resources.acceptance.ts)
@@ -373,7 +597,7 @@ describe('declastruct CLI workflow', () => {
 
       then('log group with retention shows KEEP', () => {
         /**
-         * .what = validates log group was applied correctly by checking re-plan shows KEEP
+         * .what = validates log group was applied correctly via re-plan KEEP assertion
          * .why = proves the resource matches desired state after apply
          */
         const logGroupChange = prep.plan.changes.find(
@@ -383,6 +607,61 @@ describe('declastruct CLI workflow', () => {
         );
         expect(logGroupChange).toBeDefined();
         expect(logGroupChange!.action).toBe('KEEP');
+      });
+
+      then('EC2 infrastructure resources show KEEP', () => {
+        /**
+         * .what = validates EC2 resources were applied correctly via re-plan KEEP assertion
+         * .why = proves EC2 launch template, instance, and session match desired state
+         */
+        const templateChange = prep.plan.changes.find(
+          (r: DeclastructChange) =>
+            r.forResource.class === 'DeclaredAwsEc2LaunchTemplate',
+        );
+        expect(templateChange).toBeDefined();
+        expect(templateChange!.action).toBe('KEEP');
+
+        const instanceChange = prep.plan.changes.find(
+          (r: DeclastructChange) =>
+            r.forResource.class === 'DeclaredAwsEc2Instance',
+        );
+        expect(instanceChange).toBeDefined();
+        expect(instanceChange!.action).toBe('KEEP');
+
+        const sessionChange = prep.plan.changes.find(
+          (r: DeclastructChange) =>
+            r.forResource.class === 'DeclaredAwsEc2InstanceSession',
+        );
+        expect(sessionChange).toBeDefined();
+        expect(sessionChange!.action).toBe('KEEP');
+      });
+
+      then('SSM SSH tunnel shows KEEP', () => {
+        /**
+         * .what = validates the CLOSED SSH tunnel matches desired state after apply
+         * .why = proves the tunnel is idempotent through plan/apply — a CLOSED
+         *        tunnel has no subprocess, so re-plan converges to KEEP (no drift)
+         */
+        const tunnelChange = prep.plan.changes.find(
+          (r: DeclastructChange) =>
+            r.forResource.class === 'DeclaredAwsSsmSshTunnel',
+        );
+        expect(tunnelChange).toBeDefined();
+        expect(tunnelChange!.action).toBe('KEEP');
+      });
+
+      then('SSH key authorization shows KEEP', () => {
+        /**
+         * .what = validates the seeded ssh key matches desired state after apply
+         * .why = proves the ssh key is idempotent through plan/apply — findsert finds
+         *        the seeded param and skips the re-push, so re-plan converges to KEEP
+         */
+        const keyChange = prep.plan.changes.find(
+          (r: DeclastructChange) =>
+            r.forResource.class === 'DeclaredAwsEc2SshKeyAuthorized',
+        );
+        expect(keyChange).toBeDefined();
+        expect(keyChange!.action).toBe('KEEP');
       });
 
       // SCP tests skipped — require management account credentials (see resources.acceptance.ts)
@@ -411,17 +690,7 @@ describe('declastruct CLI workflow', () => {
         const logGroupName = `/aws/lambda/${lambdaName}`;
 
         // setup: get provider context for DAO calls
-        const provider = await getDeclastructAwsProvider(
-          {},
-          {
-            log: {
-              info: () => {},
-              debug: () => {},
-              warn: console.warn,
-              error: console.error,
-            },
-          },
-        );
+        const provider = await getDeclastructAwsProvider({}, { log: testLog });
 
         // fetch pattern distribution report via DAO
         const patternReport =
@@ -470,17 +739,7 @@ describe('declastruct CLI workflow', () => {
          */
 
         // get provider context
-        const provider = await getDeclastructAwsProvider(
-          {},
-          {
-            log: {
-              info: () => {},
-              debug: () => {},
-              warn: console.warn,
-              error: console.error,
-            },
-          },
-        );
+        const provider = await getDeclastructAwsProvider({}, { log: testLog });
 
         // verify no access keys remain
         const keysAfter = await getAllIamUserAccessKeys(

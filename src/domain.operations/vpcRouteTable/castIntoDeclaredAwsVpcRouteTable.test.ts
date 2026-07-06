@@ -45,6 +45,7 @@ describe('castIntoDeclaredAwsVpcRouteTable', () => {
           vpc: 'test-vpc-exid',
           gateways: { 'igw-abc123': 'test-igw-exid' },
           subnets: { 'subnet-abc123': 'test-subnet-exid' },
+          instances: {},
         });
         expect(result).toMatchObject({
           id: 'rtb-1234567890abcdef0',
@@ -76,6 +77,7 @@ describe('castIntoDeclaredAwsVpcRouteTable', () => {
             vpc: 'test-vpc-exid',
             gateways: {},
             subnets: {},
+            instances: {},
           }),
         );
         expect(error.message).toContain('route table lacks exid tag');
@@ -103,12 +105,81 @@ describe('castIntoDeclaredAwsVpcRouteTable', () => {
           vpc: 'test-vpc-exid',
           gateways: {},
           subnets: {},
+          instances: {},
         });
         // nat gateways are not managed by declastruct, so use raw AWS id
         expect(result.routes[0]).toMatchObject({
           destination: { cidr: { v4: '0.0.0.0/0' } },
           target: { gatewayNat: { id: 'nat-abc123' } },
         });
+      });
+    });
+  });
+
+  given('an AWS RouteTable with NAT instance (fck-nat) route', () => {
+    when('cast to domain object', () => {
+      then('it should cast a nat instance target referenced by exid', () => {
+        // note: fck-nat routes carry an InstanceId; the cast looks up its exid
+        const awsRouteTable: RouteTable = {
+          RouteTableId: 'rtb-nat-instance',
+          VpcId: 'vpc-abc123',
+          Routes: [
+            {
+              DestinationCidrBlock: '0.0.0.0/0',
+              InstanceId: 'i-0b9746c0444d7cee5',
+              InstanceOwnerId: '805192865516',
+              NetworkInterfaceId: 'eni-0ab2243cfbf6897e0',
+              Origin: 'CreateRoute',
+              State: 'active',
+            },
+          ],
+          Associations: [],
+          Tags: [{ Key: 'exid', Value: 'nat-instance-route-table' }],
+        };
+        const result = castIntoDeclaredAwsVpcRouteTable(awsRouteTable, {
+          vpc: 'test-vpc-exid',
+          gateways: {},
+          subnets: {},
+          instances: { 'i-0b9746c0444d7cee5': 'declastruct-acceptance-nat' },
+        });
+        // the route references the nat instance by its exid (looked up from id)
+        expect(result.routes[0]).toMatchObject({
+          destination: { cidr: { v4: '0.0.0.0/0' } },
+          target: {
+            instanceNat: { instance: { exid: 'declastruct-acceptance-nat' } },
+          },
+        });
+      });
+    });
+  });
+
+  given('an AWS RouteTable with a blackhole route', () => {
+    when('cast to domain object', () => {
+      then('it should drop the dead route', () => {
+        // note: a terminated nat instance leaves a blackhole route — AWS drops
+        //       the InstanceId and the route forwards no packets, so the cast
+        //       filters it out
+        const awsRouteTable: RouteTable = {
+          RouteTableId: 'rtb-blackhole',
+          VpcId: 'vpc-abc123',
+          Routes: [
+            {
+              DestinationCidrBlock: '0.0.0.0/0',
+              NetworkInterfaceId: 'eni-0ab2243cfbf6897e0',
+              Origin: 'CreateRoute',
+              State: 'blackhole',
+            },
+          ],
+          Associations: [],
+          Tags: [{ Key: 'exid', Value: 'blackhole-route-table' }],
+        };
+        const result = castIntoDeclaredAwsVpcRouteTable(awsRouteTable, {
+          vpc: 'test-vpc-exid',
+          gateways: {},
+          subnets: {},
+          instances: {},
+        });
+        expect(result.routes).toEqual([]);
       });
     });
   });
@@ -133,6 +204,7 @@ describe('castIntoDeclaredAwsVpcRouteTable', () => {
           vpc: 'test-vpc-exid',
           gateways: { 'igw-abc123': 'test-igw-exid' },
           subnets: {},
+          instances: {},
         });
         expect(result.routes[0]).toMatchObject({
           destination: { cidr: { v6: '::/0' } },
@@ -162,6 +234,7 @@ describe('castIntoDeclaredAwsVpcRouteTable', () => {
           vpc: 'test-vpc-exid',
           gateways: {},
           subnets: {},
+          instances: {},
         });
         expect(result.routes).toEqual([]);
       });
@@ -188,6 +261,7 @@ describe('castIntoDeclaredAwsVpcRouteTable', () => {
           vpc: 'test-vpc-exid',
           gateways: {},
           subnets: {},
+          instances: {},
         });
         expect(result.associations).toEqual([]);
       });

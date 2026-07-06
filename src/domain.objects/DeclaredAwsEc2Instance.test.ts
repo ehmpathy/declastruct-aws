@@ -11,8 +11,11 @@ describe('DeclaredAwsEc2Instance', () => {
         instance = new DeclaredAwsEc2Instance({
           exid: 'test-bastion',
           template: null,
-          subnet: { exid: 'my-subnet' },
-          securityGroups: [{ exid: 'my-sg' }],
+          network: {
+            subnet: { exid: 'my-subnet' },
+            security: { groups: [{ exid: 'my-sg' }] },
+            interface: { publicIpEnabled: false, sourceDestChecked: true },
+          },
           tags: null,
         });
       });
@@ -21,15 +24,18 @@ describe('DeclaredAwsEc2Instance', () => {
         expect(instance).toMatchObject({
           exid: 'test-bastion',
           template: null,
-          subnet: { exid: 'my-subnet' },
-          securityGroups: [{ exid: 'my-sg' }],
+          network: {
+            subnet: { exid: 'my-subnet' },
+            security: { groups: [{ exid: 'my-sg' }] },
+            interface: { publicIpEnabled: false, sourceDestChecked: true },
+          },
           tags: null,
         });
       });
 
       then('metadata and readonly are undefined by default', () => {
         expect(instance.id).toBeUndefined();
-        expect(instance.privateIp).toBeUndefined();
+        expect(instance.network.interface.privateIp).toBeUndefined();
       });
     });
   });
@@ -43,10 +49,16 @@ describe('DeclaredAwsEc2Instance', () => {
           id: 'i-1234567890abcdef0',
           exid: 'test-bastion',
           template: { exid: 'my-template' },
-          subnet: { id: 'subnet-abc123' },
-          securityGroups: [{ id: 'sg-xyz789' }],
+          network: {
+            subnet: { id: 'subnet-abc123' },
+            security: { groups: [{ id: 'sg-xyz789' }] },
+            interface: {
+              publicIpEnabled: false,
+              sourceDestChecked: true,
+              privateIp: '10.0.1.100',
+            },
+          },
           tags: { managedBy: 'declastruct', purpose: 'test' },
-          privateIp: '10.0.1.100',
         });
       });
 
@@ -55,10 +67,16 @@ describe('DeclaredAwsEc2Instance', () => {
           id: 'i-1234567890abcdef0',
           exid: 'test-bastion',
           template: { exid: 'my-template' },
-          subnet: { id: 'subnet-abc123' },
-          securityGroups: [{ id: 'sg-xyz789' }],
+          network: {
+            subnet: { id: 'subnet-abc123' },
+            security: { groups: [{ id: 'sg-xyz789' }] },
+            interface: {
+              publicIpEnabled: false,
+              sourceDestChecked: true,
+              privateIp: '10.0.1.100',
+            },
+          },
           tags: { managedBy: 'declastruct', purpose: 'test' },
-          privateIp: '10.0.1.100',
         });
       });
     });
@@ -77,8 +95,11 @@ describe('DeclaredAwsEc2Instance', () => {
       expect(DeclaredAwsEc2Instance.metadata).toEqual(['id']);
     });
 
-    then('readonly is defined as privateIp', () => {
-      expect(DeclaredAwsEc2Instance.readonly).toEqual(['privateIp']);
+    then('readonly is defined as the nested nic ip addresses', () => {
+      expect(DeclaredAwsEc2Instance.readonly).toEqual([
+        'network.interface.privateIp',
+        'network.interface.publicIp',
+      ]);
     });
   });
 });

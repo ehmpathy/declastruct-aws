@@ -10,8 +10,13 @@ export interface ContextAwsApi {
       region: string;
     };
     cache: {
-      DeclaredAwsVpcTunnel: {
+      DeclaredAwsSsmVpcTunnel: {
         processes: {
+          dir: string;
+        };
+      };
+      DeclaredAwsSsmSshTunnel?: {
+        processes?: {
           dir: string;
         };
       };

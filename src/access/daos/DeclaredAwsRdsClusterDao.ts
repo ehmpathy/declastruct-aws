@@ -1,6 +1,6 @@
 import { genDeclastructDao } from 'declastruct';
 import { BadRequestError } from 'helpful-errors';
-import type { ContextLogTrail } from 'simple-log-methods';
+import type { ContextLogTrail } from 'sdk-logs';
 
 import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
 import { DeclaredAwsRdsCluster } from '@src/domain.objects/DeclaredAwsRdsCluster';

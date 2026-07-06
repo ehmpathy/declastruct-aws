@@ -14,6 +14,7 @@ import type { VisualogicContext } from 'visualogic';
 
 import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
 import { DeclaredAwsVpcRouteTable } from '@src/domain.objects/DeclaredAwsVpcRouteTable';
+import { getEc2Instance } from '@src/domain.operations/ec2Instance/getEc2Instance';
 import { getOneVpcExid } from '@src/domain.operations/vpc/getOneVpcExid';
 import { getOneVpcInternetGateway } from '@src/domain.operations/vpcInternetGateway/getOneVpcInternetGateway';
 import { getOneVpcSubnet } from '@src/domain.operations/vpcSubnet/getOneVpcSubnet';
@@ -120,11 +121,32 @@ export const getOneVpcRouteTable = asProcedure(
         subnetsLookup[subnetId] = subnet.exid;
       }
 
+      // build nat instance exid lookup map (active routes only; blackhole routes
+      // have no instance id and are filtered out by the cast)
+      const instanceIds = (rt.Routes ?? [])
+        .filter((r) => r.State !== 'blackhole' && r.InstanceId)
+        .map((r) => r.InstanceId!);
+
+      const instancesLookup: Record<string, string> = {};
+      for (const instanceId of instanceIds) {
+        const instance = await getEc2Instance(
+          { by: { primary: { id: instanceId } } },
+          context,
+        );
+        if (!instance)
+          UnexpectedCodePathError.throw(
+            'ec2 instance not found for exid lookup',
+            { instanceId },
+          );
+        instancesLookup[instanceId] = instance.exid;
+      }
+
       // cast and return
       return castIntoDeclaredAwsVpcRouteTable(rt, {
         vpc: vpcExid,
         gateways: gatewaysLookup,
         subnets: subnetsLookup,
+        instances: instancesLookup,
       });
     } catch (error) {
       if (!(error instanceof Error)) throw error;

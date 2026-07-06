@@ -20,6 +20,7 @@ export const castIntoDeclaredAwsVpcRouteTable = (
     vpc: string;
     gateways: Record<string, string>; // gatewayId -> exid
     subnets: Record<string, string>; // subnetId -> exid
+    instances: Record<string, string>; // instanceId -> exid
   },
 ): HasReadonly<typeof DeclaredAwsVpcRouteTable> => {
   // extract exid from tags
@@ -46,9 +47,13 @@ export const castIntoDeclaredAwsVpcRouteTable = (
       { input },
     );
 
-  // cast routes (filter out AWS-managed local routes)
+  // cast routes
   const routes: DeclaredAwsVpcRoute[] = (input.Routes ?? [])
-    .filter((route) => route.GatewayId !== 'local') // exclude local routes
+    // exclude the AWS-managed local route
+    .filter((route) => route.GatewayId !== 'local')
+    // exclude blackhole routes (dead artifacts, e.g. a terminated nat instance —
+    // AWS drops the instance id but keeps the route until manually removed)
+    .filter((route) => route.State !== 'blackhole')
     .map((route) => {
       // determine destination cidr
       const destination: DeclaredAwsVpcRoute['destination'] = {
@@ -60,11 +65,22 @@ export const castIntoDeclaredAwsVpcRouteTable = (
         },
       };
 
-      // determine target (internet gateway or nat gateway)
+      // determine target (internet gateway, nat gateway, or nat instance)
       const target: DeclaredAwsVpcRoute['target'] = (() => {
         // nat gateways are not managed by declastruct, so we use raw AWS id
         if (route.NatGatewayId) {
           return { gatewayNat: { id: route.NatGatewayId } };
+        }
+        // nat instance (fck-nat) — look up the instance exid from its id so a
+        // declared ref and this remote route compare equal (no false drift)
+        if (route.InstanceId) {
+          const exid = exidLookup.instances[route.InstanceId];
+          if (!exid)
+            throw new UnexpectedCodePathError(
+              'nat instance exid not found in lookup',
+              { instanceId: route.InstanceId },
+            );
+          return { instanceNat: { instance: { exid } } };
         }
         if (route.GatewayId) {
           const exid = exidLookup.gateways[route.GatewayId];
@@ -78,7 +94,7 @@ export const castIntoDeclaredAwsVpcRouteTable = (
 
         // failfast if no recognized target
         throw new UnexpectedCodePathError(
-          'route has no recognized target; only internet gateway and nat gateway are supported',
+          'route has no recognized target; only internet gateway, nat gateway, and nat instance are supported',
           { route },
         );
       })();

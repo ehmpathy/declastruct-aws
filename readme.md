@@ -60,11 +60,11 @@ npx declastruct apply --plan provision/github/.temp/plan.json
 ```
 
 
-## example.2 = open a vpc tunnel
+## example.2 = open a vpc tunnel via an ec2 instance
 
 ```ts
 import { RefByUnique } from 'domain-objects';
-import { getDeclastructAwsProvider, DeclaredAwsRdsCluster, DeclaredAwsEc2Instance, DeclaredAwsVpcTunnel } from 'declastruct-aws';
+import { getDeclastructAwsProvider, DeclaredAwsRdsCluster, DeclaredAwsEc2Instance, DeclaredAwsSsmVpcTunnel } from 'declastruct-aws';
 
 export const getProviders = async (): Promise<DeclastructProvider[]> => [
   getDeclastructAwsProvider(
@@ -82,7 +82,7 @@ export const getResources = async (): Promise<DomainEntity<any>[]> => {
   const bastion = RefByUnique.as<typeof DeclaredAwsEc2Instance>({
     exid: 'vpc-main-bastion',
   })
-  const tunnel = DeclaredAwsVpcTunnel.as({
+  const tunnel = DeclaredAwsSsmVpcTunnel.as({
     via: { mechanism: 'aws.ssm', bastion }
     into: { cluster },
     from: { host: 'localhost', port: 777_5432 },
@@ -93,7 +93,120 @@ export const getResources = async (): Promise<DomainEntity<any>[]> => {
 ```
 
 
-## example.3 = deploy a lambda with version and alias
+## example.3 = open an ssh tunnel to an ec2 instance
+
+```ts
+import * as fs from 'fs';
+import { RefByUnique } from 'domain-objects';
+import {
+  getDeclastructAwsProvider,
+  DeclaredAwsEc2Instance,
+  DeclaredAwsEc2SshKeyAuthorized,
+  DeclaredAwsSsmSshTunnel,
+} from 'declastruct-aws';
+
+export const getProviders = async (): Promise<DeclastructProvider[]> => [
+  getDeclastructAwsProvider(
+    {},
+    {
+      log: console,
+    },
+  ),
+];
+
+export const getResources = async (): Promise<DomainEntity<any>[]> => {
+  const instance = RefByUnique.as<typeof DeclaredAwsEc2Instance>({
+    exid: 'my-dev-instance',
+  });
+
+  // authorize your SSH key on the instance
+  const sshKey = DeclaredAwsEc2SshKeyAuthorized.as({
+    instance,
+    publicKey: fs.readFileSync(`${process.env.HOME}/.ssh/id_ed25519.pub`, 'utf8'),
+    comment: 'my-laptop',
+  });
+
+  // open SSH tunnel via SSM
+  const sshTunnel = DeclaredAwsSsmSshTunnel.as({
+    instance,
+    from: { port: 2222 },
+    into: { port: 22 },
+    status: 'OPEN',
+  });
+
+  return [sshKey, sshTunnel];
+};
+```
+
+after `npx declastruct apply`, SSH in:
+```bash
+ssh -i ~/.ssh/id_ed25519 -p 2222 ec2-user@localhost
+```
+
+
+## example.4 = provision an ec2 instance with hibernation
+
+```ts
+import { RefByUnique } from 'domain-objects';
+import {
+  getDeclastructAwsProvider,
+  DeclaredAwsEc2LaunchTemplate,
+  DeclaredAwsEc2Instance,
+  DeclaredAwsEc2InstanceSession,
+  DeclaredAwsVpcSubnet,
+  DeclaredAwsVpcSecurityGroup,
+} from 'declastruct-aws';
+
+export const getProviders = async (): Promise<DeclastructProvider[]> => [
+  getDeclastructAwsProvider(
+    {},
+    {
+      log: console,
+    },
+  ),
+];
+
+export const getResources = async (): Promise<DomainEntity<any>[]> => {
+  // declare launch template with hibernation enabled
+  const template = DeclaredAwsEc2LaunchTemplate.as({
+    exid: 'my-dev-template',
+    instanceType: 't3.micro',
+    imageId: 'ami-0c55b159cbfafe1f0',  // Amazon Linux 2023
+    hibernation: true,
+    rootVolumeEncrypted: true,  // required for hibernation
+    rootVolumeSize: 16,         // must be >= instance RAM
+    iamInstanceProfile: null,
+    userData: null,
+    tags: { purpose: 'dev' },
+  });
+
+  // declare instance
+  const instance = DeclaredAwsEc2Instance.as({
+    exid: 'my-dev-instance',
+    template: { exid: template.exid },
+    subnet: RefByUnique.as<typeof DeclaredAwsVpcSubnet>({ exid: 'my-subnet' }),
+    securityGroups: [RefByUnique.as<typeof DeclaredAwsVpcSecurityGroup>({ exid: 'my-sg' })],
+    tags: { purpose: 'dev' },
+  });
+
+  // control lifecycle via session
+  const session = DeclaredAwsEc2InstanceSession.as({
+    instance: { exid: instance.exid },
+    status: 'active',  // 'active' | 'stopped' | 'hibernated'
+  });
+
+  return [template, instance, session];
+};
+```
+
+to hibernate the instance, change `status: 'hibernated'` and re-apply:
+```bash
+npx declastruct plan --wish resources.ts --into plan.json
+npx declastruct apply --plan plan.json
+```
+
+
+## example.5 = deploy a lambda with version and alias
 
 ```ts
 import { RefByUnique } from 'domain-objects';
@@ -101,6 +214,7 @@ import { ConstraintError } from 'helpful-errors';
 import {
   calcAwsLambdaConfigHash,
   DeclaredAwsIamRole,
+  DeclaredAwsIamRolePolicyAttachedInline,
   DeclaredAwsLambda,
   DeclaredAwsLambdaAlias,
   DeclaredAwsLambdaVersion,
@@ -133,6 +247,25 @@ export const getResources = async (): Promise<DomainEntity<any>[]> => {
     tags: { managedBy: 'declastruct' },
   });
 
+  // declare inline policy for CloudWatch Logs permissions
+  const lambdaRolePolicy = DeclaredAwsIamRolePolicyAttachedInline.as({
+    name: 'cloudwatch-logs',
+    role: RefByUnique.as<typeof DeclaredAwsIamRole>(lambdaRole),
+    document: {
+      statements: [
+        {
+          effect: 'Allow',
+          action: [
+            'logs:CreateLogGroup',
+            'logs:CreateLogStream',
+            'logs:PutLogEvents',
+          ],
+          resource: '*',
+        },
+      ],
+    },
+  });
+
   // declare lambda function ($LATEST) with code from zip
   const lambda = DeclaredAwsLambda.as({
     name: 'svc-sea-turtle.prod.getSandbars',
@@ -163,7 +296,7 @@ export const getResources = async (): Promise<DomainEntity<any>[]> => {
     description: 'live traffic alias',
   });
 
-  return [lambdaRole, lambda, lambdaVersion, lambdaAlias];
+  return [lambdaRole, lambdaRolePolicy, lambda, lambdaVersion, lambdaAlias];
 };
 ```
 

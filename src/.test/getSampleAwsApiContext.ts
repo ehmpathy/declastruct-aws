@@ -1,4 +1,4 @@
-import type { ContextLogTrail } from 'simple-log-methods';
+import { type ContextLogTrail, genLogMethods, LogLevel } from 'sdk-logs';
 
 import { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
 import { getCredentials } from '@src/domain.operations/provider/getDeclastructAwsProvider';
@@ -13,17 +13,17 @@ export const getSampleAwsApiContext = async (input?: {
   aws: {
     credentials: await getCredentials(),
     cache: {
-      DeclaredAwsVpcTunnel: {
+      DeclaredAwsSsmVpcTunnel: {
         processes: {
           dir: input?.cacheDir ?? '/tmp/declastruct-test/tunnels',
         },
       },
+      DeclaredAwsSsmSshTunnel: {
+        processes: {
+          dir: input?.cacheDir ?? '/tmp/declastruct-test/ssh-tunnels',
+        },
+      },
     },
   },
-  log: {
-    debug: () => {},
-    info: () => {},
-    warn: () => {},
-    error: () => {},
-  },
+  log: genLogMethods({ level: { minimum: LogLevel.ERROR } }),
 });
