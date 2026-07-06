@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.7.0](https://github.com/ehmpathy/declastruct-aws/compare/v1.6.0...v1.7.0) (2026-07-06)
+
+
+### Features
+
+* **ec2:** add launch templates and instance lifecycle operations ([#54](https://github.com/ehmpathy/declastruct-aws/issues/54)) ([d9d00bc](https://github.com/ehmpathy/declastruct-aws/commit/d9d00bcb929a24fa5acd5170a7aee7118d19607f))
+* **ec2:** declarative ssh access + hibernate + NAT egress ([#59](https://github.com/ehmpathy/declastruct-aws/issues/59)) ([49d607f](https://github.com/ehmpathy/declastruct-aws/commit/49d607fd68eba3f4ab73d55a5789c3f9d4736d26))
+
 ## [1.6.0](https://github.com/ehmpathy/declastruct-aws/compare/v1.5.2...v1.6.0) (2026-06-20)
 
 
