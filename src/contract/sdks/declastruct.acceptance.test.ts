@@ -212,38 +212,43 @@ describe('declastruct CLI workflow', () => {
         expect(planSummary).toMatchSnapshot();
       });
 
-      // VPC resources skipped — require ec2:CreateVpc permission (see resources.acceptance.ts)
-      // then('plan includes VPC infrastructure resources', () => {
-      //   /**
-      //    * .what = validates plan includes VPC, subnet, security group, internet gateway, route table
-      //    * .why = ensures declastruct correctly processes VPC infrastructure declarations
-      //    */
-      //   const vpcChange = prep.plan.changes.find(
-      //     (r: DeclastructChange) => r.forResource.class === 'DeclaredAwsVpc',
-      //   );
-      //   expect(vpcChange).toBeDefined();
-      //   expect(vpcChange!.forResource.slug).toContain('declastruct-acceptance-vpc');
-      //
-      //   const subnetChange = prep.plan.changes.find(
-      //     (r: DeclastructChange) => r.forResource.class === 'DeclaredAwsVpcSubnet',
-      //   );
-      //   expect(subnetChange).toBeDefined();
-      //
-      //   const sgChange = prep.plan.changes.find(
-      //     (r: DeclastructChange) => r.forResource.class === 'DeclaredAwsVpcSecurityGroup',
-      //   );
-      //   expect(sgChange).toBeDefined();
-      //
-      //   const igwChange = prep.plan.changes.find(
-      //     (r: DeclastructChange) => r.forResource.class === 'DeclaredAwsVpcInternetGateway',
-      //   );
-      //   expect(igwChange).toBeDefined();
-      //
-      //   const rtbChange = prep.plan.changes.find(
-      //     (r: DeclastructChange) => r.forResource.class === 'DeclaredAwsVpcRouteTable',
-      //   );
-      //   expect(rtbChange).toBeDefined();
-      // });
+      then('plan includes VPC infrastructure resources', () => {
+        /**
+         * .what = validates plan includes VPC, subnet, security group, internet gateway, route table
+         * .why = ensures declastruct correctly processes VPC infrastructure declarations
+         */
+        const vpcChange = prep.plan.changes.find(
+          (r: DeclastructChange) => r.forResource.class === 'DeclaredAwsVpc',
+        );
+        expect(vpcChange).toBeDefined();
+        expect(vpcChange!.forResource.slug).toContain(
+          'declastruct-acceptance-vpc',
+        );
+
+        const subnetChange = prep.plan.changes.find(
+          (r: DeclastructChange) =>
+            r.forResource.class === 'DeclaredAwsVpcSubnet',
+        );
+        expect(subnetChange).toBeDefined();
+
+        const sgChange = prep.plan.changes.find(
+          (r: DeclastructChange) =>
+            r.forResource.class === 'DeclaredAwsVpcSecurityGroup',
+        );
+        expect(sgChange).toBeDefined();
+
+        const igwChange = prep.plan.changes.find(
+          (r: DeclastructChange) =>
+            r.forResource.class === 'DeclaredAwsVpcInternetGateway',
+        );
+        expect(igwChange).toBeDefined();
+
+        const rtbChange = prep.plan.changes.find(
+          (r: DeclastructChange) =>
+            r.forResource.class === 'DeclaredAwsVpcRouteTable',
+        );
+        expect(rtbChange).toBeDefined();
+      });
 
       // VPC tunnel skipped — require vpc, bastion machine, and rds db in demo account
       // then('plan includes VPC tunnel resource', () => {

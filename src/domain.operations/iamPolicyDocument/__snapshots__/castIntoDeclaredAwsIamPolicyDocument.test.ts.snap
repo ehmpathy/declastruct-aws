@@ -1,0 +1,99 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`castIntoDeclaredAwsIamPolicyDocument given: [case1] inline json with NotResource when: [t0] parsed into domain then: resource becomes the \`{ exclude }\` scope variant 1`] = `
+[
+  DeclaredAwsIamPolicyStatement {
+    "action": "ssm:GetParameter*",
+    "condition": undefined,
+    "effect": "Deny",
+    "principal": undefined,
+    "resource": DeclaredAwsIamStatementScope {
+      "exclude": "arn:aws:ssm:*:*:parameter/cicd/scope=plan/*",
+    },
+    "sid": "DenyNonPlanSsmParameters",
+  },
+]
+`;
+
+exports[`castIntoDeclaredAwsIamPolicyDocument given: [case2] inline json with NotAction and NotPrincipal when: [t0] parsed into domain then: action and principal become \`{ exclude }\` variants 1`] = `
+DeclaredAwsIamPolicyStatement {
+  "action": DeclaredAwsIamStatementScope {
+    "exclude": [
+      "s3:DeleteObject",
+    ],
+  },
+  "condition": undefined,
+  "effect": "Deny",
+  "principal": DeclaredAwsIamPrincipalScope {
+    "exclude": DeclaredAwsIamPrincipal {
+      "aws": "arn:aws:iam::123456789012:root",
+    },
+    "include": undefined,
+  },
+  "resource": "*",
+}
+`;
+
+exports[`castIntoDeclaredAwsIamPolicyDocument given: [case3] a positive-only statement when: [t0] parsed into domain then: it stays positive (no exclusion wrappers) 1`] = `
+DeclaredAwsIamPolicyStatement {
+  "action": [
+    "logs:CreateLogGroup",
+    "logs:PutLogEvents",
+  ],
+  "condition": undefined,
+  "effect": "Allow",
+  "principal": undefined,
+  "resource": "*",
+}
+`;
+
+exports[`castIntoDeclaredAwsIamPolicyDocument given: [case5] inline json with a nonsensical NotPrincipal of "*" when: [t0] parsed into domain then: it fails fast (a NotPrincipal must exclude a concrete principal) 1`] = `
+"BadRequestError: NotPrincipal must exclude a concrete principal, not "*" or empty
+
+{
+  "stmt": {
+    "Effect": "Deny",
+    "NotPrincipal": "*",
+    "Action": "s3:GetObject",
+    "Resource": "*"
+  }
+}"
+`;
+
+exports[`castIntoDeclaredAwsIamPolicyDocument given: [case6] a malformed statement with both a positive and its \`Not\` when: [t0] both Resource and NotResource are present then: it fails fast 1`] = `
+"BadRequestError: iam policy statement has both "Resource" and its "Not" counterpart
+
+{
+  "field": "Resource",
+  "positive": "arn:aws:s3:::a/*",
+  "negated": "arn:aws:s3:::b/*"
+}"
+`;
+
+exports[`castIntoDeclaredAwsIamPolicyDocument given: [case6] a malformed statement with both a positive and its \`Not\` when: [t1] both Principal and NotPrincipal are present then: it fails fast 1`] = `
+"BadRequestError: iam policy statement has both "Principal" and "NotPrincipal"
+
+{
+  "stmt": {
+    "Effect": "Deny",
+    "Principal": {
+      "AWS": "arn:aws:iam::123456789012:root"
+    },
+    "NotPrincipal": {
+      "AWS": "arn:aws:iam::999999999999:root"
+    },
+    "Action": "s3:GetObject",
+    "Resource": "*"
+  }
+}"
+`;
+
+exports[`castIntoDeclaredAwsIamPolicyDocument given: [case6] a malformed statement with both a positive and its \`Not\` when: [t2] both Action and NotAction are present then: it fails fast 1`] = `
+"BadRequestError: iam policy statement has both "Action" and its "Not" counterpart
+
+{
+  "field": "Action",
+  "positive": "s3:GetObject",
+  "negated": "s3:DeleteObject"
+}"
+`;

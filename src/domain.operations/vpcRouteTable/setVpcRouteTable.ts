@@ -1,14 +1,14 @@
 import {
-  AssociateRouteTableCommand,
   CreateRouteCommand,
   CreateRouteTableCommand,
   CreateTagsCommand,
   DeleteRouteCommand,
   EC2Client,
+  ReplaceRouteCommand,
 } from '@aws-sdk/client-ec2';
 import { asProcedure } from 'as-procedure';
 import type { HasReadonly } from 'domain-objects';
-import { BadRequestError, UnexpectedCodePathError } from 'helpful-errors';
+import { UnexpectedCodePathError } from 'helpful-errors';
 import type { PickOne } from 'type-fns';
 import type { VisualogicContext } from 'visualogic';
 
@@ -20,6 +20,7 @@ import { getOneVpcInternetGatewayId } from '@src/domain.operations/vpcInternetGa
 import { getOneVpcSubnetId } from '@src/domain.operations/vpcSubnet/getOneVpcSubnetId';
 
 import { getOneVpcRouteTable } from './getOneVpcRouteTable';
+import { setVpcRouteTableAssociations } from './setVpcRouteTableAssociations';
 
 /**
  * .what = creates or updates a VPC route table
@@ -172,53 +173,50 @@ export const setVpcRouteTable = asProcedure(
           throw new UnexpectedCodePathError('route lacks target', { route });
         })();
 
-        await ec2.send(
-          new CreateRouteCommand({
-            RouteTableId: rtId,
-            DestinationCidrBlock: route.destination.cidr.v4,
-            DestinationIpv6CidrBlock: route.destination.cidr.v6,
-            ...targetId,
-          }),
-        );
+        // create the route; if a route for this destination already exists, replace its
+        // target so the route converges to exactly the desired gateway. replace makes
+        // this idempotent by post-condition — the target always matches desired, rather
+        // than assume the extant route already points where we want
+        try {
+          await ec2.send(
+            new CreateRouteCommand({
+              RouteTableId: rtId,
+              DestinationCidrBlock: route.destination.cidr.v4,
+              DestinationIpv6CidrBlock: route.destination.cidr.v6,
+              ...targetId,
+            }),
+          );
+        } catch (error) {
+          // rethrow all but the exact "a route for this destination exists" conflict
+          if (!(error instanceof Error) || error.name !== 'RouteAlreadyExists')
+            throw error;
+
+          // converge the extant route's target to the desired gateway
+          await ec2.send(
+            new ReplaceRouteCommand({
+              RouteTableId: rtId,
+              DestinationCidrBlock: route.destination.cidr.v4,
+              DestinationIpv6CidrBlock: route.destination.cidr.v6,
+              ...targetId,
+            }),
+          );
+        }
       }
 
-      // sync associations
-      // note: declastruct only adds associations; a removal needs
-      //       DisassociateRouteTable with an AssociationId we do not capture, so
-      //       it is failfast-unsupported
-      const extantSubnetIds = await Promise.all(
-        (foundBefore?.associations ?? []).map((assoc) =>
-          getOneVpcSubnetId({ subnet: assoc.subnet }, context),
-        ),
-      );
-      const desiredSubnetIds = await Promise.all(
+      // look up the desired subnet ids from their refs
+      const subnetIdsDesired = await Promise.all(
         rtDesired.associations.map((assoc) =>
           getOneVpcSubnetId({ subnet: assoc.subnet }, context),
         ),
       );
 
-      // failfast if an extant association is absent from the desired set
-      const removedSubnetIds = extantSubnetIds.filter(
-        (id) => !desiredSubnetIds.includes(id),
-      );
-      if (removedSubnetIds.length)
-        throw new BadRequestError(
-          'route table association removal not yet supported; requires AssociationId which is not captured in domain model',
-          { removedSubnetIds, extantSubnetIds, desiredSubnetIds },
-        );
-
-      // associate only the subnets not already associated
-      const subnetIdsToAdd = desiredSubnetIds.filter(
-        (id) => !extantSubnetIds.includes(id),
-      );
-      for (const subnetId of subnetIdsToAdd) {
-        await ec2.send(
-          new AssociateRouteTableCommand({
-            RouteTableId: rtId,
-            SubnetId: subnetId,
-          }),
-        );
-      }
+      // reconcile the route table's associations to exactly the desired subnets
+      await setVpcRouteTableAssociations({
+        ec2,
+        routeTableId: rtId,
+        routeTableExid: rtDesired.exid,
+        subnetIds: subnetIdsDesired,
+      });
     }
 
     // fetch and return the route table

@@ -15,6 +15,7 @@ import type { VisualogicContext } from 'visualogic';
 
 import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
 import type { DeclaredAwsVpcSecurityGroup } from '@src/domain.objects/DeclaredAwsVpcSecurityGroup';
+import { tolerateExtantConflict } from '@src/domain.operations/aws/tolerateExtantConflict';
 import { getOneVpcId } from '@src/domain.operations/vpc/getOneVpcId';
 
 import { asAwsIpPermission } from './asAwsIpPermission';
@@ -144,21 +145,29 @@ export const setVpcSecurityGroup = asProcedure(
         }
       }
 
-      // add desired rules
+      // add desired rules; pre-extant identical rules count as idempotent success
       if (sgDesired.rules.ingress.length > 0) {
-        await ec2.send(
-          new AuthorizeSecurityGroupIngressCommand({
-            GroupId: sgId,
-            IpPermissions: sgDesired.rules.ingress.map(asAwsIpPermission),
-          }),
+        await tolerateExtantConflict(
+          { tolerate: ['InvalidPermission.Duplicate'] },
+          () =>
+            ec2.send(
+              new AuthorizeSecurityGroupIngressCommand({
+                GroupId: sgId,
+                IpPermissions: sgDesired.rules.ingress.map(asAwsIpPermission),
+              }),
+            ),
         );
       }
       if (sgDesired.rules.egress.length > 0) {
-        await ec2.send(
-          new AuthorizeSecurityGroupEgressCommand({
-            GroupId: sgId,
-            IpPermissions: sgDesired.rules.egress.map(asAwsIpPermission),
-          }),
+        await tolerateExtantConflict(
+          { tolerate: ['InvalidPermission.Duplicate'] },
+          () =>
+            ec2.send(
+              new AuthorizeSecurityGroupEgressCommand({
+                GroupId: sgId,
+                IpPermissions: sgDesired.rules.egress.map(asAwsIpPermission),
+              }),
+            ),
         );
       }
     }

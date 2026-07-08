@@ -84,7 +84,10 @@ export const setVpcInternetGateway = asProcedure(
       // lookup VPC id from ref
       const vpcId = await getOneVpcId({ vpc: igwDesired.vpc }, context);
 
-      // attach to VPC
+      // attach to VPC. newIgwId is freshly created, so it cannot already be attached
+      // elsewhere — a `Resource.AlreadyAssociated` here means the VPC already holds a
+      // different internet gateway, a genuine conflict we must surface (fail loud),
+      // never swallow. so we do NOT tolerate the conflict here
       await ec2.send(
         new AttachInternetGatewayCommand({
           InternetGatewayId: newIgwId,

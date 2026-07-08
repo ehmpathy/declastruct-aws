@@ -1,0 +1,231 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`castFromDeclaredAwsIamPolicyStatement given: [case1] a positive resource match (bare shorthand) when: [t0] cast to sdk json then: it emits Resource, no NotResource 1`] = `
+{
+  "Action": "s3:GetObject",
+  "Effect": "Allow",
+  "Resource": "arn:aws:s3:::bucket/*",
+}
+`;
+
+exports[`castFromDeclaredAwsIamPolicyStatement given: [case2] a resource exclusion \`{ exclude }\` when: [t0] cast to sdk json then: it emits NotResource and no Resource 1`] = `
+{
+  "Action": "ssm:GetParameter*",
+  "Effect": "Deny",
+  "NotResource": "arn:aws:ssm:*:*:parameter/*/svc-*/database/role/cicd/scope=plan/*",
+  "Sid": "DenyNonPlanSsmParameters",
+}
+`;
+
+exports[`castFromDeclaredAwsIamPolicyStatement given: [case3] an action exclusion \`{ exclude }\` when: [t0] cast to sdk json then: it emits NotAction and no Action 1`] = `
+{
+  "Effect": "Deny",
+  "NotAction": "s3:DeleteObject",
+  "Resource": "*",
+}
+`;
+
+exports[`castFromDeclaredAwsIamPolicyStatement given: [case4] a principal exclusion \`{ exclude }\` when: [t0] cast to sdk json then: it emits NotPrincipal and no Principal 1`] = `
+{
+  "Action": "s3:GetObject",
+  "Effect": "Deny",
+  "NotPrincipal": {
+    "AWS": "arn:aws:iam::123456789012:root",
+  },
+  "Resource": "*",
+}
+`;
+
+exports[`castFromDeclaredAwsIamPolicyStatement given: [case5] the explicit \`{ include }\` form (same as bare) when: [t0] a resource \`{ include }\` is cast then: it emits Resource, no NotResource 1`] = `
+{
+  "Action": [
+    "s3:GetObject",
+    "s3:PutObject",
+  ],
+  "Effect": "Allow",
+  "Resource": "*",
+}
+`;
+
+exports[`castFromDeclaredAwsIamPolicyStatement given: [case5] the explicit \`{ include }\` form (same as bare) when: [t1] a principal \`{ include }\` is cast then: it emits Principal, no NotPrincipal 1`] = `
+{
+  "Action": "sts:AssumeRole",
+  "Effect": "Allow",
+  "Principal": {
+    "Service": "lambda.amazonaws.com",
+  },
+}
+`;
+
+exports[`castFromDeclaredAwsIamPolicyStatement given: [case6] a bare principal shorthand \`{ service }\` when: [t0] cast to sdk json then: it emits Principal (bare = include) 1`] = `
+{
+  "Action": "sts:AssumeRole",
+  "Effect": "Allow",
+  "Principal": {
+    "Service": "lambda.amazonaws.com",
+  },
+}
+`;
+
+exports[`castFromDeclaredAwsIamPolicyStatement given: [case7] an empty exclusion when: [t0] resource \`{ exclude: [] }\` is cast then: it fails fast with a helpful message 1`] = `
+"BadRequestError: iam policy statement "resource" has an empty { exclude } exclusion
+
+{
+  "field": "resource",
+  "value": {
+    "exclude": []
+  }
+}"
+`;
+
+exports[`castFromDeclaredAwsIamPolicyStatement given: [case7] an empty exclusion when: [t1] action \`{ exclude: "" }\` is cast then: it fails fast 1`] = `
+"BadRequestError: iam policy statement "action" has an empty { exclude } exclusion
+
+{
+  "field": "action",
+  "value": {
+    "exclude": ""
+  }
+}"
+`;
+
+exports[`castFromDeclaredAwsIamPolicyStatement given: [case7] an empty exclusion when: [t2] principal \`{ exclude: {} }\` (empty principal) is cast then: it fails fast 1`] = `
+"BadRequestError: iam policy statement "principal" has an empty { exclude } exclusion
+
+{
+  "principal": {
+    "exclude": {}
+  }
+}"
+`;
+
+exports[`castFromDeclaredAwsIamPolicyStatement given: [case8] a scope that sets both \`include\` and \`exclude\` when: [t0] a resource sets both then: it fails fast (AWS forbids both Resource and NotResource) 1`] = `
+"BadRequestError: iam policy statement "resource" scope sets both "include" and "exclude"
+
+{
+  "field": "resource",
+  "value": {
+    "include": "arn:aws:s3:::a/*",
+    "exclude": "arn:aws:s3:::b/*"
+  }
+}"
+`;
+
+exports[`castFromDeclaredAwsIamPolicyStatement given: [case8] a scope that sets both \`include\` and \`exclude\` when: [t1] a principal sets both then: it fails fast (AWS forbids both Principal and NotPrincipal) 1`] = `
+"BadRequestError: iam policy statement "principal" scope sets both "include" and "exclude"
+
+{
+  "principal": {
+    "include": {
+      "service": "lambda.amazonaws.com"
+    },
+    "exclude": {
+      "aws": "arn:aws:iam::123456789012:root"
+    }
+  }
+}"
+`;
+
+exports[`castFromDeclaredAwsIamPolicyStatement given: [case8] a scope that sets both \`include\` and \`exclude\` when: [t2] an action sets both then: it fails fast (AWS forbids both Action and NotAction) 1`] = `
+"BadRequestError: iam policy statement "action" scope sets both "include" and "exclude"
+
+{
+  "field": "action",
+  "value": {
+    "include": "s3:GetObject",
+    "exclude": "s3:DeleteObject"
+  }
+}"
+`;
+
+exports[`castFromDeclaredAwsIamPolicyStatement given: [case9] a statement with \`{ exclude }\` on each element when: [t0] round-trip: cast to sdk then back to domain then: the domain statement is preserved exactly 1`] = `
+{
+  "back": DeclaredAwsIamPolicyStatement {
+    "action": DeclaredAwsIamStatementScope {
+      "exclude": [
+        "s3:DeleteObject",
+        "s3:DeleteBucket",
+      ],
+    },
+    "condition": undefined,
+    "effect": "Deny",
+    "principal": DeclaredAwsIamPrincipalScope {
+      "exclude": DeclaredAwsIamPrincipal {
+        "service": "lambda.amazonaws.com",
+      },
+      "include": undefined,
+    },
+    "resource": DeclaredAwsIamStatementScope {
+      "exclude": "arn:aws:s3:::keepme/*",
+    },
+  },
+  "wire": {
+    "Action": undefined,
+    "Condition": undefined,
+    "Effect": "Deny",
+    "NotAction": [
+      "s3:DeleteObject",
+      "s3:DeleteBucket",
+    ],
+    "NotPrincipal": {
+      "Service": "lambda.amazonaws.com",
+    },
+    "NotResource": "arn:aws:s3:::keepme/*",
+    "Principal": undefined,
+    "Resource": undefined,
+    "Sid": undefined,
+  },
+}
+`;
+
+exports[`castFromDeclaredAwsIamPolicyStatement given: [case10] a raw sdk statement with a nonsensical NotPrincipal of "*" when: [t0] read back into domain then: the sdk-object read cast fails fast 1`] = `
+"BadRequestError: NotPrincipal must exclude a concrete principal, not "*" or empty
+
+{
+  "raw": "*"
+}"
+`;
+
+exports[`castFromDeclaredAwsIamPolicyStatement given: [case11] a malformed raw sdk statement with both a positive and its \`Not\` when: [t0] both Resource and NotResource are present then: the sdk-object read cast fails fast 1`] = `
+"BadRequestError: iam policy statement has both "Resource" and "NotResource"
+
+{
+  "stmt": {
+    "Effect": "Deny",
+    "Action": "s3:GetObject",
+    "Resource": "arn:aws:s3:::a/*",
+    "NotResource": "arn:aws:s3:::b/*"
+  }
+}"
+`;
+
+exports[`castFromDeclaredAwsIamPolicyStatement given: [case11] a malformed raw sdk statement with both a positive and its \`Not\` when: [t1] both Action and NotAction are present then: the sdk-object read cast fails fast 1`] = `
+"BadRequestError: iam policy statement has both "Action" and "NotAction"
+
+{
+  "stmt": {
+    "Effect": "Deny",
+    "Action": "s3:GetObject",
+    "NotAction": "s3:DeleteObject",
+    "Resource": "*"
+  }
+}"
+`;
+
+exports[`castFromDeclaredAwsIamPolicyStatement given: [case11] a malformed raw sdk statement with both a positive and its \`Not\` when: [t2] both Principal and NotPrincipal are present then: the sdk-object read cast fails fast 1`] = `
+"BadRequestError: iam policy statement has both "Principal" and "NotPrincipal"
+
+{
+  "stmt": {
+    "Effect": "Deny",
+    "Principal": {
+      "AWS": "arn:aws:iam::111111111111:root"
+    },
+    "NotPrincipal": {
+      "AWS": "arn:aws:iam::999999999999:root"
+    },
+    "Action": "s3:GetObject",
+    "Resource": "*"
+  }
+}"
+`;
