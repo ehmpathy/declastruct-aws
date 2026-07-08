@@ -1,4 +1,5 @@
 import { keyrack } from 'rhachet/keyrack';
+import { genLogMethods } from 'sdk-logs';
 
 import {
   delEc2Instance,
@@ -6,7 +7,7 @@ import {
   getDeclastructAwsProvider,
 } from '../../../src/contract/sdks';
 
-const log = console;
+const log = genLogMethods();
 
 /**
  * .what = prunes an EC2 instance + launch template pair from the demo account
