@@ -113,7 +113,8 @@
     "test-fns": "1.7.2",
     "tsc-alias": "1.8.10",
     "tsx": "4.20.6",
-    "typescript": "5.4.5"
+    "typescript": "5.4.5",
+    "yalc": "1.0.0-pre.53"
   },
   "config": {
     "commitizen": {
