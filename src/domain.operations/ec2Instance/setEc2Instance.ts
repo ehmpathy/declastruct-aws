@@ -187,10 +187,18 @@ export const setEc2Instance = async (
     }),
   );
 
-  // build tags for the instance (include templateExid for idempotency)
+  // build tags for the instance (include templateExid + publicIpEnabled for idempotency)
+  // note: publicIpEnabled is recorded as a tag because AWS releases an auto-assigned
+  //   public ip when the instance stops, so the runtime read (`!!PublicIpAddress`)
+  //   cannot recover the launch intent for a stopped box — the tag keeps it stable so
+  //   plan/apply converge to KEEP (see castIntoDeclaredAwsEc2Instance)
   const instanceTags = [
     { Key: 'exid', Value: instance.exid },
     { Key: 'templateExid', Value: launchTemplate.exid },
+    {
+      Key: 'publicIpEnabled',
+      Value: String(instance.network.interface.publicIpEnabled),
+    },
     ...(instance.tags
       ? Object.entries(instance.tags).map(([Key, Value]) => ({ Key, Value }))
       : []),
