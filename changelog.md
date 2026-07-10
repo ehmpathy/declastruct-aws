@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.1](https://github.com/ehmpathy/declastruct-aws/compare/v1.7.0...v1.7.1) (2026-07-10)
+
+
+### Bug Fixes
+
+* **iam:** support resource/action/principal include+exclude via Scope ([#60](https://github.com/ehmpathy/declastruct-aws/issues/60)) ([11749f7](https://github.com/ehmpathy/declastruct-aws/commit/11749f7ef781439902c892ed4dfb4217796edd16))
+
 ## [1.7.0](https://github.com/ehmpathy/declastruct-aws/compare/v1.6.0...v1.7.0) (2026-07-06)
 
 
