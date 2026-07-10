@@ -191,11 +191,16 @@ describe('declastruct CLI workflow', () => {
 
       then('plan structure matches snapshot', () => {
         /**
-         * .what = snapshots the plan structure for PR vibecheck
+         * .what = snapshots the plan STRUCTURE (which resources) for PR vibecheck
          * .why = enables reviewers to see plan output without execution
+         * .note = intentionally omits `action` — the FIRST plan runs before apply, so
+         *   each resource's action depends on the live account state (absent -> CREATE,
+         *   extant -> KEEP), which is not deterministic across cold/warm/self-stopped
+         *   accounts. action correctness is verified deterministically by the post-apply
+         *   idempotency snapshot below (every change must be KEEP). here we snapshot only
+         *   the stable structure so the vibecheck never flakes on account state.
          */
-        const planSummary = prep.plan.changes.map((change) => ({
-          action: change.action,
+        const planStructure = prep.plan.changes.map((change) => ({
           class: change.forResource.class,
           // mask time-based slugs and their hashes to prevent daily snapshot drift
           slug: (() => {
@@ -208,8 +213,8 @@ describe('declastruct CLI workflow', () => {
         }));
 
         // explicit assertions alongside snapshot
-        expect(planSummary.length).toBeGreaterThan(0);
-        expect(planSummary).toMatchSnapshot();
+        expect(planStructure.length).toBeGreaterThan(0);
+        expect(planStructure).toMatchSnapshot();
       });
 
       then('plan includes VPC infrastructure resources', () => {
