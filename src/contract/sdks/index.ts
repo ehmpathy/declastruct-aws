@@ -58,13 +58,13 @@ export { DeclaredAwsIamOidcProvider } from '@src/domain.objects/DeclaredAwsIamOi
 export { DeclaredAwsIamPolicy } from '@src/domain.objects/DeclaredAwsIamPolicy';
 export { DeclaredAwsIamPolicyBundle } from '@src/domain.objects/DeclaredAwsIamPolicyBundle';
 export { DeclaredAwsIamPolicyDocument } from '@src/domain.objects/DeclaredAwsIamPolicyDocument';
-export {
-  DeclaredAwsIamPolicyStatement,
-  DeclaredAwsIamPrincipal,
-} from '@src/domain.objects/DeclaredAwsIamPolicyStatement';
+export { DeclaredAwsIamPolicyStatement } from '@src/domain.objects/DeclaredAwsIamPolicyStatement';
+export { DeclaredAwsIamPrincipal } from '@src/domain.objects/DeclaredAwsIamPrincipal';
+export { DeclaredAwsIamPrincipalScope } from '@src/domain.objects/DeclaredAwsIamPrincipalScope';
 export { DeclaredAwsIamRole } from '@src/domain.objects/DeclaredAwsIamRole';
 export { DeclaredAwsIamRolePolicyAttachedInline } from '@src/domain.objects/DeclaredAwsIamRolePolicyAttachedInline';
 export { DeclaredAwsIamRolePolicyAttachedManaged } from '@src/domain.objects/DeclaredAwsIamRolePolicyAttachedManaged';
+export { DeclaredAwsIamStatementScope } from '@src/domain.objects/DeclaredAwsIamStatementScope';
 export { DeclaredAwsIamUser } from '@src/domain.objects/DeclaredAwsIamUser';
 export { DeclaredAwsIamUserAccessKey } from '@src/domain.objects/DeclaredAwsIamUserAccessKey';
 export { DeclaredAwsLambda } from '@src/domain.objects/DeclaredAwsLambda';

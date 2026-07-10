@@ -19,6 +19,7 @@ import { getEc2LaunchTemplate } from '../ec2LaunchTemplate/getEc2LaunchTemplate'
 import { getOneVpcSecurityGroup } from '../vpcSecurityGroup/getOneVpcSecurityGroup';
 import { getOneVpcSubnet } from '../vpcSubnet/getOneVpcSubnet';
 import { getEc2Instance } from './getEc2Instance';
+import { getEc2InstanceImmutableDrift } from './getEc2InstanceImmutableDrift';
 
 /**
  * .what = sets an EC2 instance in AWS
@@ -50,13 +51,56 @@ export const setEc2Instance = async (
   // if findsert and found, return extant
   if (input.findsert && instanceFound) return instanceFound;
 
-  // if upsert and found, EC2 instances cannot be updated in place
-  // .note = EC2 instances are immutable — must terminate and recreate for changes
-  if (input.upsert && instanceFound)
-    return UnexpectedCodePathError.throw(
-      'EC2 instance upsert not supported — instances are immutable; terminate and recreate for changes',
-      { instance, instanceFound },
+  // if upsert and found, reconcile the mutable attributes in place. an EC2 instance is
+  // immutable in most attributes (template, subnet, security groups, public-ip
+  // association) — those require a terminate + recreate. but sourceDestCheck IS mutable
+  // (ModifyInstanceAttribute changes it on a live instance), so a drift on it must
+  // converge in place rather than dead-end the apply — see rule.require.guaranteed-idempotency.
+  if (input.upsert && instanceFound) {
+    // fail loud only when a truly-immutable attribute differs (recreate required)
+    const immutableDrift = getEc2InstanceImmutableDrift({
+      found: instanceFound,
+      desired: instance,
+    });
+    if (immutableDrift.length)
+      return UnexpectedCodePathError.throw(
+        'EC2 instance upsert not supported for immutable attributes; terminate and recreate for changes',
+        { instance, instanceFound, immutableDrift },
+      );
+
+    // failfast if the extant instance lacks an id (cannot reconcile without it)
+    if (!instanceFound.id)
+      UnexpectedCodePathError.throw(
+        'extant EC2 instance lacks an id; cannot reconcile',
+        { instanceFound },
+      );
+
+    // reconcile the mutable source/dest check in place if it drifted
+    if (
+      instanceFound.network.interface.sourceDestChecked !==
+      instance.network.interface.sourceDestChecked
+    )
+      await ec2.send(
+        new ModifyInstanceAttributeCommand({
+          InstanceId: instanceFound.id,
+          SourceDestCheck: {
+            Value: instance.network.interface.sourceDestChecked,
+          },
+        }),
+      );
+
+    // re-get and return the reconciled instance so the plan converges to KEEP
+    const reconciled = await getEc2Instance(
+      { by: { primary: { id: instanceFound.id } } },
+      context,
     );
+    if (!reconciled)
+      return UnexpectedCodePathError.throw(
+        'reconciled EC2 instance not found after modify',
+        { instanceFound },
+      );
+    return reconciled;
+  }
 
   // lookup launch template from ref
   const launchTemplate = await (async (): Promise<{
@@ -143,10 +187,18 @@ export const setEc2Instance = async (
     }),
   );
 
-  // build tags for the instance (include templateExid for idempotency)
+  // build tags for the instance (include templateExid + publicIpEnabled for idempotency)
+  // note: publicIpEnabled is recorded as a tag because AWS releases an auto-assigned
+  //   public ip when the instance stops, so the runtime read (`!!PublicIpAddress`)
+  //   cannot recover the launch intent for a stopped box — the tag keeps it stable so
+  //   plan/apply converge to KEEP (see castIntoDeclaredAwsEc2Instance)
   const instanceTags = [
     { Key: 'exid', Value: instance.exid },
     { Key: 'templateExid', Value: launchTemplate.exid },
+    {
+      Key: 'publicIpEnabled',
+      Value: String(instance.network.interface.publicIpEnabled),
+    },
     ...(instance.tags
       ? Object.entries(instance.tags).map(([Key, Value]) => ({ Key, Value }))
       : []),

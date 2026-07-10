@@ -275,6 +275,17 @@ export const getResources = async () => {
           ],
           resource: '*',
         },
+        // exercises the { exclude } scope -> NotResource serialize + round-trip;
+        // harmless to the lambda (it uses no ssm), but proves the deny-all-except idiom
+        {
+          sid: 'DenyNonPlanSsmParameters',
+          effect: 'Deny',
+          action: 'ssm:GetParameter*',
+          resource: {
+            exclude:
+              'arn:aws:ssm:*:*:parameter/declastruct-acceptance/scope=plan/*',
+          },
+        },
       ],
     },
   });

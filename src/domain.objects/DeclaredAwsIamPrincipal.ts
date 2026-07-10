@@ -1,4 +1,5 @@
 import { DomainLiteral } from 'domain-objects';
+import { z } from 'zod';
 
 /**
  * .what = principal specification for trust policies
@@ -27,4 +28,20 @@ export interface DeclaredAwsIamPrincipal {
 
 export class DeclaredAwsIamPrincipal
   extends DomainLiteral<DeclaredAwsIamPrincipal>
-  implements DeclaredAwsIamPrincipal {}
+  implements DeclaredAwsIamPrincipal
+{
+  /**
+   * .what = a strict schema for a principal (each key optional, no unknown keys)
+   * .why = a strict (closed) schema lets domain-objects structurally disambiguate this
+   *   from a `DeclaredAwsIamPrincipalScope` when both are nested options on a statement's
+   *   `principal` field — the two shapes share no keys, so try-each-option settles them
+   *   with no `_dobj` discriminator (see the nested-union brief)
+   */
+  public static schema = z
+    .object({
+      aws: z.union([z.string(), z.array(z.string())]).optional(),
+      service: z.union([z.string(), z.array(z.string())]).optional(),
+      federated: z.union([z.string(), z.array(z.string())]).optional(),
+    })
+    .strict();
+}

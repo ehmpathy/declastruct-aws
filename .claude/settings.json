@@ -190,8 +190,7 @@
       "Bash(gh search prs:*)",
       "Bash(gh search commits:*)",
       "Bash(gh api -X GET:*)",
-      "Bash(gh api --method GET:*)",
-      "Bash(source .agent/repo=.this/role=any/skills/use.apikeys.sh)"
+      "Bash(gh api --method GET:*)"
     ],
     "deny": [
       "Bash(bash:*)",
@@ -350,6 +349,12 @@
             "command": "./node_modules/.bin/rhachet run --repo ehmpathy --role mechanic --init claude.hooks/pretooluse.forbid-test-background",
             "timeout": 5,
             "author": "repo=ehmpathy/role=mechanic"
+          },
+          {
+            "type": "command",
+            "command": "./node_modules/.bin/rhx route.foreground.guard --mode hook",
+            "timeout": 5,
+            "author": "repo=bhrain/role=driver"
           }
         ]
       },
@@ -383,6 +388,17 @@
             "command": "./node_modules/.bin/rhachet run --repo ehmpathy --role mechanic --init claude.hooks/posttooluse.guardBorder.onWebfetch",
             "timeout": 60,
             "author": "repo=ehmpathy/role=mechanic"
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./node_modules/.bin/rhx memory.guard --mode hook",
+            "timeout": 5,
+            "author": "repo=bhrain/role=learner"
           }
         ]
       }
@@ -499,6 +515,12 @@
             "command": "./node_modules/.bin/rhachet roles boot --repo ghlitch --role operator",
             "timeout": 60,
             "author": "repo=ghlitch/role=operator"
+          },
+          {
+            "type": "command",
+            "command": "./node_modules/.bin/rhachet roles boot --role librarian",
+            "timeout": 30,
+            "author": "repo=bhrain/role=librarian"
           }
         ]
       },

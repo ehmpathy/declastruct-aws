@@ -12,6 +12,7 @@ ignores:
   - rhachet-brains-anthropic
   - rhachet-brains-fireworksai
   - rhachet-brains-xai
+  - rhachet-brains-fireworksai
   - rhachet-roles-bhrain
   - rhachet-roles-bhuild
   - rhachet-roles-ehmpathy
@@ -29,6 +30,9 @@ ignores:
   - "@src/*"
   - "@src/.*"
   - tsc-alias
+  # referenced only in jest testMatch exclusions ('!**/.yalc/**'), never imported —
+  # depcheck cannot see that usage, so it must be ignored explicitly
+  - yalc
 ignorePatterns:
   # rmsafe soft-deletes files into this cache; stale trashed files must not be
   # scanned for deps (e.g. a removed file that still imported simple-log-methods)

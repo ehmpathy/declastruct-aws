@@ -217,32 +217,68 @@ describe('ec2Instance.journey', () => {
       });
     });
 
-    when('[t2] upsert on extant instance', () => {
-      then('throws error (instances are immutable)', async () => {
-        const { context } = scene;
+    when(
+      '[t2] upsert on extant instance with identical immutable config',
+      () => {
+        then(
+          'succeeds idempotently (no immutable drift to recreate)',
+          async () => {
+            const { context } = scene;
 
-        // ensure instance exists
-        await setEc2Instance({ findsert: testInstance }, context);
+            // ensure instance exists
+            const found = await setEc2Instance(
+              { findsert: testInstance },
+              context,
+            );
 
-        // upsert should throw
-        await expect(
-          setEc2Instance(
-            {
-              upsert: {
-                ...testInstance,
-                network: {
-                  ...testInstance.network,
-                  subnet: {
-                    exid: 'declastruct-acceptance-subnet-private-1a',
-                  }, // same config
+            // upsert with the same immutable config must reconcile in place, not throw —
+            // there is no immutable drift, so a re-apply converges to KEEP
+            // (see rule.require.guaranteed-idempotency)
+            const reconciled = await setEc2Instance(
+              { upsert: testInstance },
+              context,
+            );
+
+            expect(reconciled.id).toBe(found.id);
+            expect(reconciled.exid).toBe(testExid);
+          },
+        );
+      },
+    );
+
+    when(
+      '[t3] upsert on extant instance with a changed immutable attribute',
+      () => {
+        then(
+          'throws (immutable attributes require terminate + recreate)',
+          async () => {
+            const { context } = scene;
+
+            // ensure instance exists (on the private subnet)
+            await setEc2Instance({ findsert: testInstance }, context);
+
+            // upsert that moves the instance to a DIFFERENT subnet is genuine immutable
+            // drift — the set op must fail loud rather than pretend to reconcile
+            await expect(
+              setEc2Instance(
+                {
+                  upsert: {
+                    ...testInstance,
+                    network: {
+                      ...testInstance.network,
+                      subnet: {
+                        exid: 'declastruct-acceptance-subnet-public-1a', // different subnet
+                      },
+                    },
+                  },
                 },
-              },
-            },
-            context,
-          ),
-        ).rejects.toThrow(/upsert not supported/);
-      });
-    });
+                context,
+              ),
+            ).rejects.toThrow(/upsert not supported/);
+          },
+        );
+      },
+    );
   });
 
   given('[case3] template reference variants', () => {

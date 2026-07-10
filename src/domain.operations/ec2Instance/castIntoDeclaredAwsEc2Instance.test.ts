@@ -259,6 +259,129 @@ describe('castIntoDeclaredAwsEc2Instance', () => {
     });
   });
 
+  given(
+    'a self-stopped instance launched with a public ip (tag=true, no live PublicIpAddress)',
+    () => {
+      const awsInstance: Instance = {
+        InstanceId: 'i-nat-stopped',
+        Tags: [
+          { Key: 'exid', Value: 'nat-instance' },
+          { Key: 'publicIpEnabled', Value: 'true' },
+        ],
+        State: { Name: 'stopped' },
+        PrivateIpAddress: '10.0.1.9',
+        // no PublicIpAddress — AWS released it when the instance stopped
+      };
+
+      when('cast to domain object', () => {
+        then(
+          'publicIpEnabled reads true from the tag (not the absent runtime ip)',
+          () => {
+            const result = castIntoDeclaredAwsEc2Instance({
+              instance: awsInstance,
+              subnetExid: 'public-subnet',
+              securityGroupExids: ['nat-sg'],
+              templateExid: null,
+            });
+            expect(result.network.interface.publicIpEnabled).toBe(true);
+            expect(result.network.interface.publicIp).toBeNull();
+          },
+        );
+
+        then('the publicIpEnabled tag is excluded from user tags', () => {
+          const result = castIntoDeclaredAwsEc2Instance({
+            instance: awsInstance,
+            subnetExid: 'public-subnet',
+            securityGroupExids: ['nat-sg'],
+            templateExid: null,
+          });
+          expect(result.tags).toBeNull();
+        });
+      });
+    },
+  );
+
+  given('a stopped instance with publicIpEnabled tag=false', () => {
+    const awsInstance: Instance = {
+      InstanceId: 'i-private',
+      Tags: [
+        { Key: 'exid', Value: 'private-instance' },
+        { Key: 'publicIpEnabled', Value: 'false' },
+      ],
+      State: { Name: 'stopped' },
+      PrivateIpAddress: '10.0.2.9',
+    };
+
+    when('cast to domain object', () => {
+      then('publicIpEnabled reads false from the tag', () => {
+        const result = castIntoDeclaredAwsEc2Instance({
+          instance: awsInstance,
+          subnetExid: 'private-subnet',
+          securityGroupExids: [],
+          templateExid: null,
+        });
+        expect(result.network.interface.publicIpEnabled).toBe(false);
+      });
+    });
+  });
+
+  given(
+    'a RUNNING instance whose public ip was removed out of band (tag=true, no live ip)',
+    () => {
+      const awsInstance: Instance = {
+        InstanceId: 'i-drifted',
+        Tags: [
+          { Key: 'exid', Value: 'drifted-instance' },
+          { Key: 'publicIpEnabled', Value: 'true' },
+        ],
+        State: { Name: 'running' },
+        PrivateIpAddress: '10.0.1.9',
+        // no live PublicIpAddress despite tag=true — an out-of-band change
+      };
+
+      when('cast to domain object', () => {
+        then(
+          'publicIpEnabled reads the live value (false), not the stale tag',
+          () => {
+            const result = castIntoDeclaredAwsEc2Instance({
+              instance: awsInstance,
+              subnetExid: 'public-subnet',
+              securityGroupExids: [],
+              templateExid: null,
+            });
+            // running => live value is authoritative, so drift is caught not masked
+            expect(result.network.interface.publicIpEnabled).toBe(false);
+          },
+        );
+      });
+    },
+  );
+
+  given(
+    'a RUNNING instance with a live public ip (source of truth, tag absent)',
+    () => {
+      const awsInstance: Instance = {
+        InstanceId: 'i-live',
+        Tags: [{ Key: 'exid', Value: 'live-instance' }],
+        State: { Name: 'running' },
+        PrivateIpAddress: '10.0.1.9',
+        PublicIpAddress: '52.0.0.9',
+      };
+
+      when('cast to domain object', () => {
+        then('publicIpEnabled reads true from the live ip', () => {
+          const result = castIntoDeclaredAwsEc2Instance({
+            instance: awsInstance,
+            subnetExid: 'public-subnet',
+            securityGroupExids: [],
+            templateExid: null,
+          });
+          expect(result.network.interface.publicIpEnabled).toBe(true);
+        });
+      });
+    },
+  );
+
   given('an AWS Instance with templateExid tag', () => {
     const awsInstance: Instance = {
       InstanceId: 'i-withtmpl',
