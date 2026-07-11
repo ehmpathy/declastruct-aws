@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.3](https://github.com/ehmpathy/declastruct-aws/compare/v1.7.2...v1.7.3) (2026-07-11)
+
+
+### Bug Fixes
+
+* **cicd:** pin npm publish to major (npm@11), drop the .npm-version file ([#64](https://github.com/ehmpathy/declastruct-aws/issues/64)) ([3e9bfc6](https://github.com/ehmpathy/declastruct-aws/commit/3e9bfc6846ec76dc196886e1cda5316915bfcf66))
+
 ## [1.7.2](https://github.com/ehmpathy/declastruct-aws/compare/v1.7.1...v1.7.2) (2026-07-11)
 
 
