@@ -45,19 +45,20 @@ jobs:
 
       - name: verify oidc compat
         run: |
-          # oidc publish requires npm >= 11.5.1; pin the EXACT npm version rather
-          # than float npm@latest. npm@latest rolled to npm@12+, which raises its
-          # node engine floor above the node pinned in .nvmrc (22.21.0) and breaks
-          # this step with EBADENGINE. read the pin from .npm-version, the single
-          # source of truth for npm (mirrors .nvmrc for node), so it lives in one
-          # place. (packageManager in package.json is unusable here — pnpm's
-          # action-setup reads that field and would reject a non-pnpm value.)
-          NPM_VERSION_PINNED=$(cat .npm-version | tr -d '[:space:]')
-          if [ "$(npm --version)" != "$NPM_VERSION_PINNED" ]; then
-            echo "npm $(npm --version) != $NPM_VERSION_PINNED, will install pinned npm now..."
-            npm install -g "npm@$NPM_VERSION_PINNED"
+          # oidc publish requires npm >= 11.5.1, but the node pinned in .nvmrc
+          # (22.21.0) ships an older bundled npm, so we upgrade npm here. pin the
+          # MAJOR (npm@11) rather than float npm@latest: npm@latest rolled to
+          # npm@12, whose node engine floor (^22.22.2 || ^24.15.0 || >=26.0.0)
+          # rejects the pinned node with EBADENGINE. every npm 11.x supports oidc
+          # (>=11.5.1) and needs only node >=22.9.0, so it stays compatible with
+          # the pinned node while it still lands the newest 11.x patch.
+          NPM_VERSION=$(npm --version)
+          MIN_VERSION="11.5.1"
+          if [ "$(printf '%s\n' "$MIN_VERSION" "$NPM_VERSION" | sort -V | head -n1)" != "$MIN_VERSION" ]; then
+            echo "npm $NPM_VERSION < $MIN_VERSION, will upgrade npm to the latest 11.x for oidc..."
+            npm install -g npm@11
           else
-            echo "npm $NPM_VERSION_PINNED already installed, ready to use!"
+            echo "npm $NPM_VERSION >= $MIN_VERSION, ready to use!"
           fi
 
       - name: build
