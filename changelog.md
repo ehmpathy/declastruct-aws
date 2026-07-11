@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.2](https://github.com/ehmpathy/declastruct-aws/compare/v1.7.1...v1.7.2) (2026-07-11)
+
+
+### Bug Fixes
+
+* **cicd:** pin npm publish version via .npm-version to survive npm@12 engine bump ([#62](https://github.com/ehmpathy/declastruct-aws/issues/62)) ([abc1263](https://github.com/ehmpathy/declastruct-aws/commit/abc1263706d658dfec35ebcd80fde39e8c95d907))
+
 ## [1.7.1](https://github.com/ehmpathy/declastruct-aws/compare/v1.7.0...v1.7.1) (2026-07-10)
 
 
