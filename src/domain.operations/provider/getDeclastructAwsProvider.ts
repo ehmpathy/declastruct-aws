@@ -6,6 +6,15 @@ import * as os from 'os';
 import * as path from 'path';
 import type { ContextLogTrail } from 'sdk-logs';
 
+import { DeclaredAwsBudgetActionDao } from '@src/access/daos/DeclaredAwsBudgetActionDao';
+import { DeclaredAwsBudgetDao } from '@src/access/daos/DeclaredAwsBudgetDao';
+import { DeclaredAwsBudgetNotificationDao } from '@src/access/daos/DeclaredAwsBudgetNotificationDao';
+import { DeclaredAwsCloudwatchLogGroupDao } from '@src/access/daos/DeclaredAwsCloudwatchLogGroupDao';
+import { DeclaredAwsCloudwatchLogGroupReportCostOfIngestionDao } from '@src/access/daos/DeclaredAwsCloudwatchLogGroupReportCostOfIngestionDao';
+import { DeclaredAwsCloudwatchLogGroupReportDistOfPatternDao } from '@src/access/daos/DeclaredAwsCloudwatchLogGroupReportDistOfPatternDao';
+import { DeclaredAwsCloudwatchMetricAlarmDao } from '@src/access/daos/DeclaredAwsCloudwatchMetricAlarmDao';
+import { DeclaredAwsCostAnomalyMonitorDao } from '@src/access/daos/DeclaredAwsCostAnomalyMonitorDao';
+import { DeclaredAwsCostAnomalySubscriptionDao } from '@src/access/daos/DeclaredAwsCostAnomalySubscriptionDao';
 import { DeclaredAwsEc2InstanceDao } from '@src/access/daos/DeclaredAwsEc2InstanceDao';
 import { DeclaredAwsEc2InstanceSessionDao } from '@src/access/daos/DeclaredAwsEc2InstanceSessionDao';
 import { DeclaredAwsEc2LaunchTemplateDao } from '@src/access/daos/DeclaredAwsEc2LaunchTemplateDao';
@@ -17,9 +26,6 @@ import { DeclaredAwsIamRolePolicyAttachedInlineDao } from '@src/access/daos/Decl
 import { DeclaredAwsLambdaAliasDao } from '@src/access/daos/DeclaredAwsLambdaAliasDao';
 import { DeclaredAwsLambdaDao } from '@src/access/daos/DeclaredAwsLambdaDao';
 import { DeclaredAwsLambdaVersionDao } from '@src/access/daos/DeclaredAwsLambdaVersionDao';
-import { DeclaredAwsLogGroupDao } from '@src/access/daos/DeclaredAwsLogGroupDao';
-import { DeclaredAwsLogGroupReportCostOfIngestionDao } from '@src/access/daos/DeclaredAwsLogGroupReportCostOfIngestionDao';
-import { DeclaredAwsLogGroupReportDistOfPatternDao } from '@src/access/daos/DeclaredAwsLogGroupReportDistOfPatternDao';
 import { DeclaredAwsOrganizationAccountDao } from '@src/access/daos/DeclaredAwsOrganizationAccountDao';
 import { DeclaredAwsOrganizationDao } from '@src/access/daos/DeclaredAwsOrganizationDao';
 import { DeclaredAwsOrganizationPolicyEligibilityDao } from '@src/access/daos/DeclaredAwsOrganizationPolicyEligibilityDao';
@@ -100,6 +106,11 @@ export const getDeclastructAwsProvider = async (
 
   // assemble DAOs for all aws resource types
   const daos = {
+    DeclaredAwsBudget: DeclaredAwsBudgetDao,
+    DeclaredAwsBudgetNotification: DeclaredAwsBudgetNotificationDao,
+    DeclaredAwsBudgetAction: DeclaredAwsBudgetActionDao,
+    DeclaredAwsCostAnomalyMonitor: DeclaredAwsCostAnomalyMonitorDao,
+    DeclaredAwsCostAnomalySubscription: DeclaredAwsCostAnomalySubscriptionDao,
     DeclaredAwsEc2Instance: DeclaredAwsEc2InstanceDao,
     DeclaredAwsEc2InstanceSession: DeclaredAwsEc2InstanceSessionDao,
     DeclaredAwsEc2LaunchTemplate: DeclaredAwsEc2LaunchTemplateDao,
@@ -110,11 +121,12 @@ export const getDeclastructAwsProvider = async (
     DeclaredAwsLambda: DeclaredAwsLambdaDao,
     DeclaredAwsLambdaAlias: DeclaredAwsLambdaAliasDao,
     DeclaredAwsLambdaVersion: DeclaredAwsLambdaVersionDao,
-    DeclaredAwsLogGroup: DeclaredAwsLogGroupDao,
-    DeclaredAwsLogGroupReportDistOfPattern:
-      DeclaredAwsLogGroupReportDistOfPatternDao,
-    DeclaredAwsLogGroupReportCostOfIngestion:
-      DeclaredAwsLogGroupReportCostOfIngestionDao,
+    DeclaredAwsCloudwatchLogGroup: DeclaredAwsCloudwatchLogGroupDao,
+    DeclaredAwsCloudwatchLogGroupReportDistOfPattern:
+      DeclaredAwsCloudwatchLogGroupReportDistOfPatternDao,
+    DeclaredAwsCloudwatchLogGroupReportCostOfIngestion:
+      DeclaredAwsCloudwatchLogGroupReportCostOfIngestionDao,
+    DeclaredAwsCloudwatchMetricAlarm: DeclaredAwsCloudwatchMetricAlarmDao,
     DeclaredAwsOrganization: DeclaredAwsOrganizationDao,
     DeclaredAwsOrganizationAccount: DeclaredAwsOrganizationAccountDao,
     DeclaredAwsOrganizationPolicyEligibility:

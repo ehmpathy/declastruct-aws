@@ -3,6 +3,15 @@
  * .why = enables consumers to use the declastruct provider interface and domain objects
  */
 
+export { DeclaredAwsBudgetActionDao } from '@src/access/daos/DeclaredAwsBudgetActionDao';
+export { DeclaredAwsBudgetDao } from '@src/access/daos/DeclaredAwsBudgetDao';
+export { DeclaredAwsBudgetNotificationDao } from '@src/access/daos/DeclaredAwsBudgetNotificationDao';
+export { DeclaredAwsCloudwatchLogGroupDao } from '@src/access/daos/DeclaredAwsCloudwatchLogGroupDao';
+export { DeclaredAwsCloudwatchLogGroupReportCostOfIngestionDao } from '@src/access/daos/DeclaredAwsCloudwatchLogGroupReportCostOfIngestionDao';
+export { DeclaredAwsCloudwatchLogGroupReportDistOfPatternDao } from '@src/access/daos/DeclaredAwsCloudwatchLogGroupReportDistOfPatternDao';
+export { DeclaredAwsCloudwatchMetricAlarmDao } from '@src/access/daos/DeclaredAwsCloudwatchMetricAlarmDao';
+export { DeclaredAwsCostAnomalyMonitorDao } from '@src/access/daos/DeclaredAwsCostAnomalyMonitorDao';
+export { DeclaredAwsCostAnomalySubscriptionDao } from '@src/access/daos/DeclaredAwsCostAnomalySubscriptionDao';
 // aws daos
 export { DeclaredAwsEc2InstanceDao } from '@src/access/daos/DeclaredAwsEc2InstanceDao';
 export { DeclaredAwsEc2InstanceSessionDao } from '@src/access/daos/DeclaredAwsEc2InstanceSessionDao';
@@ -20,9 +29,6 @@ export { DeclaredAwsIamUserAccessKeyDao } from '@src/access/daos/DeclaredAwsIamU
 export { DeclaredAwsLambdaAliasDao } from '@src/access/daos/DeclaredAwsLambdaAliasDao';
 export { DeclaredAwsLambdaDao } from '@src/access/daos/DeclaredAwsLambdaDao';
 export { DeclaredAwsLambdaVersionDao } from '@src/access/daos/DeclaredAwsLambdaVersionDao';
-export { DeclaredAwsLogGroupDao } from '@src/access/daos/DeclaredAwsLogGroupDao';
-export { DeclaredAwsLogGroupReportCostOfIngestionDao } from '@src/access/daos/DeclaredAwsLogGroupReportCostOfIngestionDao';
-export { DeclaredAwsLogGroupReportDistOfPatternDao } from '@src/access/daos/DeclaredAwsLogGroupReportDistOfPatternDao';
 export { DeclaredAwsOrganizationAccountDao } from '@src/access/daos/DeclaredAwsOrganizationAccountDao';
 export { DeclaredAwsOrganizationDao } from '@src/access/daos/DeclaredAwsOrganizationDao';
 export { DeclaredAwsOrganizationPolicyEligibilityDao } from '@src/access/daos/DeclaredAwsOrganizationPolicyEligibilityDao';
@@ -43,6 +49,33 @@ export { DeclaredAwsVpcInternetGatewayDao } from '@src/access/daos/DeclaredAwsVp
 export { DeclaredAwsVpcRouteTableDao } from '@src/access/daos/DeclaredAwsVpcRouteTableDao';
 export { DeclaredAwsVpcSecurityGroupDao } from '@src/access/daos/DeclaredAwsVpcSecurityGroupDao';
 export { DeclaredAwsVpcSubnetDao } from '@src/access/daos/DeclaredAwsVpcSubnetDao';
+// aws budget domain objects
+export { DeclaredAwsBudget } from '@src/domain.objects/DeclaredAwsBudget';
+export { DeclaredAwsBudgetAction } from '@src/domain.objects/DeclaredAwsBudgetAction';
+export { DeclaredAwsBudgetActionDefinition } from '@src/domain.objects/DeclaredAwsBudgetActionDefinition';
+export { DeclaredAwsBudgetActionIam } from '@src/domain.objects/DeclaredAwsBudgetActionIam';
+export { DeclaredAwsBudgetActionScp } from '@src/domain.objects/DeclaredAwsBudgetActionScp';
+export { DeclaredAwsBudgetActionSsm } from '@src/domain.objects/DeclaredAwsBudgetActionSsm';
+export { DeclaredAwsBudgetThreshold } from '@src/domain.objects/DeclaredAwsBudgetThreshold';
+export { DeclaredAwsBudgetLimit } from '@src/domain.objects/DeclaredAwsBudgetLimit';
+export { DeclaredAwsBudgetNotification } from '@src/domain.objects/DeclaredAwsBudgetNotification';
+export { DeclaredAwsBudgetSubscriber } from '@src/domain.objects/DeclaredAwsBudgetSubscriber';
+// aws log group domain objects
+export { DeclaredAwsCloudwatchLogGroup } from '@src/domain.objects/DeclaredAwsCloudwatchLogGroup';
+export {
+  type DeclaredAwsCloudwatchLogGroupFilter,
+  DeclaredAwsCloudwatchLogGroupReportCostOfIngestion,
+  DeclaredAwsCloudwatchLogGroupReportCostOfIngestionRow,
+} from '@src/domain.objects/DeclaredAwsCloudwatchLogGroupReportCostOfIngestion';
+export {
+  DeclaredAwsCloudwatchLogGroupReportDistOfPattern,
+  DeclaredAwsCloudwatchLogGroupReportDistOfPatternRow,
+} from '@src/domain.objects/DeclaredAwsCloudwatchLogGroupReportDistOfPattern';
+export { DeclaredAwsCloudwatchMetricAlarm } from '@src/domain.objects/DeclaredAwsCloudwatchMetricAlarm';
+// aws cost anomaly domain objects
+export { DeclaredAwsCostAnomalyMonitor } from '@src/domain.objects/DeclaredAwsCostAnomalyMonitor';
+export { DeclaredAwsCostAnomalySubscriber } from '@src/domain.objects/DeclaredAwsCostAnomalySubscriber';
+export { DeclaredAwsCostAnomalySubscription } from '@src/domain.objects/DeclaredAwsCostAnomalySubscription';
 // aws domain objects
 export { DeclaredAwsEc2Instance } from '@src/domain.objects/DeclaredAwsEc2Instance';
 export { DeclaredAwsEc2InstanceNetwork } from '@src/domain.objects/DeclaredAwsEc2InstanceNetwork';
@@ -72,17 +105,6 @@ export { DeclaredAwsLambdaAlias } from '@src/domain.objects/DeclaredAwsLambdaAli
 export { DeclaredAwsLambdaCode } from '@src/domain.objects/DeclaredAwsLambdaCode';
 export { DeclaredAwsLambdaVersion } from '@src/domain.objects/DeclaredAwsLambdaVersion';
 export { DeclaredAwsLambdaVersionHash } from '@src/domain.objects/DeclaredAwsLambdaVersionHash';
-// aws log group domain objects
-export { DeclaredAwsLogGroup } from '@src/domain.objects/DeclaredAwsLogGroup';
-export {
-  type DeclaredAwsLogGroupFilter,
-  DeclaredAwsLogGroupReportCostOfIngestion,
-  DeclaredAwsLogGroupReportCostOfIngestionRow,
-} from '@src/domain.objects/DeclaredAwsLogGroupReportCostOfIngestion';
-export {
-  DeclaredAwsLogGroupReportDistOfPattern,
-  DeclaredAwsLogGroupReportDistOfPatternRow,
-} from '@src/domain.objects/DeclaredAwsLogGroupReportDistOfPattern';
 // aws organization + organization account domain objects
 export { DeclaredAwsOrganization } from '@src/domain.objects/DeclaredAwsOrganization';
 export { DeclaredAwsOrganizationAccount } from '@src/domain.objects/DeclaredAwsOrganizationAccount';
@@ -117,6 +139,34 @@ export { DeclaredAwsVpcSecurityGroupRule } from '@src/domain.objects/DeclaredAws
 export { DeclaredAwsVpcSecurityGroupRules } from '@src/domain.objects/DeclaredAwsVpcSecurityGroupRules';
 export { DeclaredAwsVpcSubnet } from '@src/domain.objects/DeclaredAwsVpcSubnet';
 export type { DeclastructAwsProvider } from '@src/domain.objects/DeclastructAwsProvider';
+export { delBudget } from '@src/domain.operations/budget/delBudget';
+export { getOneBudget } from '@src/domain.operations/budget/getOneBudget';
+export { setBudget } from '@src/domain.operations/budget/setBudget';
+// aws budget action operations
+export { delBudgetAction } from '@src/domain.operations/budgetAction/delBudgetAction';
+export { getOneBudgetAction } from '@src/domain.operations/budgetAction/getOneBudgetAction';
+export { setBudgetAction } from '@src/domain.operations/budgetAction/setBudgetAction';
+// aws budget notification operations
+export { delBudgetNotification } from '@src/domain.operations/budgetNotification/delBudgetNotification';
+export { getOneBudgetNotification } from '@src/domain.operations/budgetNotification/getOneBudgetNotification';
+export { setBudgetNotification } from '@src/domain.operations/budgetNotification/setBudgetNotification';
+// aws log group operations
+export { getAllCloudwatchLogGroups } from '@src/domain.operations/cloudwatchLogGroup/getAllCloudwatchLogGroups';
+export { getOneCloudwatchLogGroup } from '@src/domain.operations/cloudwatchLogGroup/getOneCloudwatchLogGroup';
+export { setCloudwatchLogGroup } from '@src/domain.operations/cloudwatchLogGroup/setCloudwatchLogGroup';
+export { getOneCloudwatchLogGroupReportCostOfIngestion } from '@src/domain.operations/cloudwatchLogGroupReportCostOfIngestion/getOneCloudwatchLogGroupReportCostOfIngestion';
+export { getOneCloudwatchLogGroupReportDistOfPattern } from '@src/domain.operations/cloudwatchLogGroupReportDistOfPattern/getOneCloudwatchLogGroupReportDistOfPattern';
+export { delCloudwatchMetricAlarm } from '@src/domain.operations/cloudwatchMetricAlarm/delCloudwatchMetricAlarm';
+export { getOneCloudwatchMetricAlarm } from '@src/domain.operations/cloudwatchMetricAlarm/getOneCloudwatchMetricAlarm';
+export { setCloudwatchMetricAlarm } from '@src/domain.operations/cloudwatchMetricAlarm/setCloudwatchMetricAlarm';
+// aws cost anomaly monitor operations
+export { delCostAnomalyMonitor } from '@src/domain.operations/costAnomalyMonitor/delCostAnomalyMonitor';
+export { getOneCostAnomalyMonitor } from '@src/domain.operations/costAnomalyMonitor/getOneCostAnomalyMonitor';
+export { setCostAnomalyMonitor } from '@src/domain.operations/costAnomalyMonitor/setCostAnomalyMonitor';
+// aws cost anomaly subscription operations
+export { delCostAnomalySubscription } from '@src/domain.operations/costAnomalySubscription/delCostAnomalySubscription';
+export { getOneCostAnomalySubscription } from '@src/domain.operations/costAnomalySubscription/getOneCostAnomalySubscription';
+export { setCostAnomalySubscription } from '@src/domain.operations/costAnomalySubscription/setCostAnomalySubscription';
 // aws ec2 operations
 export { delEc2Instance } from '@src/domain.operations/ec2Instance/delEc2Instance';
 export { getEc2Instance } from '@src/domain.operations/ec2Instance/getEc2Instance';
@@ -175,12 +225,6 @@ export { getAllLambdaVersions } from '@src/domain.operations/lambdaVersion/getAl
 export { getOneLambdaVersion } from '@src/domain.operations/lambdaVersion/getOneLambdaVersion';
 export { setLambdaVersion } from '@src/domain.operations/lambdaVersion/setLambdaVersion';
 export { calcAwsLambdaConfigHash } from '@src/domain.operations/lambdaVersion/utils/calcAwsLambdaConfigHash';
-// aws log group operations
-export { getAllLogGroups } from '@src/domain.operations/logGroup/getAllLogGroups';
-export { getOneLogGroup } from '@src/domain.operations/logGroup/getOneLogGroup';
-export { setLogGroup } from '@src/domain.operations/logGroup/setLogGroup';
-export { getOneLogGroupReportCostOfIngestion } from '@src/domain.operations/logGroupReportCostOfIngestion/getOneLogGroupReportCostOfIngestion';
-export { getOneLogGroupReportDistOfPattern } from '@src/domain.operations/logGroupReportDistOfPattern/getOneLogGroupReportDistOfPattern';
 // aws organization operations
 export { delOrganization } from '@src/domain.operations/organization/delOrganization';
 export { getOneOrganization } from '@src/domain.operations/organization/getOneOrganization';
