@@ -14,8 +14,8 @@ import { DeclaredAwsBudgetActionDefinition } from '@src/domain.objects/DeclaredA
 import { DeclaredAwsBudgetActionIam } from '@src/domain.objects/DeclaredAwsBudgetActionIam';
 import { DeclaredAwsBudgetActionScp } from '@src/domain.objects/DeclaredAwsBudgetActionScp';
 import { DeclaredAwsBudgetActionSsm } from '@src/domain.objects/DeclaredAwsBudgetActionSsm';
-import { DeclaredAwsBudgetThreshold } from '@src/domain.objects/DeclaredAwsBudgetThreshold';
 import { DeclaredAwsBudgetSubscriber } from '@src/domain.objects/DeclaredAwsBudgetSubscriber';
+import { DeclaredAwsBudgetThreshold } from '@src/domain.objects/DeclaredAwsBudgetThreshold';
 import type { DeclaredAwsIamRole } from '@src/domain.objects/DeclaredAwsIamRole';
 import type { DeclaredAwsOrganizationAccount } from '@src/domain.objects/DeclaredAwsOrganizationAccount';
 import type { DeclaredAwsOrganizationServiceControlPolicy } from '@src/domain.objects/DeclaredAwsOrganizationServiceControlPolicy';

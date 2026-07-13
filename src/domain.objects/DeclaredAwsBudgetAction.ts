@@ -7,8 +7,8 @@ import {
 
 import type { DeclaredAwsBudget } from './DeclaredAwsBudget';
 import { DeclaredAwsBudgetActionDefinition } from './DeclaredAwsBudgetActionDefinition';
-import { DeclaredAwsBudgetThreshold } from './DeclaredAwsBudgetThreshold';
 import { DeclaredAwsBudgetSubscriber } from './DeclaredAwsBudgetSubscriber';
+import { DeclaredAwsBudgetThreshold } from './DeclaredAwsBudgetThreshold';
 import type { DeclaredAwsIamRole } from './DeclaredAwsIamRole';
 
 /**

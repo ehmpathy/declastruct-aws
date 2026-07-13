@@ -121,28 +121,31 @@ describe('costAnomalySubscription.journey', () => {
     });
 
     when('[t4] upsert with changed tags', () => {
-      then('reconciles the tags (untag-then-tag) so the read reflects them', async () => {
-        // .note = regression guard for the upsert tag path: UpdateAnomalySubscription
-        //   does NOT reconcile tags, so setCostAnomalySubscription must syncTags. a
-        //   change that removes `purpose` and adds `tier` exercises both untag + tag
-        const { context } = scene;
-        await setCostAnomalySubscription(
-          {
-            upsert: DeclaredAwsCostAnomalySubscription.as({
-              ...testSubscription,
-              tags: { managedBy: 'declastruct', tier: 'gold' },
-            }),
-          },
-          context,
-        );
-        const found = await getOneCostAnomalySubscription(
-          { by: { unique: { name: testSubscriptionName } } },
-          context,
-        );
-        expect(found?.tags?.managedBy).toBe('declastruct');
-        expect(found?.tags?.tier).toBe('gold');
-        expect(found?.tags?.purpose).toBeUndefined();
-      });
+      then(
+        'reconciles the tags (untag-then-tag) so the read reflects them',
+        async () => {
+          // .note = regression guard for the upsert tag path: UpdateAnomalySubscription
+          //   does NOT reconcile tags, so setCostAnomalySubscription must syncTags. a
+          //   change that removes `purpose` and adds `tier` exercises both untag + tag
+          const { context } = scene;
+          await setCostAnomalySubscription(
+            {
+              upsert: DeclaredAwsCostAnomalySubscription.as({
+                ...testSubscription,
+                tags: { managedBy: 'declastruct', tier: 'gold' },
+              }),
+            },
+            context,
+          );
+          const found = await getOneCostAnomalySubscription(
+            { by: { unique: { name: testSubscriptionName } } },
+            context,
+          );
+          expect(found?.tags?.managedBy).toBe('declastruct');
+          expect(found?.tags?.tier).toBe('gold');
+          expect(found?.tags?.purpose).toBeUndefined();
+        },
+      );
     });
 
     when('[t5] del subscription', () => {

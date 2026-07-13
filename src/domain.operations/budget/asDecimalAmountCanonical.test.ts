@@ -31,7 +31,9 @@ const TEST_CASES = [
 describe('asDecimalAmountCanonical', () => {
   TEST_CASES.map((thisCase) =>
     it(thisCase.description, () => {
-      const output = asDecimalAmountCanonical({ amount: thisCase.given.amount });
+      const output = asDecimalAmountCanonical({
+        amount: thisCase.given.amount,
+      });
       expect(output).toBe(thisCase.expect.output);
     }),
   );

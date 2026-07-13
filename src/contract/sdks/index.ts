@@ -56,10 +56,10 @@ export { DeclaredAwsBudgetActionDefinition } from '@src/domain.objects/DeclaredA
 export { DeclaredAwsBudgetActionIam } from '@src/domain.objects/DeclaredAwsBudgetActionIam';
 export { DeclaredAwsBudgetActionScp } from '@src/domain.objects/DeclaredAwsBudgetActionScp';
 export { DeclaredAwsBudgetActionSsm } from '@src/domain.objects/DeclaredAwsBudgetActionSsm';
-export { DeclaredAwsBudgetThreshold } from '@src/domain.objects/DeclaredAwsBudgetThreshold';
 export { DeclaredAwsBudgetLimit } from '@src/domain.objects/DeclaredAwsBudgetLimit';
 export { DeclaredAwsBudgetNotification } from '@src/domain.objects/DeclaredAwsBudgetNotification';
 export { DeclaredAwsBudgetSubscriber } from '@src/domain.objects/DeclaredAwsBudgetSubscriber';
+export { DeclaredAwsBudgetThreshold } from '@src/domain.objects/DeclaredAwsBudgetThreshold';
 // aws log group domain objects
 export { DeclaredAwsCloudwatchLogGroup } from '@src/domain.objects/DeclaredAwsCloudwatchLogGroup';
 export {

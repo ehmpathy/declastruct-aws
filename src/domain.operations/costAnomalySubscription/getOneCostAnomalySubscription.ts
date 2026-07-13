@@ -99,9 +99,12 @@ export const getOneCostAnomalySubscription = asProcedure(
         new ListTagsForResourceCommand({
           ResourceArn:
             found.SubscriptionArn ??
-            UnexpectedCodePathError.throw('subscription lacks a SubscriptionArn', {
-              found,
-            }),
+            UnexpectedCodePathError.throw(
+              'subscription lacks a SubscriptionArn',
+              {
+                found,
+              },
+            ),
         }),
       );
 
