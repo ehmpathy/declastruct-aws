@@ -204,11 +204,24 @@ describe('declastruct CLI workflow', () => {
           class: change.forResource.class,
           // mask time-based slugs and their hashes to prevent daily snapshot drift
           slug: (() => {
+            // mask time-based slug segments — tolerant of truncation: declastruct
+            // caps slug length, so a long class prefix can cut the date mid-string
+            // (e.g. "since2026-07-06T000"), which a strict full-timestamp regex would
+            // miss and leave a literal date that drifts daily. match from since/until
+            // through any run of date chars so both full and truncated dates mask
+            // mask the 32-char hash FIRST: at the raw string end it is
+            // unambiguously ".<32 hex>", so it never mis-fires. this order also
+            // shields the join-dot before the hash from the date mask below (whose
+            // char class must therefore exclude a bare "." separator)
             const masked = change.forResource.slug
-              .replace(/since\d{4}-\d{2}-\d{2}T\d{6}\.\d{3}Z/g, 'since[DATE]')
-              .replace(/until\d{4}-\d{2}-\d{2}T/g, 'until[DATE]');
-            // mask final hash for stable snapshots
-            return masked.replace(/\.[a-f0-9]{32}$/, '.[HASH]');
+              .replace(/\.[a-f0-9]{32}$/, '.[HASH]')
+              // date chars are digits/dash/T plus an optional ".<millis>Z" fraction.
+              // exclude a bare "." from the run so the ".[HASH]" separator survives.
+              // tolerant of truncation — declastruct caps humanPart at 128 chars, which
+              // can cut a date mid-string; the optional group also matches a partial
+              .replace(/since\d[\d\-T]*(\.\d+Z?)?/g, 'since[DATE]')
+              .replace(/until\d[\d\-T]*(\.\d+Z?)?/g, 'until[DATE]');
+            return masked;
           })(),
         }));
 
@@ -613,11 +626,24 @@ describe('declastruct CLI workflow', () => {
           class: change.forResource.class,
           // mask time-based slugs and their hashes to prevent daily snapshot drift
           slug: (() => {
+            // mask time-based slug segments — tolerant of truncation: declastruct
+            // caps slug length, so a long class prefix can cut the date mid-string
+            // (e.g. "since2026-07-06T000"), which a strict full-timestamp regex would
+            // miss and leave a literal date that drifts daily. match from since/until
+            // through any run of date chars so both full and truncated dates mask
+            // mask the 32-char hash FIRST: at the raw string end it is
+            // unambiguously ".<32 hex>", so it never mis-fires. this order also
+            // shields the join-dot before the hash from the date mask below (whose
+            // char class must therefore exclude a bare "." separator)
             const masked = change.forResource.slug
-              .replace(/since\d{4}-\d{2}-\d{2}T\d{6}\.\d{3}Z/g, 'since[DATE]')
-              .replace(/until\d{4}-\d{2}-\d{2}T/g, 'until[DATE]');
-            // mask final hash for stable snapshots
-            return masked.replace(/\.[a-f0-9]{32}$/, '.[HASH]');
+              .replace(/\.[a-f0-9]{32}$/, '.[HASH]')
+              // date chars are digits/dash/T plus an optional ".<millis>Z" fraction.
+              // exclude a bare "." from the run so the ".[HASH]" separator survives.
+              // tolerant of truncation — declastruct caps humanPart at 128 chars, which
+              // can cut a date mid-string; the optional group also matches a partial
+              .replace(/since\d[\d\-T]*(\.\d+Z?)?/g, 'since[DATE]')
+              .replace(/until\d[\d\-T]*(\.\d+Z?)?/g, 'until[DATE]');
+            return masked;
           })(),
         }));
 

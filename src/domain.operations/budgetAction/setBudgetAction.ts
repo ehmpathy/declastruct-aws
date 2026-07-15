@@ -5,6 +5,7 @@ import {
   type Subscriber,
   UpdateBudgetActionCommand,
 } from '@aws-sdk/client-budgets';
+import { sleep } from '@ehmpathy/uni-time';
 import { asProcedure } from 'as-procedure';
 import {
   type HasReadonly,
@@ -215,8 +216,9 @@ export const setBudgetAction = asProcedure(
 
     // create the action when absent
     if (!foundBefore) {
-      await client.send(
-        new CreateBudgetActionCommand({
+      await createWithRoleAssumeRetry({
+        client,
+        command: new CreateBudgetActionCommand({
           AccountId: accountId,
           BudgetName: budgetName,
           NotificationType: desired.basis,
@@ -227,7 +229,7 @@ export const setBudgetAction = asProcedure(
           ApprovalModel: desired.approvalModel,
           Subscribers: subscribers,
         }),
-      );
+      });
       return getOneAfter({ context, uniqueRef });
     }
 
@@ -252,6 +254,46 @@ export const setBudgetAction = asProcedure(
     return getOneAfter({ context, uniqueRef });
   },
 );
+
+/**
+ * .what = sends CreateBudgetAction, with a bounded retry for the IAM-propagation race
+ * .why = AWS Budgets assumes the ExecutionRole synchronously as it creates the action.
+ *        when the role + the action are declared in one apply (as the reference posture
+ *        does), the role's trust policy may not have propagated yet, so Budgets fails
+ *        with "Budgets permission required to assume [ExecutionRole ...]". this is a
+ *        known eventually-consistent IAM race — a bounded retry-with-backoff lets the
+ *        trust propagate, then the create succeeds. any other error rethrows at once
+ * .note = allowlisted retry on ONE transient signal, not a blanket catch (not a
+ *         failhide, per rule.forbid.failhide)
+ */
+const createWithRoleAssumeRetry = async (input: {
+  client: ReturnType<typeof getAwsBudgetsClient>;
+  command: CreateBudgetActionCommand;
+}): Promise<void> => {
+  const { client, command } = input;
+  const maxAttempts = 12; // ~12 * 5s = up to 60s for the trust policy to propagate
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      await client.send(command);
+      return;
+    } catch (error) {
+      if (!(error instanceof Error)) throw error;
+
+      // only retry the transient "cannot assume the just-created ExecutionRole" race
+      const isRoleAssumePropagation =
+        error.name === 'AccessDeniedException' &&
+        error.message.includes('assume') &&
+        error.message.includes('ExecutionRole');
+      if (!isRoleAssumePropagation) throw error;
+
+      // give up after the budget of attempts; surface the last error
+      if (attempt === maxAttempts) throw error;
+
+      // wait for the role trust to propagate, then retry
+      await sleep(5_000);
+    }
+  }
+};
 
 /**
  * .what = re-reads the action after a write and failfasts if absent

@@ -21,6 +21,20 @@ import type { DeclaredAwsOrganizationAccount } from '@src/domain.objects/Declare
 import type { DeclaredAwsOrganizationServiceControlPolicy } from '@src/domain.objects/DeclaredAwsOrganizationServiceControlPolicy';
 
 /**
+ * .what = extracts an IAM role's name (its unique key) from its arn
+ * .why = AWS returns the ExecutionRoleArn, but the role's unique key is its name; the
+ *        name is the final segment of arn:aws:iam::<acct>:role/<path?>/<name>
+ */
+const asIamRoleNameFromArn = (input: { arn: string }): string => {
+  const name = input.arn.split('/').pop();
+  if (!name)
+    UnexpectedCodePathError.throw('could not extract role name from arn', {
+      arn: input.arn,
+    });
+  return name;
+};
+
+/**
  * .what = decodes the AWS `Definition` union into our declared definition shape
  * .why = AWS gives ids (PolicyId, TargetIds, ExecutionRoleArn); we express those as
  *        primary refs on the round trip so the found shape stays faithful to AWS
@@ -178,13 +192,20 @@ export const castIntoDeclaredAwsBudgetAction = (input: {
     unit: thresholdType,
   });
 
-  // the role AWS assumes to run + reverse the action
-  const executionRole = RefByPrimary.as<typeof DeclaredAwsIamRole>({
-    arn:
-      action.ExecutionRoleArn ??
-      UnexpectedCodePathError.throw('action lacks an ExecutionRoleArn', {
-        action,
-      }),
+  // the role AWS assumes to run + reverse the action — cast back by its UNIQUE
+  // natural key (name), consistent with how `budget` comes back by unique. AWS gives
+  // only the ExecutionRoleArn, but the role name is the final arn segment
+  // (arn:aws:iam::<acct>:role/<name>), and name is the role's unique key. this keeps
+  // re-plan idempotent against the reference posture, which declares executionRole by
+  // RefByUnique(name); a cast back by primary(arn) instead would drift to UPDATE
+  const executionRole = RefByUnique.as<typeof DeclaredAwsIamRole>({
+    name: asIamRoleNameFromArn({
+      arn:
+        action.ExecutionRoleArn ??
+        UnexpectedCodePathError.throw('action lacks an ExecutionRoleArn', {
+          action,
+        }),
+    }),
   });
 
   // decode each subscriber's channel + address

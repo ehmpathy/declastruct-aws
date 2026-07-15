@@ -47,16 +47,16 @@ exports[`declastruct CLI workflow given: a declastruct resources file when: gene
     "slug": "DeclaredAwsLambdaAlias.namedeclastruct-acceptance-lambda.LIVE.[HASH]",
   },
   {
-    "class": "DeclaredAwsLogGroup",
-    "slug": "DeclaredAwsLogGroup.declastructacceptance-testwith-retention.[HASH]",
+    "class": "DeclaredAwsCloudwatchLogGroup",
+    "slug": "DeclaredAwsCloudwatchLogGroup.declastructacceptance-testwith-retention.[HASH]",
   },
   {
-    "class": "DeclaredAwsLogGroupReportDistOfPattern",
-    "slug": "DeclaredAwsLogGroupReportDistOfPattern.null.100.nameawslambdadeclastruct-acceptance-lambda.message.since[DATE]un.[HASH]",
+    "class": "DeclaredAwsCloudwatchLogGroupReportDistOfPattern",
+    "slug": "DeclaredAwsCloudwatchLogGroupReportDistOfPattern.null.100.nameawslambdadeclastruct-acceptance-lambda.message.since[DATE].[HASH]",
   },
   {
-    "class": "DeclaredAwsLogGroupReportCostOfIngestion",
-    "slug": "DeclaredAwsLogGroupReportCostOfIngestion.namesawslambdadeclastruct-acceptance-lambda.since[DATE]until[DATE].[HASH]",
+    "class": "DeclaredAwsCloudwatchLogGroupReportCostOfIngestion",
+    "slug": "DeclaredAwsCloudwatchLogGroupReportCostOfIngestion.namesawslambdadeclastruct-acceptance-lambda.since[DATE]until[DATE].[HASH]",
   },
   {
     "class": "DeclaredAwsIamRole",
@@ -101,6 +101,34 @@ exports[`declastruct CLI workflow given: a declastruct resources file when: gene
   {
     "class": "DeclaredAwsEc2SshKeyAuthorized",
     "slug": "DeclaredAwsEc2SshKeyAuthorized.declastruct-acceptance-seed.exiddeclastruct-acceptance-instance.[HASH]",
+  },
+  {
+    "class": "DeclaredAwsBudget",
+    "slug": "DeclaredAwsBudget.declastruct-acceptance-budget.[HASH]",
+  },
+  {
+    "class": "DeclaredAwsBudgetNotification",
+    "slug": "DeclaredAwsBudgetNotification.ACTUAL.namedeclastruct-acceptance-budget.GREATER_THAN.quant80unitPERCENTAGE.[HASH]",
+  },
+  {
+    "class": "DeclaredAwsCloudwatchMetricAlarm",
+    "slug": "DeclaredAwsCloudwatchMetricAlarm.declastruct-acceptance-alarm.[HASH]",
+  },
+  {
+    "class": "DeclaredAwsCostAnomalyMonitor",
+    "slug": "DeclaredAwsCostAnomalyMonitor.declastruct-acceptance-anomaly.[HASH]",
+  },
+  {
+    "class": "DeclaredAwsCostAnomalySubscription",
+    "slug": "DeclaredAwsCostAnomalySubscription.declastruct-acceptance-anomaly-sub.[HASH]",
+  },
+  {
+    "class": "DeclaredAwsIamRole",
+    "slug": "DeclaredAwsIamRole.declastruct-acceptance-budgets-action-role.[HASH]",
+  },
+  {
+    "class": "DeclaredAwsBudgetAction",
+    "slug": "DeclaredAwsBudgetAction.namedeclastruct-acceptance-budget.APPLY_IAM_POLICY.[HASH]",
   },
 ]
 `;
@@ -164,18 +192,18 @@ exports[`declastruct CLI workflow given: a declastruct resources file when: re-p
   },
   {
     "action": "KEEP",
-    "class": "DeclaredAwsLogGroup",
-    "slug": "DeclaredAwsLogGroup.declastructacceptance-testwith-retention.[HASH]",
+    "class": "DeclaredAwsCloudwatchLogGroup",
+    "slug": "DeclaredAwsCloudwatchLogGroup.declastructacceptance-testwith-retention.[HASH]",
   },
   {
     "action": "KEEP",
-    "class": "DeclaredAwsLogGroupReportDistOfPattern",
-    "slug": "DeclaredAwsLogGroupReportDistOfPattern.null.100.nameawslambdadeclastruct-acceptance-lambda.message.since[DATE]un.[HASH]",
+    "class": "DeclaredAwsCloudwatchLogGroupReportDistOfPattern",
+    "slug": "DeclaredAwsCloudwatchLogGroupReportDistOfPattern.null.100.nameawslambdadeclastruct-acceptance-lambda.message.since[DATE].[HASH]",
   },
   {
     "action": "KEEP",
-    "class": "DeclaredAwsLogGroupReportCostOfIngestion",
-    "slug": "DeclaredAwsLogGroupReportCostOfIngestion.namesawslambdadeclastruct-acceptance-lambda.since[DATE]until[DATE].[HASH]",
+    "class": "DeclaredAwsCloudwatchLogGroupReportCostOfIngestion",
+    "slug": "DeclaredAwsCloudwatchLogGroupReportCostOfIngestion.namesawslambdadeclastruct-acceptance-lambda.since[DATE]until[DATE].[HASH]",
   },
   {
     "action": "KEEP",
@@ -231,6 +259,41 @@ exports[`declastruct CLI workflow given: a declastruct resources file when: re-p
     "action": "KEEP",
     "class": "DeclaredAwsEc2SshKeyAuthorized",
     "slug": "DeclaredAwsEc2SshKeyAuthorized.declastruct-acceptance-seed.exiddeclastruct-acceptance-instance.[HASH]",
+  },
+  {
+    "action": "KEEP",
+    "class": "DeclaredAwsBudget",
+    "slug": "DeclaredAwsBudget.declastruct-acceptance-budget.[HASH]",
+  },
+  {
+    "action": "KEEP",
+    "class": "DeclaredAwsBudgetNotification",
+    "slug": "DeclaredAwsBudgetNotification.ACTUAL.namedeclastruct-acceptance-budget.GREATER_THAN.quant80unitPERCENTAGE.[HASH]",
+  },
+  {
+    "action": "KEEP",
+    "class": "DeclaredAwsCloudwatchMetricAlarm",
+    "slug": "DeclaredAwsCloudwatchMetricAlarm.declastruct-acceptance-alarm.[HASH]",
+  },
+  {
+    "action": "KEEP",
+    "class": "DeclaredAwsCostAnomalyMonitor",
+    "slug": "DeclaredAwsCostAnomalyMonitor.declastruct-acceptance-anomaly.[HASH]",
+  },
+  {
+    "action": "KEEP",
+    "class": "DeclaredAwsCostAnomalySubscription",
+    "slug": "DeclaredAwsCostAnomalySubscription.declastruct-acceptance-anomaly-sub.[HASH]",
+  },
+  {
+    "action": "KEEP",
+    "class": "DeclaredAwsIamRole",
+    "slug": "DeclaredAwsIamRole.declastruct-acceptance-budgets-action-role.[HASH]",
+  },
+  {
+    "action": "KEEP",
+    "class": "DeclaredAwsBudgetAction",
+    "slug": "DeclaredAwsBudgetAction.namedeclastruct-acceptance-budget.APPLY_IAM_POLICY.[HASH]",
   },
 ]
 `;
