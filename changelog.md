@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.0](https://github.com/ehmpathy/declastruct-aws/compare/v1.7.3...v1.8.0) (2026-07-15)
+
+
+### Features
+
+* **budget:** declarative aws budget alerts + guards ([#66](https://github.com/ehmpathy/declastruct-aws/issues/66)) ([d8d421e](https://github.com/ehmpathy/declastruct-aws/commit/d8d421ea7d7429dc81b38ca5688b6af5a4a376a7))
+
 ## [1.7.3](https://github.com/ehmpathy/declastruct-aws/compare/v1.7.2...v1.7.3) (2026-07-11)
 
 
