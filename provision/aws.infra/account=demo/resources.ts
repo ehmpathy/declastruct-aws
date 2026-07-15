@@ -4,6 +4,7 @@ import { keyrack } from 'rhachet/keyrack';
 import { genLogMethods } from 'sdk-logs';
 
 import { getDeclastructAwsProvider } from '../../../src/contract/sdks';
+import { getResourcesOfBudget } from './resources.budget';
 import { getResourcesOfEc2Hibernator } from './resources.ec2.hibernator';
 import { getResourcesOfEc2Nat } from './resources.ec2.nat';
 import { getResourcesOfIam } from './resources.iam';
@@ -34,5 +35,8 @@ export const getResources = async (): Promise<DomainEntity<any>[]> => {
     ...getResourcesOfIam(),
     ...getResourcesOfEc2Nat(),
     ...getResourcesOfEc2Hibernator(),
+    // budget posture: the $21/mo cap + tiered alerts + anomaly + estimated-charges
+    // alarm (member-account-safe; the guards in resources.budget.ts are wisher-gated)
+    ...getResourcesOfBudget(),
   ];
 };

@@ -1,0 +1,87 @@
+🦉 the way speaks for itself
+
+🗿 route.stone.set
+   ├─ stone = 5.1.execution.from_vision
+   ├─ passage = blocked
+   ├─ reason = blockers exceed threshold (7 > 0)
+   └─ guard
+      ├─ artifacts
+      │   ├─ $route/5.1.execution.from_vision.yield.md
+      │   └─ src/**/*
+      ├─ reviews
+      │   ├─ r1: repo-rules (l1, 4/5)
+      │   │   ├─ approved 39.0s
+      │   │   ├─ 0 blockers ✓
+      │   │   ├─ 0 nitpicks ✓
+      │   │   └─ review: .behavior/v2026_07_08.feat-budget/.reviews/peer/5.1.execution.from_vision._.review.i5.76da0d1d3ad77e933d.r1._.given.by_peer.repo-rules.md
+      │   ├─ r2: mech-failhides (l1, 4/5)
+      │   │   ├─ approved 36.2s
+      │   │   ├─ 0 blockers ✓
+      │   │   ├─ 0 nitpicks ✓
+      │   │   └─ review: .behavior/v2026_07_08.feat-budget/.reviews/peer/5.1.execution.from_vision._.review.i5.76da0d1d3ad77e933d.r2._.given.by_peer.mech-failhides.md
+      │   ├─ r3: mech-decode-friction (l1, 4/5)
+      │   │   ├─ rejected 45.2s
+      │   │   ├─ 1 blocker 🔴
+      │   │   ├─ 1 nitpick 🟠
+      │   │   └─ review: .behavior/v2026_07_08.feat-budget/.reviews/peer/5.1.execution.from_vision._.review.i5.76da0d1d3ad77e933d.r3._.given.by_peer.mech-decode-friction.md
+      │   ├─ r4: arch-opport-decomposition (l1, 4/5)
+      │   │   ├─ rejected 45.5s
+      │   │   ├─ 1 blocker 🔴
+      │   │   ├─ 1 nitpick 🟠
+      │   │   └─ review: .behavior/v2026_07_08.feat-budget/.reviews/peer/5.1.execution.from_vision._.review.i5.76da0d1d3ad77e933d.r4._.given.by_peer.arch-opport-decomposition.md
+      │   ├─ r5: arch-smell-scopeleaks (l1, 4/5)
+      │   │   ├─ rejected 48.0s
+      │   │   ├─ 1 blocker 🔴
+      │   │   ├─ 0 nitpicks ✓
+      │   │   └─ review: .behavior/v2026_07_08.feat-budget/.reviews/peer/5.1.execution.from_vision._.review.i5.76da0d1d3ad77e933d.r5._.given.by_peer.arch-smell-scopeleaks.md
+      │   ├─ r6: arch-hazards-maintenance (l1, 4/5)
+      │   │   ├─ approved 37.8s
+      │   │   ├─ 0 blockers ✓
+      │   │   ├─ 0 nitpicks ✓
+      │   │   └─ review: .behavior/v2026_07_08.feat-budget/.reviews/peer/5.1.execution.from_vision._.review.i5.76da0d1d3ad77e933d.r6._.given.by_peer.arch-hazards-maintenance.md
+      │   ├─ r7: arch-hazards-behavior (l1, 4/5)
+      │   │   ├─ rejected 66.2s
+      │   │   ├─ 3 blockers 🔴
+      │   │   ├─ 0 nitpicks ✓
+      │   │   └─ review: .behavior/v2026_07_08.feat-budget/.reviews/peer/5.1.execution.from_vision._.review.i5.76da0d1d3ad77e933d.r7._.given.by_peer.arch-hazards-behavior.md
+      │   ├─ r8: behavior-intent-coverage (l1, 4/5)
+      │   │   ├─ approved 29.5s
+      │   │   ├─ 0 blockers ✓
+      │   │   ├─ 0 nitpicks ✓
+      │   │   └─ review: .behavior/v2026_07_08.feat-budget/.reviews/peer/5.1.execution.from_vision._.review.i5.76da0d1d3ad77e933d.r8._.given.by_peer.behavior-intent-coverage.md
+      │   ├─ r9: ergo-friction-hazards (l1, 4/5)
+      │   │   ├─ rejected 46.5s
+      │   │   ├─ 1 blocker 🔴
+      │   │   ├─ 1 nitpick 🟠
+      │   │   └─ review: .behavior/v2026_07_08.feat-budget/.reviews/peer/5.1.execution.from_vision._.review.i5.76da0d1d3ad77e933d.r9._.given.by_peer.ergo-friction-hazards.md
+      │   ├─ r10: enroll-impl-behavior-intent (l3, 0/5)
+      │   │   └─ awaits l1 terminal
+      │   └─ r11: enroll-impl-arch-defects (l3, 0/5)
+      │       └─ awaits l1 terminal
+      └─ judges
+          └─ j1: $rhachet run --repo bhrain --skill route.stone.judge --mechanism reviewed? --stone $stone --route $route --allow-blockers 0 --allow-nitpicks 3
+              ├─ finished 0.6s ✗
+              └─ reason: blockers exceed threshold (7 > 0)
+
+────────────────────────────────────────────────────────────────
+
+🪶 judge 1
+   ├─ stdout
+   │  ├─
+   │  │
+   │  │  🪨 run solid skill repo=bhrain/role=driver/skill=route.stone.judge
+   │  │  
+   │  │  passed: false
+   │  │  reason: blockers exceed threshold (7 > 0)
+   │  │
+   │  └─
+   ├─ stderr
+   │  ├─
+   │  │
+   │  │  🪨 run solid skill repo=bhrain/role=driver/skill=route.stone.judge
+   │  │     └─ ✋ blocked by constraints
+   │  │
+   │  └─
+   └─ passage blocked
+      ├─ blocked by constraints
+      └─ exit code: 2 ✋

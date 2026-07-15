@@ -7,8 +7,8 @@ import { join } from 'path';
 import { genLogMethods, LogLevel } from 'sdk-logs';
 import { given, then, useBeforeAll, when } from 'test-fns';
 
-import { DeclaredAwsLogGroupReportCostOfIngestionDao } from '@src/access/daos/DeclaredAwsLogGroupReportCostOfIngestionDao';
-import { DeclaredAwsLogGroupReportDistOfPatternDao } from '@src/access/daos/DeclaredAwsLogGroupReportDistOfPatternDao';
+import { DeclaredAwsCloudwatchLogGroupReportCostOfIngestionDao } from '@src/access/daos/DeclaredAwsCloudwatchLogGroupReportCostOfIngestionDao';
+import { DeclaredAwsCloudwatchLogGroupReportDistOfPatternDao } from '@src/access/daos/DeclaredAwsCloudwatchLogGroupReportDistOfPatternDao';
 import { DeclaredAwsEc2InstanceSession } from '@src/domain.objects/DeclaredAwsEc2InstanceSession';
 import { DeclaredAwsEc2SshKeyAuthorized } from '@src/domain.objects/DeclaredAwsEc2SshKeyAuthorized';
 import { getEc2Instance } from '@src/domain.operations/ec2Instance/getEc2Instance';
@@ -204,11 +204,24 @@ describe('declastruct CLI workflow', () => {
           class: change.forResource.class,
           // mask time-based slugs and their hashes to prevent daily snapshot drift
           slug: (() => {
+            // mask time-based slug segments — tolerant of truncation: declastruct
+            // caps slug length, so a long class prefix can cut the date mid-string
+            // (e.g. "since2026-07-06T000"), which a strict full-timestamp regex would
+            // miss and leave a literal date that drifts daily. match from since/until
+            // through any run of date chars so both full and truncated dates mask
+            // mask the 32-char hash FIRST: at the raw string end it is
+            // unambiguously ".<32 hex>", so it never mis-fires. this order also
+            // shields the join-dot before the hash from the date mask below (whose
+            // char class must therefore exclude a bare "." separator)
             const masked = change.forResource.slug
-              .replace(/since\d{4}-\d{2}-\d{2}T\d{6}\.\d{3}Z/g, 'since[DATE]')
-              .replace(/until\d{4}-\d{2}-\d{2}T/g, 'until[DATE]');
-            // mask final hash for stable snapshots
-            return masked.replace(/\.[a-f0-9]{32}$/, '.[HASH]');
+              .replace(/\.[a-f0-9]{32}$/, '.[HASH]')
+              // date chars are digits/dash/T plus an optional ".<millis>Z" fraction.
+              // exclude a bare "." from the run so the ".[HASH]" separator survives.
+              // tolerant of truncation — declastruct caps humanPart at 128 chars, which
+              // can cut a date mid-string; the optional group also matches a partial
+              .replace(/since\d[\d\-T]*(\.\d+Z?)?/g, 'since[DATE]')
+              .replace(/until\d[\d\-T]*(\.\d+Z?)?/g, 'until[DATE]');
+            return masked;
           })(),
         }));
 
@@ -321,14 +334,16 @@ describe('declastruct CLI workflow', () => {
         // verify pattern distribution report is present
         const patternReportChange = prep.plan.changes.find(
           (r: DeclastructChange) =>
-            r.forResource.class === 'DeclaredAwsLogGroupReportDistOfPattern',
+            r.forResource.class ===
+            'DeclaredAwsCloudwatchLogGroupReportDistOfPattern',
         );
         expect(patternReportChange).toBeDefined();
 
         // verify ingestion cost report is present
         const costReportChange = prep.plan.changes.find(
           (r: DeclastructChange) =>
-            r.forResource.class === 'DeclaredAwsLogGroupReportCostOfIngestion',
+            r.forResource.class ===
+            'DeclaredAwsCloudwatchLogGroupReportCostOfIngestion',
         );
         expect(costReportChange).toBeDefined();
       });
@@ -340,7 +355,7 @@ describe('declastruct CLI workflow', () => {
          */
         const logGroupChange = prep.plan.changes.find(
           (r: DeclastructChange) =>
-            r.forResource.class === 'DeclaredAwsLogGroup' &&
+            r.forResource.class === 'DeclaredAwsCloudwatchLogGroup' &&
             r.forResource.slug.includes('with-retention'),
         );
         expect(logGroupChange).toBeDefined();
@@ -410,6 +425,26 @@ describe('declastruct CLI workflow', () => {
             r.forResource.class === 'DeclaredAwsEc2SshKeyAuthorized',
         );
         expect(keyChange).toBeDefined();
+      });
+
+      then('plan includes budget + cost resources', () => {
+        /**
+         * .what = validates plan includes budget, notification, alarm, and the two
+         *   cost-anomaly resources
+         * .why = ensures the feat-budget resources flow through the plan/apply workflow
+         */
+        for (const cls of [
+          'DeclaredAwsBudget',
+          'DeclaredAwsBudgetNotification',
+          'DeclaredAwsCloudwatchMetricAlarm',
+          'DeclaredAwsCostAnomalyMonitor',
+          'DeclaredAwsCostAnomalySubscription',
+        ]) {
+          const change = prep.plan.changes.find(
+            (r: DeclastructChange) => r.forResource.class === cls,
+          );
+          expect(change).toBeDefined();
+        }
       });
 
       /**
@@ -495,11 +530,11 @@ describe('declastruct CLI workflow', () => {
       then('creates log group with retention policy', () => {
         /**
          * .what = validates log group is created with retention via declastruct
-         * .why = ensures setLogGroup operation works through declastruct workflow
+         * .why = ensures setCloudwatchLogGroup operation works through declastruct workflow
          */
         const logGroupChange = prep.plan.changes.find(
           (r: DeclastructChange) =>
-            r.forResource.class === 'DeclaredAwsLogGroup' &&
+            r.forResource.class === 'DeclaredAwsCloudwatchLogGroup' &&
             r.forResource.slug.includes('with-retention'),
         );
         expect(logGroupChange).toBeDefined();
@@ -591,11 +626,24 @@ describe('declastruct CLI workflow', () => {
           class: change.forResource.class,
           // mask time-based slugs and their hashes to prevent daily snapshot drift
           slug: (() => {
+            // mask time-based slug segments — tolerant of truncation: declastruct
+            // caps slug length, so a long class prefix can cut the date mid-string
+            // (e.g. "since2026-07-06T000"), which a strict full-timestamp regex would
+            // miss and leave a literal date that drifts daily. match from since/until
+            // through any run of date chars so both full and truncated dates mask
+            // mask the 32-char hash FIRST: at the raw string end it is
+            // unambiguously ".<32 hex>", so it never mis-fires. this order also
+            // shields the join-dot before the hash from the date mask below (whose
+            // char class must therefore exclude a bare "." separator)
             const masked = change.forResource.slug
-              .replace(/since\d{4}-\d{2}-\d{2}T\d{6}\.\d{3}Z/g, 'since[DATE]')
-              .replace(/until\d{4}-\d{2}-\d{2}T/g, 'until[DATE]');
-            // mask final hash for stable snapshots
-            return masked.replace(/\.[a-f0-9]{32}$/, '.[HASH]');
+              .replace(/\.[a-f0-9]{32}$/, '.[HASH]')
+              // date chars are digits/dash/T plus an optional ".<millis>Z" fraction.
+              // exclude a bare "." from the run so the ".[HASH]" separator survives.
+              // tolerant of truncation — declastruct caps humanPart at 128 chars, which
+              // can cut a date mid-string; the optional group also matches a partial
+              .replace(/since\d[\d\-T]*(\.\d+Z?)?/g, 'since[DATE]')
+              .replace(/until\d[\d\-T]*(\.\d+Z?)?/g, 'until[DATE]');
+            return masked;
           })(),
         }));
 
@@ -612,7 +660,7 @@ describe('declastruct CLI workflow', () => {
          */
         const logGroupChange = prep.plan.changes.find(
           (r: DeclastructChange) =>
-            r.forResource.class === 'DeclaredAwsLogGroup' &&
+            r.forResource.class === 'DeclaredAwsCloudwatchLogGroup' &&
             r.forResource.slug.includes('with-retention'),
         );
         expect(logGroupChange).toBeDefined();
@@ -674,6 +722,29 @@ describe('declastruct CLI workflow', () => {
         expect(keyChange!.action).toBe('KEEP');
       });
 
+      then('budget + cost resources show KEEP', () => {
+        /**
+         * .what = validates the feat-budget resources match desired state after apply
+         * .why = proves budget, notification, alarm, the cost-anomaly resources, and the
+         *        budget-action guard are idempotent through plan/apply — re-plan
+         *        converges to KEEP (no drift)
+         */
+        for (const cls of [
+          'DeclaredAwsBudget',
+          'DeclaredAwsBudgetNotification',
+          'DeclaredAwsCloudwatchMetricAlarm',
+          'DeclaredAwsCostAnomalyMonitor',
+          'DeclaredAwsCostAnomalySubscription',
+          'DeclaredAwsBudgetAction',
+        ]) {
+          const change = prep.plan.changes.find(
+            (r: DeclastructChange) => r.forResource.class === cls,
+          );
+          expect(change).toBeDefined();
+          expect(change!.action).toBe('KEEP');
+        }
+      });
+
       // SCP tests skipped — require management account credentials (see resources.acceptance.ts)
     });
 
@@ -704,7 +775,7 @@ describe('declastruct CLI workflow', () => {
 
         // fetch pattern distribution report via DAO
         const patternReport =
-          await DeclaredAwsLogGroupReportDistOfPatternDao.get.one.byUnique(
+          await DeclaredAwsCloudwatchLogGroupReportDistOfPatternDao.get.one.byUnique(
             {
               logGroups: [{ name: logGroupName }],
               range: logGroupReportRange,
@@ -723,7 +794,7 @@ describe('declastruct CLI workflow', () => {
 
         // fetch ingestion cost report via DAO
         const costReport =
-          await DeclaredAwsLogGroupReportCostOfIngestionDao.get.one.byUnique(
+          await DeclaredAwsCloudwatchLogGroupReportCostOfIngestionDao.get.one.byUnique(
             {
               logGroupFilter: { names: [logGroupName] },
               range: logGroupReportRange,

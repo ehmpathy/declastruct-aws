@@ -274,6 +274,40 @@ export const demoPermissionsPolicy: DeclaredAwsIamPolicyBundle =
           action: ['ec2-instance-connect:SendSSHPublicKey'],
           resource: '*',
         }),
+        // Budgets: cap + notifications + actions (guards)
+        // .note = wildcard on the test-execution policy — the reconcile paths call
+        //         reads (ViewBudget / Describe*ForBudget / Describe*ForNotification /
+        //         DescribeBudgetActionsForBudget), writes, AND tag actions
+        //         (TagResource / UntagResource / ListTagsForResource); the tag actions
+        //         are gated separately from ViewBudget, so a wildcard on resource '*'
+        //         is the one grant that covers every action the daos touch
+        new DeclaredAwsIamPolicyStatement({
+          effect: 'Allow',
+          action: ['budgets:*'],
+          resource: '*',
+        }),
+        // Cost Explorer: anomaly monitors + subscriptions
+        // .note = wildcard for the same reason — the daos call Get* reads
+        //         (GetAnomalyMonitors / GetAnomalySubscriptions) + tag actions in
+        //         addition to Create / Update / Delete
+        new DeclaredAwsIamPolicyStatement({
+          effect: 'Allow',
+          action: ['ce:*'],
+          resource: '*',
+        }),
+        // CloudWatch Alarms: metric alarms (e.g. the EstimatedCharges cost alarm)
+        new DeclaredAwsIamPolicyStatement({
+          effect: 'Allow',
+          action: [
+            'cloudwatch:PutMetricAlarm',
+            'cloudwatch:DeleteAlarms',
+            'cloudwatch:DescribeAlarms',
+            'cloudwatch:ListTagsForResource',
+            'cloudwatch:TagResource',
+            'cloudwatch:UntagResource',
+          ],
+          resource: '*',
+        }),
       ],
     }),
   });

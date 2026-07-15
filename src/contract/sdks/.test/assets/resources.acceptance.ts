@@ -11,6 +11,12 @@ keyrack.source({ env: 'test', owner: 'ehmpath', mode: 'lenient' });
 
 import {
   calcAwsLambdaConfigHash,
+  DeclaredAwsBudget,
+  DeclaredAwsBudgetAction,
+  DeclaredAwsBudgetNotification,
+  DeclaredAwsCloudwatchMetricAlarm,
+  DeclaredAwsCostAnomalyMonitor,
+  DeclaredAwsCostAnomalySubscription,
   DeclaredAwsEc2Instance,
   DeclaredAwsEc2InstanceSession,
   DeclaredAwsEc2LaunchTemplate,
@@ -23,9 +29,9 @@ import {
   DeclaredAwsLambda,
   DeclaredAwsLambdaAlias,
   DeclaredAwsLambdaVersion,
-  DeclaredAwsLogGroup,
-  DeclaredAwsLogGroupReportCostOfIngestion,
-  DeclaredAwsLogGroupReportDistOfPattern,
+  DeclaredAwsCloudwatchLogGroup,
+  DeclaredAwsCloudwatchLogGroupReportCostOfIngestion,
+  DeclaredAwsCloudwatchLogGroupReportDistOfPattern,
   DeclaredAwsSsmSshTunnel,
   DeclaredAwsVpc,
   DeclaredAwsVpcCidrBlock,
@@ -390,7 +396,7 @@ export const getResources = async () => {
   });
 
   // declare log group with retention policy
-  const logGroupWithRetention = DeclaredAwsLogGroup.as({
+  const logGroupWithRetention = DeclaredAwsCloudwatchLogGroup.as({
     name: '/declastruct/acceptance-test/with-retention',
     class: 'STANDARD',
     kmsKeyId: null,
@@ -398,10 +404,10 @@ export const getResources = async () => {
   });
 
   // declare log group report for pattern distribution (message frequency)
-  const logGroupReportDistOfPattern = DeclaredAwsLogGroupReportDistOfPattern.as(
+  const logGroupReportDistOfPattern = DeclaredAwsCloudwatchLogGroupReportDistOfPattern.as(
     {
       logGroups: [
-        RefByUnique.as<typeof DeclaredAwsLogGroup>({
+        RefByUnique.as<typeof DeclaredAwsCloudwatchLogGroup>({
           name: `/aws/lambda/${lambda.name}`,
         }),
       ],
@@ -414,10 +420,107 @@ export const getResources = async () => {
 
   // declare log group report for ingestion cost
   const logGroupReportCostOfIngestion =
-    DeclaredAwsLogGroupReportCostOfIngestion.as({
+    DeclaredAwsCloudwatchLogGroupReportCostOfIngestion.as({
       logGroupFilter: { names: [`/aws/lambda/${lambda.name}`] },
       range: logGroupReportRange,
     });
+
+  // declare a budget cap (member account can budget ITSELF — no mgmt wall)
+  const budget = DeclaredAwsBudget.as({
+    name: 'declastruct-acceptance-budget',
+    kind: 'COST',
+    limit: { amount: '100', unit: 'USD' },
+    timeUnit: 'MONTHLY',
+    costFilters: null,
+    tags: { managedBy: 'declastruct', purpose: 'acceptance-test' },
+  });
+
+  // declare a threshold alert tier that refs the budget (email subscriber)
+  const budgetNotification = DeclaredAwsBudgetNotification.as({
+    budget: RefByUnique.as<typeof DeclaredAwsBudget>(budget),
+    basis: 'ACTUAL',
+    comparison: 'GREATER_THAN',
+    threshold: { quant: 80, unit: 'PERCENTAGE' },
+    subscribers: [{ via: 'EMAIL', address: 'ops@ehmpath.com' }],
+  });
+
+  // declare a generic metric alarm (any account can alarm on its own metric)
+  const metricAlarm = DeclaredAwsCloudwatchMetricAlarm.as({
+    name: 'declastruct-acceptance-alarm',
+    description: 'declastruct acceptance metric alarm',
+    namespace: 'Declastruct/Acceptance',
+    metricName: 'TestMetric',
+    statistic: 'Maximum',
+    dimensions: { Suite: 'acceptance' },
+    period: 300,
+    evaluationPeriods: 1,
+    threshold: 1,
+    comparisonOperator: 'GreaterThanThreshold',
+    unit: null,
+    alarmActions: [],
+    tags: { managedBy: 'declastruct', purpose: 'acceptance-test' },
+  });
+
+  // declare a cost anomaly monitor (Cost Explorer, member account can self-monitor)
+  const anomalyMonitor = DeclaredAwsCostAnomalyMonitor.as({
+    name: 'declastruct-acceptance-anomaly',
+    kind: 'DIMENSIONAL',
+    dimension: 'SERVICE',
+    tags: { managedBy: 'declastruct', purpose: 'acceptance-test' },
+  });
+
+  // declare an anomaly subscription atop the monitor (daily email digest;
+  //   DAILY/WEEKLY deliver over email, so no SNS topic policy is needed)
+  const anomalySubscription = DeclaredAwsCostAnomalySubscription.as({
+    name: 'declastruct-acceptance-anomaly-sub',
+    monitor: RefByUnique.as<typeof DeclaredAwsCostAnomalyMonitor>(anomalyMonitor),
+    frequency: 'DAILY',
+    threshold: { amount: '20', unit: 'USD' },
+    subscribers: [{ via: 'EMAIL', address: 'ops@ehmpath.com' }],
+    tags: { managedBy: 'declastruct', purpose: 'acceptance-test' },
+  });
+
+  // declare the execution role AWS Budgets assumes to run + reverse the guard
+  //   (trusted to budgets.amazonaws.com; the action refs it below)
+  const budgetActionRole = DeclaredAwsIamRole.as({
+    name: 'declastruct-acceptance-budgets-action-role',
+    path: '/',
+    description: 'role AWS Budgets assumes to run + reverse the acceptance guard',
+    policies: [
+      {
+        effect: 'Allow',
+        principal: { service: 'budgets.amazonaws.com' },
+        action: 'sts:AssumeRole',
+      },
+    ],
+    tags: { managedBy: 'declastruct', purpose: 'acceptance-test' },
+  });
+
+  // declare a budget-action guard in the member-account-safe APPLY_IAM_POLICY form
+  //   - the SCP form needs management-account access (same wall as SCPs); the SSM
+  //     form needs a live instance id — neither is available in the test account
+  //   - the IAM form attaches an AWS-managed policy (AWSDenyAll) to a role, which
+  //     the member account CAN create for itself. the target is the execution role
+  //     itself (a harmless self-freeze that never fires at the test threshold)
+  const budgetActionGuard = DeclaredAwsBudgetAction.as({
+    budget: RefByUnique.as<typeof DeclaredAwsBudget>(budget),
+    kind: 'APPLY_IAM_POLICY',
+    basis: 'ACTUAL',
+    threshold: { quant: 110, unit: 'PERCENTAGE' },
+    approvalModel: 'AUTOMATIC',
+    executionRole: RefByUnique.as<typeof DeclaredAwsIamRole>(budgetActionRole),
+    definition: {
+      scp: null,
+      ssm: null,
+      iam: {
+        policyArn: 'arn:aws:iam::aws:policy/AWSDenyAll',
+        roleNames: [budgetActionRole.name],
+        groupNames: [],
+        userNames: [],
+      },
+    },
+    subscribers: [{ via: 'EMAIL', address: 'ops@ehmpath.com' }],
+  });
 
   // get provider context to fetch current access keys
   const [provider] = await getProviders();
@@ -548,7 +651,18 @@ export const getResources = async () => {
     ssmSshTunnel,
     // ssh key authorization (seeded once via the acceptance beforeAll; see its .seed note)
     ec2SshKeyAuthorized,
-    // SCP resources skipped — require management account credentials (see .skip note above)
+    // budget cap + its threshold alert tier (budget declared before the tier refs it)
+    budget,
+    budgetNotification,
+    // generic cloudwatch metric alarm
+    metricAlarm,
+    // cost anomaly monitor + its alert subscription (monitor before the sub refs it)
+    anomalyMonitor,
+    anomalySubscription,
+    // budget-action guard (member-account-safe APPLY_IAM_POLICY form) + its
+    //   execution role (role before the action refs it; budget already above)
+    budgetActionRole,
+    budgetActionGuard,
     ...accessKeysToDelete,
   ];
 };

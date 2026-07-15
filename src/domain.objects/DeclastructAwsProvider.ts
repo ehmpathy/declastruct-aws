@@ -2,6 +2,15 @@ import type { DeclastructDao, DeclastructProvider } from 'declastruct';
 import type { ContextLogTrail } from 'sdk-logs';
 
 import type { ContextAwsApi } from './ContextAwsApi';
+import type { DeclaredAwsBudget } from './DeclaredAwsBudget';
+import type { DeclaredAwsBudgetAction } from './DeclaredAwsBudgetAction';
+import type { DeclaredAwsBudgetNotification } from './DeclaredAwsBudgetNotification';
+import type { DeclaredAwsCloudwatchLogGroup } from './DeclaredAwsCloudwatchLogGroup';
+import type { DeclaredAwsCloudwatchLogGroupReportCostOfIngestion } from './DeclaredAwsCloudwatchLogGroupReportCostOfIngestion';
+import type { DeclaredAwsCloudwatchLogGroupReportDistOfPattern } from './DeclaredAwsCloudwatchLogGroupReportDistOfPattern';
+import type { DeclaredAwsCloudwatchMetricAlarm } from './DeclaredAwsCloudwatchMetricAlarm';
+import type { DeclaredAwsCostAnomalyMonitor } from './DeclaredAwsCostAnomalyMonitor';
+import type { DeclaredAwsCostAnomalySubscription } from './DeclaredAwsCostAnomalySubscription';
 import type { DeclaredAwsEc2Instance } from './DeclaredAwsEc2Instance';
 import type { DeclaredAwsEc2SshKeyAuthorized } from './DeclaredAwsEc2SshKeyAuthorized';
 import type { DeclaredAwsIamInstanceProfile } from './DeclaredAwsIamInstanceProfile';
@@ -12,9 +21,6 @@ import type { DeclaredAwsIamRolePolicyAttachedManaged } from './DeclaredAwsIamRo
 import type { DeclaredAwsLambda } from './DeclaredAwsLambda';
 import type { DeclaredAwsLambdaAlias } from './DeclaredAwsLambdaAlias';
 import type { DeclaredAwsLambdaVersion } from './DeclaredAwsLambdaVersion';
-import type { DeclaredAwsLogGroup } from './DeclaredAwsLogGroup';
-import type { DeclaredAwsLogGroupReportCostOfIngestion } from './DeclaredAwsLogGroupReportCostOfIngestion';
-import type { DeclaredAwsLogGroupReportDistOfPattern } from './DeclaredAwsLogGroupReportDistOfPattern';
 import type { DeclaredAwsOrganization } from './DeclaredAwsOrganization';
 import type { DeclaredAwsOrganizationAccount } from './DeclaredAwsOrganizationAccount';
 import type { DeclaredAwsOrganizationPolicyEligibility } from './DeclaredAwsOrganizationPolicyEligibility';
@@ -34,6 +40,26 @@ import type { DeclaredAwsSsoUser } from './DeclaredAwsSsoUser';
  */
 export type DeclastructAwsProvider = DeclastructProvider<
   {
+    DeclaredAwsBudget: DeclastructDao<
+      typeof DeclaredAwsBudget,
+      ContextAwsApi & ContextLogTrail
+    >;
+    DeclaredAwsBudgetNotification: DeclastructDao<
+      typeof DeclaredAwsBudgetNotification,
+      ContextAwsApi & ContextLogTrail
+    >;
+    DeclaredAwsBudgetAction: DeclastructDao<
+      typeof DeclaredAwsBudgetAction,
+      ContextAwsApi & ContextLogTrail
+    >;
+    DeclaredAwsCostAnomalyMonitor: DeclastructDao<
+      typeof DeclaredAwsCostAnomalyMonitor,
+      ContextAwsApi & ContextLogTrail
+    >;
+    DeclaredAwsCostAnomalySubscription: DeclastructDao<
+      typeof DeclaredAwsCostAnomalySubscription,
+      ContextAwsApi & ContextLogTrail
+    >;
     DeclaredAwsEc2Instance: DeclastructDao<
       typeof DeclaredAwsEc2Instance,
       ContextAwsApi & ContextLogTrail
@@ -74,16 +100,20 @@ export type DeclastructAwsProvider = DeclastructProvider<
       typeof DeclaredAwsLambdaVersion,
       ContextAwsApi & ContextLogTrail
     >;
-    DeclaredAwsLogGroup: DeclastructDao<
-      typeof DeclaredAwsLogGroup,
+    DeclaredAwsCloudwatchLogGroup: DeclastructDao<
+      typeof DeclaredAwsCloudwatchLogGroup,
       ContextAwsApi & ContextLogTrail
     >;
-    DeclaredAwsLogGroupReportCostOfIngestion: DeclastructDao<
-      typeof DeclaredAwsLogGroupReportCostOfIngestion,
+    DeclaredAwsCloudwatchLogGroupReportCostOfIngestion: DeclastructDao<
+      typeof DeclaredAwsCloudwatchLogGroupReportCostOfIngestion,
       ContextAwsApi & ContextLogTrail
     >;
-    DeclaredAwsLogGroupReportDistOfPattern: DeclastructDao<
-      typeof DeclaredAwsLogGroupReportDistOfPattern,
+    DeclaredAwsCloudwatchLogGroupReportDistOfPattern: DeclastructDao<
+      typeof DeclaredAwsCloudwatchLogGroupReportDistOfPattern,
+      ContextAwsApi & ContextLogTrail
+    >;
+    DeclaredAwsCloudwatchMetricAlarm: DeclastructDao<
+      typeof DeclaredAwsCloudwatchMetricAlarm,
       ContextAwsApi & ContextLogTrail
     >;
     DeclaredAwsOrganization: DeclastructDao<

@@ -104,8 +104,9 @@ once bootstrap is complete, you can provision the admin resources:
 
 ```bash
 use.ehmpathy.root.admin
-npx declastruct plan provision/aws.auth/account=.root/resources.ts
-npx declastruct apply provision/aws.auth/account=.root/resources.ts
+source provision/aws.auth/account=.root/.env
+npx declastruct plan  --wish provision/aws.auth/account=.root/resources.ts --into provision/aws.auth/account=.root/.temp/plan.json
+npx declastruct apply --plan provision/aws.auth/account=.root/.temp/plan.json
 ```
 
 all resources should show as **KEEP** if already provisioned correctly.
