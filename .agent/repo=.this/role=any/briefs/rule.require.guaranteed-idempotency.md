@@ -73,7 +73,7 @@ before you swallow any conflict, ask:
 
 ## .see also
 
-- `src/domain.operations/aws/tolerateExtantConflict.ts` — carries the `.safe`/`.unsafe` contract
+- `src/infra/idempotency/tolerateExtantConflict.ts` — carries the `.safe`/`.unsafe` contract
 - `rule.forbid.failhide` (mechanic role) — assumed idempotency is a specific flavor of failhide
 - `rule.require.idempotent-procedures` (mechanic role) — the general idempotency mandate
 - the orphan-hazard rule in this briefs dir — the leak that non-idempotency creates

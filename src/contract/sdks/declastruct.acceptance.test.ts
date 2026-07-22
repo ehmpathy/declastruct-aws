@@ -9,14 +9,18 @@ import { given, then, useBeforeAll, when } from 'test-fns';
 
 import { DeclaredAwsCloudwatchLogGroupReportCostOfIngestionDao } from '@src/access/daos/DeclaredAwsCloudwatchLogGroupReportCostOfIngestionDao';
 import { DeclaredAwsCloudwatchLogGroupReportDistOfPatternDao } from '@src/access/daos/DeclaredAwsCloudwatchLogGroupReportDistOfPatternDao';
+import { delParameter } from '@src/access/sdks/sdkSsm/delParameter';
+import { setParameter } from '@src/access/sdks/sdkSsm/setParameter';
 import { DeclaredAwsEc2InstanceSession } from '@src/domain.objects/DeclaredAwsEc2InstanceSession';
 import { DeclaredAwsEc2SshKeyAuthorized } from '@src/domain.objects/DeclaredAwsEc2SshKeyAuthorized';
+import { DeclaredAwsSsmParameterSecure } from '@src/domain.objects/DeclaredAwsSsmParameterSecure';
 import { getEc2Instance } from '@src/domain.operations/ec2Instance/getEc2Instance';
 import { setEc2InstanceSession } from '@src/domain.operations/ec2InstanceSession/setEc2InstanceSession';
 import { getOneEc2SshKeyAuthorized } from '@src/domain.operations/ec2SshKeyAuthorized/getOneEc2SshKeyAuthorized';
 import { setEc2SshKeyAuthorized } from '@src/domain.operations/ec2SshKeyAuthorized/setEc2SshKeyAuthorized';
 import { getAllIamUserAccessKeys } from '@src/domain.operations/iamUserAccessKey/getAllIamUserAccessKeys';
 import { getDeclastructAwsProvider } from '@src/domain.operations/provider/getDeclastructAwsProvider';
+import { setSsmParameterSecure } from '@src/domain.operations/ssmParameterSecure/setSsmParameterSecure';
 
 /**
  * .what = the exid, comment, and public key of the acceptance ssh key authorization
@@ -34,6 +38,67 @@ const ACCEPTANCE_SSH_PUBLIC_KEY =
  * .why = keeps seed setup quiet; real warnings and errors still reach the console
  */
 const testLog = genLogMethods({ level: { minimum: LogLevel.WARN } });
+
+/**
+ * .what = runs a declastruct CLI command and captures whether it failed loud + its combined output
+ * .why = the create/change-without-value and both type-confusion guard cases each drive the real
+ *   CLI and assert a non-zero exit + a guard message. this folds their repeated exec+try/catch
+ *   +stdout/stderr capture into one named helper (rule.prefer.wet-over-dry rule-of-three).
+ */
+const execDeclastructCapture = (
+  command: string,
+): { failed: boolean; output: string } => {
+  try {
+    execSync(command, { stdio: 'pipe', env: process.env });
+    return { failed: false, output: '' };
+  } catch (error) {
+    const err = error as { stderr?: Buffer; stdout?: Buffer };
+    return {
+      failed: true,
+      output: (err.stdout?.toString() ?? '') + (err.stderr?.toString() ?? ''),
+    };
+  }
+};
+
+/**
+ * .what = distills the stable guard error text out of a failed CLI's noisy combined output
+ * .why = the negative-path guard journeys must SNAPSHOT their error output, not only `toContain`-match
+ *   it (rule.require.acceptance-journey-coverage). the raw combined stdout+stderr carries volatile
+ *   tokens (temp plan-file paths stamped with a run timestamp, elapsed-time spinners, ansi escapes —
+ *   both color and cursor-control like ESC[A / ESC[K from the spinner), so a snapshot of the raw text
+ *   would be flaky. this strips all ansi CSI sequences and keeps only the domain error
+ *   lines, so the snapshot is deterministic AND reviewable — a human sees the exact guard message a
+ *   caller would, and any drift in that message surfaces in the diff.
+ * .note = the filter keeps lines that carry the domain guard vocabulary; volatile path/timer/tree
+ *   lines are dropped by construction, so the artifact stays stable across runs and machines.
+ */
+// ansi CSI escape matcher — built via RegExp from a fromCharCode ESC so no control char
+// sits in a regex literal (biome noControlCharactersInRegex). strips color AND
+// cursor-control (the ESC[A / ESC[K spinner residue); only readable text remains.
+const ansiCsiSequence = new RegExp(
+  `${String.fromCharCode(27)}\\[[0-9;]*[A-Za-z]`,
+  'g',
+);
+
+// collapses a duplicated error-class prefix. declastruct's cli renders the error class name
+// AND the wrapped message (which itself already carries the class), so a guard line arrives as
+// "BadRequestError: BadRequestError: x". the domain throw message is clean (no class prefix);
+// the double is a render artifact. keep ONE informative class prefix, drop the redundant second.
+const duplicateErrorClassPrefix = /(\b\w+Error): \1: /g;
+
+const asGuardErrorSnapshot = (output: string): string =>
+  output
+    .replace(ansiCsiSequence, '')
+    .replace(duplicateErrorClassPrefix, '$1: ')
+    .split('\n')
+    .map((line) => line.trimEnd())
+    .filter((line) =>
+      /BadRequestError|will not manage|without a value|without also a value|is a (SecureString|String), not a|StringList/.test(
+        line,
+      ),
+    )
+    .join('\n')
+    .trim();
 
 /**
  * .what = acceptance tests for declastruct CLI workflow
@@ -61,6 +126,30 @@ describe('declastruct CLI workflow', () => {
     beforeAll(async () => {
       // ensure clean test directory
       mkdirSync(testDir, { recursive: true });
+    });
+
+    // seed the secret SSM parameter once so its write-only declared resource converges to
+    // KEEP. the fixture declares value=undefined (steady state), which cannot CREATE an
+    // absent secret (a value is required to write). so seed a value here via upsert with the
+    // SAME description + tags the fixture declares — a value write is the only way to set a
+    // SecureString's description, so upsert (not findsert) guarantees the remote roundtrip
+    // fields agree even if a stale secret survived a prior run. thereafter the fixture's plan
+    // sees value undefined + secret present + roundtrip fields agree -> KEEP, with no
+    // GetParameter and no decrypt.
+    beforeAll(async () => {
+      const provider = await getDeclastructAwsProvider({}, { log: testLog });
+      await setSsmParameterSecure(
+        {
+          upsert: DeclaredAwsSsmParameterSecure.as({
+            name: '/declastruct-acceptance/secure/api-token',
+            value: 'declastruct-acceptance-seed-secret',
+            keyId: null,
+            description: 'declastruct acceptance secret',
+            tags: { managedBy: 'declastruct', purpose: 'acceptance-test' },
+          }),
+        },
+        provider.context,
+      );
     });
 
     // seed the ssh key authorization once so its declared resource converges to KEEP
@@ -427,6 +516,25 @@ describe('declastruct CLI workflow', () => {
         expect(keyChange).toBeDefined();
       });
 
+      then('plan includes SSM parameter resources (plain + secure)', () => {
+        /**
+         * .what = validates plan includes both the plaintext and secret SSM parameters
+         * .why = proves each is a first-class declarative resource, driven via its DAO
+         *        through the plan/apply workflow (the write-only secret included)
+         */
+        const plainChange = prep.plan.changes.find(
+          (r: DeclastructChange) =>
+            r.forResource.class === 'DeclaredAwsSsmParameterPlain',
+        );
+        expect(plainChange).toBeDefined();
+
+        const secureChange = prep.plan.changes.find(
+          (r: DeclastructChange) =>
+            r.forResource.class === 'DeclaredAwsSsmParameterSecure',
+        );
+        expect(secureChange).toBeDefined();
+      });
+
       then('plan includes budget + cost resources', () => {
         /**
          * .what = validates plan includes budget, notification, alarm, and the two
@@ -722,6 +830,28 @@ describe('declastruct CLI workflow', () => {
         expect(keyChange!.action).toBe('KEEP');
       });
 
+      then('SSM parameters (plain + secure) show KEEP', () => {
+        /**
+         * .what = validates both SSM parameters match desired state after apply
+         * .why = proves plaintext (value-compare) and secret (write-only) are idempotent
+         *        through plan/apply — the secret converges to KEEP via metadata only, with
+         *        no GetParameter and no kms:Decrypt, and its declared value stays undefined
+         */
+        const plainChange = prep.plan.changes.find(
+          (r: DeclastructChange) =>
+            r.forResource.class === 'DeclaredAwsSsmParameterPlain',
+        );
+        expect(plainChange).toBeDefined();
+        expect(plainChange!.action).toBe('KEEP');
+
+        const secureChange = prep.plan.changes.find(
+          (r: DeclastructChange) =>
+            r.forResource.class === 'DeclaredAwsSsmParameterSecure',
+        );
+        expect(secureChange).toBeDefined();
+        expect(secureChange!.action).toBe('KEEP');
+      });
+
       then('budget + cost resources show KEEP', () => {
         /**
          * .what = validates the feat-budget resources match desired state after apply
@@ -748,7 +878,377 @@ describe('declastruct CLI workflow', () => {
       // SCP tests skipped — require management account credentials (see resources.acceptance.ts)
     });
 
-    when('fetching log group reports after lambda invocation', () => {
+    when('apply on a secret created with no value', () => {
+      // drive the REAL declastruct CLI end to end against a create-without-value secret:
+      //   plan must report CREATE (metadata-only, no read), then apply must fail loud with the
+      //   guard message — the user-faced error path per rule.forbid.friction-hazards. this is
+      //   blackbox-via-contract (the CLI), so it also honors rule.require.test-coverage-by-grain.
+      const guardResourcesFile = join(
+        __dirname,
+        '.test',
+        'assets',
+        'resources.create-without-value.ts',
+      );
+      const guardName =
+        '/declastruct-acceptance/secure/create-without-value-guard';
+
+      const outcome = useBeforeAll(async () => {
+        // ensure the name is absent so apply is forced to CREATE (and hit the guard)
+        const provider = await getDeclastructAwsProvider({}, { log: testLog });
+        await delParameter({ name: guardName }, provider.context);
+
+        // plan should succeed (metadata-only) and report CREATE
+        const guardPlanFile = join(testDir, 'plan.create-without-value.json');
+        execSync(
+          `npx declastruct plan --wish ${guardResourcesFile} --into ${guardPlanFile}`,
+          { stdio: 'pipe', env: process.env },
+        );
+        const plan = JSON.parse(readFileSync(guardPlanFile, 'utf-8')) as {
+          changes: DeclastructChange[];
+        };
+
+        // apply MUST fail loud — capture the CLI's non-zero exit + combined output
+        const apply = execDeclastructCapture(
+          `npx declastruct apply --plan ${guardPlanFile}`,
+        );
+        return { plan, apply };
+      });
+
+      then('plan reports CREATE for the absent secret (metadata only)', () => {
+        const change = outcome.plan.changes.find(
+          (r: DeclastructChange) =>
+            r.forResource.class === 'DeclaredAwsSsmParameterSecure',
+        );
+        expect(change).toBeDefined();
+        expect(change!.action).toBe('CREATE');
+      });
+
+      then(
+        'apply fails loud with the create-without-value guard message',
+        () => {
+          expect(outcome.apply.failed).toBe(true);
+          expect(outcome.apply.output).toContain(
+            'cannot create a secret parameter without a value',
+          );
+        },
+      );
+
+      then('the create-without-value error matches snapshot', () => {
+        expect(asGuardErrorSnapshot(outcome.apply.output)).toMatchSnapshot();
+      });
+    });
+
+    when('apply on a secret changed with no value', () => {
+      // the second user-faced secure error path: aws re-encrypts a SecureString only on a
+      //   value write, so a keyId/description change with no value cannot be honored — the
+      //   orchestrator fails loud. seed the secret with one description + a value, then drive
+      //   the REAL CLI with a changed description + no value: plan shows UPDATE, apply fails
+      //   loud. blackbox-via-contract, per rule.forbid.friction-hazards.
+      const guardResourcesFile = join(
+        __dirname,
+        '.test',
+        'assets',
+        'resources.change-without-value.ts',
+      );
+      const guardName =
+        '/declastruct-acceptance/secure/change-without-value-guard';
+
+      const outcome = useBeforeAll(async () => {
+        // seed the secret WITH a value + the ORIGINAL description, so it exists and its
+        //   description differs from the wish's 'changed description'
+        const provider = await getDeclastructAwsProvider({}, { log: testLog });
+        await setSsmParameterSecure(
+          {
+            upsert: DeclaredAwsSsmParameterSecure.as({
+              name: guardName,
+              value: 'seed-secret-value',
+              keyId: null,
+              description: 'original description',
+              tags: null,
+            }),
+          },
+          provider.context,
+        );
+
+        // plan should succeed (metadata-only) and report UPDATE (description differs)
+        const guardPlanFile = join(testDir, 'plan.change-without-value.json');
+        execSync(
+          `npx declastruct plan --wish ${guardResourcesFile} --into ${guardPlanFile}`,
+          { stdio: 'pipe', env: process.env },
+        );
+        const plan = JSON.parse(readFileSync(guardPlanFile, 'utf-8')) as {
+          changes: DeclastructChange[];
+        };
+
+        // apply MUST fail loud — capture the CLI's non-zero exit + combined output
+        const apply = execDeclastructCapture(
+          `npx declastruct apply --plan ${guardPlanFile}`,
+        );
+        return { plan, apply };
+      });
+
+      then('plan reports UPDATE for the changed description', () => {
+        const change = outcome.plan.changes.find(
+          (r: DeclastructChange) =>
+            r.forResource.class === 'DeclaredAwsSsmParameterSecure',
+        );
+        expect(change).toBeDefined();
+        expect(change!.action).toBe('UPDATE');
+      });
+
+      then(
+        'apply fails loud with the keyId/description-change guard message',
+        () => {
+          expect(outcome.apply.failed).toBe(true);
+          expect(outcome.apply.output).toContain(
+            'cannot change the keyId or description of a secret without also a value write',
+          );
+        },
+      );
+
+      then('the change-without-value error matches snapshot', () => {
+        expect(asGuardErrorSnapshot(outcome.apply.output)).toMatchSnapshot();
+      });
+
+      afterAll(async () => {
+        // cleanup the seeded secret (this wish never wrote a value, so the seed persists)
+        const provider = await getDeclastructAwsProvider({}, { log: testLog });
+        await delParameter({ name: guardName }, provider.context);
+      });
+    });
+
+    when('a secret value is rotated and a plain value is changed', () => {
+      // the POSITIVE twin of the create/change-without-value guards. those prove the ERROR path
+      //   at the CLI grain; this proves the SUCCESS path: supply a NEW value and the secret
+      //   rotates end-to-end through the real `declastruct plan`/`apply` (write-only UPDATE, no
+      //   plaintext read) — the headline journey the vision sells. it also covers the plain
+      //   value-compare UPDATE, so the positive-update path is snapped, not only its error twins.
+      //   blackbox-via-contract: seed via internal op (setup, allowed), drive plan+apply via CLI.
+      const rotateResourcesFile = join(
+        __dirname,
+        '.test',
+        'assets',
+        'resources.rotate-secret.ts',
+      );
+      const secureName = '/declastruct-acceptance/secure/rotate';
+      const plainName = '/declastruct-acceptance/plain/rotate';
+
+      const outcome = useBeforeAll(async () => {
+        const provider = await getDeclastructAwsProvider({}, { log: testLog });
+        const context = provider.context;
+
+        // seed BOTH with an ORIGINAL value so each EXISTS -> plan reports UPDATE (not CREATE).
+        //   the secret is write-only (a present value always plans UPDATE); the plain differs by
+        //   value so value-compare reports UPDATE.
+        await setSsmParameterSecure(
+          {
+            upsert: DeclaredAwsSsmParameterSecure.as({
+              name: secureName,
+              value: 'rotate-old-secret',
+              keyId: null,
+              description: null,
+              tags: null,
+            }),
+          },
+          context,
+        );
+        await setParameter(
+          {
+            name: plainName,
+            value: 'rotate-old-plain',
+            type: 'String',
+            overwrite: true,
+          },
+          context,
+        );
+
+        // plan via the REAL CLI -> both should report UPDATE
+        const rotatePlanFile = join(testDir, 'plan.rotate-secret.json');
+        execSync(
+          `npx declastruct plan --wish ${rotateResourcesFile} --into ${rotatePlanFile}`,
+          { stdio: 'pipe', env: process.env },
+        );
+        const plan = JSON.parse(readFileSync(rotatePlanFile, 'utf-8')) as {
+          changes: DeclastructChange[];
+        };
+
+        // apply via the REAL CLI -> must SUCCEED (the positive path writes the new values)
+        const apply = execDeclastructCapture(
+          `npx declastruct apply --plan ${rotatePlanFile}`,
+        );
+        return { plan, apply };
+      });
+
+      then(
+        'plan reports UPDATE for both the secret and the plain value',
+        () => {
+          const summary = outcome.plan.changes
+            .filter(
+              (r: DeclastructChange) =>
+                r.forResource.slug.includes('rotate') &&
+                (r.forResource.class === 'DeclaredAwsSsmParameterSecure' ||
+                  r.forResource.class === 'DeclaredAwsSsmParameterPlain'),
+            )
+            .map((r: DeclastructChange) => ({
+              action: r.action,
+              class: r.forResource.class,
+            }))
+            .sort((a, b) => a.class.localeCompare(b.class));
+          expect(summary).toHaveLength(2);
+          expect(summary.every((c) => c.action === 'UPDATE')).toBe(true);
+          expect(summary).toMatchSnapshot();
+        },
+      );
+
+      then('plan reports UPDATE for the plain value', () => {
+        // isolates the Plain value-compare UPDATE decision (the twin `then` above snaps
+        //   Plain+Secure together). reuses the SAME plan — no extra CLI call, no extra AWS
+        //   resource — so the plain positive-UPDATE path has a dedicated, non-bundled snapshot.
+        const plainOnly = outcome.plan.changes
+          .filter(
+            (r: DeclastructChange) =>
+              r.forResource.slug.includes('rotate') &&
+              r.forResource.class === 'DeclaredAwsSsmParameterPlain',
+          )
+          .map((r: DeclastructChange) => ({
+            action: r.action,
+            class: r.forResource.class,
+          }));
+        expect(plainOnly).toHaveLength(1);
+        expect(plainOnly[0]!.action).toBe('UPDATE');
+        expect(plainOnly).toMatchSnapshot();
+      });
+
+      then('apply succeeds — the value rotate is written', () => {
+        expect(outcome.apply.failed).toBe(false);
+      });
+
+      afterAll(async () => {
+        const provider = await getDeclastructAwsProvider({}, { log: testLog });
+        await delParameter({ name: secureName }, provider.context);
+        await delParameter({ name: plainName }, provider.context);
+      });
+    });
+
+    when(
+      'plan runs on a Plain resource declared at a SecureString name',
+      () => {
+        // the type-confusion guard — the scariest user-faced path. a Plain declared at a name that
+        //   holds a SecureString would read the ciphertext as a value and let a later write
+        //   DOWNGRADE the secret. the guard fires at PLAN time (getOneSsmParameterPlain), so the
+        //   real `declastruct plan` itself fails loud. blackbox-via-contract, per
+        //   rule.forbid.friction-hazards.
+        const guardResourcesFile = join(
+          __dirname,
+          '.test',
+          'assets',
+          'resources.type-confusion-plain.ts',
+        );
+        const guardName =
+          '/declastruct-acceptance/type-confusion/plain-at-secure';
+
+        const outcome = useBeforeAll(async () => {
+          const provider = await getDeclastructAwsProvider(
+            {},
+            { log: testLog },
+          );
+          // seed a SecureString at the name the Plain wish will claim
+          await setParameter(
+            {
+              name: guardName,
+              value: 'super-secret-value',
+              type: 'SecureString',
+              overwrite: true,
+            },
+            provider.context,
+          );
+
+          // plan MUST fail loud (the guard fires on the getOne read) — capture exit + output
+          const guardPlanFile = join(testDir, 'plan.type-confusion-plain.json');
+          const plan = execDeclastructCapture(
+            `npx declastruct plan --wish ${guardResourcesFile} --into ${guardPlanFile}`,
+          );
+          return { plan };
+        });
+
+        then(
+          'plan fails loud — a SecureString is never managed as a String',
+          () => {
+            expect(outcome.plan.failed).toBe(true);
+            expect(outcome.plan.output).toContain(
+              'is a SecureString, not a String',
+            );
+          },
+        );
+
+        then('the type-confusion (plain@secure) error matches snapshot', () => {
+          expect(asGuardErrorSnapshot(outcome.plan.output)).toMatchSnapshot();
+        });
+
+        afterAll(async () => {
+          const provider = await getDeclastructAwsProvider(
+            {},
+            { log: testLog },
+          );
+          await delParameter({ name: guardName }, provider.context);
+        });
+      },
+    );
+
+    when('plan runs on a Secure resource declared at a String name', () => {
+      // the mirror direction — a Secure declared at a plaintext String name would misroute a
+      //   non-secret into the write-only flow. the guard fires at PLAN time
+      //   (getOneSsmParameterSecure), so the real `declastruct plan` itself fails loud.
+      const guardResourcesFile = join(
+        __dirname,
+        '.test',
+        'assets',
+        'resources.type-confusion-secure.ts',
+      );
+      const guardName =
+        '/declastruct-acceptance/type-confusion/secure-at-plain';
+
+      const outcome = useBeforeAll(async () => {
+        const provider = await getDeclastructAwsProvider({}, { log: testLog });
+        // seed a plaintext String at the name the Secure wish will claim
+        await setParameter(
+          {
+            name: guardName,
+            value: 'not-a-secret',
+            type: 'String',
+            overwrite: true,
+          },
+          provider.context,
+        );
+
+        const guardPlanFile = join(testDir, 'plan.type-confusion-secure.json');
+        const plan = execDeclastructCapture(
+          `npx declastruct plan --wish ${guardResourcesFile} --into ${guardPlanFile}`,
+        );
+        return { plan };
+      });
+
+      then(
+        'plan fails loud — a String is never managed as a SecureString',
+        () => {
+          expect(outcome.plan.failed).toBe(true);
+          expect(outcome.plan.output).toContain(
+            'is a String, not a SecureString',
+          );
+        },
+      );
+
+      then('the type-confusion (secure@plain) error matches snapshot', () => {
+        expect(asGuardErrorSnapshot(outcome.plan.output)).toMatchSnapshot();
+      });
+
+      afterAll(async () => {
+        const provider = await getDeclastructAwsProvider({}, { log: testLog });
+        await delParameter({ name: guardName }, provider.context);
+      });
+    });
+
+    when('log group reports are fetched after lambda invocation', () => {
       beforeAll(async () => {
         // invoke lambda to generate logs - use CLI to avoid Jest/AWS SDK dynamic import issues
         execSync(

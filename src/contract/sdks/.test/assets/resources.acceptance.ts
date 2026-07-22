@@ -32,6 +32,8 @@ import {
   DeclaredAwsCloudwatchLogGroup,
   DeclaredAwsCloudwatchLogGroupReportCostOfIngestion,
   DeclaredAwsCloudwatchLogGroupReportDistOfPattern,
+  DeclaredAwsSsmParameterPlain,
+  DeclaredAwsSsmParameterSecure,
   DeclaredAwsSsmSshTunnel,
   DeclaredAwsVpc,
   DeclaredAwsVpcCidrBlock,
@@ -603,6 +605,40 @@ export const getResources = async () => {
     status: 'CLOSED',
   });
 
+  // declare a plaintext SSM parameter (String) — value is non-secret, so drift is
+  //   detected by a normal value-compare (GetParameter, no decrypt). value present ->
+  //   apply creates it; re-plan compares 'info' === 'info' -> KEEP
+  const ssmParameterPlain = DeclaredAwsSsmParameterPlain.as({
+    name: '/declastruct-acceptance/plain/log-level',
+    value: 'info',
+    description: 'declastruct acceptance log level',
+    tags: { managedBy: 'declastruct', purpose: 'acceptance-test' },
+  });
+
+  /**
+   * .what = a secret SSM parameter (SecureString), driven via plan/apply through
+   *   DeclaredAwsSsmParameterSecureDao
+   * .why = dogfoods the write-only declarative flow, and proves the security guarantee:
+   *   plan reconciles via metadata only (no GetParameter, no kms:Decrypt)
+   *
+   * .writeonly = the value is declared undefined for steady-state KEEP (replicates
+   *   DeclaredGithubOrgSecret). a hard-coded value would show UPDATE on every plan
+   *   (desired present vs remote undefined), so we source no value here.
+   *
+   * .seed = REQUIRED once, because a create needs a value but this fixture declares
+   *   none. the acceptance beforeAll seeds it via setSsmParameterSecure with a value;
+   *   thereafter the fixture (value undefined + secret present) converges to KEEP with
+   *   no read. keyId null = account default aws/ssm key (the cast maps the default key
+   *   alias back to null so a declared null converges to KEEP)
+   */
+  const ssmParameterSecure = DeclaredAwsSsmParameterSecure.as({
+    name: '/declastruct-acceptance/secure/api-token',
+    value: undefined,
+    keyId: null,
+    description: 'declastruct acceptance secret',
+    tags: { managedBy: 'declastruct', purpose: 'acceptance-test' },
+  });
+
   /**
    * .skip = SCP resources require management account credentials
    *   - test profile (ehmpathy.demo) is a member account
@@ -649,6 +685,9 @@ export const getResources = async () => {
     ec2InstanceSession,
     // ssm ssh tunnel (CLOSED — driven via plan/apply, no live subprocess)
     ssmSshTunnel,
+    // ssm parameters — plaintext (value-compare) + secret (write-only, seeded in beforeAll)
+    ssmParameterPlain,
+    ssmParameterSecure,
     // ssh key authorization (seeded once via the acceptance beforeAll; see its .seed note)
     ec2SshKeyAuthorized,
     // budget cap + its threshold alert tier (budget declared before the tier refs it)

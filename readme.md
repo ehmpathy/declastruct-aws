@@ -306,3 +306,61 @@ this pattern enables:
 - **aliased endpoints**: invoke via `function:LIVE` for stable endpoints across deploys
 - **safe rollbacks**: retarget aliases to previous versions without redeploy
 - **canary deploys**: use `routingConfig.additionalVersionWeights` to split traffic between versions
+
+## example.6 = manage SSM parameters — plaintext config + write-only secrets
+
+declare non-secret config and secrets side by side. the secret is **write-only**: `plan`
+never reads its value (no `GetParameter`, no `kms:Decrypt`), so a least-privilege plan role
+needs only `ssm:DescribeParameters` for it — exactly the posture terraform cannot offer.
+
+```ts
+import {
+  getDeclastructAwsProvider,
+  DeclaredAwsSsmParameterPlain,
+  DeclaredAwsSsmParameterSecure,
+} from 'declastruct-aws';
+
+export const getProviders = async () => [
+  await getDeclastructAwsProvider({}, { log: console }),
+];
+
+export const getResources = async () => {
+  // plaintext config — the value is NOT sensitive, so drift is detected by a
+  // normal value-compare (plan reads it via GetParameter; no decrypt needed)
+  const logLevel = DeclaredAwsSsmParameterPlain.as({
+    name: '/svc-notifications/prod/log-level',
+    value: 'info',
+    description: 'the log level',
+    tags: { managedBy: 'declastruct' },
+  });
+
+  // secret (SecureString) — WRITE-ONLY. plan never reads the value; supply a value to
+  // create/rotate, leave it undefined to KEEP the extant secret (no read, no decrypt).
+  // best practice: source the value from an env var set ONLY when you intend to write.
+  const authToken = DeclaredAwsSsmParameterSecure.as({
+    name: '/svc-notifications/prod/twilio/auth-token',
+    value: process.env.TWILIO_AUTH_TOKEN, // undefined = keep; present = create/rotate
+    keyId: null, // null = the account default aws/ssm key (a CMK is optional)
+    description: 'twilio auth token',
+    tags: { managedBy: 'declastruct' },
+  });
+
+  return [logLevel, authToken];
+};
+```
+
+```sh
+# a least-privilege plan role needs NO GetParameter and NO kms:Decrypt for the secret
+npx declastruct plan  --wish resources.ts --into plan.json
+npx declastruct apply --plan plan.json
+```
+
+this pattern enables:
+- **write-only secrets**: `plan` reconciles a `SecureString` via metadata only — no
+  `GetParameter`, no `kms:Decrypt`, and no secret-derived artifact stored anywhere to leak
+- **least-privilege plan roles**: the plan role can be denied `kms:Decrypt` outright, so a CI
+  plan job can no longer read prod secrets (the whole risk terraform bakes in)
+- **explicit rotation**: supply a `value` to write/rotate; leave it undefined for a steady-state
+  `KEEP` — the secret is never read back into a plan or state file
+- **plaintext value-compare**: non-secret `String` params still detect value drift normally,
+  since their value is not sensitive

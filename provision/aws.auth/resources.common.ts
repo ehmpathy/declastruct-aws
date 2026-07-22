@@ -245,10 +245,23 @@ export const demoPermissionsPolicy: DeclaredAwsIamPolicyBundle =
           ],
           resource: '*',
         }),
-        // SSM Parameter Store: read/write for integration tests
+        // SSM Parameter Store: read/write + tags for integration & acceptance tests.
+        //   - GetParameter: plaintext value-compare drift detection (String only; no decrypt)
+        //   - DescribeParameters: metadata-only reconcile (the SecureString write-only path)
+        //   - ListTagsForResource / AddTagsToResource / RemoveTagsFromResource: roundtrip tags
+        //   note: a change here must re-apply BOTH the SSO permission set (account=.root) AND
+        //   the OIDC role (account=demo) per hazard.local-green-cicd-red.oidc-role-not-reapplied
         new DeclaredAwsIamPolicyStatement({
           effect: 'Allow',
-          action: ['ssm:PutParameter', 'ssm:DeleteParameter'],
+          action: [
+            'ssm:PutParameter',
+            'ssm:DeleteParameter',
+            'ssm:GetParameter',
+            'ssm:DescribeParameters',
+            'ssm:ListTagsForResource',
+            'ssm:AddTagsToResource',
+            'ssm:RemoveTagsFromResource',
+          ],
           resource: '*',
         }),
         // SSM Sessions: for SSH/VPC tunnel connections

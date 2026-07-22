@@ -1,5 +1,31 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
+exports[`declastruct CLI workflow given: a declastruct resources file when: a secret value is rotated and a plain value is changed then: plan reports UPDATE for both the secret and the plain value 1`] = `
+[
+  {
+    "action": "UPDATE",
+    "class": "DeclaredAwsSsmParameterPlain",
+  },
+  {
+    "action": "UPDATE",
+    "class": "DeclaredAwsSsmParameterSecure",
+  },
+]
+`;
+
+exports[`declastruct CLI workflow given: a declastruct resources file when: a secret value is rotated and a plain value is changed then: plan reports UPDATE for the plain value 1`] = `
+[
+  {
+    "action": "UPDATE",
+    "class": "DeclaredAwsSsmParameterPlain",
+  },
+]
+`;
+
+exports[`declastruct CLI workflow given: a declastruct resources file when: apply on a secret changed with no value then: the change-without-value error matches snapshot 1`] = `"✖ Error during apply: BadRequestError: cannot change the keyId or description of a secret without also a value write (aws re-encrypts a SecureString only on a value write). provide the value to rotate."`;
+
+exports[`declastruct CLI workflow given: a declastruct resources file when: apply on a secret created with no value then: the create-without-value error matches snapshot 1`] = `"✖ Error during apply: BadRequestError: cannot create a secret parameter without a value. provide the value via process.env or directly."`;
+
 exports[`declastruct CLI workflow given: a declastruct resources file when: generating a plan via declastruct CLI then: plan structure matches snapshot 1`] = `
 [
   {
@@ -99,6 +125,14 @@ exports[`declastruct CLI workflow given: a declastruct resources file when: gene
     "slug": "DeclaredAwsSsmSshTunnel.port35432.exiddeclastruct-acceptance-instance.[HASH]",
   },
   {
+    "class": "DeclaredAwsSsmParameterPlain",
+    "slug": "DeclaredAwsSsmParameterPlain.declastruct-acceptanceplainlog-level.[HASH]",
+  },
+  {
+    "class": "DeclaredAwsSsmParameterSecure",
+    "slug": "DeclaredAwsSsmParameterSecure.declastruct-acceptancesecureapi-token.[HASH]",
+  },
+  {
     "class": "DeclaredAwsEc2SshKeyAuthorized",
     "slug": "DeclaredAwsEc2SshKeyAuthorized.declastruct-acceptance-seed.exiddeclastruct-acceptance-instance.[HASH]",
   },
@@ -132,6 +166,10 @@ exports[`declastruct CLI workflow given: a declastruct resources file when: gene
   },
 ]
 `;
+
+exports[`declastruct CLI workflow given: a declastruct resources file when: plan runs on a Plain resource declared at a SecureString name then: the type-confusion (plain@secure) error matches snapshot 1`] = `"✖ Error during plan: BadRequestError: parameter '/declastruct-acceptance/type-confusion/plain-at-secure' is a SecureString, not a String; will not manage it as DeclaredAwsSsmParameterPlain. use DeclaredAwsSsmParameterSecure for a SecureString instead; StringList is unsupported."`;
+
+exports[`declastruct CLI workflow given: a declastruct resources file when: plan runs on a Secure resource declared at a String name then: the type-confusion (secure@plain) error matches snapshot 1`] = `"✖ Error during plan: BadRequestError: parameter '/declastruct-acceptance/type-confusion/secure-at-plain' is a String, not a SecureString; will not manage it as DeclaredAwsSsmParameterSecure. use DeclaredAwsSsmParameterPlain for a String instead; StringList is unsupported."`;
 
 exports[`declastruct CLI workflow given: a declastruct resources file when: re-planning after apply to verify idempotency then: idempotent plan structure matches snapshot 1`] = `
 [
@@ -254,6 +292,16 @@ exports[`declastruct CLI workflow given: a declastruct resources file when: re-p
     "action": "KEEP",
     "class": "DeclaredAwsSsmSshTunnel",
     "slug": "DeclaredAwsSsmSshTunnel.port35432.exiddeclastruct-acceptance-instance.[HASH]",
+  },
+  {
+    "action": "KEEP",
+    "class": "DeclaredAwsSsmParameterPlain",
+    "slug": "DeclaredAwsSsmParameterPlain.declastruct-acceptanceplainlog-level.[HASH]",
+  },
+  {
+    "action": "KEEP",
+    "class": "DeclaredAwsSsmParameterSecure",
+    "slug": "DeclaredAwsSsmParameterSecure.declastruct-acceptancesecureapi-token.[HASH]",
   },
   {
     "action": "KEEP",

@@ -15,8 +15,8 @@ import type { VisualogicContext } from 'visualogic';
 
 import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
 import type { DeclaredAwsVpcSecurityGroup } from '@src/domain.objects/DeclaredAwsVpcSecurityGroup';
-import { tolerateExtantConflict } from '@src/domain.operations/aws/tolerateExtantConflict';
 import { getOneVpcId } from '@src/domain.operations/vpc/getOneVpcId';
+import { tolerateExtantConflict } from '@src/infra/idempotency/tolerateExtantConflict';
 
 import { asAwsIpPermission } from './asAwsIpPermission';
 import { getOneVpcSecurityGroup } from './getOneVpcSecurityGroup';
