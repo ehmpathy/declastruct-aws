@@ -35,6 +35,8 @@ export { DeclaredAwsOrganizationPolicyEligibilityDao } from '@src/access/daos/De
 export { DeclaredAwsOrganizationServiceControlPolicyAttachmentDao } from '@src/access/daos/DeclaredAwsOrganizationServiceControlPolicyAttachmentDao';
 export { DeclaredAwsOrganizationServiceControlPolicyDao } from '@src/access/daos/DeclaredAwsOrganizationServiceControlPolicyDao';
 export { DeclaredAwsRdsClusterDao } from '@src/access/daos/DeclaredAwsRdsClusterDao';
+export { DeclaredAwsSsmParameterPlainDao } from '@src/access/daos/DeclaredAwsSsmParameterPlainDao';
+export { DeclaredAwsSsmParameterSecureDao } from '@src/access/daos/DeclaredAwsSsmParameterSecureDao';
 export { DeclaredAwsSsmSshTunnelDao } from '@src/access/daos/DeclaredAwsSsmSshTunnelDao';
 export { DeclaredAwsSsmVpcTunnelDao } from '@src/access/daos/DeclaredAwsSsmVpcTunnelDao';
 // aws sso daos
@@ -113,6 +115,8 @@ export { DeclaredAwsOrganizationServiceControlPolicy } from '@src/domain.objects
 export { DeclaredAwsOrganizationServiceControlPolicyAttachment } from '@src/domain.objects/DeclaredAwsOrganizationServiceControlPolicyAttachment';
 export { DeclaredAwsRdsCluster } from '@src/domain.objects/DeclaredAwsRdsCluster';
 // aws ssm domain objects
+export { DeclaredAwsSsmParameterPlain } from '@src/domain.objects/DeclaredAwsSsmParameterPlain';
+export { DeclaredAwsSsmParameterSecure } from '@src/domain.objects/DeclaredAwsSsmParameterSecure';
 export { DeclaredAwsSsmSshTunnel } from '@src/domain.objects/DeclaredAwsSsmSshTunnel';
 /** @deprecated use DeclaredAwsSsmVpcTunnel */
 export {
@@ -251,6 +255,13 @@ export { getDeclastructAwsProvider } from '@src/domain.operations/provider/getDe
 export { getRdsCluster } from '@src/domain.operations/rdsCluster/getRdsCluster';
 // aws ssm command operations
 export { execSsmCommand } from '@src/domain.operations/ssmCommand/execSsmCommand';
+// aws ssm parameter (plain) operations
+export { getOneSsmParameterPlain } from '@src/domain.operations/ssmParameterPlain/getOneSsmParameterPlain';
+export { setSsmParameterPlain } from '@src/domain.operations/ssmParameterPlain/setSsmParameterPlain';
+// aws ssm parameter (secure) operations
+export { delSsmParameterSecure } from '@src/domain.operations/ssmParameterSecure/delSsmParameterSecure';
+export { getOneSsmParameterSecure } from '@src/domain.operations/ssmParameterSecure/getOneSsmParameterSecure';
+export { setSsmParameterSecure } from '@src/domain.operations/ssmParameterSecure/setSsmParameterSecure';
 // aws ssm ssh tunnel operations
 export { getOneSsmSshTunnel } from '@src/domain.operations/ssmSshTunnel/getOneSsmSshTunnel';
 export { setSsmSshTunnel } from '@src/domain.operations/ssmSshTunnel/setSsmSshTunnel';

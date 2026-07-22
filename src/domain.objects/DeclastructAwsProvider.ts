@@ -27,6 +27,8 @@ import type { DeclaredAwsOrganizationPolicyEligibility } from './DeclaredAwsOrga
 import type { DeclaredAwsOrganizationServiceControlPolicy } from './DeclaredAwsOrganizationServiceControlPolicy';
 import type { DeclaredAwsOrganizationServiceControlPolicyAttachment } from './DeclaredAwsOrganizationServiceControlPolicyAttachment';
 import type { DeclaredAwsRdsCluster } from './DeclaredAwsRdsCluster';
+import type { DeclaredAwsSsmParameterPlain } from './DeclaredAwsSsmParameterPlain';
+import type { DeclaredAwsSsmParameterSecure } from './DeclaredAwsSsmParameterSecure';
 import type { DeclaredAwsSsmSshTunnel } from './DeclaredAwsSsmSshTunnel';
 import type { DeclaredAwsSsmVpcTunnel } from './DeclaredAwsSsmVpcTunnel';
 import type { DeclaredAwsSsoAccountAssignment } from './DeclaredAwsSsoAccountAssignment';
@@ -162,6 +164,14 @@ export type DeclastructAwsProvider = DeclastructProvider<
     >;
     DeclaredAwsSsmSshTunnel: DeclastructDao<
       typeof DeclaredAwsSsmSshTunnel,
+      ContextAwsApi & ContextLogTrail
+    >;
+    DeclaredAwsSsmParameterPlain: DeclastructDao<
+      typeof DeclaredAwsSsmParameterPlain,
+      ContextAwsApi & ContextLogTrail
+    >;
+    DeclaredAwsSsmParameterSecure: DeclastructDao<
+      typeof DeclaredAwsSsmParameterSecure,
       ContextAwsApi & ContextLogTrail
     >;
   },

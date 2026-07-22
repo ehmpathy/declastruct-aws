@@ -32,6 +32,8 @@ import { DeclaredAwsOrganizationPolicyEligibilityDao } from '@src/access/daos/De
 import { DeclaredAwsOrganizationServiceControlPolicyAttachmentDao } from '@src/access/daos/DeclaredAwsOrganizationServiceControlPolicyAttachmentDao';
 import { DeclaredAwsOrganizationServiceControlPolicyDao } from '@src/access/daos/DeclaredAwsOrganizationServiceControlPolicyDao';
 import { DeclaredAwsRdsClusterDao } from '@src/access/daos/DeclaredAwsRdsClusterDao';
+import { DeclaredAwsSsmParameterPlainDao } from '@src/access/daos/DeclaredAwsSsmParameterPlainDao';
+import { DeclaredAwsSsmParameterSecureDao } from '@src/access/daos/DeclaredAwsSsmParameterSecureDao';
 import { DeclaredAwsSsmSshTunnelDao } from '@src/access/daos/DeclaredAwsSsmSshTunnelDao';
 import { DeclaredAwsSsmVpcTunnelDao } from '@src/access/daos/DeclaredAwsSsmVpcTunnelDao';
 import { DeclaredAwsSsoAccountAssignmentDao } from '@src/access/daos/DeclaredAwsSsoAccountAssignmentDao';
@@ -147,6 +149,8 @@ export const getDeclastructAwsProvider = async (
     DeclaredAwsVpcSubnet: DeclaredAwsVpcSubnetDao,
     DeclaredAwsSsmVpcTunnel: DeclaredAwsSsmVpcTunnelDao,
     DeclaredAwsSsmSshTunnel: DeclaredAwsSsmSshTunnelDao,
+    DeclaredAwsSsmParameterPlain: DeclaredAwsSsmParameterPlainDao,
+    DeclaredAwsSsmParameterSecure: DeclaredAwsSsmParameterSecureDao,
     DeclaredAwsIamRolePolicyAttachedInline:
       DeclaredAwsIamRolePolicyAttachedInlineDao,
     DeclaredAwsIamRolePolicyAttachedManaged:

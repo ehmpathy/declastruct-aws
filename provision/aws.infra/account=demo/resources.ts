@@ -8,6 +8,7 @@ import { getResourcesOfBudget } from './resources.budget';
 import { getResourcesOfEc2Hibernator } from './resources.ec2.hibernator';
 import { getResourcesOfEc2Nat } from './resources.ec2.nat';
 import { getResourcesOfIam } from './resources.iam';
+import { getResourcesOfSsm } from './resources.ssm';
 import { getResourcesOfVpc } from './resources.vpc';
 
 // source aws credentials from keyrack
@@ -38,5 +39,7 @@ export const getResources = async (): Promise<DomainEntity<any>[]> => {
     // budget posture: the $21/mo cap + tiered alerts + anomaly + estimated-charges
     // alarm (member-account-safe; the guards in resources.budget.ts are wisher-gated)
     ...getResourcesOfBudget(),
+    // ssm params: dogfood the plain + secure DeclaredAwsSsmParameter resources
+    ...getResourcesOfSsm(),
   ];
 };
