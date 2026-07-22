@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9.0](https://github.com/ehmpathy/declastruct-aws/compare/v1.8.0...v1.9.0) (2026-07-22)
+
+
+### Features
+
+* **ssm:** declarative SSM parameters — plaintext config + write-only secrets ([#68](https://github.com/ehmpathy/declastruct-aws/issues/68)) ([250e892](https://github.com/ehmpathy/declastruct-aws/commit/250e892b8097fc0633b55ef3282ddaa3f771fc24))
+
 ## [1.8.0](https://github.com/ehmpathy/declastruct-aws/compare/v1.7.3...v1.8.0) (2026-07-15)
 
 
