@@ -85,6 +85,26 @@ exports[`declastruct CLI workflow given: a declastruct resources file when: gene
     "slug": "DeclaredAwsCloudwatchLogGroupReportCostOfIngestion.namesawslambdadeclastruct-acceptance-lambda.since[DATE]until[DATE].[HASH]",
   },
   {
+    "class": "DeclaredAwsCostReportSpendObserved",
+    "slug": "DeclaredAwsCostReportSpendObserved.null.MONTHLY.dimensionSERVICE.UnblendedCost.since[DATE]Zuntil[DATE]Z.[HASH]",
+  },
+  {
+    "class": "DeclaredAwsCostReportSpendObservedByResource",
+    "slug": "DeclaredAwsCostReportSpendObservedByResource.dimensionSERVICEvaluesAmazonElasticComputeCloud-Compute.DAILY.UnblendedCost.since[DATE].[HASH]",
+  },
+  {
+    "class": "DeclaredAwsCostReportSpendForecast",
+    "slug": "DeclaredAwsCostReportSpendForecast.null.MONTHLY.UnblendedCost.80.since[DATE]Zuntil[DATE]Z.[HASH]",
+  },
+  {
+    "class": "DeclaredAwsCostReportRecommendationsToRightsize",
+    "slug": "DeclaredAwsCostReportRecommendationsToRightsize.true.null.SAME_INSTANCE_FAMILY.AmazonEC2.[HASH]",
+  },
+  {
+    "class": "DeclaredAwsCostReportRecommendationsToPurchasePlan",
+    "slug": "DeclaredAwsCostReportRecommendationsToPurchasePlan.LINKED.null.THIRTY_DAYS.NO_UPFRONT.COMPUTE_SP.ONE_YEAR.[HASH]",
+  },
+  {
     "class": "DeclaredAwsIamRole",
     "slug": "DeclaredAwsIamRole.declastruct-acceptance-ec2-role.[HASH]",
   },
@@ -245,6 +265,31 @@ exports[`declastruct CLI workflow given: a declastruct resources file when: re-p
   },
   {
     "action": "KEEP",
+    "class": "DeclaredAwsCostReportSpendObserved",
+    "slug": "DeclaredAwsCostReportSpendObserved.null.MONTHLY.dimensionSERVICE.UnblendedCost.since[DATE]Zuntil[DATE]Z.[HASH]",
+  },
+  {
+    "action": "KEEP",
+    "class": "DeclaredAwsCostReportSpendObservedByResource",
+    "slug": "DeclaredAwsCostReportSpendObservedByResource.dimensionSERVICEvaluesAmazonElasticComputeCloud-Compute.DAILY.UnblendedCost.since[DATE].[HASH]",
+  },
+  {
+    "action": "KEEP",
+    "class": "DeclaredAwsCostReportSpendForecast",
+    "slug": "DeclaredAwsCostReportSpendForecast.null.MONTHLY.UnblendedCost.80.since[DATE]Zuntil[DATE]Z.[HASH]",
+  },
+  {
+    "action": "KEEP",
+    "class": "DeclaredAwsCostReportRecommendationsToRightsize",
+    "slug": "DeclaredAwsCostReportRecommendationsToRightsize.true.null.SAME_INSTANCE_FAMILY.AmazonEC2.[HASH]",
+  },
+  {
+    "action": "KEEP",
+    "class": "DeclaredAwsCostReportRecommendationsToPurchasePlan",
+    "slug": "DeclaredAwsCostReportRecommendationsToPurchasePlan.LINKED.null.THIRTY_DAYS.NO_UPFRONT.COMPUTE_SP.ONE_YEAR.[HASH]",
+  },
+  {
+    "action": "KEEP",
     "class": "DeclaredAwsIamRole",
     "slug": "DeclaredAwsIamRole.declastruct-acceptance-ec2-role.[HASH]",
   },
@@ -344,4 +389,179 @@ exports[`declastruct CLI workflow given: a declastruct resources file when: re-p
     "slug": "DeclaredAwsBudgetAction.namedeclastruct-acceptance-budget.APPLY_IAM_POLICY.[HASH]",
   },
 ]
+`;
+
+exports[`declastruct CLI workflow given: a declastruct resources file when: reading cost explorer reports via DAO then: by-resource-spend report reads + matches masked shape 1`] = `
+{
+  "buckets": [
+    {
+      "estimated": true,
+      "groups": [
+        {
+          "cost": {
+            "amount": "[string]",
+            "unit": "[string]",
+          },
+          "keys": [
+            "[string]",
+          ],
+        },
+      ],
+      "range": {
+        "since": "[string]",
+        "until": "[string]",
+      },
+      "total": {
+        "amount": "[string]",
+        "unit": "[string]",
+      },
+    },
+  ],
+  "filter": {
+    "dimension": "[string]",
+    "values": [
+      "[string]",
+    ],
+  },
+  "granularity": "[string]",
+  "metric": "[string]",
+  "range": {
+    "since": "[string]",
+    "until": "[string]",
+  },
+  "total": {
+    "amount": "[string]",
+    "unit": "[string]",
+  },
+}
+`;
+
+exports[`declastruct CLI workflow given: a declastruct resources file when: reading cost explorer reports via DAO then: forecast-spend report reads + matches masked shape 1`] = `
+{
+  "filter": null,
+  "granularity": "[string]",
+  "metric": "[string]",
+  "points": [
+    {
+      "lower": "[string]",
+      "mean": "[string]",
+      "range": {
+        "since": "[string]",
+        "until": "[string]",
+      },
+      "unit": "[string]",
+      "upper": "[string]",
+    },
+  ],
+  "predictionInterval": "[number]",
+  "range": {
+    "since": "[string]",
+    "until": "[string]",
+  },
+  "total": {
+    "amount": "[string]",
+    "unit": "[string]",
+  },
+}
+`;
+
+exports[`declastruct CLI workflow given: a declastruct resources file when: reading cost explorer reports via DAO then: observed-spend report reads + matches masked shape 1`] = `
+{
+  "buckets": [
+    {
+      "estimated": false,
+      "groups": [
+        {
+          "cost": {
+            "amount": "[string]",
+            "unit": "[string]",
+          },
+          "keys": [
+            "[string]",
+          ],
+        },
+      ],
+      "range": {
+        "since": "[string]",
+        "until": "[string]",
+      },
+      "total": {
+        "amount": "[string]",
+        "unit": "[string]",
+      },
+    },
+  ],
+  "filter": null,
+  "granularity": "[string]",
+  "groupBy": {
+    "dimension": "[string]",
+  },
+  "metric": "[string]",
+  "range": {
+    "since": "[string]",
+    "until": "[string]",
+  },
+  "total": {
+    "amount": "[string]",
+    "unit": "[string]",
+  },
+}
+`;
+
+exports[`declastruct CLI workflow given: a declastruct resources file when: reading cost explorer reports via DAO then: purchase-plan-recommendations report reads + matches masked shape 1`] = `
+{
+  "accountScope": "[string]",
+  "filter": null,
+  "lookbackDays": "[string]",
+  "paymentOption": "[string]",
+  "recommendations": [],
+  "savingsPlansType": "[string]",
+  "summary": {
+    "currentOnDemandSpend": {
+      "amount": "[string]",
+      "unit": "[string]",
+    },
+    "estimatedMonthlySavings": {
+      "amount": "[string]",
+      "unit": "[string]",
+    },
+    "estimatedRoi": "[string]",
+    "estimatedSavingsPercentage": "[string]",
+    "hourlyCommitmentToPurchase": "[string]",
+    "recommendationCount": "[number]",
+  },
+  "termInYears": "[string]",
+}
+`;
+
+exports[`declastruct CLI workflow given: a declastruct resources file when: reading cost explorer reports via DAO then: rightsize-recommendations report reads + matches masked shape 1`] = `
+{
+  "benefitsConsidered": true,
+  "filter": null,
+  "lookbackDays": "[number]",
+  "recommendationTarget": "[string]",
+  "recommendations": [
+    {
+      "action": "[string]",
+      "currentMonthlyCost": {
+        "amount": "[string]",
+        "unit": "[string]",
+      },
+      "estimatedMonthlySavings": {
+        "amount": "[string]",
+        "unit": "[string]",
+      },
+      "resourceId": "[string]",
+    },
+  ],
+  "service": "[string]",
+  "summary": {
+    "estimatedMonthlySavings": {
+      "amount": "[string]",
+      "unit": "[string]",
+    },
+    "recommendationCount": "[number]",
+    "savingsPercentage": "[string]",
+  },
+}
 `;

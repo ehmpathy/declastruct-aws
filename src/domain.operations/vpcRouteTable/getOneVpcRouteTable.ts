@@ -133,11 +133,13 @@ export const getOneVpcRouteTable = asProcedure(
           { by: { primary: { id: instanceId } } },
           context,
         );
-        if (!instance)
-          UnexpectedCodePathError.throw(
-            'ec2 instance not found for exid lookup',
-            { instanceId },
-          );
+        // a route can still name a NAT instance that was just terminated — AWS lags to
+        // mark such a route 'blackhole', so it reads 'active' with a dead InstanceId. do
+        // NOT throw (that would abort the WHOLE plan, mid-reapply); leave it out of the
+        // lookup and let the cast DROP the dead route (treated as a blackhole). the reapply
+        // recreates the NAT and re-adds the route. see
+        // rule.forbid.plan-fail-on-apply-guided-prereq
+        if (!instance) continue;
         instancesLookup[instanceId] = instance.exid;
       }
 

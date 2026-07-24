@@ -1,0 +1,10 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`assertForecastStartFuture given: [case3] a start before today then: the user-directed fail-loud message matches the snapshot 1`] = `
+"BadRequestError: forecast range is invalid: \`since\` must be today or later — GetCostForecast rejects a past start
+
+{
+  "since": "2026-07-15T00:00:00Z",
+  "today": "2026-07-16"
+}"
+`;

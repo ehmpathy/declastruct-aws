@@ -15,6 +15,12 @@ import { DeclaredAwsCloudwatchLogGroupReportDistOfPatternDao } from '@src/access
 import { DeclaredAwsCloudwatchMetricAlarmDao } from '@src/access/daos/DeclaredAwsCloudwatchMetricAlarmDao';
 import { DeclaredAwsCostAnomalyMonitorDao } from '@src/access/daos/DeclaredAwsCostAnomalyMonitorDao';
 import { DeclaredAwsCostAnomalySubscriptionDao } from '@src/access/daos/DeclaredAwsCostAnomalySubscriptionDao';
+import { DeclaredAwsCostExplorerPreferenceDao } from '@src/access/daos/DeclaredAwsCostExplorerPreferenceDao';
+import { DeclaredAwsCostReportRecommendationsToPurchasePlanDao } from '@src/access/daos/DeclaredAwsCostReportRecommendationsToPurchasePlanDao';
+import { DeclaredAwsCostReportRecommendationsToRightsizeDao } from '@src/access/daos/DeclaredAwsCostReportRecommendationsToRightsizeDao';
+import { DeclaredAwsCostReportSpendForecastDao } from '@src/access/daos/DeclaredAwsCostReportSpendForecastDao';
+import { DeclaredAwsCostReportSpendObservedByResourceDao } from '@src/access/daos/DeclaredAwsCostReportSpendObservedByResourceDao';
+import { DeclaredAwsCostReportSpendObservedDao } from '@src/access/daos/DeclaredAwsCostReportSpendObservedDao';
 import { DeclaredAwsEc2InstanceDao } from '@src/access/daos/DeclaredAwsEc2InstanceDao';
 import { DeclaredAwsEc2InstanceSessionDao } from '@src/access/daos/DeclaredAwsEc2InstanceSessionDao';
 import { DeclaredAwsEc2LaunchTemplateDao } from '@src/access/daos/DeclaredAwsEc2LaunchTemplateDao';
@@ -113,6 +119,15 @@ export const getDeclastructAwsProvider = async (
     DeclaredAwsBudgetAction: DeclaredAwsBudgetActionDao,
     DeclaredAwsCostAnomalyMonitor: DeclaredAwsCostAnomalyMonitorDao,
     DeclaredAwsCostAnomalySubscription: DeclaredAwsCostAnomalySubscriptionDao,
+    DeclaredAwsCostExplorerPreference: DeclaredAwsCostExplorerPreferenceDao,
+    DeclaredAwsCostReportSpendObserved: DeclaredAwsCostReportSpendObservedDao,
+    DeclaredAwsCostReportSpendObservedByResource:
+      DeclaredAwsCostReportSpendObservedByResourceDao,
+    DeclaredAwsCostReportSpendForecast: DeclaredAwsCostReportSpendForecastDao,
+    DeclaredAwsCostReportRecommendationsToRightsize:
+      DeclaredAwsCostReportRecommendationsToRightsizeDao,
+    DeclaredAwsCostReportRecommendationsToPurchasePlan:
+      DeclaredAwsCostReportRecommendationsToPurchasePlanDao,
     DeclaredAwsEc2Instance: DeclaredAwsEc2InstanceDao,
     DeclaredAwsEc2InstanceSession: DeclaredAwsEc2InstanceSessionDao,
     DeclaredAwsEc2LaunchTemplate: DeclaredAwsEc2LaunchTemplateDao,

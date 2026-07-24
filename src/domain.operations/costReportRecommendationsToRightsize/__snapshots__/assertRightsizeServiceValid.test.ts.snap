@@ -1,0 +1,12 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`assertRightsizeServiceValid given: [case2] an unsupported service then: the user-directed fail-loud message matches the snapshot 1`] = `
+"BadRequestError: rightsize service is invalid: GetRightsizingRecommendation supports only AmazonEC2 today
+
+{
+  "service": "AmazonRDS",
+  "supported": [
+    "AmazonEC2"
+  ]
+}"
+`;

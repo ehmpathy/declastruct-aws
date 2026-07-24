@@ -9,6 +9,11 @@ import { given, then, useBeforeAll, when } from 'test-fns';
 
 import { DeclaredAwsCloudwatchLogGroupReportCostOfIngestionDao } from '@src/access/daos/DeclaredAwsCloudwatchLogGroupReportCostOfIngestionDao';
 import { DeclaredAwsCloudwatchLogGroupReportDistOfPatternDao } from '@src/access/daos/DeclaredAwsCloudwatchLogGroupReportDistOfPatternDao';
+import { DeclaredAwsCostReportRecommendationsToPurchasePlanDao } from '@src/access/daos/DeclaredAwsCostReportRecommendationsToPurchasePlanDao';
+import { DeclaredAwsCostReportRecommendationsToRightsizeDao } from '@src/access/daos/DeclaredAwsCostReportRecommendationsToRightsizeDao';
+import { DeclaredAwsCostReportSpendForecastDao } from '@src/access/daos/DeclaredAwsCostReportSpendForecastDao';
+import { DeclaredAwsCostReportSpendObservedByResourceDao } from '@src/access/daos/DeclaredAwsCostReportSpendObservedByResourceDao';
+import { DeclaredAwsCostReportSpendObservedDao } from '@src/access/daos/DeclaredAwsCostReportSpendObservedDao';
 import { delParameter } from '@src/access/sdks/sdkSsm/delParameter';
 import { setParameter } from '@src/access/sdks/sdkSsm/setParameter';
 import { DeclaredAwsEc2InstanceSession } from '@src/domain.objects/DeclaredAwsEc2InstanceSession';
@@ -21,6 +26,12 @@ import { setEc2SshKeyAuthorized } from '@src/domain.operations/ec2SshKeyAuthoriz
 import { getAllIamUserAccessKeys } from '@src/domain.operations/iamUserAccessKey/getAllIamUserAccessKeys';
 import { getDeclastructAwsProvider } from '@src/domain.operations/provider/getDeclastructAwsProvider';
 import { setSsmParameterSecure } from '@src/domain.operations/ssmParameterSecure/setSsmParameterSecure';
+
+import {
+  COST_REPORT_BY_RESOURCE_RANGE,
+  COST_REPORT_FORECAST_RANGE,
+  COST_REPORT_OBSERVED_RANGE,
+} from './.test/assets/costReportRanges';
 
 /**
  * .what = the exid, comment, and public key of the acceptance ssh key authorization
@@ -99,6 +110,35 @@ const asGuardErrorSnapshot = (output: string): string =>
     )
     .join('\n')
     .trim();
+
+/**
+ * .what = masks a cost-report domain object into a deterministic shape descriptor —
+ *   numbers + strings replaced with typed placeholders, arrays collapsed to a single
+ *   representative element, so the STRUCTURE is snapshot-stable while the values (which
+ *   move run-to-run with live account spend) are masked
+ * .why = the vision prescribes a masked snapshot for read-only reports (numbers masked,
+ *   structure asserted). the account's spend is non-deterministic and near-zero, so a
+ *   raw snapshot would flake; this masks the value leaves and the array COUNTS so a
+ *   cast-shape regression (a dropped/renamed field, a scalar-vs-array flip) still trips
+ *   the snapshot, but account-spend jitter never does
+ */
+const asMaskedCostReportShape = (value: unknown): unknown => {
+  if (value === null) return null;
+  if (Array.isArray(value))
+    // collapse to one representative element shape; mask the count (spend-dependent)
+    return value.length ? [asMaskedCostReportShape(value[0])] : [];
+  if (typeof value === 'object')
+    // value is narrowed to a non-null, non-array object here, so Object.entries
+    // types it without a cast (no `as` needed)
+    return Object.fromEntries(
+      Object.entries(value)
+        .sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
+        .map(([key, val]) => [key, asMaskedCostReportShape(val)]),
+    );
+  if (typeof value === 'number') return '[number]';
+  if (typeof value === 'string') return '[string]';
+  return value; // boolean / undefined stay as-is
+};
 
 /**
  * .what = acceptance tests for declastruct CLI workflow
@@ -875,6 +915,32 @@ describe('declastruct CLI workflow', () => {
         }
       });
 
+      then('cost explorer reports show KEEP', () => {
+        /**
+         * .what = validates the read-only cost-report composites converge to KEEP
+         * .why = proves each report reads via plan/apply and, as a read-only resource
+         *        (its numbers are @readonly, its identity is the query), re-plan
+         *        converges to KEEP (no drift)
+         * .note = these are LIVE cost-explorer reads ($0.01/report) on every plan — an
+         *        accepted per-run CI cost. the reports are declared UNCONDITIONALLY in
+         *        getResources, so this KEEP assertion and the resource inclusion stay in
+         *        lockstep (both always run)
+         */
+        for (const cls of [
+          'DeclaredAwsCostReportSpendObserved',
+          'DeclaredAwsCostReportSpendObservedByResource',
+          'DeclaredAwsCostReportSpendForecast',
+          'DeclaredAwsCostReportRecommendationsToRightsize',
+          'DeclaredAwsCostReportRecommendationsToPurchasePlan',
+        ]) {
+          const change = prep.plan.changes.find(
+            (r: DeclastructChange) => r.forResource.class === cls,
+          );
+          expect(change).toBeDefined();
+          expect(change!.action).toBe('KEEP');
+        }
+      });
+
       // SCP tests skipped — require management account credentials (see resources.acceptance.ts)
     });
 
@@ -1246,6 +1312,129 @@ describe('declastruct CLI workflow', () => {
         const provider = await getDeclastructAwsProvider({}, { log: testLog });
         await delParameter({ name: guardName }, provider.context);
       });
+    });
+
+    when('reading cost explorer reports via DAO', () => {
+      {
+        /**
+         * .what = reads each read-only cost report via its DAO and asserts a masked
+         *   snapshot of the returned domain object (numbers masked, structure asserted)
+         * .why = the vision prescribes a masked snapshot for these reports: the KEEP block
+         *   above proves the resource plans idempotently, but only a real read proves the
+         *   CAST — that GetCostAndUsage/Forecast/Rightsizing/SavingsPlans output maps to the
+         *   declared shape. a cast that drops or renames a field, or flips a scalar to an
+         *   array, trips the masked snapshot even though the live numbers are masked
+         * .note = these are LIVE Cost Explorer reads ($0.01/request, cached); the forecast
+         *   can DataUnavailable on a young/low-spend account. that is a legitimate "no
+         *   forecast history yet" state, so the read degrades to an empty forecast (zero
+         *   total, no points) via an allowlisted, log-loud tolerate — NOT a silent swallow
+         *   (see getOneCostReportSpendForecast + isTolerableAwsCostReportError). so this
+         *   masked-shape read holds on a young account too: it reads an empty forecast, not
+         *   a throw. run UNCONDITIONALLY (the reports are first-class declared resources);
+         *   the accepted per-run cost is the price of the committed masked baseline
+         */
+        const prep = useBeforeAll(async () => {
+          const provider = await getDeclastructAwsProvider(
+            {},
+            { log: testLog },
+          );
+          return { context: provider.context };
+        });
+
+        then('observed-spend report reads + matches masked shape', async () => {
+          const report =
+            await DeclaredAwsCostReportSpendObservedDao.get.one.byUnique(
+              {
+                range: COST_REPORT_OBSERVED_RANGE,
+                granularity: 'MONTHLY',
+                groupBy: { dimension: 'SERVICE' },
+                filter: null,
+                metric: 'UnblendedCost',
+              },
+              prep.context,
+            );
+          expect(report).not.toBeNull();
+          expect(asMaskedCostReportShape(report)).toMatchSnapshot();
+        });
+
+        then(
+          'by-resource-spend report reads + matches masked shape',
+          async () => {
+            // requires the FREE resource-level-data-at-daily-granularity opt-in; when off
+            // (the default), the read DEGRADES to an empty report (present, not null) — so
+            // this holds either way: it reads an empty-or-populated report, not a throw
+            const report =
+              await DeclaredAwsCostReportSpendObservedByResourceDao.get.one.byUnique(
+                {
+                  range: COST_REPORT_BY_RESOURCE_RANGE,
+                  granularity: 'DAILY',
+                  filter: {
+                    dimension: 'SERVICE',
+                    values: ['Amazon Elastic Compute Cloud - Compute'],
+                  },
+                  metric: 'UnblendedCost',
+                },
+                prep.context,
+              );
+            expect(report).not.toBeNull();
+            expect(asMaskedCostReportShape(report)).toMatchSnapshot();
+          },
+        );
+
+        then('forecast-spend report reads + matches masked shape', async () => {
+          const report =
+            await DeclaredAwsCostReportSpendForecastDao.get.one.byUnique(
+              {
+                range: COST_REPORT_FORECAST_RANGE,
+                granularity: 'MONTHLY',
+                metric: 'UnblendedCost',
+                filter: null,
+                predictionInterval: 80,
+              },
+              prep.context,
+            );
+          expect(report).not.toBeNull();
+          expect(asMaskedCostReportShape(report)).toMatchSnapshot();
+        });
+
+        then(
+          'rightsize-recommendations report reads + matches masked shape',
+          async () => {
+            const report =
+              await DeclaredAwsCostReportRecommendationsToRightsizeDao.get.one.byUnique(
+                {
+                  service: 'AmazonEC2',
+                  recommendationTarget: 'SAME_INSTANCE_FAMILY',
+                  benefitsConsidered: true,
+                  filter: null,
+                },
+                prep.context,
+              );
+            expect(report).not.toBeNull();
+            expect(asMaskedCostReportShape(report)).toMatchSnapshot();
+          },
+        );
+
+        then(
+          'purchase-plan-recommendations report reads + matches masked shape',
+          async () => {
+            const report =
+              await DeclaredAwsCostReportRecommendationsToPurchasePlanDao.get.one.byUnique(
+                {
+                  savingsPlansType: 'COMPUTE_SP',
+                  termInYears: 'ONE_YEAR',
+                  paymentOption: 'NO_UPFRONT',
+                  lookbackDays: 'THIRTY_DAYS',
+                  accountScope: 'LINKED',
+                  filter: null,
+                },
+                prep.context,
+              );
+            expect(report).not.toBeNull();
+            expect(asMaskedCostReportShape(report)).toMatchSnapshot();
+          },
+        );
+      }
     });
 
     when('log group reports are fetched after lambda invocation', () => {

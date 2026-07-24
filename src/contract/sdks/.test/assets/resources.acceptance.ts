@@ -6,6 +6,12 @@ import { UnexpectedCodePathError } from 'helpful-errors';
 import { keyrack } from 'rhachet/keyrack';
 import { genLogMethods, LogLevel } from 'sdk-logs';
 
+import {
+  COST_REPORT_BY_RESOURCE_RANGE,
+  COST_REPORT_FORECAST_RANGE,
+  COST_REPORT_OBSERVED_RANGE,
+} from './costReportRanges';
+
 // source aws credentials from keyrack
 keyrack.source({ env: 'test', owner: 'ehmpath', mode: 'lenient' });
 
@@ -32,6 +38,11 @@ import {
   DeclaredAwsCloudwatchLogGroup,
   DeclaredAwsCloudwatchLogGroupReportCostOfIngestion,
   DeclaredAwsCloudwatchLogGroupReportDistOfPattern,
+  DeclaredAwsCostReportRecommendationsToPurchasePlan,
+  DeclaredAwsCostReportRecommendationsToRightsize,
+  DeclaredAwsCostReportSpendForecast,
+  DeclaredAwsCostReportSpendObserved,
+  DeclaredAwsCostReportSpendObservedByResource,
   DeclaredAwsSsmParameterPlain,
   DeclaredAwsSsmParameterSecure,
   DeclaredAwsSsmSshTunnel,
@@ -56,6 +67,13 @@ const logGroupReportRange = {
   since: asUniDateTime(startOfDay(subDays(new Date(), 7))),
   until: asUniDateTime(endOfDay(new Date())),
 };
+
+// the FIXED cost-report ranges — shared with declastruct.acceptance.test.ts via one
+// exported const so the wish's declared @unique and the test's DAO read can never desync.
+// see costReportRanges.ts for the identity-vs-recency (option-a) rationale + refresh note
+const costReportObservedRange = COST_REPORT_OBSERVED_RANGE;
+const costReportForecastRange = COST_REPORT_FORECAST_RANGE;
+const costReportByResourceRange = COST_REPORT_BY_RESOURCE_RANGE;
 
 /**
  * .what = Amazon Linux 2023 AMI (x86_64, us-east-1) used for the NAT instance
@@ -427,6 +445,71 @@ export const getResources = async () => {
       range: logGroupReportRange,
     });
 
+  // declare cost report: observed spend, grouped by service (GetCostAndUsage)
+  // note: `metric: 'UnblendedCost'` is a DISCLOSED default choice, not a silent one.
+  //   UnblendedCost is GROSS (pre-credit) list-price cost; NetUnblendedCost /
+  //   NetAmortizedCost are net-of-credits (what actually leaves the bill). the vision
+  //   flags gross-vs-net as a wisher fork (the wish says "where money GOES" = cash-out =
+  //   net). the field is fully flexible — this fixture picks the common gross default
+  const costReportSpendObserved = DeclaredAwsCostReportSpendObserved.as({
+    range: costReportObservedRange,
+    granularity: 'MONTHLY',
+    groupBy: { dimension: 'SERVICE' },
+    filter: null,
+    metric: 'UnblendedCost',
+  });
+
+  // declare cost report: observed spend by RESOURCE_ID (GetCostAndUsageWithResources)
+  // note: this report REQUIRES a filter (pin SERVICE to a single service) + the FREE
+  //   "resource-level data at daily granularity" opt-in (only the separate hourly tier is
+  //   paid). when the opt-in is off (the default on a fresh account) the read DEGRADES to an
+  //   empty report (see getOneCostReportSpendObservedByResource), so acceptance proves the
+  //   read + KEEP without the opt-in. the range is derived off `now` (last 13 days) to stay
+  //   inside the ~14-day resource-level retention window
+  const costReportSpendObservedByResource =
+    DeclaredAwsCostReportSpendObservedByResource.as({
+      range: costReportByResourceRange,
+      granularity: 'DAILY',
+      filter: {
+        dimension: 'SERVICE',
+        values: ['Amazon Elastic Compute Cloud - Compute'],
+      },
+      metric: 'UnblendedCost',
+    });
+
+  // declare cost report: forecast spend (GetCostForecast)
+  // note: GetCostForecast can DataUnavailable on a young/low-spend account (the read
+  //   degrades to an empty forecast, see getOneCostReportSpendForecast). `metric` carries
+  //   the same disclosed gross-vs-net default as the observed report above
+  const costReportSpendForecast = DeclaredAwsCostReportSpendForecast.as({
+    range: costReportForecastRange,
+    granularity: 'MONTHLY',
+    metric: 'UnblendedCost',
+    filter: null,
+    predictionInterval: 80,
+  });
+
+  // declare cost report: rightsize recommendations (GetRightsizingRecommendation)
+  const costReportRecommendationsToRightsize =
+    DeclaredAwsCostReportRecommendationsToRightsize.as({
+      service: 'AmazonEC2',
+      recommendationTarget: 'SAME_INSTANCE_FAMILY',
+      benefitsConsidered: true,
+      filter: null,
+    });
+
+  // declare cost report: savings-plan purchase recommendations
+  // note: LINKED scope so a member account reads its own recs (no payer wall)
+  const costReportRecommendationsToPurchasePlan =
+    DeclaredAwsCostReportRecommendationsToPurchasePlan.as({
+      savingsPlansType: 'COMPUTE_SP',
+      termInYears: 'ONE_YEAR',
+      paymentOption: 'NO_UPFRONT',
+      lookbackDays: 'THIRTY_DAYS',
+      accountScope: 'LINKED',
+      filter: null,
+    });
+
   // declare a budget cap (member account can budget ITSELF — no mgmt wall)
   const budget = DeclaredAwsBudget.as({
     name: 'declastruct-acceptance-budget',
@@ -669,6 +752,18 @@ export const getResources = async () => {
     logGroupWithRetention,
     logGroupReportDistOfPattern,
     logGroupReportCostOfIngestion,
+    // cost explorer reports (read-only composites) — declared UNCONDITIONALLY: each
+    // `plan` issues a live cost-explorer read (~$0.01/report), an accepted per-run CI
+    // cost (the wisher opted into it) so the reports are first-class declared resources
+    // with committed masked snapshots, not dormant-by-default. the local per-user cache
+    // (getCostReportCache) collapses repeat LOCAL reads within its ttl; CI is a cold
+    // cache and re-bills per run — accepted. the KEEP + masked-shape test blocks assert
+    // these same resources, so declaration and assertions stay in lockstep
+    costReportSpendObserved,
+    costReportSpendObservedByResource,
+    costReportSpendForecast,
+    costReportRecommendationsToRightsize,
+    costReportRecommendationsToPurchasePlan,
     // ec2 iam infrastructure (enables SSM connectivity)
     ec2Role,
     ec2RoleSsmPolicy,

@@ -1,0 +1,125 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`castIntoDeclaredAwsCostReportSpendObserved given: [case1] a grouped result with a Total present then: it matches the contract snapshot 1`] = `
+DeclaredAwsCostReportSpendObserved {
+  "buckets": [
+    DeclaredAwsCostReportSpendObservedBucket {
+      "estimated": false,
+      "groups": [
+        DeclaredAwsCostReportSpendObservedGroup {
+          "cost": DeclaredAwsCostAmount {
+            "amount": "12.10",
+            "unit": "USD",
+          },
+          "keys": [
+            "Amazon Elastic Compute Cloud - Compute",
+          ],
+        },
+        DeclaredAwsCostReportSpendObservedGroup {
+          "cost": DeclaredAwsCostAmount {
+            "amount": "4.32",
+            "unit": "USD",
+          },
+          "keys": [
+            "Amazon Simple Storage Service",
+          ],
+        },
+      ],
+      "range": DomainLiteral {
+        "since": "2026-07-01T00:00:00Z",
+        "until": "2026-08-01T00:00:00Z",
+      },
+      "total": DeclaredAwsCostAmount {
+        "amount": "16.42",
+        "unit": "USD",
+      },
+    },
+  ],
+  "filter": null,
+  "granularity": "MONTHLY",
+  "groupBy": DomainLiteral {
+    "dimension": "SERVICE",
+  },
+  "metric": "UnblendedCost",
+  "range": DomainLiteral {
+    "since": "2026-07-01T00:00:00Z",
+    "until": "2026-08-01T00:00:00Z",
+  },
+  "total": DeclaredAwsCostAmount {
+    "amount": "16.42",
+    "unit": "USD",
+  },
+}
+`;
+
+exports[`castIntoDeclaredAwsCostReportSpendObserved given: [case2] a grouped result with NO Total (grouped queries omit it) then: it matches the contract snapshot 1`] = `
+DeclaredAwsCostReportSpendObserved {
+  "buckets": [
+    DeclaredAwsCostReportSpendObservedBucket {
+      "estimated": true,
+      "groups": [
+        DeclaredAwsCostReportSpendObservedGroup {
+          "cost": DeclaredAwsCostAmount {
+            "amount": "3",
+            "unit": "USD",
+          },
+          "keys": [
+            "A",
+          ],
+        },
+        DeclaredAwsCostReportSpendObservedGroup {
+          "cost": DeclaredAwsCostAmount {
+            "amount": "2",
+            "unit": "USD",
+          },
+          "keys": [
+            "B",
+          ],
+        },
+      ],
+      "range": DomainLiteral {
+        "since": "2026-07-01T00:00:00Z",
+        "until": "2026-08-01T00:00:00Z",
+      },
+      "total": DeclaredAwsCostAmount {
+        "amount": "5",
+        "unit": "USD",
+      },
+    },
+  ],
+  "filter": null,
+  "granularity": "MONTHLY",
+  "groupBy": DomainLiteral {
+    "dimension": "SERVICE",
+  },
+  "metric": "UnblendedCost",
+  "range": DomainLiteral {
+    "since": "2026-07-01T00:00:00Z",
+    "until": "2026-08-01T00:00:00Z",
+  },
+  "total": DeclaredAwsCostAmount {
+    "amount": "5",
+    "unit": "USD",
+  },
+}
+`;
+
+exports[`castIntoDeclaredAwsCostReportSpendObserved given: [case3] an empty result then: it matches the contract snapshot 1`] = `
+DeclaredAwsCostReportSpendObserved {
+  "buckets": [],
+  "filter": null,
+  "granularity": "MONTHLY",
+  "groupBy": DomainLiteral {
+    "dimension": "SERVICE",
+  },
+  "metric": "UnblendedCost",
+  "range": DomainLiteral {
+    "since": "2026-07-01T00:00:00Z",
+    "until": "2026-08-01T00:00:00Z",
+  },
+  "total": DeclaredAwsCostAmount {
+    "amount": "0",
+    "unit": "USD",
+  },
+}
+`;

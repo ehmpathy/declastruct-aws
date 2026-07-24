@@ -11,6 +11,12 @@ import type { DeclaredAwsCloudwatchLogGroupReportDistOfPattern } from './Declare
 import type { DeclaredAwsCloudwatchMetricAlarm } from './DeclaredAwsCloudwatchMetricAlarm';
 import type { DeclaredAwsCostAnomalyMonitor } from './DeclaredAwsCostAnomalyMonitor';
 import type { DeclaredAwsCostAnomalySubscription } from './DeclaredAwsCostAnomalySubscription';
+import type { DeclaredAwsCostExplorerPreference } from './DeclaredAwsCostExplorerPreference';
+import type { DeclaredAwsCostReportRecommendationsToPurchasePlan } from './DeclaredAwsCostReportRecommendationsToPurchasePlan';
+import type { DeclaredAwsCostReportRecommendationsToRightsize } from './DeclaredAwsCostReportRecommendationsToRightsize';
+import type { DeclaredAwsCostReportSpendForecast } from './DeclaredAwsCostReportSpendForecast';
+import type { DeclaredAwsCostReportSpendObserved } from './DeclaredAwsCostReportSpendObserved';
+import type { DeclaredAwsCostReportSpendObservedByResource } from './DeclaredAwsCostReportSpendObservedByResource';
 import type { DeclaredAwsEc2Instance } from './DeclaredAwsEc2Instance';
 import type { DeclaredAwsEc2SshKeyAuthorized } from './DeclaredAwsEc2SshKeyAuthorized';
 import type { DeclaredAwsIamInstanceProfile } from './DeclaredAwsIamInstanceProfile';
@@ -60,6 +66,30 @@ export type DeclastructAwsProvider = DeclastructProvider<
     >;
     DeclaredAwsCostAnomalySubscription: DeclastructDao<
       typeof DeclaredAwsCostAnomalySubscription,
+      ContextAwsApi & ContextLogTrail
+    >;
+    DeclaredAwsCostExplorerPreference: DeclastructDao<
+      typeof DeclaredAwsCostExplorerPreference,
+      ContextAwsApi & ContextLogTrail
+    >;
+    DeclaredAwsCostReportSpendObserved: DeclastructDao<
+      typeof DeclaredAwsCostReportSpendObserved,
+      ContextAwsApi & ContextLogTrail
+    >;
+    DeclaredAwsCostReportSpendObservedByResource: DeclastructDao<
+      typeof DeclaredAwsCostReportSpendObservedByResource,
+      ContextAwsApi & ContextLogTrail
+    >;
+    DeclaredAwsCostReportSpendForecast: DeclastructDao<
+      typeof DeclaredAwsCostReportSpendForecast,
+      ContextAwsApi & ContextLogTrail
+    >;
+    DeclaredAwsCostReportRecommendationsToRightsize: DeclastructDao<
+      typeof DeclaredAwsCostReportRecommendationsToRightsize,
+      ContextAwsApi & ContextLogTrail
+    >;
+    DeclaredAwsCostReportRecommendationsToPurchasePlan: DeclastructDao<
+      typeof DeclaredAwsCostReportRecommendationsToPurchasePlan,
       ContextAwsApi & ContextLogTrail
     >;
     DeclaredAwsEc2Instance: DeclastructDao<
