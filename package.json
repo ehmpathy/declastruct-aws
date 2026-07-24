@@ -2,7 +2,7 @@
   "name": "declastruct-aws",
   "author": "ehmpathy",
   "description": "declarative control of Aws constructs via declastruct",
-  "version": "1.9.0",
+  "version": "1.10.0",
   "repository": "ehmpathy/declastruct-aws",
   "homepage": "https://github.com/ehmpathy/declastruct-aws",
   "keywords": [

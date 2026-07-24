@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.0](https://github.com/ehmpathy/declastruct-aws/compare/v1.9.0...v1.10.0) (2026-07-24)
+
+
+### Features
+
+* **reports:** declarative aws cost + budget reports (spend, forecast, recommendations) ([#71](https://github.com/ehmpathy/declastruct-aws/issues/71)) ([e7c2329](https://github.com/ehmpathy/declastruct-aws/commit/e7c23296d63741811d3c656be164773d2cdc5ee5))
+
 ## [1.9.0](https://github.com/ehmpathy/declastruct-aws/compare/v1.8.0...v1.9.0) (2026-07-22)
 
 
