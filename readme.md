@@ -364,3 +364,82 @@ this pattern enables:
   `KEEP` — the secret is never read back into a plan or state file
 - **plaintext value-compare**: non-secret `String` params still detect value drift normally,
   since their value is not sensitive
+
+
+## example.7 = read cost reports — daily spend trend (1d / 1w / 1m) vs forecast
+
+cost reports are **read-only** — you don't `apply` them, you *read* them. each is a saved
+Cost Explorer query as code: declare the range + how to slice, then read the resolved numbers
+as a typed domain object. read via the report DAO's `get.one.byUnique`.
+
+```ts
+import { asIsoTimeStamp } from 'iso-time';
+import {
+  getDeclastructAwsProvider,
+  DeclaredAwsCostReportSpendObservedDao,
+  DeclaredAwsCostReportSpendForecastDao,
+} from 'declastruct-aws';
+
+// source the aws context the reports read through
+const provider = await getDeclastructAwsProvider({}, { log: console });
+const { context } = provider;
+
+// a lookback window that ends at the last full day (UTC), N days back
+const asLookback = (input: { days: number }) => {
+  const untilMs = Date.UTC(
+    new Date().getUTCFullYear(),
+    new Date().getUTCMonth(),
+    new Date().getUTCDate(),
+  ); // 00:00 today = end of the last full day (exclusive)
+  const sinceMs = untilMs - input.days * 24 * 60 * 60 * 1000;
+  return {
+    since: asIsoTimeStamp(new Date(sinceMs).toISOString()),
+    until: asIsoTimeStamp(new Date(untilMs).toISOString()),
+  };
+};
+
+// daily spend trend, grouped by service, for 1d / 1w / 1m lookbacks
+for (const [label, days] of [['1d', 1], ['1w', 7], ['1m', 30]] as const) {
+  const report = await DeclaredAwsCostReportSpendObservedDao.get.one.byUnique(
+    {
+      range: asLookback({ days }),
+      granularity: 'DAILY',
+      groupBy: { dimension: 'SERVICE' },
+      filter: null,
+      metric: 'UnblendedCost',
+    },
+    context,
+  );
+  // report.total = spend over the window; report.buckets = the daily trend
+  console.log(label, report?.total, report?.buckets?.length, 'day-buckets');
+}
+
+// forecast the month ahead, with an 80% confidence band
+const forecast = await DeclaredAwsCostReportSpendForecastDao.get.one.byUnique(
+  {
+    range: {
+      since: asIsoTimeStamp(new Date().toISOString()),
+      until: asLookback({ days: -30 }).until, // ~30 days ahead
+    },
+    granularity: 'MONTHLY',
+    metric: 'UnblendedCost',
+    filter: null,
+    predictionInterval: 80,
+  },
+  context,
+);
+// forecast.total = mean projection; forecast.points[].lower/upper = the confidence band
+console.log('forecast', forecast?.total, forecast?.points);
+```
+
+this pattern enables:
+- **spend trend**: `granularity: 'DAILY'` returns one bucket per day (the trend); `buckets[].groups` is the per-service composition within each day
+- **lookback windows**: vary `range` to compare 1d / 1w / 1m spend and gauge the rate of change
+- **forecast vs actual**: `DeclaredAwsCostReportSpendForecastDao` projects the window ahead with a mean + confidence band, to set beside the observed trend
+- **net vs gross**: switch `metric` (`UnblendedCost` = gross list-price, `NetUnblendedCost` = net of credits) to match what "money that actually left" means for you
+- **read-only + idempotent**: a report has no desired state to converge — you read it; a re-read simply refreshes the derived numbers
+
+> **note** — Cost Explorer is not real-time (data settles over ~24–48h), so a bucket that
+> includes today reads `estimated: true`. each paged read is a $0.01 Cost Explorer request.
+> `range` is part of a report's identity, so it must be ABSOLUTE dates — a hardcoded window
+> is frozen to that window; recompute the range (as above) to keep a report current.

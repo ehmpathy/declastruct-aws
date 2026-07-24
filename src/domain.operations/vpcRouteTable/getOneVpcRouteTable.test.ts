@@ -2,6 +2,7 @@ import { DescribeRouteTablesCommand, EC2Client } from '@aws-sdk/client-ec2';
 import { given, then } from 'test-fns';
 
 import { getMockedAwsApiContext } from '@src/.test/getMockedAwsApiContext';
+import { getEc2Instance } from '@src/domain.operations/ec2Instance/getEc2Instance';
 import { getOneVpcExid } from '@src/domain.operations/vpc/getOneVpcExid';
 import { getOneVpcInternetGateway } from '@src/domain.operations/vpcInternetGateway/getOneVpcInternetGateway';
 import { getOneVpcSubnet } from '@src/domain.operations/vpcSubnet/getOneVpcSubnet';
@@ -14,6 +15,7 @@ jest.mock('./castIntoDeclaredAwsVpcRouteTable');
 jest.mock('@src/domain.operations/vpc/getOneVpcExid');
 jest.mock('@src/domain.operations/vpcInternetGateway/getOneVpcInternetGateway');
 jest.mock('@src/domain.operations/vpcSubnet/getOneVpcSubnet');
+jest.mock('@src/domain.operations/ec2Instance/getEc2Instance');
 
 const mockSend = jest.fn();
 (EC2Client as jest.Mock).mockImplementation(() => ({
@@ -224,6 +226,67 @@ describe('getOneVpcRouteTable', () => {
       expect(result).not.toBeNull();
     });
   });
+
+  given(
+    'a route table with an active route to a just-terminated NAT instance',
+    () => {
+      // note: AWS lags to mark a route 'blackhole' after its NAT terminates, so the route
+      //   reads 'active' with a dead InstanceId whose getEc2Instance lookup returns null.
+      //   the get must SKIP it (leave it out of the lookup) and NOT throw — a throw here
+      //   aborts the WHOLE plan mid-reapply (see rule.forbid.plan-fail-on-apply-guided-prereq)
+      then('it skips the dead instance and does not throw', async () => {
+        const rtResponse = {
+          RouteTables: [
+            {
+              RouteTableId: 'rtb-dead-nat',
+              VpcId: 'vpc-abc123',
+              Routes: [
+                {
+                  DestinationCidrBlock: '0.0.0.0/0',
+                  InstanceId: 'i-0deadnat00000000',
+                  Origin: 'CreateRoute',
+                  State: 'active',
+                },
+              ],
+              Associations: [],
+              Tags: [{ Key: 'exid', Value: 'dead-nat-rtb' }],
+            },
+          ],
+        };
+        mockSend.mockResolvedValue(rtResponse);
+
+        // the terminated NAT resolves to null (gone)
+        (getEc2Instance as jest.Mock).mockResolvedValue(null);
+
+        (
+          castModule.castIntoDeclaredAwsVpcRouteTable as jest.Mock
+        ).mockReturnValue({
+          id: 'rtb-dead-nat',
+          exid: 'dead-nat-rtb',
+          vpc: { id: 'vpc-abc123' },
+          routes: [], // the cast drops the dead route
+          associations: [],
+          tags: null,
+        });
+
+        // must not throw — it returns the (dead-route-dropped) route table
+        const result = await getOneVpcRouteTable(
+          { by: { unique: { exid: 'dead-nat-rtb' } } },
+          context,
+        );
+
+        expect(result).not.toBeNull();
+        expect(result?.exid).toBe('dead-nat-rtb');
+        // the cast was handed an EMPTY instances lookup (the dead nat was skipped)
+        expect(
+          castModule.castIntoDeclaredAwsVpcRouteTable as jest.Mock,
+        ).toHaveBeenCalledWith(
+          expect.anything(),
+          expect.objectContaining({ instances: {} }),
+        );
+      });
+    },
+  );
 
   given('a route table that does not exist', () => {
     then('we should return null for empty RouteTables array', async () => {

@@ -1,0 +1,63 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`castIntoDeclaredAwsCostReportRecommendationsToPurchasePlan given: [case1] a recommendation with a summary and one plan detail then: it matches the contract snapshot 1`] = `
+DeclaredAwsCostReportRecommendationsToPurchasePlan {
+  "accountScope": "PAYER",
+  "filter": null,
+  "lookbackDays": "THIRTY_DAYS",
+  "paymentOption": "NO_UPFRONT",
+  "recommendations": [
+    DeclaredAwsCostReportRecommendationsToPurchasePlanItem {
+      "estimatedMonthlySavings": DeclaredAwsCostAmount {
+        "amount": "4.20",
+        "unit": "USD",
+      },
+      "estimatedRoi": "0.30",
+      "hourlyCommitmentToPurchase": "0.021",
+      "upfrontCost": "0",
+    },
+  ],
+  "savingsPlansType": "COMPUTE_SP",
+  "summary": DeclaredAwsCostReportRecommendationsToPurchasePlanSummary {
+    "currentOnDemandSpend": DeclaredAwsCostAmount {
+      "amount": "35.00",
+      "unit": "USD",
+    },
+    "estimatedMonthlySavings": DeclaredAwsCostAmount {
+      "amount": "4.20",
+      "unit": "USD",
+    },
+    "estimatedRoi": "0.30",
+    "estimatedSavingsPercentage": "12",
+    "hourlyCommitmentToPurchase": "0.021",
+    "recommendationCount": 1,
+  },
+  "termInYears": "ONE_YEAR",
+}
+`;
+
+exports[`castIntoDeclaredAwsCostReportRecommendationsToPurchasePlan given: [case2] an empty recommendation (no plan to buy) then: it matches the contract snapshot 1`] = `
+DeclaredAwsCostReportRecommendationsToPurchasePlan {
+  "accountScope": "PAYER",
+  "filter": null,
+  "lookbackDays": "THIRTY_DAYS",
+  "paymentOption": "NO_UPFRONT",
+  "recommendations": [],
+  "savingsPlansType": "COMPUTE_SP",
+  "summary": DeclaredAwsCostReportRecommendationsToPurchasePlanSummary {
+    "currentOnDemandSpend": DeclaredAwsCostAmount {
+      "amount": "0",
+      "unit": "USD",
+    },
+    "estimatedMonthlySavings": DeclaredAwsCostAmount {
+      "amount": "0",
+      "unit": "USD",
+    },
+    "estimatedRoi": "0",
+    "estimatedSavingsPercentage": "0",
+    "hourlyCommitmentToPurchase": "0",
+    "recommendationCount": 0,
+  },
+  "termInYears": "ONE_YEAR",
+}
+`;

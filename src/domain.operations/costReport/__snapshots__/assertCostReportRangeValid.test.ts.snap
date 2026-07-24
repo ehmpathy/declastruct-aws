@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`assertCostReportRangeValid given: [case2] a reversed range where until is before since then: the user-directed fail-loud message matches the snapshot 1`] = `
+"BadRequestError: cost report range is invalid: \`until\` must be strictly after \`since\`
+
+{
+  "since": "2026-08-01T00:00:00Z",
+  "until": "2026-07-01T00:00:00Z"
+}"
+`;
+
+exports[`assertCostReportRangeValid given: [case3] an empty range where until equals since then: the user-directed fail-loud message matches the snapshot 1`] = `
+"BadRequestError: cost report range is invalid: \`until\` must be strictly after \`since\`
+
+{
+  "since": "2026-07-01T00:00:00Z",
+  "until": "2026-07-01T00:00:00Z"
+}"
+`;

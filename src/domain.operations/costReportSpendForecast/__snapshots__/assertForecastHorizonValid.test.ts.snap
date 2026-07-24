@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`assertForecastHorizonValid given: [case3] a DAILY horizon beyond the 3-month cap then: the user-directed fail-loud message matches the snapshot 1`] = `
+"BadRequestError: forecast horizon is invalid: exceeds the AWS cap for its granularity
+
+{
+  "granularity": "DAILY",
+  "capMonths": 3,
+  "spanMonths": 5,
+  "since": "2026-07-01T00:00:00Z",
+  "until": "2026-12-01T00:00:00Z"
+}"
+`;
+
+exports[`assertForecastHorizonValid given: [case4] a MONTHLY horizon beyond the 18-month cap then: the user-directed fail-loud message matches the snapshot 1`] = `
+"BadRequestError: forecast horizon is invalid: exceeds the AWS cap for its granularity
+
+{
+  "granularity": "MONTHLY",
+  "capMonths": 18,
+  "spanMonths": 24,
+  "since": "2026-07-01T00:00:00Z",
+  "until": "2028-07-01T00:00:00Z"
+}"
+`;

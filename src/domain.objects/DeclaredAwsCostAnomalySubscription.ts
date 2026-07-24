@@ -42,9 +42,15 @@ export interface DeclaredAwsCostAnomalySubscription {
 
   /**
    * .what = reference to the monitor whose anomalies this subscription alerts on
-   * .note = referenced by unique (name); the encode maps it to a MonitorArn
+   * .note
+   *   - referenced by unique (name); the encode maps it to a MonitorArn
+   *   - nullable to model the malformed remote state AWS can return: a subscription
+   *     whose MonitorArnList is empty (e.g. its monitor was pruned out from under
+   *     it). a read of such an orphan yields monitor=null, which the plan sees as
+   *     drift from the declared (non-null) monitor and reconciles via UPDATE. a
+   *     DESIRED subscription always carries a monitor; set failfasts on a null one.
    */
-  monitor: RefByUnique<typeof DeclaredAwsCostAnomalyMonitor>;
+  monitor: RefByUnique<typeof DeclaredAwsCostAnomalyMonitor> | null;
 
   /**
    * .what = how often anomaly notifications are sent

@@ -184,6 +184,40 @@ describe('castIntoDeclaredAwsVpcRouteTable', () => {
     });
   });
 
+  given(
+    'an AWS RouteTable with an active route to a just-terminated NAT (not in lookup)',
+    () => {
+      // note: AWS lags to mark a route 'blackhole' after its NAT terminates, so the route
+      //   reads 'active' with a dead InstanceId that resolves to no exid. the cast must DROP
+      //   it (same as a blackhole), NOT throw — a throw here aborts the whole plan mid-reapply
+      when('cast to domain object', () => {
+        then('it should drop the dead route rather than throw', () => {
+          const awsRouteTable: RouteTable = {
+            RouteTableId: 'rtb-dead-nat',
+            VpcId: 'vpc-abc123',
+            Routes: [
+              {
+                DestinationCidrBlock: '0.0.0.0/0',
+                InstanceId: 'i-0deadnat00000000',
+                Origin: 'CreateRoute',
+                State: 'active',
+              },
+            ],
+            Associations: [],
+            Tags: [{ Key: 'exid', Value: 'dead-nat-route-table' }],
+          };
+          const result = castIntoDeclaredAwsVpcRouteTable(awsRouteTable, {
+            vpc: 'test-vpc-exid',
+            gateways: {},
+            subnets: {},
+            instances: {}, // the terminated nat resolves to no exid
+          });
+          expect(result.routes).toEqual([]);
+        });
+      });
+    },
+  );
+
   given('an AWS RouteTable with IPv6 route', () => {
     when('cast to domain object', () => {
       then('it should cast IPv6 destination', () => {

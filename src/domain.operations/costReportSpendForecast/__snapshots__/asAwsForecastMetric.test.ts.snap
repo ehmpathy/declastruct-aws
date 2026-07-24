@@ -1,0 +1,30 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`asAwsForecastMetric given: [case1] a supported canonical metric name then: the full positive-path metric map matches the contract snapshot 1`] = `
+{
+  "AmortizedCost": "AMORTIZED_COST",
+  "BlendedCost": "BLENDED_COST",
+  "NetAmortizedCost": "NET_AMORTIZED_COST",
+  "NetUnblendedCost": "NET_UNBLENDED_COST",
+  "NormalizedUsageAmount": "NORMALIZED_USAGE_AMOUNT",
+  "UnblendedCost": "UNBLENDED_COST",
+  "UsageQuantity": "USAGE_QUANTITY",
+}
+`;
+
+exports[`asAwsForecastMetric given: [case2] an unknown metric name (a typo) then: the user-directed fail-loud message matches the snapshot 1`] = `
+"BadRequestError: unknown cost metric name for forecast; expected a canonical PascalCase metric
+
+{
+  "metric": "UnblendedCosts",
+  "supported": [
+    "UnblendedCost",
+    "BlendedCost",
+    "NetUnblendedCost",
+    "AmortizedCost",
+    "NetAmortizedCost",
+    "UsageQuantity",
+    "NormalizedUsageAmount"
+  ]
+}"
+`;

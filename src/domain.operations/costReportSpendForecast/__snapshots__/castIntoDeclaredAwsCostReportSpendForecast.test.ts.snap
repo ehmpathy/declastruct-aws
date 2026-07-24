@@ -1,0 +1,48 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`castIntoDeclaredAwsCostReportSpendForecast given: [case1] a forecast with a total and one interval point then: it matches the contract snapshot 1`] = `
+DeclaredAwsCostReportSpendForecast {
+  "filter": null,
+  "granularity": "MONTHLY",
+  "metric": "UnblendedCost",
+  "points": [
+    DeclaredAwsCostReportSpendForecastPoint {
+      "lower": "17.10",
+      "mean": "18.90",
+      "range": DomainLiteral {
+        "since": "2026-07-15T00:00:00Z",
+        "until": "2026-08-01T00:00:00Z",
+      },
+      "unit": "USD",
+      "upper": "21.40",
+    },
+  ],
+  "predictionInterval": 80,
+  "range": DomainLiteral {
+    "since": "2026-07-15T00:00:00Z",
+    "until": "2026-08-01T00:00:00Z",
+  },
+  "total": DeclaredAwsCostAmount {
+    "amount": "18.90",
+    "unit": "USD",
+  },
+}
+`;
+
+exports[`castIntoDeclaredAwsCostReportSpendForecast given: [case2] a forecast with no results then: it matches the contract snapshot 1`] = `
+DeclaredAwsCostReportSpendForecast {
+  "filter": null,
+  "granularity": "MONTHLY",
+  "metric": "UnblendedCost",
+  "points": [],
+  "predictionInterval": 80,
+  "range": DomainLiteral {
+    "since": "2026-07-15T00:00:00Z",
+    "until": "2026-08-01T00:00:00Z",
+  },
+  "total": DeclaredAwsCostAmount {
+    "amount": "0",
+    "unit": "USD",
+  },
+}
+`;

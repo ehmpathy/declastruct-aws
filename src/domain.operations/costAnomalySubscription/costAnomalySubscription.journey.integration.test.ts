@@ -103,7 +103,7 @@ describe('costAnomalySubscription.journey', () => {
         );
         expect(found).not.toBeNull();
         expect(found?.name).toBe(testSubscriptionName);
-        expect(found?.monitor.name).toBe(TEST_ANOMALY_MONITOR_NAME_SHARED);
+        expect(found?.monitor?.name).toBe(TEST_ANOMALY_MONITOR_NAME_SHARED);
         expect(found?.tags?.purpose).toBe('integration-test');
       });
     });

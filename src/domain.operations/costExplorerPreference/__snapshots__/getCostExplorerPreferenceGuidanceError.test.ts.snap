@@ -1,0 +1,24 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`getCostExplorerPreferenceGuidanceError given: a feature that is off when: a causal aws error is provided (the read path) then: it carries the console guidance + metadata (message snapshot) 1`] = `
+"BadRequestError: aws cost explorer preference "rightsizeRecommendations" is not enabled for this account. this is a one-time, console-only opt-in — aws exposes no api to enable it. declare DeclaredAwsCostExplorerPreference to make the precondition explicit, switch it on once in the payer (management) account, then re-apply.
+
+{
+  "provision": {
+    "resource": "DeclaredAwsCostExplorerPreference",
+    "feature": "rightsizeRecommendations"
+  },
+  "how": [
+    "sign in to the payer (management) account (NOT the linked member account)",
+    "open Cost Explorer Preferences: https://us-east-1.console.aws.amazon.com/cost-management/home?region=us-east-1#/settings",
+    "enable the EC2 rightsize recommendation opt-in (and tick linked-account access so member accounts can read)",
+    "wait for the opt-in to populate (aws states up to ~24h), then re-run apply"
+  ],
+  "note": "once on, the precondition probe succeeds and the report reads clean; a low-spend account may return an empty recommendation set, which is a valid (non-error) read",
+  "links": {
+    "costExplorerPreferences": "https://us-east-1.console.aws.amazon.com/cost-management/home?region=us-east-1#/settings"
+  },
+  "awsError": "Rightsizing EC2 recommendation is an opt-in only feature."
+}"
+`;
+

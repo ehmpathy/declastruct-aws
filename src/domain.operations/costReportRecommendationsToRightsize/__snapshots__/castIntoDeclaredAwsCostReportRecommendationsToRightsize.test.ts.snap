@@ -1,0 +1,64 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`castIntoDeclaredAwsCostReportRecommendationsToRightsize given: [case1] a recommendation set with a Modify and a Terminate action then: it matches the contract snapshot 1`] = `
+DeclaredAwsCostReportRecommendationsToRightsize {
+  "benefitsConsidered": true,
+  "filter": null,
+  "lookbackDays": 30,
+  "recommendationTarget": "SAME_INSTANCE_FAMILY",
+  "recommendations": [
+    DeclaredAwsCostReportRecommendationsToRightsizeItem {
+      "action": "MODIFY",
+      "currentMonthlyCost": DeclaredAwsCostAmount {
+        "amount": "20.00",
+        "unit": "USD",
+      },
+      "estimatedMonthlySavings": DeclaredAwsCostAmount {
+        "amount": "8.10",
+        "unit": "USD",
+      },
+      "resourceId": "i-modify",
+    },
+    DeclaredAwsCostReportRecommendationsToRightsizeItem {
+      "action": "TERMINATE",
+      "currentMonthlyCost": DeclaredAwsCostAmount {
+        "amount": "5.00",
+        "unit": "USD",
+      },
+      "estimatedMonthlySavings": DeclaredAwsCostAmount {
+        "amount": "5.00",
+        "unit": "USD",
+      },
+      "resourceId": "i-terminate",
+    },
+  ],
+  "service": "AmazonEC2",
+  "summary": DeclaredAwsCostReportRecommendationsToRightsizeSummary {
+    "estimatedMonthlySavings": DeclaredAwsCostAmount {
+      "amount": "8.10",
+      "unit": "USD",
+    },
+    "recommendationCount": 2,
+    "savingsPercentage": "18",
+  },
+}
+`;
+
+exports[`castIntoDeclaredAwsCostReportRecommendationsToRightsize given: [case2] an empty recommendation set (a low-usage account) then: it matches the contract snapshot 1`] = `
+DeclaredAwsCostReportRecommendationsToRightsize {
+  "benefitsConsidered": true,
+  "filter": null,
+  "lookbackDays": 0,
+  "recommendationTarget": "SAME_INSTANCE_FAMILY",
+  "recommendations": [],
+  "service": "AmazonEC2",
+  "summary": DeclaredAwsCostReportRecommendationsToRightsizeSummary {
+    "estimatedMonthlySavings": DeclaredAwsCostAmount {
+      "amount": "0",
+      "unit": "USD",
+    },
+    "recommendationCount": 0,
+    "savingsPercentage": "0",
+  },
+}
+`;

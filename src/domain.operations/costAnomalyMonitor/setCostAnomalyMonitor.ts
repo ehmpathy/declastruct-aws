@@ -1,5 +1,8 @@
 import {
+  type AnomalyMonitor,
   CreateAnomalyMonitorCommand,
+  GetAnomalyMonitorsCommand,
+  ListTagsForResourceCommand,
   TagResourceCommand,
   UntagResourceCommand,
   UpdateAnomalyMonitorCommand,
@@ -16,6 +19,7 @@ import type { DeclaredAwsCostAnomalyMonitor } from '@src/domain.objects/Declared
 import { getAllTagKeysToRemove } from '@src/domain.operations/tags/getAllTagKeysToRemove';
 
 import { getOneCostAnomalyMonitor } from './getOneCostAnomalyMonitor';
+import { isDimensionalMonitorLimitError } from './isDimensionalMonitorLimitError';
 
 /**
  * .what = creates or updates a cost anomaly monitor idempotently
@@ -74,23 +78,127 @@ export const setCostAnomalyMonitor = asProcedure(
       return getOneAfter({ context, name: desired.name });
     }
 
-    // create the monitor
-    await client.send(
-      new CreateAnomalyMonitorCommand({
-        AnomalyMonitor: {
-          MonitorName: desired.name,
-          MonitorType: desired.kind,
-          MonitorDimension: desired.dimension ?? undefined,
-        },
-        ResourceTags: desired.tags
-          ? Object.entries(desired.tags).map(([Key, Value]) => ({ Key, Value }))
-          : undefined,
-      }),
-    );
+    // create the monitor. a DIMENSIONAL (AWS-services) monitor is a per-account
+    // singleton, so a create can hit the account limit when one already exists under
+    // a different name (which getOneCostAnomalyMonitor, keyed by name, did not match).
+    // in that case adopt the extant singleton (rename + retag) rather than a hard
+    // failure — the singleton IS our monitor. never adopt a foreign-owned one.
+    try {
+      await client.send(
+        new CreateAnomalyMonitorCommand({
+          AnomalyMonitor: {
+            MonitorName: desired.name,
+            MonitorType: desired.kind,
+            MonitorDimension: desired.dimension ?? undefined,
+          },
+          ResourceTags: desired.tags
+            ? Object.entries(desired.tags).map(([Key, Value]) => ({
+                Key,
+                Value,
+              }))
+            : undefined,
+        }),
+      );
+    } catch (error) {
+      if (!(error instanceof Error)) throw error;
+      if (!isDimensionalMonitorLimitError({ error })) throw error;
+
+      // the per-account dimensional-monitor limit is reached: adopt the extant
+      // singleton of the same dimension instead of a create
+      await adoptDimensionalMonitorSingleton({ client, desired });
+      return getOneAfter({ context, name: desired.name });
+    }
 
     return getOneAfter({ context, name: desired.name });
   },
 );
+
+/**
+ * .what = adopts the account's extant DIMENSIONAL monitor singleton to match desired
+ * .why = AWS caps DIMENSIONAL (AWS-services) monitors at one per account, so a create
+ *        that hits the limit means the singleton already exists (possibly under a
+ *        stale name). the declarative reconcile is to rename + retag it to desired,
+ *        not to fail — provided it is ours or unowned
+ * .note = ownership guard: never rename a monitor that holds a DIFFERENT managedBy
+ *         claim out from under its owner (rule.forbid.silent-resource-theft)
+ */
+const adoptDimensionalMonitorSingleton = async (input: {
+  client: ReturnType<typeof getAwsCostExplorerClient>;
+  desired: DeclaredAwsCostAnomalyMonitor;
+}): Promise<void> => {
+  const { client, desired } = input;
+
+  // find the extant dimensional singleton of the same dimension
+  const singleton = await getDimensionalMonitorSingleton({
+    client,
+    dimension: desired.dimension,
+  });
+  const arn =
+    singleton?.MonitorArn ??
+    UnexpectedCodePathError.throw(
+      'dimensional-monitor limit reached but no extant singleton was found',
+      { dimension: desired.dimension },
+    );
+
+  // read the extant tags to check ownership + reconcile
+  const tagsResponse = await client.send(
+    new ListTagsForResourceCommand({ ResourceArn: arn }),
+  );
+  const tagsExtant: Record<string, string> = {};
+  for (const tag of tagsResponse.ResourceTags ?? [])
+    if (tag.Key) tagsExtant[tag.Key] = tag.Value ?? '';
+
+  // ownership guard: fail loud on a foreign claim rather than steal it
+  const ownerDesired = desired.tags?.managedBy ?? null;
+  const ownerExtant = tagsExtant.managedBy ?? null;
+  if (ownerExtant && ownerDesired && ownerExtant !== ownerDesired)
+    BadRequestError.throw(
+      'a dimensional cost anomaly monitor already exists under a different owner (managedBy); cannot adopt it. delete it or reconcile the declaration',
+      {
+        extant: { arn, name: singleton?.MonitorName, managedBy: ownerExtant },
+        desired: { name: desired.name, managedBy: ownerDesired },
+      },
+    );
+
+  // adopt: rename the singleton to the desired name, then reconcile tags
+  await client.send(
+    new UpdateAnomalyMonitorCommand({
+      MonitorArn: arn,
+      MonitorName: desired.name,
+    }),
+  );
+  await syncTags({
+    client,
+    arn,
+    tagsBefore: Object.keys(tagsExtant).length > 0 ? tagsExtant : null,
+    tagsDesired: desired.tags,
+  });
+};
+
+/**
+ * .what = pages GetAnomalyMonitors and returns the DIMENSIONAL monitor of a dimension
+ * .why = AWS keeps at most one such singleton per account; adopt keys on it, not name
+ */
+const getDimensionalMonitorSingleton = async (input: {
+  client: ReturnType<typeof getAwsCostExplorerClient>;
+  dimension: 'SERVICE' | null;
+}): Promise<AnomalyMonitor | undefined> => {
+  const { client, dimension } = input;
+  let nextPageToken: string | undefined;
+  do {
+    const response = await client.send(
+      new GetAnomalyMonitorsCommand({ NextPageToken: nextPageToken }),
+    );
+    const found = (response.AnomalyMonitors ?? []).find(
+      (monitor) =>
+        monitor.MonitorType === 'DIMENSIONAL' &&
+        monitor.MonitorDimension === dimension,
+    );
+    if (found) return found;
+    nextPageToken = response.NextPageToken;
+  } while (nextPageToken);
+  return undefined;
+};
 
 /**
  * .what = re-reads the monitor after a write and failfasts if absent

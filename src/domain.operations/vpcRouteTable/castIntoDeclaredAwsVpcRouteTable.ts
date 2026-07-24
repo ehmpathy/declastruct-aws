@@ -54,6 +54,13 @@ export const castIntoDeclaredAwsVpcRouteTable = (
     // exclude blackhole routes (dead artifacts, e.g. a terminated nat instance —
     // AWS drops the instance id but keeps the route until manually removed)
     .filter((route) => route.State !== 'blackhole')
+    // exclude routes whose nat instance is no longer resolvable — a just-terminated NAT
+    // that AWS has not yet marked 'blackhole' still reads 'active' with a dead InstanceId.
+    // treat it as a dead route (same as a blackhole), so a pruned NAT mid-reapply reads as
+    // "no NAT route" and the reapply re-adds it, rather than a throw that kills the plan
+    .filter(
+      (route) => !route.InstanceId || exidLookup.instances[route.InstanceId],
+    )
     .map((route) => {
       // determine destination cidr
       const destination: DeclaredAwsVpcRoute['destination'] = {

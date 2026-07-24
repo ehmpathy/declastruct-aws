@@ -1,0 +1,55 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`castIntoDeclaredAwsCostReportSpendObservedByResource given: [case1] a per-resource result grouped by RESOURCE_ID then: it matches the contract snapshot 1`] = `
+DeclaredAwsCostReportSpendObservedByResource {
+  "buckets": [
+    DeclaredAwsCostReportSpendObservedByResourceBucket {
+      "estimated": true,
+      "groups": [
+        DeclaredAwsCostReportSpendObservedByResourceGroup {
+          "cost": DeclaredAwsCostAmount {
+            "amount": "0.5300",
+            "unit": "USD",
+          },
+          "keys": [
+            "i-0aaa111",
+          ],
+        },
+        DeclaredAwsCostReportSpendObservedByResourceGroup {
+          "cost": DeclaredAwsCostAmount {
+            "amount": "0.1200",
+            "unit": "USD",
+          },
+          "keys": [
+            "i-0bbb222",
+          ],
+        },
+      ],
+      "range": DomainLiteral {
+        "since": "2026-07-10T00:00:00Z",
+        "until": "2026-07-11T00:00:00Z",
+      },
+      "total": DeclaredAwsCostAmount {
+        "amount": "0.6500",
+        "unit": "USD",
+      },
+    },
+  ],
+  "filter": DeclaredAwsCostReportFilter {
+    "dimension": "SERVICE",
+    "values": [
+      "Amazon Elastic Compute Cloud - Compute",
+    ],
+  },
+  "granularity": "DAILY",
+  "metric": "UnblendedCost",
+  "range": DomainLiteral {
+    "since": "2026-07-10T00:00:00Z",
+    "until": "2026-07-12T00:00:00Z",
+  },
+  "total": DeclaredAwsCostAmount {
+    "amount": "0.6500",
+    "unit": "USD",
+  },
+}
+`;

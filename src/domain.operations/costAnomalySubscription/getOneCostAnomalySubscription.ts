@@ -90,9 +90,22 @@ export const getOneCostAnomalySubscription = asProcedure(
       // handle subscription absent
       if (!found) return null;
 
-      // derive the monitor name from the subscription's first MonitorArn
+      // derive the monitor name from the subscription's first MonitorArn. a
+      // malformed orphan (MonitorArnList empty — its monitor was pruned out from
+      // under it) yields monitorRef=null. do NOT throw: a plan reads EVERY declared
+      // resource, so a throw here aborts the whole plan; instead pass the null
+      // through so the plan sees drift (declared monitor vs null) and reconciles via
+      // UPDATE, or a del can tear the orphan down. see
+      // rule.forbid.plan-fail-on-apply-guided-prereq
       const monitorArn = found.MonitorArnList?.[0];
-      const monitorRef = await deriveMonitorRef({ client, monitorArn });
+      const monitorRef = await (async () => {
+        if (monitorArn) return deriveMonitorRef({ client, monitorArn });
+        context.log.warn(
+          'aws.getOneCostAnomalySubscription: subscription has no MonitorArn (malformed orphan); read as monitor=null for reconcile',
+          { subscriptionName },
+        );
+        return null;
+      })();
 
       // fetch tags via the subscription arn
       const tagsResponse = await client.send(
@@ -116,11 +129,22 @@ export const getOneCostAnomalySubscription = asProcedure(
     } catch (error) {
       if (!(error instanceof Error)) throw error;
 
+      // sanitize the cause: a raw AWS SDK error carries a circular protocol/serdeContext
+      // ref, so a straight `cause: error` makes HelpfulError throw a circular-structure
+      // TypeError that MASKS the real error. wrap it in a plain Error that keeps the name +
+      // message + aws metadata, so the true failure surfaces loud instead of the mask
+      const awsMetadata = (
+        error as { $metadata?: { httpStatusCode?: number; requestId?: string } }
+      ).$metadata;
+      const cause = new Error(`${error.name}: ${error.message}`);
+
       throw new HelpfulError('aws.getOneCostAnomalySubscription error', {
-        cause: error,
+        cause,
         context: {
           errorName: error.name,
           errorMessage: error.message,
+          httpStatusCode: awsMetadata?.httpStatusCode ?? null,
+          requestId: awsMetadata?.requestId ?? null,
           input,
         },
       });
@@ -138,8 +162,13 @@ const deriveMonitorRef = async (input: {
   monitorArn: string | undefined;
 }): Promise<RefByUnique<typeof DeclaredAwsCostAnomalyMonitor>> => {
   const { client, monitorArn } = input;
+  // .note = metadata must be `{ monitorArn }`, NOT `{ input }`: input carries the AWS SDK
+  //   client, which holds a circular protocol/serdeContext ref. serializing it into the
+  //   error throws a circular-structure TypeError that MASKS this real message
   if (!monitorArn)
-    UnexpectedCodePathError.throw('subscription lacks a MonitorArn', { input });
+    UnexpectedCodePathError.throw('subscription lacks a MonitorArn', {
+      monitorArn,
+    });
 
   let nextPageToken: string | undefined;
   do {

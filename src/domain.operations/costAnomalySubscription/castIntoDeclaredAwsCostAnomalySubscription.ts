@@ -26,12 +26,15 @@ import { DeclaredAwsTags } from '@src/domain.objects/DeclaredAwsTags';
  *     `monitor` field is a RefByUnique keyed by NAME. the ARN cannot be cheaply
  *     turned back into a name here, so the caller supplies the monitor ref it
  *     derived and we pass it through
+ *   - monitorRef is null when the remote subscription has an empty MonitorArnList
+ *     (a malformed orphan whose monitor was pruned); we pass the null through so a
+ *     plan reads the orphan as drift rather than a hard abort
  *   - the threshold is decoded from ThresholdExpression's
  *     ANOMALY_TOTAL_IMPACT_ABSOLUTE dimension value, in USD
  */
 export const castIntoDeclaredAwsCostAnomalySubscription = (input: {
   subscription: AnomalySubscription;
-  monitorRef: RefByUnique<typeof DeclaredAwsCostAnomalyMonitor>;
+  monitorRef: RefByUnique<typeof DeclaredAwsCostAnomalyMonitor> | null;
   tags: ResourceTag[] | undefined;
 }): HasReadonly<typeof DeclaredAwsCostAnomalySubscription> => {
   const { subscription, monitorRef, tags } = input;

@@ -56,9 +56,18 @@ export const setCostAnomalySubscription = asProcedure(
     // findsert: return the extant subscription without update
     if (foundBefore && !isUpsert) return foundBefore;
 
+    // a desired subscription must carry a monitor to attach (the monitor field is
+    // nullable only to model a malformed remote orphan on READ; a WRITE requires it)
+    const desiredMonitor =
+      desired.monitor ??
+      BadRequestError.throw(
+        'a desired cost anomaly subscription must reference a monitor',
+        { desired },
+      );
+
     // turn the monitor name-ref into a MonitorArn (needed for create + upsert)
     const monitor = await getOneCostAnomalyMonitor(
-      { by: { unique: { name: desired.monitor.name } } },
+      { by: { unique: { name: desiredMonitor.name } } },
       context,
     );
     const monitorArn =

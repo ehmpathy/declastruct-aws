@@ -19,13 +19,14 @@ import {
  */
 export const getResourcesOfVpc = (): DomainEntity<any>[] => {
   // demo VPC
-  // .note = demo uses the 10.10.0.0/16 range, distinct from the acceptance fixtures'
-  //   10.0.0.0/16 (src/contract/sdks/.test/assets/resources.acceptance.ts). both run in
-  //   the SAME demo account, so non-overlapped ranges keep their subnets from a shared
-  //   (vpc, cidr) slot conflict — see rule.forbid.silent-resource-theft
+  // .note = demo uses the 10.0.0.0/16 range — the range the live demo VPC already holds.
+  //   the acceptance fixtures also declare 10.0.0.0/16
+  //   (src/contract/sdks/.test/assets/resources.acceptance.ts), but they are a SEPARATE VPC
+  //   (distinct exid), so the two never share a (vpc, cidr) subnet slot — a same-CIDR peer
+  //   VPC is not a conflict. kept at 10.0 to match live, so this VPC is a KEEP, not a teardown
   const vpc = DeclaredAwsVpc.as({
     exid: 'declastruct-demo-vpc',
-    cidr: { v4: '10.10.0.0/16' },
+    cidr: { v4: '10.0.0.0/16' },
     dns: { hostnames: 'enabled', support: 'enabled' },
     tags: { managedBy: 'declastruct', purpose: 'demo' },
   });
@@ -34,7 +35,7 @@ export const getResourcesOfVpc = (): DomainEntity<any>[] => {
   const subnetPublic = DeclaredAwsVpcSubnet.as({
     exid: 'declastruct-demo-subnet-public-1a',
     vpc: { exid: vpc.exid },
-    cidr: { v4: '10.10.1.0/24' },
+    cidr: { v4: '10.0.1.0/24' },
     zone: { availability: 'us-east-1a' },
     tags: { managedBy: 'declastruct', purpose: 'demo' },
   });
@@ -43,7 +44,7 @@ export const getResourcesOfVpc = (): DomainEntity<any>[] => {
   const subnetPrivate = DeclaredAwsVpcSubnet.as({
     exid: 'declastruct-demo-subnet-private-1a',
     vpc: { exid: vpc.exid },
-    cidr: { v4: '10.10.2.0/24' },
+    cidr: { v4: '10.0.2.0/24' },
     zone: { availability: 'us-east-1a' },
     tags: { managedBy: 'declastruct', purpose: 'demo' },
   });
@@ -64,7 +65,7 @@ export const getResourcesOfVpc = (): DomainEntity<any>[] => {
         {
           protocol: 'all',
           port: { from: 0, upto: 0 },
-          cidrs: [{ v4: '10.10.0.0/16' }],
+          cidrs: [{ v4: '10.0.0.0/16' }],
           description:
             'allow all inbound from within vpc - required so the NAT can forward egress traffic from the private subnet',
         },

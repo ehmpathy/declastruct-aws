@@ -1,0 +1,65 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`cost-report read-only DAOs reject writes given: [case1] a findsert on the observed-spend report DAO then: the user-directed fail-loud message snapshot holds 1`] = `
+"BadRequestError: observed-spend report is a read-only derived entity — cannot be written
+
+{
+  "input": {
+    "range": {
+      "since": "2026-06-01T00:00:00Z",
+      "until": "2026-07-01T00:00:00Z"
+    },
+    "granularity": "MONTHLY",
+    "groupBy": {
+      "dimension": "SERVICE"
+    },
+    "filter": null,
+    "metric": "UnblendedCost"
+  }
+}"
+`;
+
+exports[`cost-report read-only DAOs reject writes given: [case2] a findsert on the forecast report DAO then: the user-directed fail-loud message snapshot holds 1`] = `
+"BadRequestError: forecast-spend report is a read-only derived entity — cannot be written
+
+{
+  "input": {
+    "range": {
+      "since": "2026-07-15T00:00:00Z",
+      "until": "2026-08-01T00:00:00Z"
+    },
+    "granularity": "MONTHLY",
+    "metric": "UnblendedCost",
+    "filter": null,
+    "predictionInterval": 80
+  }
+}"
+`;
+
+exports[`cost-report read-only DAOs reject writes given: [case3] a findsert on the rightsize-recommendation report DAO then: the user-directed fail-loud message snapshot holds 1`] = `
+"BadRequestError: rightsize-savings report is a read-only derived entity — cannot be written
+
+{
+  "input": {
+    "service": "AmazonEC2",
+    "recommendationTarget": "SAME_INSTANCE_FAMILY",
+    "benefitsConsidered": true,
+    "filter": null
+  }
+}"
+`;
+
+exports[`cost-report read-only DAOs reject writes given: [case4] a findsert on the purchase-plan-recommendation report DAO then: the user-directed fail-loud message snapshot holds 1`] = `
+"BadRequestError: purchase-plan-savings report is a read-only derived entity — cannot be written
+
+{
+  "input": {
+    "savingsPlansType": "COMPUTE_SP",
+    "termInYears": "ONE_YEAR",
+    "paymentOption": "NO_UPFRONT",
+    "lookbackDays": "THIRTY_DAYS",
+    "accountScope": "LINKED",
+    "filter": null
+  }
+}"
+`;

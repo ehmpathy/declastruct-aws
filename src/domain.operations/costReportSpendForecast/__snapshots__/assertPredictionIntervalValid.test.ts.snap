@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`assertPredictionIntervalValid given: [case3] an interval below the band then: the user-directed fail-loud message matches the snapshot 1`] = `
+"BadRequestError: forecast prediction interval is invalid: \`predictionInterval\` must be between 51 and 99 (inclusive)
+
+{
+  "predictionInterval": 50
+}"
+`;
+
+exports[`assertPredictionIntervalValid given: [case4] an interval above the band then: the user-directed fail-loud message matches the snapshot 1`] = `
+"BadRequestError: forecast prediction interval is invalid: \`predictionInterval\` must be between 51 and 99 (inclusive)
+
+{
+  "predictionInterval": 100
+}"
+`;

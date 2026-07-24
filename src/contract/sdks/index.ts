@@ -12,6 +12,12 @@ export { DeclaredAwsCloudwatchLogGroupReportDistOfPatternDao } from '@src/access
 export { DeclaredAwsCloudwatchMetricAlarmDao } from '@src/access/daos/DeclaredAwsCloudwatchMetricAlarmDao';
 export { DeclaredAwsCostAnomalyMonitorDao } from '@src/access/daos/DeclaredAwsCostAnomalyMonitorDao';
 export { DeclaredAwsCostAnomalySubscriptionDao } from '@src/access/daos/DeclaredAwsCostAnomalySubscriptionDao';
+export { DeclaredAwsCostExplorerPreferenceDao } from '@src/access/daos/DeclaredAwsCostExplorerPreferenceDao';
+export { DeclaredAwsCostReportRecommendationsToPurchasePlanDao } from '@src/access/daos/DeclaredAwsCostReportRecommendationsToPurchasePlanDao';
+export { DeclaredAwsCostReportRecommendationsToRightsizeDao } from '@src/access/daos/DeclaredAwsCostReportRecommendationsToRightsizeDao';
+export { DeclaredAwsCostReportSpendForecastDao } from '@src/access/daos/DeclaredAwsCostReportSpendForecastDao';
+export { DeclaredAwsCostReportSpendObservedByResourceDao } from '@src/access/daos/DeclaredAwsCostReportSpendObservedByResourceDao';
+export { DeclaredAwsCostReportSpendObservedDao } from '@src/access/daos/DeclaredAwsCostReportSpendObservedDao';
 // aws daos
 export { DeclaredAwsEc2InstanceDao } from '@src/access/daos/DeclaredAwsEc2InstanceDao';
 export { DeclaredAwsEc2InstanceSessionDao } from '@src/access/daos/DeclaredAwsEc2InstanceSessionDao';
@@ -74,10 +80,39 @@ export {
   DeclaredAwsCloudwatchLogGroupReportDistOfPatternRow,
 } from '@src/domain.objects/DeclaredAwsCloudwatchLogGroupReportDistOfPattern';
 export { DeclaredAwsCloudwatchMetricAlarm } from '@src/domain.objects/DeclaredAwsCloudwatchMetricAlarm';
+// aws cost report domain objects
+export { DeclaredAwsCostAmount } from '@src/domain.objects/DeclaredAwsCostAmount';
 // aws cost anomaly domain objects
 export { DeclaredAwsCostAnomalyMonitor } from '@src/domain.objects/DeclaredAwsCostAnomalyMonitor';
 export { DeclaredAwsCostAnomalySubscriber } from '@src/domain.objects/DeclaredAwsCostAnomalySubscriber';
 export { DeclaredAwsCostAnomalySubscription } from '@src/domain.objects/DeclaredAwsCostAnomalySubscription';
+export { DeclaredAwsCostExplorerPreference } from '@src/domain.objects/DeclaredAwsCostExplorerPreference';
+export { DeclaredAwsCostReportFilter } from '@src/domain.objects/DeclaredAwsCostReportFilter';
+export {
+  DeclaredAwsCostReportRecommendationsToPurchasePlan,
+  DeclaredAwsCostReportRecommendationsToPurchasePlanItem,
+  DeclaredAwsCostReportRecommendationsToPurchasePlanSummary,
+} from '@src/domain.objects/DeclaredAwsCostReportRecommendationsToPurchasePlan';
+export {
+  DeclaredAwsCostReportRecommendationsToRightsize,
+  DeclaredAwsCostReportRecommendationsToRightsizeItem,
+  DeclaredAwsCostReportRecommendationsToRightsizeSummary,
+} from '@src/domain.objects/DeclaredAwsCostReportRecommendationsToRightsize';
+export {
+  DeclaredAwsCostReportSpendForecast,
+  DeclaredAwsCostReportSpendForecastPoint,
+} from '@src/domain.objects/DeclaredAwsCostReportSpendForecast';
+export {
+  DeclaredAwsCostReportSpendObserved,
+  DeclaredAwsCostReportSpendObservedBucket,
+  DeclaredAwsCostReportSpendObservedGroup,
+  type DeclaredAwsCostReportSpendObservedGroupBy,
+} from '@src/domain.objects/DeclaredAwsCostReportSpendObserved';
+export {
+  DeclaredAwsCostReportSpendObservedByResource,
+  DeclaredAwsCostReportSpendObservedByResourceBucket,
+  DeclaredAwsCostReportSpendObservedByResourceGroup,
+} from '@src/domain.objects/DeclaredAwsCostReportSpendObservedByResource';
 // aws domain objects
 export { DeclaredAwsEc2Instance } from '@src/domain.objects/DeclaredAwsEc2Instance';
 export { DeclaredAwsEc2InstanceNetwork } from '@src/domain.objects/DeclaredAwsEc2InstanceNetwork';
@@ -171,6 +206,26 @@ export { setCostAnomalyMonitor } from '@src/domain.operations/costAnomalyMonitor
 export { delCostAnomalySubscription } from '@src/domain.operations/costAnomalySubscription/delCostAnomalySubscription';
 export { getOneCostAnomalySubscription } from '@src/domain.operations/costAnomalySubscription/getOneCostAnomalySubscription';
 export { setCostAnomalySubscription } from '@src/domain.operations/costAnomalySubscription/setCostAnomalySubscription';
+// aws cost explorer preference operations
+export {
+  COST_EXPLORER_PREFERENCE_FEATURES,
+  type CostExplorerPreferenceFeature,
+} from '@src/domain.operations/costExplorerPreference/COST_EXPLORER_PREFERENCE_FEATURES';
+export { getCostExplorerPreferenceGuidanceError } from '@src/domain.operations/costExplorerPreference/getCostExplorerPreferenceGuidanceError';
+export { getOneCostExplorerPreference } from '@src/domain.operations/costExplorerPreference/getOneCostExplorerPreference';
+export { isResourceLevelDataOptInDisabledError } from '@src/domain.operations/costExplorerPreference/isResourceLevelDataOptInDisabledError';
+export { isRightsizeOptInDisabledError } from '@src/domain.operations/costExplorerPreference/isRightsizeOptInDisabledError';
+export { castIntoDeclaredAwsCostReportRecommendationsToPurchasePlan } from '@src/domain.operations/costReportRecommendationsToPurchasePlan/castIntoDeclaredAwsCostReportRecommendationsToPurchasePlan';
+export { getOneCostReportRecommendationsToPurchasePlan } from '@src/domain.operations/costReportRecommendationsToPurchasePlan/getOneCostReportRecommendationsToPurchasePlan';
+export { castIntoDeclaredAwsCostReportRecommendationsToRightsize } from '@src/domain.operations/costReportRecommendationsToRightsize/castIntoDeclaredAwsCostReportRecommendationsToRightsize';
+export { getOneCostReportRecommendationsToRightsize } from '@src/domain.operations/costReportRecommendationsToRightsize/getOneCostReportRecommendationsToRightsize';
+export { castIntoDeclaredAwsCostReportSpendForecast } from '@src/domain.operations/costReportSpendForecast/castIntoDeclaredAwsCostReportSpendForecast';
+export { getOneCostReportSpendForecast } from '@src/domain.operations/costReportSpendForecast/getOneCostReportSpendForecast';
+export { castIntoDeclaredAwsCostReportSpendObserved } from '@src/domain.operations/costReportSpendObserved/castIntoDeclaredAwsCostReportSpendObserved';
+// aws cost report operations
+export { getOneCostReportSpendObserved } from '@src/domain.operations/costReportSpendObserved/getOneCostReportSpendObserved';
+export { castIntoDeclaredAwsCostReportSpendObservedByResource } from '@src/domain.operations/costReportSpendObservedByResource/castIntoDeclaredAwsCostReportSpendObservedByResource';
+export { getOneCostReportSpendObservedByResource } from '@src/domain.operations/costReportSpendObservedByResource/getOneCostReportSpendObservedByResource';
 // aws ec2 operations
 export { delEc2Instance } from '@src/domain.operations/ec2Instance/delEc2Instance';
 export { getEc2Instance } from '@src/domain.operations/ec2Instance/getEc2Instance';
