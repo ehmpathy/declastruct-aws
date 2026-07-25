@@ -74,7 +74,16 @@ describe('ec2SshKeyAuthorized', () => {
 
   const instanceExid = 'declastruct-acceptance-instance';
   const natExid = 'declastruct-acceptance-nat';
-  const comment = 'isolated-integration-test';
+  // note: the `@` is deliberate — it exercises the headline bug (ssh-keygen's default
+  //   `user@host` comment) end-to-end. before the name-derivation fix, setParameter with a
+  //   `@` in the name segment threw ValidationException; the set->get round-trip below now
+  //   guards that regression against live SSM.
+  // note: this comment changed from `isolated-integration-test` (safe → literal name) to
+  //   `isolated@integration-test` (unsafe → slug-hash name). if you ran a prior local pass
+  //   with the old comment, its param is now orphaned under the OLD literal name — prune it:
+  //     aws ssm delete-parameter --name \
+  //       /declastruct/ec2/ssh-keys/declastruct-acceptance-instance/isolated-integration-test
+  const comment = 'isolated@integration-test';
 
   // scene: ensure the NAT + acceptance instance are active and mint a real keypair
   const scene = useBeforeAll(async () => {

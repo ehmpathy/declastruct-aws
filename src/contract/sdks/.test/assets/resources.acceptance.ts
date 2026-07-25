@@ -663,8 +663,14 @@ export const getResources = async () => {
    *   recreate), the old param no longer matches the new instance. to re-seed:
    *     1. bump/confirm ACCEPTANCE_SSH_PUBLIC_KEY below (any valid ed25519 pubkey;
    *        generate one with `ssh-keygen -t ed25519 -f /tmp/k -N '' && cat /tmp/k.pub`)
-   *     2. delete the stale param if the comment/exid changed:
-   *        `aws ssm delete-parameter --name /declastruct/ec2/ssh-keys/<exid>/<comment>`
+   *     2. delete the stale param if the comment/exid changed. the name segment
+   *        (asEc2SshKeyAuthorizedSsmParameterName) is the LITERAL comment when it is already
+   *        SSM-safe — this seed comment `declastruct-acceptance-seed` has no illegal char, so
+   *        its name is `/declastruct/ec2/ssh-keys/<exid>/declastruct-acceptance-seed` — and a
+   *        `<slug>-<hash>` only when the comment holds an illegal char. list by path prefix to
+   *        find the exact name, then delete it:
+   *        `aws ssm get-parameters-by-path --path /declastruct/ec2/ssh-keys/<exid>/`
+   *        `aws ssm delete-parameter --name <the-name-from-the-list>`
    *     3. run the acceptance suite once — its beforeAll starts the instance, appends
    *        the key over SSM, and records it; the fixture then stops the box
    *     4. subsequent runs find the param and show KEEP (no instance start, no cost)
