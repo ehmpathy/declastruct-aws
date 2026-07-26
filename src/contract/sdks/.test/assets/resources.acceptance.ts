@@ -38,8 +38,11 @@ import {
   DeclaredAwsCloudwatchLogGroup,
   DeclaredAwsCloudwatchLogGroupReportCostOfIngestion,
   DeclaredAwsCloudwatchLogGroupReportDistOfPattern,
-  DeclaredAwsCostReportRecommendationsToPurchasePlan,
-  DeclaredAwsCostReportRecommendationsToRightsize,
+  // de-scope note (ehmpathy/declastruct-aws#75): the two RECOMMENDATION cost reports are
+  //   temporarily commented out of acceptance — see the de-scope note at their declaration
+  //   site below. restore both when the shared s3 cost-report cache lands (handoff.s3-cache).
+  // DeclaredAwsCostReportRecommendationsToPurchasePlan,
+  // DeclaredAwsCostReportRecommendationsToRightsize,
   DeclaredAwsCostReportSpendForecast,
   DeclaredAwsCostReportSpendObserved,
   DeclaredAwsCostReportSpendObservedByResource,
@@ -489,26 +492,38 @@ export const getResources = async () => {
     predictionInterval: 80,
   });
 
-  // declare cost report: rightsize recommendations (GetRightsizingRecommendation)
-  const costReportRecommendationsToRightsize =
-    DeclaredAwsCostReportRecommendationsToRightsize.as({
-      service: 'AmazonEC2',
-      recommendationTarget: 'SAME_INSTANCE_FAMILY',
-      benefitsConsidered: true,
-      filter: null,
-    });
-
-  // declare cost report: savings-plan purchase recommendations
-  // note: LINKED scope so a member account reads its own recs (no payer wall)
-  const costReportRecommendationsToPurchasePlan =
-    DeclaredAwsCostReportRecommendationsToPurchasePlan.as({
-      savingsPlansType: 'COMPUTE_SP',
-      termInYears: 'ONE_YEAR',
-      paymentOption: 'NO_UPFRONT',
-      lookbackDays: 'THIRTY_DAYS',
-      accountScope: 'LINKED',
-      filter: null,
-    });
+  // de-scope note (ehmpathy/declastruct-aws#75): the two RECOMMENDATION cost reports —
+  //   RecommendationsToRightsize (GetRightsizingRecommendation) and
+  //   RecommendationsToPurchasePlan (GetSavingsPlansPurchaseRecommendation) — are
+  //   temporarily commented out of the acceptance declared-set + assertions. reason: their
+  //   plan-time reads hit AWS Cost Explorer limits that make CI non-deterministic —
+  //   the purchase-plan read has a hard DAILY quota (ServiceQuotaExceededException) that,
+  //   once spent, aborts the ENTIRE plan; the rightsize read varies with live account
+  //   data (empty `recommendations: []` → masked-snapshot mismatch). the other three
+  //   cost reports (observed, by-resource, forecast) are deterministic and stay.
+  //   restore both once the shared s3 cost-report cache lands (handoff.s3-cache) so a
+  //   warm CI cache serves the reads without a live quota-bound call. tracked: #75
+  //
+  // // declare cost report: rightsize recommendations (GetRightsizingRecommendation)
+  // const costReportRecommendationsToRightsize =
+  //   DeclaredAwsCostReportRecommendationsToRightsize.as({
+  //     service: 'AmazonEC2',
+  //     recommendationTarget: 'SAME_INSTANCE_FAMILY',
+  //     benefitsConsidered: true,
+  //     filter: null,
+  //   });
+  //
+  // // declare cost report: savings-plan purchase recommendations
+  // // note: LINKED scope so a member account reads its own recs (no payer wall)
+  // const costReportRecommendationsToPurchasePlan =
+  //   DeclaredAwsCostReportRecommendationsToPurchasePlan.as({
+  //     savingsPlansType: 'COMPUTE_SP',
+  //     termInYears: 'ONE_YEAR',
+  //     paymentOption: 'NO_UPFRONT',
+  //     lookbackDays: 'THIRTY_DAYS',
+  //     accountScope: 'LINKED',
+  //     filter: null,
+  //   });
 
   // declare a budget cap (member account can budget ITSELF — no mgmt wall)
   const budget = DeclaredAwsBudget.as({
@@ -663,8 +678,14 @@ export const getResources = async () => {
    *   recreate), the old param no longer matches the new instance. to re-seed:
    *     1. bump/confirm ACCEPTANCE_SSH_PUBLIC_KEY below (any valid ed25519 pubkey;
    *        generate one with `ssh-keygen -t ed25519 -f /tmp/k -N '' && cat /tmp/k.pub`)
-   *     2. delete the stale param if the comment/exid changed:
-   *        `aws ssm delete-parameter --name /declastruct/ec2/ssh-keys/<exid>/<comment>`
+   *     2. delete the stale param if the comment/exid changed. the name segment
+   *        (asEc2SshKeyAuthorizedSsmParameterName) is the LITERAL comment when it is already
+   *        SSM-safe — this seed comment `declastruct-acceptance-seed` has no illegal char, so
+   *        its name is `/declastruct/ec2/ssh-keys/<exid>/declastruct-acceptance-seed` — and a
+   *        `<slug>-<hash>` only when the comment holds an illegal char. list by path prefix to
+   *        find the exact name, then delete it:
+   *        `aws ssm get-parameters-by-path --path /declastruct/ec2/ssh-keys/<exid>/`
+   *        `aws ssm delete-parameter --name <the-name-from-the-list>`
    *     3. run the acceptance suite once — its beforeAll starts the instance, appends
    *        the key over SSM, and records it; the fixture then stops the box
    *     4. subsequent runs find the param and show KEEP (no instance start, no cost)
@@ -762,8 +783,10 @@ export const getResources = async () => {
     costReportSpendObserved,
     costReportSpendObservedByResource,
     costReportSpendForecast,
-    costReportRecommendationsToRightsize,
-    costReportRecommendationsToPurchasePlan,
+    // the two RECOMMENDATION reports are temporarily commented out (Cost Explorer daily
+    // quota + live-data variance abort CI); see the de-scope note above + #75
+    // costReportRecommendationsToRightsize,
+    // costReportRecommendationsToPurchasePlan,
     // ec2 iam infrastructure (enables SSM connectivity)
     ec2Role,
     ec2RoleSsmPolicy,

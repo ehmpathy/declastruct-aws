@@ -6,6 +6,7 @@ import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
 import type { DeclaredAwsEc2SshKeyAuthorized } from '@src/domain.objects/DeclaredAwsEc2SshKeyAuthorized';
 
 import { asEc2SshKeyAuthorized } from './asEc2SshKeyAuthorized';
+import { asEc2SshKeyAuthorizedSsmParameterName } from './asEc2SshKeyAuthorizedSsmParameterName';
 
 /**
  * .what = gets an authorized SSH key by unique key (instance + comment)
@@ -17,8 +18,11 @@ export const getOneEc2SshKeyAuthorizedByUnique = async (
   },
   context: ContextAwsApi & ContextLogTrail,
 ): Promise<HasReadonly<typeof DeclaredAwsEc2SshKeyAuthorized> | null> => {
-  // compute ssm parameter name from unique key
-  const paramName = `/declastruct/ec2/ssh-keys/${input.by.unique.instance.exid}/${input.by.unique.comment}`;
+  // compute ssm parameter name from unique key (shared transformer — get/set agree)
+  const paramName = asEc2SshKeyAuthorizedSsmParameterName({
+    instanceExid: input.by.unique.instance.exid,
+    comment: input.by.unique.comment,
+  });
 
   // get ssm parameter
   const param = await sdkSsm.getOneParameter({ name: paramName }, context);

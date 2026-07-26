@@ -8,6 +8,7 @@ import type { DeclaredAwsEc2SshKeyAuthorized } from '@src/domain.objects/Declare
 import { getEc2Instance } from '@src/domain.operations/ec2Instance/getEc2Instance';
 import { execSsmCommand } from '@src/domain.operations/ssmCommand/execSsmCommand';
 
+import { asEc2SshKeyAuthorizedSsmParameterName } from './asEc2SshKeyAuthorizedSsmParameterName';
 import { getOneEc2SshKeyAuthorizedByUnique } from './getOneEc2SshKeyAuthorizedByUnique';
 
 /**
@@ -70,8 +71,11 @@ export const setEc2SshKeyAuthorized = async (
       },
     );
 
-  // compute ssm parameter name from unique key
-  const paramName = `/declastruct/ec2/ssh-keys/${input.instance.exid}/${input.comment}`;
+  // compute ssm parameter name from unique key (shared transformer — get/set agree)
+  const paramName = asEc2SshKeyAuthorizedSsmParameterName({
+    instanceExid: input.instance.exid,
+    comment: input.comment,
+  });
 
   // compute fingerprint from public key if not provided
   const fingerprint =
