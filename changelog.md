@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.1](https://github.com/ehmpathy/declastruct-aws/compare/v1.10.0...v1.10.1) (2026-07-26)
+
+
+### Bug Fixes
+
+* **ec2:** encode ssh key comment into ssm-safe param name ([#74](https://github.com/ehmpathy/declastruct-aws/issues/74)) ([219ede9](https://github.com/ehmpathy/declastruct-aws/commit/219ede9e271f9d15c659cb89834dd0ef94a3f62a))
+
 ## [1.10.0](https://github.com/ehmpathy/declastruct-aws/compare/v1.9.0...v1.10.0) (2026-07-24)
 
 
