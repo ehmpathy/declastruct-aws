@@ -97,14 +97,6 @@ exports[`declastruct CLI workflow given: a declastruct resources file when: gene
     "slug": "DeclaredAwsCostReportSpendForecast.null.MONTHLY.UnblendedCost.80.since[DATE]Zuntil[DATE]Z.[HASH]",
   },
   {
-    "class": "DeclaredAwsCostReportRecommendationsToRightsize",
-    "slug": "DeclaredAwsCostReportRecommendationsToRightsize.true.null.SAME_INSTANCE_FAMILY.AmazonEC2.[HASH]",
-  },
-  {
-    "class": "DeclaredAwsCostReportRecommendationsToPurchasePlan",
-    "slug": "DeclaredAwsCostReportRecommendationsToPurchasePlan.LINKED.null.THIRTY_DAYS.NO_UPFRONT.COMPUTE_SP.ONE_YEAR.[HASH]",
-  },
-  {
     "class": "DeclaredAwsIamRole",
     "slug": "DeclaredAwsIamRole.declastruct-acceptance-ec2-role.[HASH]",
   },
@@ -277,16 +269,6 @@ exports[`declastruct CLI workflow given: a declastruct resources file when: re-p
     "action": "KEEP",
     "class": "DeclaredAwsCostReportSpendForecast",
     "slug": "DeclaredAwsCostReportSpendForecast.null.MONTHLY.UnblendedCost.80.since[DATE]Zuntil[DATE]Z.[HASH]",
-  },
-  {
-    "action": "KEEP",
-    "class": "DeclaredAwsCostReportRecommendationsToRightsize",
-    "slug": "DeclaredAwsCostReportRecommendationsToRightsize.true.null.SAME_INSTANCE_FAMILY.AmazonEC2.[HASH]",
-  },
-  {
-    "action": "KEEP",
-    "class": "DeclaredAwsCostReportRecommendationsToPurchasePlan",
-    "slug": "DeclaredAwsCostReportRecommendationsToPurchasePlan.LINKED.null.THIRTY_DAYS.NO_UPFRONT.COMPUTE_SP.ONE_YEAR.[HASH]",
   },
   {
     "action": "KEEP",
