@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.3](https://github.com/ehmpathy/declastruct-aws/compare/v1.10.2...v1.10.3) (2026-07-28)
+
+
+### Bug Fixes
+
+* **ec2:** support IMDSv2 metadataOptions on launch template (secure-by-default) ([#84](https://github.com/ehmpathy/declastruct-aws/issues/84)) ([ca3bde4](https://github.com/ehmpathy/declastruct-aws/commit/ca3bde40d303d75fc32127541a2db0088b068edc))
+
 ## [1.10.2](https://github.com/ehmpathy/declastruct-aws/compare/v1.10.1...v1.10.2) (2026-07-28)
 
 
