@@ -9,6 +9,7 @@ import type { ContextLogTrail } from 'sdk-logs';
 import type { PickOne } from 'type-fns';
 
 import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
+import { ec2InstanceMetadataOptionsSecure } from '@src/domain.objects/DeclaredAwsEc2InstanceMetadataOptions';
 import type { DeclaredAwsEc2LaunchTemplate } from '@src/domain.objects/DeclaredAwsEc2LaunchTemplate';
 
 import { getEc2ImageRootDeviceName } from './getEc2ImageRootDeviceName';
@@ -49,7 +50,11 @@ export const setEc2LaunchTemplate = async (
   if (input.upsert && templateFound)
     return UnexpectedCodePathError.throw(
       'EC2 launch template upsert not supported — templates are immutable; create new version or delete and recreate',
-      { template, templateFound },
+      {
+        hint: 'a launch-template attribute (e.g. metadataOptions, instanceType, imageId) is immutable; prune the extant template + its dependent instances, then re-apply to recreate',
+        template,
+        templateFound,
+      },
     );
 
   // derive the AMI's real root device name so the root-volume override lands on
@@ -64,6 +69,11 @@ export const setEc2LaunchTemplate = async (
       { imageId: template.imageId, template },
     );
 
+  // expand a null metadataOptions to the secure default (imdsv2-only), so every
+  // declastruct-created template is secure-by-default unless a caller opts out
+  const metadataOptions =
+    template.metadataOptions ?? ec2InstanceMetadataOptionsSecure;
+
   // create new template
   const response = await ec2.send(
     new CreateLaunchTemplateCommand({
@@ -71,6 +81,11 @@ export const setEc2LaunchTemplate = async (
       LaunchTemplateData: {
         InstanceType: template.instanceType as _InstanceType,
         ImageId: template.imageId,
+        MetadataOptions: {
+          HttpTokens: metadataOptions.httpTokens,
+          HttpPutResponseHopLimit: metadataOptions.httpPutResponseHopLimit,
+          HttpEndpoint: metadataOptions.httpEndpoint,
+        },
         HibernationOptions: {
           Configured: template.hibernation,
         },

@@ -14,6 +14,18 @@ import type { DeclaredAwsEc2Instance } from '@src/domain.objects/DeclaredAwsEc2I
  *     extant instance (cast to exid refs) compares cleanly against a desired exid ref
  *   - sourceDestChecked is intentionally NOT compared here — it is the mutable attribute
  *     the caller reconciles in place
+ *   - metadataOptions (imdsv2 posture) is intentionally NOT compared here — it is a
+ *     DELIBERATE scope boundary. an instance inherits its MetadataOptions from the launch
+ *     template at launch ($Latest), so this package tracks the imdsv2 posture at the
+ *     TEMPLATE layer (DeclaredAwsEc2LaunchTemplate.metadataOptions), where a drift already
+ *     surfaces as an immutable template change. a post-launch, out-of-band change to the
+ *     INSTANCE's own metadata posture (ec2:ModifyInstanceMetadataOptions on a live box)
+ *     is NOT read back or reconciled by declastruct today — the DeclaredAwsEc2Instance
+ *     domain object carries no metadataOptions field. this mirrors the scoped-out
+ *     instance-path override (setEc2Instance sends no MetadataOptions on RunInstances, so
+ *     the box inherits the template posture); an instance-level metadataOptions field +
+ *     drift is an additive follow-up (see wish #77), named here so a reader does not
+ *     assume `plan` proves a live, continuous instance-level secure posture
  */
 export const getEc2InstanceImmutableDrift = (input: {
   found: DeclaredAwsEc2Instance;

@@ -3,10 +3,11 @@ import {
   DescribeLaunchTemplateVersionsCommand,
   EC2Client,
 } from '@aws-sdk/client-ec2';
-import { UnexpectedCodePathError } from 'helpful-errors';
+import { getError, UnexpectedCodePathError } from 'helpful-errors';
 import { genTestUuid, given, then, useBeforeAll, when } from 'test-fns';
 
 import { getSampleAwsApiContext } from '@src/.test/getSampleAwsApiContext';
+import type { DeclaredAwsEc2InstanceMetadataOptions } from '@src/domain.objects/DeclaredAwsEc2InstanceMetadataOptions';
 import { DeclaredAwsEc2LaunchTemplate } from '@src/domain.objects/DeclaredAwsEc2LaunchTemplate';
 
 import { getEc2LaunchTemplate } from './getEc2LaunchTemplate';
@@ -64,6 +65,7 @@ describe('ec2LaunchTemplate.journey', () => {
       rootVolumeEncrypted: true,
       iamInstanceProfile: null,
       userData: null,
+      metadataOptions: null,
       tags: { managedBy: 'declastruct', purpose: 'integration-test' },
     });
     return { context, amazonLinuxImageId, testTemplate };
@@ -208,25 +210,53 @@ describe('ec2LaunchTemplate.journey', () => {
     });
 
     when('[t2] upsert on extant template', () => {
-      then('throws error (templates are immutable)', async () => {
-        const { context, testTemplate } = scene;
+      then(
+        'throws a stable, operator-visible immutable error (exact core message + prune hint asserted in-diff)',
+        async () => {
+          const { context, testTemplate } = scene;
 
-        // ensure template exists
-        await setEc2LaunchTemplate({ findsert: testTemplate }, context);
+          // ensure template exists
+          await setEc2LaunchTemplate({ findsert: testTemplate }, context);
 
-        // upsert should throw
-        await expect(
-          setEc2LaunchTemplate(
-            {
-              upsert: {
-                ...testTemplate,
-                instanceType: 't3.small', // different config
+          // upsert must throw — capture the error so its operator-facing wording is snapped
+          const error = await getError(
+            setEc2LaunchTemplate(
+              {
+                upsert: {
+                  ...testTemplate,
+                  instanceType: 't3.small', // different config
+                },
               },
-            },
-            context,
-          ),
-        ).rejects.toThrow(/upsert not supported/);
-      });
+              context,
+            ),
+          );
+
+          // narrow to the typed error so redact reads without a cast
+          if (!(error instanceof UnexpectedCodePathError)) throw error;
+
+          // assert the EXACT operator-visible core message, in-diff (not via a snapshot).
+          // redact(['metadata']) strips the metadata dump from the message, so only the
+          // deterministic core text remains — the exact text is reviewable right here in
+          // the diff and any drift fails the test, with no flake on the run-specific
+          // template ids the metadata carries (rule.forbid.friction-hazards). an inline
+          // exact assertion is preferred over toMatchSnapshot here: the string is short +
+          // fully deterministic, so it needs no committed .snap and cannot silently self-write.
+          // note: assert via toContain (not toBe) — helpful-errors' redact reconstructs the
+          //   message with the error's class-name prefix, so redact(['metadata']).message reads
+          //   "UnexpectedCodePathError: ...core...". the deterministic core text below is the
+          //   assertion of record; toContain catches any drift IN it without a couple to the
+          //   library's prefix format.
+          expect(error.redact(['metadata']).message).toContain(
+            'EC2 launch template upsert not supported — templates are immutable; create new version or delete and recreate',
+          );
+
+          // the prune hint lives in metadata (pretty-printed into the full message); assert
+          // its exact text so hint text drift is caught too
+          expect(error.message).toContain(
+            'prune the extant template + its dependent instances, then re-apply to recreate',
+          );
+        },
+      );
     });
   });
 
@@ -247,6 +277,7 @@ describe('ec2LaunchTemplate.journey', () => {
               rootVolumeEncrypted: true, // required for hibernation
               iamInstanceProfile: null,
               userData: null,
+              metadataOptions: null,
               tags: { managedBy: 'declastruct', purpose: 'integration-test' },
             }),
           },
@@ -283,6 +314,7 @@ shutdown -h +5
               rootVolumeEncrypted: true,
               iamInstanceProfile: null,
               userData: testUserData,
+              metadataOptions: null,
               tags: { managedBy: 'declastruct', purpose: 'integration-test' },
             }),
           },
@@ -379,6 +411,7 @@ shutdown -h +5
                 rootVolumeEncrypted: true,
                 iamInstanceProfile: null,
                 userData: null,
+                metadataOptions: null,
                 tags: { managedBy: 'declastruct', purpose: 'integration-test' },
               }),
             },
@@ -408,6 +441,102 @@ shutdown -h +5
           expect(mappings?.[0]?.Ebs?.Encrypted).toBe(true);
         },
       );
+    });
+  });
+
+  // [case6..8] explicit non-default metadataOptions round-trip (non-collapse).
+  //
+  // each non-default posture must flow to a real CreateLaunchTemplateCommand and read back
+  // un-collapsed (NOT reduced to the secure null). the three cases are structurally
+  // identical — same template-only fixture (fresh exid, no instance -> no reachable
+  // credentials, so no live insecure surface), same create -> assert -> get -> assert
+  // sequence — and vary ONLY in the metadataOptions value + exid prefix. so they are one
+  // data-driven loop (rule.prefer.data-driven, rule.prefer.wet-over-dry): a future 4th
+  // non-default value (e.g. an added HttpProtocolIpv6 sub-field) is a one-row addition.
+  const nonDefaultMetadataCases: {
+    label: string;
+    exidPrefix: string;
+    metadataOptions: DeclaredAwsEc2InstanceMetadataOptions;
+  }[] = [
+    {
+      // docker/container box: hop 2 lets containers reach metadata through the extra hop
+      label: '[case6] docker hop-2',
+      exidPrefix: 'declastruct-test-imdsv2',
+      metadataOptions: {
+        httpTokens: 'required',
+        httpPutResponseHopLimit: 2,
+        httpEndpoint: 'enabled',
+      },
+    },
+    {
+      // the most security-relevant non-default (wish acceptance #6): re-allows imdsv1
+      label: '[case7] imdsv1 opt-out',
+      exidPrefix: 'declastruct-test-imdsv1',
+      metadataOptions: {
+        httpTokens: 'optional',
+        httpPutResponseHopLimit: 1,
+        httpEndpoint: 'enabled',
+      },
+    },
+    {
+      // the vision's named foot-gun: disabled blinds the instance role entirely
+      label: '[case8] httpEndpoint disabled',
+      exidPrefix: 'declastruct-test-imds-off',
+      metadataOptions: {
+        httpTokens: 'required',
+        httpPutResponseHopLimit: 1,
+        httpEndpoint: 'disabled',
+      },
+    },
+  ];
+
+  nonDefaultMetadataCases.forEach(({ label, exidPrefix, metadataOptions }) => {
+    given(`${label} explicit metadataOptions round-trip (non-collapse)`, () => {
+      const metadataExid = `${exidPrefix}-${genTestUuid().slice(0, 8)}`;
+
+      when('[t0] create a template with the explicit non-default value', () => {
+        then(
+          'the explicit value flows to AWS and reads back un-collapsed',
+          async () => {
+            const { context, testTemplate } = scene;
+
+            // a template-only fixture proves the non-collapse path against real
+            // CreateLaunchTemplateCommand + DescribeLaunchTemplateVersions — the
+            // secure-default (null) path alone cannot.
+            const created = await setEc2LaunchTemplate(
+              {
+                findsert: DeclaredAwsEc2LaunchTemplate.as({
+                  exid: metadataExid,
+                  instanceType: 't3.micro',
+                  imageId: testTemplate.imageId,
+                  hibernation: false,
+                  rootVolumeSize: 8,
+                  rootVolumeEncrypted: true,
+                  iamInstanceProfile: null,
+                  userData: null,
+                  metadataOptions,
+                  tags: {
+                    managedBy: 'declastruct',
+                    purpose: 'integration-test',
+                  },
+                }),
+              },
+              context,
+            );
+
+            expect(created.metadataOptions).toEqual(metadataOptions);
+
+            // read it back via get — a non-secure-default value must NOT collapse to null
+            const retrieved = await getEc2LaunchTemplate(
+              { by: { unique: { exid: metadataExid } } },
+              context,
+            );
+
+            expect(retrieved).not.toBeNull();
+            expect(retrieved?.metadataOptions).toEqual(metadataOptions);
+          },
+        );
+      });
     });
   });
 });

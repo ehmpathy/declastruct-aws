@@ -1,6 +1,13 @@
 import type { ResponseLaunchTemplateData } from '@aws-sdk/client-ec2';
+import { omitReadonly, serialize } from 'domain-objects';
 import { getError } from 'helpful-errors';
 import { given, then, when } from 'test-fns';
+
+import {
+  ec2InstanceMetadataOptionsAwsImplicit,
+  ec2InstanceMetadataOptionsSecure,
+} from '@src/domain.objects/DeclaredAwsEc2InstanceMetadataOptions';
+import { DeclaredAwsEc2LaunchTemplate } from '@src/domain.objects/DeclaredAwsEc2LaunchTemplate';
 
 import { castIntoDeclaredAwsEc2LaunchTemplate } from './castIntoDeclaredAwsEc2LaunchTemplate';
 
@@ -249,6 +256,31 @@ describe('castIntoDeclaredAwsEc2LaunchTemplate', () => {
     });
   });
 
+  given('launch template with secure-default metadata options', () => {
+    const data: ResponseLaunchTemplateData = {
+      InstanceType: 't3.micro',
+      MetadataOptions: {
+        HttpTokens: 'required',
+        HttpPutResponseHopLimit: 1,
+        HttpEndpoint: 'enabled',
+      },
+    };
+
+    when('cast to domain object', () => {
+      then(
+        'metadataOptions collapses to null so a secure box converges to KEEP',
+        () => {
+          const result = castIntoDeclaredAwsEc2LaunchTemplate({
+            id: 'lt-secure',
+            data,
+            tags: [{ Key: 'exid', Value: 'secure-template' }],
+          });
+          expect(result.metadataOptions).toBeNull();
+        },
+      );
+    });
+  });
+
   given('launch template without optional properties', () => {
     const data: ResponseLaunchTemplateData = {};
 
@@ -297,6 +329,113 @@ describe('castIntoDeclaredAwsEc2LaunchTemplate', () => {
         });
         expect(result.tags).toBeNull();
       });
+
+      then(
+        'metadataOptions reads back AWS-implicit (insecure), NOT collapsed to null',
+        () => {
+          // the false-KEEP guard, proven END-TO-END through the real pipeline:
+          // castInto -> asDeclaredAwsEc2InstanceMetadataOptions (transformer) ->
+          // DeclaredAwsEc2LaunchTemplate constructor (canonicalizer). a pre-feature
+          // template AWS returns with NO MetadataOptions must read back as the honest
+          // imdsv1-allowed value (NOT the secure null), so a legacy insecure box plans a
+          // change instead of a false KEEP. the two halves are unit-tested in isolation
+          // (the transformer's undefined->AWS-implicit + the canonicalizer's
+          // preserve-AWS-implicit); this asserts they stay WIRED so a future refactor of
+          // either half cannot silently reintroduce the false KEEP (an insecure box
+          // masked as converged — the exact rule.require.immutable-source-of-truth hole).
+          const result = castIntoDeclaredAwsEc2LaunchTemplate({
+            id: 'lt-minimal',
+            data,
+            tags: [{ Key: 'exid', Value: 'minimal' }],
+          });
+          expect(result.metadataOptions).toEqual(
+            ec2InstanceMetadataOptionsAwsImplicit,
+          );
+        },
+      );
     });
   });
+
+  // this is the plan-level KEEP-convergence proof for the fulcrum asymmetry a peer
+  // review surfaced: a caller who declares the LITERAL secure values (not null) must
+  // still converge to KEEP against a secure box read back — else the immutable-upsert
+  // throw fires on every re-apply. declastruct decides KEEP via
+  // serialize(omitReadonly(desired)) === serialize(omitReadonly(remote)) (see
+  // declastruct computeChange), so this asserts that exact equality deterministically,
+  // without a live plan. proven for BOTH the literal-secure and the null declaration
+  given(
+    'a secure launch template read back from AWS (KEEP convergence)',
+    () => {
+      const secureRead: ResponseLaunchTemplateData = {
+        InstanceType: 't3.micro',
+        ImageId: 'ami-12345678',
+        MetadataOptions: {
+          HttpTokens: 'required',
+          HttpPutResponseHopLimit: 1,
+          HttpEndpoint: 'enabled',
+        },
+      };
+      const remote = castIntoDeclaredAwsEc2LaunchTemplate({
+        id: 'lt-secure-converge',
+        data: secureRead,
+        tags: [{ Key: 'exid', Value: 'converge-template' }],
+      });
+
+      when('the secure read-back is cast (end-to-end collapse)', () => {
+        then(
+          'remote metadataOptions collapses to null via the constructor',
+          () => {
+            expect(remote.metadataOptions).toBeNull();
+          },
+        );
+      });
+
+      // the shared fields a peer desired declaration carries
+      const desiredBase = {
+        id: 'lt-secure-converge',
+        exid: 'converge-template',
+        instanceType: 't3.micro',
+        imageId: 'ami-12345678',
+        hibernation: false,
+        rootVolumeSize: 8,
+        rootVolumeEncrypted: false,
+        iamInstanceProfile: null,
+        userData: null,
+        tags: null,
+      };
+
+      when('a caller declares the LITERAL secure values', () => {
+        const desired = DeclaredAwsEc2LaunchTemplate.as({
+          ...desiredBase,
+          metadataOptions: ec2InstanceMetadataOptionsSecure,
+        });
+
+        then('the literal-secure metadataOptions collapses to null', () => {
+          expect(desired.metadataOptions).toBeNull();
+        });
+
+        then(
+          'desired serialize-equals remote -> KEEP (not UPDATE forever)',
+          () => {
+            expect(serialize(omitReadonly(desired))).toBe(
+              serialize(omitReadonly(remote)),
+            );
+          },
+        );
+      });
+
+      when('a caller declares null (omits the field)', () => {
+        const desired = DeclaredAwsEc2LaunchTemplate.as({
+          ...desiredBase,
+          metadataOptions: null,
+        });
+
+        then('desired serialize-equals remote -> KEEP', () => {
+          expect(serialize(omitReadonly(desired))).toBe(
+            serialize(omitReadonly(remote)),
+          );
+        });
+      });
+    },
+  );
 });

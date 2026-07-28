@@ -117,6 +117,13 @@ export const getResourcesOfEc2Hibernator = (): DomainEntity<any>[] => {
       name: 'declastruct-demo-ec2-profile',
     }),
     userData: HIBERNATOR_USER_DATA,
+    // secure-by-default: imdsv2-only.
+    // .note = metadataOptions is IMMUTABLE. if this box-template + box predate the feature
+    //   (created with no MetadataOptions), they MUST be pruned + recreated before the next
+    //   apply, per rule.forbid.test-blocking-orphans:
+    //     ./provision/aws.infra/account=demo/aws.prune.ec2.sh \
+    //       --template declastruct-demo-box-template --instance declastruct-demo-box
+    metadataOptions: null,
     tags: { managedBy: 'declastruct', purpose: 'demo' },
   });
 

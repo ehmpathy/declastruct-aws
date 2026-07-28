@@ -177,6 +177,11 @@ export const getResources = async (): Promise<DomainEntity<any>[]> => {
     rootVolumeSize: 16,         // must be >= instance RAM
     iamInstanceProfile: null,
     userData: null,
+    metadataOptions: null,  // null = secure default (imdsv2-only: required / hop 1 / enabled)
+    // docker/container box that needs the extra hop? add the export to the import above:
+    //   import { ec2InstanceMetadataOptionsSecure } from 'declastruct-aws';
+    // then override just the hop limit off it (stays imdsv2-only):
+    //   metadataOptions: { ...ec2InstanceMetadataOptionsSecure, httpPutResponseHopLimit: 2 }
     tags: { purpose: 'dev' },
   });
 
@@ -204,6 +209,15 @@ to hibernate the instance, change `status: 'hibernated'` and re-apply:
 npx declastruct plan --wish resources.ts --into plan.json
 npx declastruct apply --plan plan.json
 ```
+
+> **upgrade note — the secure metadata default plans a change on prior boxes.** an
+> already-deployed launch template that predates this secure default reads back as
+> imdsv1-allowed, so `declastruct plan` will show a change against it (the default is
+> imdsv2-only: `required` / hop 1 / `enabled`). a launch template is immutable, so `apply`
+> does NOT heal it in place — the set fails loud. to adopt the secure posture, prune the old
+> template + its instances and re-apply to create them imdsv2-only. to keep the old posture,
+> opt out on the declaration: `metadataOptions: { ...ec2InstanceMetadataOptionsSecure,
+> httpTokens: 'optional' }`.
 
 
 ## example.5 = deploy a lambda with version and alias
