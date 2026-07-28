@@ -89,15 +89,6 @@ const costReportByResourceRange = COST_REPORT_BY_RESOURCE_RANGE;
 const AL2023_AMI_US_EAST_1 = 'ami-0453ec754f44f9a4a';
 
 /**
- * .what = Canonical ubuntu-24.04 amd64 AMI (us-east-1) for the ubuntu launch template
- * .why = proves the AMI-derived root-device fix on a non-/dev/xvda AMI (ubuntu root is
- *   /dev/sda1) through the real declastruct plan/apply CLI. pinned (not run-time) for the
- *   same stability reason as the al2023 id: a persistent immutable template must not drift
- *   its imageId, else the idempotent re-plan reports an immutable-UPDATE.
- */
-const UBUNTU_2404_AMI_US_EAST_1 = 'ami-052355af2a014bd2c';
-
-/**
  * .what = a stable, throwaway ed25519 public key for the ssh key authorization
  * .why = EC2 Instance Connect needs a syntactically valid key; the private half is
  *   discarded (acceptance verifies the authorization is recorded, never sshes in).
@@ -653,22 +644,6 @@ export const getResources = async () => {
     tags: { managedBy: 'declastruct', purpose: 'acceptance-test' },
   });
 
-  // declare a ubuntu-family launch template (root /dev/sda1, NOT /dev/xvda) so the
-  // declastruct plan/apply CLI path itself proves the AMI-derived root-device fix on a
-  // non-amazon-linux AMI. no instance is declared for it — the template create alone
-  // drives setEc2LaunchTemplate's DescribeImages lookup + block-device DeviceName.
-  const ec2LaunchTemplateUbuntu = DeclaredAwsEc2LaunchTemplate.as({
-    exid: 'declastruct-acceptance-template-ubuntu',
-    instanceType: 't3.micro',
-    imageId: UBUNTU_2404_AMI_US_EAST_1, // Canonical ubuntu 24.04 (root /dev/sda1)
-    hibernation: false,
-    rootVolumeSize: 8,
-    rootVolumeEncrypted: true,
-    iamInstanceProfile: null,
-    userData: null,
-    tags: { managedBy: 'declastruct', purpose: 'acceptance-test' },
-  });
-
   // declare EC2 instance with acceptance VPC resources
   const ec2Instance = DeclaredAwsEc2Instance.as({
     exid: 'declastruct-acceptance-instance',
@@ -828,9 +803,6 @@ export const getResources = async () => {
     routeTablePrivate,
     // ec2 infrastructure
     ec2LaunchTemplate,
-    // ubuntu launch template (root /dev/sda1) — proves the AMI-derived root-device fix
-    // through the real plan/apply CLI on a non-/dev/xvda AMI family (no instance needed)
-    ec2LaunchTemplateUbuntu,
     ec2Instance,
     ec2InstanceSession,
     // ssm ssh tunnel (CLOSED — driven via plan/apply, no live subprocess)

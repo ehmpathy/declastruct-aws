@@ -125,10 +125,6 @@ exports[`declastruct CLI workflow given: a declastruct resources file when: gene
     "slug": "DeclaredAwsEc2LaunchTemplate.declastruct-acceptance-template.[HASH]",
   },
   {
-    "class": "DeclaredAwsEc2LaunchTemplate",
-    "slug": "DeclaredAwsEc2LaunchTemplate.declastruct-acceptance-template-ubuntu.[HASH]",
-  },
-  {
     "class": "DeclaredAwsEc2Instance",
     "slug": "DeclaredAwsEc2Instance.declastruct-acceptance-instance.[HASH]",
   },
@@ -308,11 +304,6 @@ exports[`declastruct CLI workflow given: a declastruct resources file when: re-p
     "action": "KEEP",
     "class": "DeclaredAwsEc2LaunchTemplate",
     "slug": "DeclaredAwsEc2LaunchTemplate.declastruct-acceptance-template.[HASH]",
-  },
-  {
-    "action": "KEEP",
-    "class": "DeclaredAwsEc2LaunchTemplate",
-    "slug": "DeclaredAwsEc2LaunchTemplate.declastruct-acceptance-template-ubuntu.[HASH]",
   },
   {
     "action": "KEEP",
