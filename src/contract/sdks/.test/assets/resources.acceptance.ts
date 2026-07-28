@@ -79,8 +79,12 @@ const costReportForecastRange = COST_REPORT_FORECAST_RANGE;
 const costReportByResourceRange = COST_REPORT_BY_RESOURCE_RANGE;
 
 /**
- * .what = Amazon Linux 2023 AMI (x86_64, us-east-1) used for the NAT instance
- * .why = stable base image with the tools the NAT user data needs
+ * .what = Amazon Linux 2023 AMI (x86_64, us-east-1) for the al2023 launch templates
+ * .why = the acceptance launch templates are persistent + immutable, so their imageId
+ *   must stay stable. a run-time "newest AMI" read drifts each time AWS publishes a new
+ *   al2023 image, which forces an immutable-UPDATE that aborts the apply. this pinned id
+ *   is the one the extant templates already hold, so they converge to KEEP. root device
+ *   is /dev/xvda; setEc2LaunchTemplate derives it from the AMI on create.
  */
 const AL2023_AMI_US_EAST_1 = 'ami-0453ec754f44f9a4a';
 
@@ -629,7 +633,7 @@ export const getResources = async () => {
   const ec2LaunchTemplate = DeclaredAwsEc2LaunchTemplate.as({
     exid: 'declastruct-acceptance-template',
     instanceType: 't3.micro',
-    imageId: 'ami-0453ec754f44f9a4a', // Amazon Linux 2023 (us-east-1) — supports hibernation
+    imageId: AL2023_AMI_US_EAST_1, // Amazon Linux 2023 (root /dev/xvda) — supports hibernation
     hibernation: true,
     rootVolumeSize: 16, // hibernation needs enough space for RAM
     rootVolumeEncrypted: true, // required for hibernation

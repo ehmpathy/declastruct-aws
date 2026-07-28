@@ -58,19 +58,28 @@ export const getEc2LaunchTemplate = async (
   const ec2 = new EC2Client({ region: context.aws.credentials.region });
 
   // query launch template
+  // .note = the unique lookup is BY NAME (declastruct-<exid>), not by tag:exid.
+  //   setEc2LaunchTemplate names every template `declastruct-${exid}`, and a name
+  //   lookup is immediately consistent — a tag filter is eventually consistent, so a
+  //   freshly-created template is not yet tag-indexed and a findsert re-plan would
+  //   fail to find it (re-create -> AlreadyExists). name lookup guarantees idempotency.
   let response: DescribeLaunchTemplatesCommandOutput;
   try {
     response = await ec2.send(
       new DescribeLaunchTemplatesCommand(
         by.primary
           ? { LaunchTemplateIds: [by.primary.id] }
-          : { Filters: [{ Name: 'tag:exid', Values: [by.unique!.exid] }] },
+          : { LaunchTemplateNames: [`declastruct-${by.unique!.exid}`] },
       ),
     );
   } catch (error) {
     if (!(error instanceof Error)) throw error;
-    if (error.name === 'InvalidLaunchTemplateId.NotFound') return null;
-    if (error.name === 'InvalidLaunchTemplateId.Malformed') return null;
+    // an absent template (by id or by name) reads as null; AWS uses inconsistent
+    // suffixes across the id/name variants, so match the whole not-found family
+    if (
+      /^InvalidLaunchTemplate(Id|Name)\.(NotFound|Malformed)/.test(error.name)
+    )
+      return null;
     const metadata = (error as { $metadata?: { httpStatusCode?: number } })
       .$metadata;
     throw new HelpfulError('aws.getEc2LaunchTemplate error', {

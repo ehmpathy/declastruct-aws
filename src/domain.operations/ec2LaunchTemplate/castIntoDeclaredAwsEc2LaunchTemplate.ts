@@ -24,10 +24,26 @@ export const castIntoDeclaredAwsEc2LaunchTemplate = (input: {
       { input },
     );
 
-  // extract root volume config
-  const rootVolume = input.data.BlockDeviceMappings?.find(
-    (bdm) => bdm.DeviceName === '/dev/xvda' || bdm.DeviceName === '/dev/sda1',
-  );
+  // extract the root block device — family-agnostic: prefer a known root device
+  // name (amazon-linux /dev/xvda, ubuntu /dev/sda1), else fall back to the sole
+  // block device. setEc2LaunchTemplate writes exactly one root block device, so a
+  // 3rd AMI family whose root is neither name still reads back correctly instead
+  // of a fallback to the AMI defaults (rule.require.immutable-source-of-truth)
+  const blockDevices = input.data.BlockDeviceMappings ?? [];
+  const rootVolume =
+    blockDevices.find(
+      (bdm) => bdm.DeviceName === '/dev/xvda' || bdm.DeviceName === '/dev/sda1',
+    ) ??
+    // the sole-device fallback is safe only when there is at most one block
+    // device (all templates setEc2LaunchTemplate writes). if a foreign template
+    // has many devices and none match a known root name, the root is ambiguous —
+    // fail loud rather than a silent guess (rule.require.immutable-source-of-truth)
+    (blockDevices.length <= 1
+      ? blockDevices[0]
+      : UnexpectedCodePathError.throw(
+          'launch template has multiple block devices and none match a known root name; cannot determine root volume unambiguously',
+          { input },
+        ));
 
   // cast to domain object and assure metadata is present
   return assure(
