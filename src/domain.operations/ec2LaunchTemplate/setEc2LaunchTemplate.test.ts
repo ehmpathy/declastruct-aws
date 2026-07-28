@@ -49,7 +49,7 @@ describe('setEc2LaunchTemplate', () => {
         then(
           'the emitted CreateLaunchTemplate targets DeviceName /dev/sda1 (not /dev/xvda)',
           async () => {
-            // findsert lookup: not found (tag filter) → create path; read-back (by id) → found
+            // findsert lookup: not found (name lookup) → create path; read-back (by id) → found
             ec2Mock.on(DescribeLaunchTemplatesCommand).callsFake((input) => {
               if (input.LaunchTemplateIds)
                 return {
@@ -235,7 +235,7 @@ describe('setEc2LaunchTemplate', () => {
       then(
         'it returns the found template WITHOUT the DescribeImages read or a create',
         async () => {
-          // the unique (tag:exid) lookup finds the extant template
+          // the unique (name) lookup finds the extant template
           ec2Mock.on(DescribeLaunchTemplatesCommand).resolves({
             LaunchTemplates: [
               {
