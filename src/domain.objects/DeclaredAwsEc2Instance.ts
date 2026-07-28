@@ -28,6 +28,10 @@ export interface DeclaredAwsEc2Instance {
   /**
    * .what = the launch template to use
    * .note = null for instances without template (backwards compat)
+   * .note = a box's IMDSv2 posture is controlled on the TEMPLATE, not here: set
+   *   DeclaredAwsEc2LaunchTemplate.metadataOptions and the box inherits it at launch
+   *   (RunInstances uses the template at $Latest). the instance has no metadataOptions
+   *   field of its own (a deferred #77 follow-up)
    */
   template: Ref<typeof DeclaredAwsEc2LaunchTemplate> | null;
 

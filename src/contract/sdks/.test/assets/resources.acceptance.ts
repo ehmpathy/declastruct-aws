@@ -366,6 +366,14 @@ export const getResources = async () => {
       ec2InstanceProfile,
     ),
     userData: NAT_USER_DATA,
+    // secure-by-default (null -> imdsv2-only); exercises the collapse->KEEP path
+    // .note = metadataOptions is IMMUTABLE. this template + its nat instance predate the
+    //   feature (no MetadataOptions), so they MUST be pruned + recreated before the next
+    //   apply, per rule.forbid.test-blocking-orphans:
+    //     ./provision/aws.infra/account=demo/aws.prune.ec2.sh \
+    //       --template declastruct-acceptance-nat-template \
+    //       --instance declastruct-acceptance-nat
+    metadataOptions: null,
     tags: { managedBy: 'declastruct', purpose: 'acceptance-test' },
   });
 
@@ -641,8 +649,23 @@ export const getResources = async () => {
       ec2InstanceProfile,
     ),
     userData: null,
+    // secure default (imdsv2-only). null exercises the collapse->KEEP path and, on a
+    // fresh create, sends httpTokens=required/hop=1/enabled so a box launched from this
+    // template inherits imdsv2 — verified live by the "box inherits IMDSv2" assertion.
+    // .note = metadataOptions is an IMMUTABLE attribute; this pre-feature fixture MUST be
+    //   pruned + recreated before the next apply, per rule.forbid.test-blocking-orphans:
+    //     ./provision/aws.infra/account=demo/aws.prune.ec2.sh \
+    //       --template declastruct-acceptance-template \
+    //       --instance declastruct-acceptance-instance
+    //   (the immutable-upsert throw in setEc2LaunchTemplate names the requirement generically.)
+    metadataOptions: null,
     tags: { managedBy: 'declastruct', purpose: 'acceptance-test' },
   });
+
+  // .note = the EXPLICIT (non-default) metadataOptions round-trip — a non-secure value
+  //   flows to CreateLaunchTemplateCommand and reads back un-collapsed — is covered by
+  //   ec2LaunchTemplate.journey.integration.test.ts [case5], which uses a fresh-exid,
+  //   instance-less, self-cleanup fixture (no persistent/insecure surface here).
 
   // declare EC2 instance with acceptance VPC resources
   const ec2Instance = DeclaredAwsEc2Instance.as({

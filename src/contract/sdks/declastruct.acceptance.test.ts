@@ -1,3 +1,4 @@
+import { DescribeInstancesCommand, EC2Client } from '@aws-sdk/client-ec2';
 import { asUniDateTime } from '@ehmpathy/uni-time';
 import { execSync } from 'child_process';
 import { endOfDay, startOfDay, subDays } from 'date-fns';
@@ -19,11 +20,13 @@ import { DeclaredAwsCostReportSpendObservedByResourceDao } from '@src/access/dao
 import { DeclaredAwsCostReportSpendObservedDao } from '@src/access/daos/DeclaredAwsCostReportSpendObservedDao';
 import { delParameter } from '@src/access/sdks/sdkSsm/delParameter';
 import { setParameter } from '@src/access/sdks/sdkSsm/setParameter';
+import { ec2InstanceMetadataOptionsSecure } from '@src/domain.objects/DeclaredAwsEc2InstanceMetadataOptions';
 import { DeclaredAwsEc2InstanceSession } from '@src/domain.objects/DeclaredAwsEc2InstanceSession';
 import { DeclaredAwsEc2SshKeyAuthorized } from '@src/domain.objects/DeclaredAwsEc2SshKeyAuthorized';
 import { DeclaredAwsSsmParameterSecure } from '@src/domain.objects/DeclaredAwsSsmParameterSecure';
 import { getEc2Instance } from '@src/domain.operations/ec2Instance/getEc2Instance';
 import { setEc2InstanceSession } from '@src/domain.operations/ec2InstanceSession/setEc2InstanceSession';
+import { asDeclaredAwsEc2InstanceMetadataOptions } from '@src/domain.operations/ec2LaunchTemplate/asDeclaredAwsEc2InstanceMetadataOptions';
 import { getOneEc2SshKeyAuthorized } from '@src/domain.operations/ec2SshKeyAuthorized/getOneEc2SshKeyAuthorized';
 import { setEc2SshKeyAuthorized } from '@src/domain.operations/ec2SshKeyAuthorized/setEc2SshKeyAuthorized';
 import { getAllIamUserAccessKeys } from '@src/domain.operations/iamUserAccessKey/getAllIamUserAccessKeys';
@@ -241,13 +244,25 @@ describe('declastruct CLI workflow', () => {
       );
       if (seeded) return;
 
-      // skip if the instance does not exist yet — a fresh account creates it via the
-      //   apply below (the key fails that first run); a re-run then seeds here
+      // defer the seed if the instance does not exist yet — a fresh account creates it
+      //   via the apply below (the key fails that first run); a re-run then seeds here.
+      //   this is a LEGITIMATE deferral, not a hidden error: on a fresh account the box
+      //   genuinely cannot exist at beforeAll time (the in-test apply creates it later), so
+      //   a throw here would regress fresh-account bootstrap. but it must NOT be a SILENT
+      //   pass-through (rule.forbid.failhide) — log the deferral loud + observable so a
+      //   reader of the test output sees WHY the seed did not run, and can tell an expected
+      //   fresh-account deferral apart from a genuinely absent box that SHOULD be present.
       const instance = await getEc2Instance(
         { by: { unique: unique.instance } },
         context,
       );
-      if (!instance) return;
+      if (!instance) {
+        context.log.warn(
+          'ssh-key seed deferred: acceptance instance absent at beforeAll (fresh-account bootstrap). the in-test apply below creates it; a re-run then seeds the key here.',
+          { instance: unique.instance },
+        );
+        return;
+      }
 
       // seed: start the target instance so the SSM append can reach it, then authorize
       await setEc2InstanceSession(
@@ -822,6 +837,12 @@ describe('declastruct CLI workflow', () => {
         /**
          * .what = validates EC2 resources were applied correctly via re-plan KEEP assertion
          * .why = proves EC2 launch template, instance, and session match desired state
+         * .note = also proves imdsv2 metadataOptions read-back convergence — both the nat
+         *   and box templates declare metadataOptions=null (secure default), so a fresh
+         *   create sends required/1/enabled and the read-back collapses to null -> KEEP.
+         *   the non-collapse (explicit-value) path is covered by the cast unit tests. the
+         *   box's actual imdsv2 posture is proven live by the "box inherits IMDSv2" then
+         *   below (DescribeInstances read of the launched instance)
          */
         const templateChange = prep.plan.changes.find(
           (r: DeclastructChange) =>
@@ -844,6 +865,56 @@ describe('declastruct CLI workflow', () => {
         expect(sessionChange).toBeDefined();
         expect(sessionChange!.action).toBe('KEEP');
       });
+
+      then('the launched box inherits IMDSv2 from its template', async () => {
+        /**
+         * .what = reads the LIVE instance MetadataOptions off DescribeInstances and
+         *   asserts the box is imdsv2-only (httpTokens=required)
+         * .why = this is the feature's core security claim — a box launched from a
+         *   secure-by-default template must itself be unreachable via imdsv1. the
+         *   template KEEP assertion above proves the TEMPLATE converges; this proves the
+         *   BOX actually inherited required/1/enabled at RunInstances (Version: $Latest).
+         *   it also guards against a false-KEEP: if the box were still imdsv1 (a
+         *   pre-feature fixture not yet pruned+recreated), this fails loud and the
+         *   resources.acceptance.ts prune .note names the fix.
+         */
+        const provider = await getDeclastructAwsProvider({}, { log: testLog });
+        const context = provider.context;
+        const instance = await getEc2Instance(
+          { by: { unique: { exid: ACCEPTANCE_INSTANCE_EXID } } },
+          context,
+        );
+        expect(instance).toBeDefined();
+        expect(instance!.id).toBeDefined();
+
+        const ec2 = new EC2Client({
+          region: context.aws.credentials.region,
+        });
+        const described = await ec2.send(
+          new DescribeInstancesCommand({ InstanceIds: [instance!.id] }),
+        );
+        // read the box's live metadata through the SAME transformer the cast uses —
+        // an instance's Instance.MetadataOptions is field-compatible with a template's
+        // LaunchTemplateInstanceMetadataOptions, so this exercises the reuse the
+        // transformer was extracted (i009) to enable, instead of a second hand-rolled
+        // copy of the raw AWS field map
+        const metadataOptions = asDeclaredAwsEc2InstanceMetadataOptions({
+          metadataOptions:
+            described.Reservations?.[0]?.Instances?.[0]?.MetadataOptions,
+        });
+        // the box must inherit the FULL secure default (required / 1 / enabled) from
+        // its template at $Latest — one equality against the single exported secure
+        // const, so the secure-value knowledge lives in exactly one place (not
+        // re-hardcoded here). endpoint=enabled is part of it: disabled would blind the
+        // instance role entirely, a different insecure posture a partial check misses.
+        expect(metadataOptions).toEqual(ec2InstanceMetadataOptionsSecure);
+      });
+
+      // note: the EXPLICIT (non-collapse) metadataOptions round-trip is proven live in
+      //   ec2LaunchTemplate.journey.integration.test.ts [case5], on a fresh-exid
+      //   template-only fixture (no instance). the null templates here exercise only the
+      //   collapse->KEEP path; the journey fixture proves a non-default value flows to
+      //   CreateLaunchTemplateCommand and reads back un-collapsed (wish acceptance #3 + #6).
 
       then('SSM SSH tunnel shows KEEP', () => {
         /**

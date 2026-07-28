@@ -39,6 +39,7 @@ describe('setEc2LaunchTemplate', () => {
     rootVolumeEncrypted: true,
     iamInstanceProfile: null,
     userData: null,
+    metadataOptions: null,
     tags: null,
   });
 
@@ -161,6 +162,7 @@ describe('setEc2LaunchTemplate', () => {
         rootVolumeEncrypted: true,
         iamInstanceProfile: null,
         userData: null,
+        metadataOptions: null,
         tags: null,
       });
 

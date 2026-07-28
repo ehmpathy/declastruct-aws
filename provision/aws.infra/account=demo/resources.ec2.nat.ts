@@ -151,6 +151,13 @@ export const getResourcesOfEc2Nat = (): DomainEntity<any>[] => {
       name: 'declastruct-demo-ec2-profile',
     }),
     userData: NAT_USER_DATA,
+    // secure-by-default: imdsv2-only.
+    // .note = metadataOptions is IMMUTABLE. if this nat-template + nat predate the feature
+    //   (created with no MetadataOptions), they MUST be pruned + recreated before the next
+    //   apply, per rule.forbid.test-blocking-orphans:
+    //     ./provision/aws.infra/account=demo/aws.prune.ec2.sh \
+    //       --template declastruct-demo-nat-template --instance declastruct-demo-nat
+    metadataOptions: null,
     tags: { managedBy: 'declastruct', purpose: 'demo' },
   });
 

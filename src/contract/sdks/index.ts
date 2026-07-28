@@ -115,6 +115,10 @@ export {
 } from '@src/domain.objects/DeclaredAwsCostReportSpendObservedByResource';
 // aws domain objects
 export { DeclaredAwsEc2Instance } from '@src/domain.objects/DeclaredAwsEc2Instance';
+export {
+  DeclaredAwsEc2InstanceMetadataOptions,
+  ec2InstanceMetadataOptionsSecure,
+} from '@src/domain.objects/DeclaredAwsEc2InstanceMetadataOptions';
 export { DeclaredAwsEc2InstanceNetwork } from '@src/domain.objects/DeclaredAwsEc2InstanceNetwork';
 export { DeclaredAwsEc2InstanceNetworkInterface } from '@src/domain.objects/DeclaredAwsEc2InstanceNetworkInterface';
 export { DeclaredAwsEc2InstanceNetworkSecurity } from '@src/domain.objects/DeclaredAwsEc2InstanceNetworkSecurity';

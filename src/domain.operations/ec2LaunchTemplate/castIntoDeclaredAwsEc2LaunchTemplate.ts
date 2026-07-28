@@ -5,6 +5,8 @@ import { assure } from 'type-fns';
 
 import { DeclaredAwsEc2LaunchTemplate } from '@src/domain.objects/DeclaredAwsEc2LaunchTemplate';
 
+import { asDeclaredAwsEc2InstanceMetadataOptions } from './asDeclaredAwsEc2InstanceMetadataOptions';
+
 /**
  * .what = casts AWS SDK launch template data to domain object
  * .why = maps AWS response shape to domain object
@@ -61,6 +63,12 @@ export const castIntoDeclaredAwsEc2LaunchTemplate = (input: {
       userData: input.data.UserData
         ? Buffer.from(input.data.UserData, 'base64').toString('utf-8')
         : null,
+      // read the imdsv2 controls back from aws (the honest effective value; the
+      // secure-equal -> null collapse is applied at DeclaredAwsEc2LaunchTemplate
+      // construction, so this + a caller's declared object converge for KEEP)
+      metadataOptions: asDeclaredAwsEc2InstanceMetadataOptions({
+        metadataOptions: input.data.MetadataOptions,
+      }),
       tags: (() => {
         // filter to valid tags (except exid) and build object immutably
         const tagEntries = (input.tags ?? [])
