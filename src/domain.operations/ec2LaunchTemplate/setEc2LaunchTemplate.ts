@@ -11,6 +11,7 @@ import type { PickOne } from 'type-fns';
 import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
 import type { DeclaredAwsEc2LaunchTemplate } from '@src/domain.objects/DeclaredAwsEc2LaunchTemplate';
 
+import { getEc2ImageRootDeviceName } from './getEc2ImageRootDeviceName';
 import { getEc2LaunchTemplate } from './getEc2LaunchTemplate';
 
 /**
@@ -51,6 +52,18 @@ export const setEc2LaunchTemplate = async (
       { template, templateFound },
     );
 
+  // derive the AMI's real root device name so the root-volume override lands on
+  // the actual root block device (amazon-linux /dev/xvda, ubuntu /dev/sda1)
+  const rootDeviceName = await getEc2ImageRootDeviceName(
+    { imageId: template.imageId },
+    context,
+  );
+  if (!rootDeviceName)
+    return UnexpectedCodePathError.throw(
+      'EC2 DescribeImages returned no RootDeviceName for imageId; cannot target the root volume override',
+      { imageId: template.imageId, template },
+    );
+
   // create new template
   const response = await ec2.send(
     new CreateLaunchTemplateCommand({
@@ -63,7 +76,7 @@ export const setEc2LaunchTemplate = async (
         },
         BlockDeviceMappings: [
           {
-            DeviceName: '/dev/xvda',
+            DeviceName: rootDeviceName,
             Ebs: {
               VolumeSize: template.rootVolumeSize,
               Encrypted: template.rootVolumeEncrypted,

@@ -148,6 +148,65 @@ describe('castIntoDeclaredAwsEc2LaunchTemplate', () => {
     });
   });
 
+  // clamp for a 3rd AMI family whose root is neither /dev/xvda nor /dev/sda1:
+  // the read path must still report the declared size/encrypt, not the defaults —
+  // else a re-plan would drift forever (rule.require.immutable-source-of-truth)
+  given('launch template with a 3rd-family root device (/dev/nvme0n1)', () => {
+    when('cast to domain object', () => {
+      then('it reads the sole root block device, not the defaults', () => {
+        const data: ResponseLaunchTemplateData = {
+          InstanceType: 't3.micro',
+          BlockDeviceMappings: [
+            {
+              DeviceName: '/dev/nvme0n1',
+              Ebs: { VolumeSize: 64, Encrypted: true },
+            },
+          ],
+        };
+        const result = castIntoDeclaredAwsEc2LaunchTemplate({
+          id: 'lt-nvme',
+          data,
+          tags: [{ Key: 'exid', Value: 'nvme-template' }],
+        });
+        expect(result.rootVolumeSize).toBe(64);
+        expect(result.rootVolumeEncrypted).toBe(true);
+      });
+    });
+  });
+
+  // fail loud rather than a silent positional guess when the root is ambiguous:
+  // many block devices, none a known root name (e.g. a foreign template)
+  given(
+    'launch template with multiple block devices, none a known root',
+    () => {
+      when('cast to domain object', () => {
+        then('it throws rather than guess a non-root volume', async () => {
+          const data: ResponseLaunchTemplateData = {
+            InstanceType: 't3.micro',
+            BlockDeviceMappings: [
+              {
+                DeviceName: '/dev/xvdf',
+                Ebs: { VolumeSize: 500, Encrypted: false },
+              },
+              {
+                DeviceName: '/dev/xvdg',
+                Ebs: { VolumeSize: 200, Encrypted: true },
+              },
+            ],
+          };
+          const error = await getError(() =>
+            castIntoDeclaredAwsEc2LaunchTemplate({
+              id: 'lt-ambiguous',
+              data,
+              tags: [{ Key: 'exid', Value: 'ambiguous-template' }],
+            }),
+          );
+          expect(error.message).toContain('multiple block devices');
+        });
+      });
+    },
+  );
+
   given('launch template without block device mappings', () => {
     const data: ResponseLaunchTemplateData = {
       InstanceType: 't3.micro',

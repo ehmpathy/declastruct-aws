@@ -512,6 +512,18 @@ describe('declastruct CLI workflow', () => {
           'declastruct-acceptance-template',
         );
 
+        // verify the ubuntu launch template (root /dev/sda1) is present — proves the
+        // AMI-derived root-device fix is exercised through the plan/apply CLI on a
+        // non-/dev/xvda AMI family, not only the direct-call journey test
+        const templateUbuntuChange = prep.plan.changes.find(
+          (r: DeclastructChange) =>
+            r.forResource.class === 'DeclaredAwsEc2LaunchTemplate' &&
+            r.forResource.slug.includes(
+              'declastruct-acceptance-template-ubuntu',
+            ),
+        );
+        expect(templateUbuntuChange).toBeDefined();
+
         // verify instance resource is present
         // note: two instances exist (nat + acceptance); match by exid so the NAT
         //   instance is not picked up by class alone
@@ -829,6 +841,18 @@ describe('declastruct CLI workflow', () => {
         );
         expect(templateChange).toBeDefined();
         expect(templateChange!.action).toBe('KEEP');
+
+        // the ubuntu launch template (root /dev/sda1) also converges to KEEP — the
+        // AMI-derived DeviceName applied cleanly through the CLI on a non-/dev/xvda AMI
+        const templateUbuntuChange = prep.plan.changes.find(
+          (r: DeclastructChange) =>
+            r.forResource.class === 'DeclaredAwsEc2LaunchTemplate' &&
+            r.forResource.slug.includes(
+              'declastruct-acceptance-template-ubuntu',
+            ),
+        );
+        expect(templateUbuntuChange).toBeDefined();
+        expect(templateUbuntuChange!.action).toBe('KEEP');
 
         const instanceChange = prep.plan.changes.find(
           (r: DeclastructChange) =>
