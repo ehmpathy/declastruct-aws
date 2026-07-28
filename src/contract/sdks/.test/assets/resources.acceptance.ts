@@ -1,4 +1,3 @@
-import { DescribeImagesCommand, EC2Client } from '@aws-sdk/client-ec2';
 import { asUniDateTime, UniDateTime } from '@ehmpathy/uni-time';
 import { endOfDay, startOfDay, subDays } from 'date-fns';
 import { del } from 'declastruct';
@@ -80,73 +79,23 @@ const costReportForecastRange = COST_REPORT_FORECAST_RANGE;
 const costReportByResourceRange = COST_REPORT_BY_RESOURCE_RANGE;
 
 /**
- * .what = reads the current Amazon Linux 2023 x86_64 AMI id for the launch templates
- * .why = a hardcoded AMI id rotates out of the region and goes stale; now that
- *   setEc2LaunchTemplate validates the AMI via DescribeImages, a stale id would 404 the
- *   apply. read the newest al2023 image the amazon owner publishes, in the provider's own
- *   region (default SDK chain — same region the provider creates the template in).
+ * .what = Amazon Linux 2023 AMI (x86_64, us-east-1) for the al2023 launch templates
+ * .why = the acceptance launch templates are persistent + immutable, so their imageId
+ *   must stay stable. a run-time "newest AMI" read drifts each time AWS publishes a new
+ *   al2023 image, which forces an immutable-UPDATE that aborts the apply. this pinned id
+ *   is the one the extant templates already hold, so they converge to KEEP. root device
+ *   is /dev/xvda; setEc2LaunchTemplate derives it from the AMI on create.
  */
-const getAmazonLinux2023ImageId = async (): Promise<string> => {
-  const ec2 = new EC2Client({});
-  const imagesResponse = await ec2.send(
-    new DescribeImagesCommand({
-      Owners: ['amazon'],
-      Filters: [
-        { Name: 'name', Values: ['al2023-ami-2023.*-kernel-*-x86_64'] },
-        { Name: 'state', Values: ['available'] },
-        { Name: 'architecture', Values: ['x86_64'] },
-      ],
-    }),
-  );
-  const newest = (imagesResponse.Images ?? [])
-    .slice()
-    .sort((a, b) => (b.CreationDate ?? '').localeCompare(a.CreationDate ?? ''))[0];
-  return (
-    newest?.ImageId ??
-    UnexpectedCodePathError.throw(
-      'no Amazon Linux 2023 AMI found for the acceptance region',
-      {
-        hint: 'run acceptance where the amazon owner publishes al2023-ami-2023 x86_64',
-      },
-    )
-  );
-};
+const AL2023_AMI_US_EAST_1 = 'ami-0453ec754f44f9a4a';
 
 /**
- * .what = reads the current Canonical ubuntu-24.04 amd64 AMI id
- * .why = the launch-template root-device fix must be proven through the real
- *   declastruct plan/apply CLI path for a NON-/dev/xvda AMI family. ubuntu names its
- *   root /dev/sda1 (amazon-linux uses /dev/xvda), so a declared ubuntu launch template
- *   exercises the AMI-derived DeviceName end to end via setEc2LaunchTemplate. read the
- *   AMI at run time (ids rotate) in the provider's own region, like the al2023 read.
+ * .what = Canonical ubuntu-24.04 amd64 AMI (us-east-1) for the ubuntu launch template
+ * .why = proves the AMI-derived root-device fix on a non-/dev/xvda AMI (ubuntu root is
+ *   /dev/sda1) through the real declastruct plan/apply CLI. pinned (not run-time) for the
+ *   same stability reason as the al2023 id: a persistent immutable template must not drift
+ *   its imageId, else the idempotent re-plan reports an immutable-UPDATE.
  */
-const getUbuntu2404ImageId = async (): Promise<string> => {
-  const ec2 = new EC2Client({});
-  const imagesResponse = await ec2.send(
-    new DescribeImagesCommand({
-      Owners: ['099720109477'], // Canonical
-      Filters: [
-        {
-          Name: 'name',
-          Values: ['ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-server-*'],
-        },
-        { Name: 'state', Values: ['available'] },
-      ],
-    }),
-  );
-  const newest = (imagesResponse.Images ?? [])
-    .slice()
-    .sort((a, b) => (b.CreationDate ?? '').localeCompare(a.CreationDate ?? ''))[0];
-  return (
-    newest?.ImageId ??
-    UnexpectedCodePathError.throw(
-      'no Canonical ubuntu-24.04 AMI found for the acceptance region',
-      {
-        hint: 'run acceptance where Canonical publishes ubuntu-noble-24.04-amd64 (e.g. us-east-1)',
-      },
-    )
-  );
-};
+const UBUNTU_2404_AMI_US_EAST_1 = 'ami-052355af2a014bd2c';
 
 /**
  * .what = a stable, throwaway ed25519 public key for the ssh key authorization
@@ -414,14 +363,11 @@ export const getResources = async () => {
     tags: { managedBy: 'declastruct', purpose: 'acceptance-test' },
   });
 
-  // read the current Amazon Linux 2023 AMI once, shared by both launch templates
-  const amazonLinuxImageId = await getAmazonLinux2023ImageId();
-
   // declare NAT launch template (masquerade via user data; reuses the SSM profile)
   const natLaunchTemplate = DeclaredAwsEc2LaunchTemplate.as({
     exid: 'declastruct-acceptance-nat-template',
     instanceType: 't3.micro', // free-tier eligible
-    imageId: amazonLinuxImageId,
+    imageId: AL2023_AMI_US_EAST_1,
     hibernation: false,
     rootVolumeSize: 8,
     rootVolumeEncrypted: false,
@@ -696,7 +642,7 @@ export const getResources = async () => {
   const ec2LaunchTemplate = DeclaredAwsEc2LaunchTemplate.as({
     exid: 'declastruct-acceptance-template',
     instanceType: 't3.micro',
-    imageId: amazonLinuxImageId, // Amazon Linux 2023 (root /dev/xvda) — supports hibernation
+    imageId: AL2023_AMI_US_EAST_1, // Amazon Linux 2023 (root /dev/xvda) — supports hibernation
     hibernation: true,
     rootVolumeSize: 16, // hibernation needs enough space for RAM
     rootVolumeEncrypted: true, // required for hibernation
@@ -711,11 +657,10 @@ export const getResources = async () => {
   // declastruct plan/apply CLI path itself proves the AMI-derived root-device fix on a
   // non-amazon-linux AMI. no instance is declared for it — the template create alone
   // drives setEc2LaunchTemplate's DescribeImages lookup + block-device DeviceName.
-  const ubuntuImageId = await getUbuntu2404ImageId();
   const ec2LaunchTemplateUbuntu = DeclaredAwsEc2LaunchTemplate.as({
     exid: 'declastruct-acceptance-template-ubuntu',
     instanceType: 't3.micro',
-    imageId: ubuntuImageId, // Canonical ubuntu 24.04 (root /dev/sda1)
+    imageId: UBUNTU_2404_AMI_US_EAST_1, // Canonical ubuntu 24.04 (root /dev/sda1)
     hibernation: false,
     rootVolumeSize: 8,
     rootVolumeEncrypted: true,
