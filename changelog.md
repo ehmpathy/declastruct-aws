@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.2](https://github.com/ehmpathy/declastruct-aws/compare/v1.10.1...v1.10.2) (2026-07-28)
+
+
+### Bug Fixes
+
+* **ec2:** target the AMI real root device for launch template root-volume override ([#80](https://github.com/ehmpathy/declastruct-aws/issues/80)) ([d57207a](https://github.com/ehmpathy/declastruct-aws/commit/d57207ac50d458594e29c6088f2bae91a61e4e15))
+
 ## [1.10.1](https://github.com/ehmpathy/declastruct-aws/compare/v1.10.0...v1.10.1) (2026-07-26)
 
 
