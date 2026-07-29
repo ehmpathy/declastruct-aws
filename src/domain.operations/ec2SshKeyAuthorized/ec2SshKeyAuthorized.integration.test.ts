@@ -8,6 +8,7 @@ import { genTestUuid, given, then, useBeforeAll, when } from 'test-fns';
 import { promisify } from 'util';
 
 import { getSampleAwsApiContext } from '@src/.test/getSampleAwsApiContext';
+import { sdkSsm } from '@src/access/sdks/sdkSsm';
 import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
 import { DeclaredAwsEc2InstanceSession } from '@src/domain.objects/DeclaredAwsEc2InstanceSession';
 import { DeclaredAwsEc2SshKeyAuthorized } from '@src/domain.objects/DeclaredAwsEc2SshKeyAuthorized';
@@ -15,6 +16,7 @@ import { getEc2Instance } from '@src/domain.operations/ec2Instance/getEc2Instanc
 import { setEc2InstanceSession } from '@src/domain.operations/ec2InstanceSession/setEc2InstanceSession';
 import { execSsmCommand } from '@src/domain.operations/ssmCommand/execSsmCommand';
 
+import { asEc2SshKeyAuthorizedSsmParameterName } from './asEc2SshKeyAuthorizedSsmParameterName';
 import { getOneEc2SshKeyAuthorized } from './getOneEc2SshKeyAuthorized';
 import { setEc2SshKeyAuthorized } from './setEc2SshKeyAuthorized';
 
@@ -304,6 +306,81 @@ describe('ec2SshKeyAuthorized', () => {
       });
     });
   });
+
+  givenRealInfra(
+    '[case5] getOneEc2SshKeyAuthorized when the box was rebuilt (stale recorded instance-id)',
+    () => {
+      // .why = this is the headline fix: the tracked SSM param is keyed by the box's
+      //   STABLE exid, so it survives a terminate-and-recreate; a fresh box under the
+      //   same exid has a NEW instance-id + a wiped disk. we reproduce that observable
+      //   state cheaply — seed a param whose recorded instance-id does NOT match the
+      //   live box — without a real (10-min) terminate/recreate. the get must read it
+      //   as absent (null) so reconcile decides CREATE and re-pushes the key.
+      const staleComment = `rebuilt-${genTestUuid().slice(0, 8)}`;
+      // deterministic name for the seeded fixture — shared by the seed + the teardown,
+      // so cleanup does not depend on a useBeforeAll return closure
+      const staleParamName = asEc2SshKeyAuthorizedSsmParameterName({
+        instanceExid,
+        comment: staleComment,
+      });
+
+      // arrange (the given precondition): seed a param under the exid+comment name
+      // with a STALE recorded id — the observable state of a rebuilt box (fresh id,
+      // wiped disk) without a real 10-min terminate/recreate
+      useBeforeAll(async () => {
+        const { context } = scene;
+        await sdkSsm.setParameter(
+          {
+            name: staleParamName,
+            value: JSON.stringify({
+              publicKey: scene.publicKey,
+              fingerprint: 'SHA256:stale',
+              authorizedAt: new Date().toISOString(),
+              comment: staleComment,
+              user: 'ec2-user',
+              // a bogus id — never the live box's id → simulates a rebuild
+              instanceId: 'i-0stale00000000000',
+            }),
+            type: 'SecureString',
+            description: 'stale-instance-id test fixture',
+          },
+          context,
+        );
+        return { staleParamName };
+      });
+
+      when('[t0] the key is looked up', () => {
+        then('the get returns null (reconcile → CREATE)', async () => {
+          const { context } = scene;
+          const result = await getOneEc2SshKeyAuthorized(
+            {
+              by: {
+                unique: {
+                  instance: { exid: instanceExid },
+                  comment: staleComment,
+                },
+              },
+            },
+            context,
+          );
+          // the null return IS the whole contract of this variant — there is no
+          // structured payload to snapshot; toBeNull is the exhaustive, deterministic
+          // assertion. the ci-runnable clamps for this decision are the mocked
+          // getOneEc2SshKeyAuthorizedByUnique.test.ts (the full wire-up: stale id → null)
+          // plus the pure isEc2SshKeyAuthorizedStale.test.ts (ids differ → stale); this
+          // real-infra case confirms the same end-to-end against a live box.
+          expect(result).toBeNull();
+        });
+      });
+
+      // teardown at the describe scope (not inside the when) — idempotent del of the
+      // deterministic fixture name, so the seeded param never leaks into the account
+      afterAll(async () => {
+        const { context } = scene;
+        await sdkSsm.delParameter({ name: staleParamName }, context);
+      });
+    },
+  );
 
   givenRealInfra('[case4] setEc2SshKeyAuthorized on an absent instance', () => {
     when('[t0] the instance cannot be found', () => {

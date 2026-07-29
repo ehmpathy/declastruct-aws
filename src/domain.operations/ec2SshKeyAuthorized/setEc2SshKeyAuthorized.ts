@@ -1,15 +1,16 @@
 import type { HasReadonly } from 'domain-objects';
-import { BadRequestError, UnexpectedCodePathError } from 'helpful-errors';
+import { BadRequestError } from 'helpful-errors';
 import type { ContextLogTrail } from 'sdk-logs';
 
 import { sdkSsm } from '@src/access/sdks/sdkSsm';
 import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
 import type { DeclaredAwsEc2SshKeyAuthorized } from '@src/domain.objects/DeclaredAwsEc2SshKeyAuthorized';
-import { getEc2Instance } from '@src/domain.operations/ec2Instance/getEc2Instance';
+import { getOneEc2InstanceId } from '@src/domain.operations/ec2Instance/getOneEc2InstanceId';
 import { execSsmCommand } from '@src/domain.operations/ssmCommand/execSsmCommand';
 
+import { asEc2SshKeyAuthorized } from './asEc2SshKeyAuthorized';
 import { asEc2SshKeyAuthorizedSsmParameterName } from './asEc2SshKeyAuthorizedSsmParameterName';
-import { getOneEc2SshKeyAuthorizedByUnique } from './getOneEc2SshKeyAuthorizedByUnique';
+import { assertSshKeyPushSucceeded } from './assertSshKeyPushSucceeded';
 
 /**
  * .what = durably authorizes an SSH key on an EC2 instance
@@ -27,12 +28,13 @@ export const setEc2SshKeyAuthorized = async (
   input: DeclaredAwsEc2SshKeyAuthorized,
   context: ContextAwsApi & ContextLogTrail,
 ): Promise<HasReadonly<typeof DeclaredAwsEc2SshKeyAuthorized>> => {
-  // look up the instance to authorize the key on
-  const instance = await getEc2Instance(
+  // look up the live instance primary ref to authorize the key on (lean id-only
+  // lookup — the key push + the recorded identity marker both need only the id)
+  const liveInstanceRef = await getOneEc2InstanceId(
     { by: { unique: input.instance } },
     context,
   );
-  if (!instance)
+  if (!liveInstanceRef)
     BadRequestError.throw('instance not found; cannot authorize ssh key', {
       instance: input.instance,
     });
@@ -55,21 +57,13 @@ export const setEc2SshKeyAuthorized = async (
 
   const authorization = await execSsmCommand(
     {
-      instance: { id: instance.id },
+      instance: liveInstanceRef,
       commands: [appendKeyCommand],
       timeoutSeconds: 60,
     },
     context,
   );
-  if (authorization.status !== 'Success')
-    UnexpectedCodePathError.throw(
-      'ssm command did not report success when it appended the ssh key',
-      {
-        instance: input.instance,
-        status: authorization.status,
-        stderr: authorization.stderr,
-      },
-    );
+  assertSshKeyPushSucceeded({ authorization, instance: input.instance });
 
   // compute ssm parameter name from unique key (shared transformer — get/set agree)
   const paramName = asEc2SshKeyAuthorizedSsmParameterName({
@@ -82,6 +76,10 @@ export const setEc2SshKeyAuthorized = async (
     input.fingerprint ?? computeSshKeyFingerprint(input.publicKey);
 
   // prepare value to store
+  // note: record the LIVE instance-id the key was appended to — it is the
+  //   control-plane marker the get compares to detect a rebuild (a fresh box under
+  //   the same exid has a new id + a wiped disk). see
+  //   rule.forbid.in-guest-connection-for-drift-check
   const authorizedAt = input.authorizedAt ?? new Date().toISOString();
   const paramValue = JSON.stringify({
     publicKey: input.publicKey,
@@ -89,6 +87,7 @@ export const setEc2SshKeyAuthorized = async (
     authorizedAt,
     comment: input.comment,
     user: input.user,
+    instanceId: liveInstanceRef.id,
   });
 
   // record the authorization in ssm parameter store (track layer)
@@ -102,27 +101,15 @@ export const setEc2SshKeyAuthorized = async (
     context,
   );
 
-  // return the authorized key
-  const result = await getOneEc2SshKeyAuthorizedByUnique(
-    {
-      by: {
-        unique: {
-          instance: input.instance,
-          comment: input.comment,
-        },
-      },
-    },
-    context,
-  );
-
-  // should always find the key we just created
-  if (!result)
-    UnexpectedCodePathError.throw('failed to retrieve key after creation', {
-      instance: input.instance,
-      comment: input.comment,
-    });
-
-  return result;
+  // construct the return from the param value we just wrote — the SAME transformer the
+  // get uses, so the shape is identical, WITHOUT a redundant getEc2Instance round-trip.
+  // a re-fetch (self-get) would re-run the stale-check's DescribeInstances + subnet + SG
+  // lookups, which could report a successful key push as a failed apply on a transient
+  // lookup hiccup — a spurious failure this avoids.
+  return asEc2SshKeyAuthorized({
+    instanceExid: input.instance.exid,
+    paramValue,
+  });
 };
 
 /**
