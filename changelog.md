@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.4](https://github.com/ehmpathy/declastruct-aws/compare/v1.10.3...v1.10.4) (2026-07-29)
+
+
+### Bug Fixes
+
+* **ec2:** detect rebuilt box via live instance ref so stale ssh-key auth reconciles to CREATE ([#86](https://github.com/ehmpathy/declastruct-aws/issues/86)) ([e871fda](https://github.com/ehmpathy/declastruct-aws/commit/e871fda7c4860d0c921089ad21acf8a036eb22cc))
+
 ## [1.10.3](https://github.com/ehmpathy/declastruct-aws/compare/v1.10.2...v1.10.3) (2026-07-28)
 
 
