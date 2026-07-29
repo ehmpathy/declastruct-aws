@@ -12,9 +12,9 @@ import { setEc2SshKeyAuthorized } from '@src/domain.operations/ec2SshKeyAuthoriz
  *        so the authorization can be driven declaratively via plan/apply
  * .note
  *   - findsert is cheap on repeat: it finds the extant authorization from the
- *     SSM Parameter Store track layer and returns it without a re-push through
- *     EC2 Instance Connect (which requires an active instance)
- *   - upsert always re-pushes via Instance Connect (re-authorize on demand)
+ *     SSM Parameter Store track layer and returns it without a re-push via an
+ *     SSM SendCommand (which requires an active instance)
+ *   - upsert always re-pushes via SSM SendCommand (re-authorize on demand)
  */
 export const DeclaredAwsEc2SshKeyAuthorizedDao = genDeclastructDao<
   typeof DeclaredAwsEc2SshKeyAuthorized,
@@ -42,7 +42,7 @@ export const DeclaredAwsEc2SshKeyAuthorizedDao = genDeclastructDao<
       );
       if (found) return found;
 
-      // absent — authorize the key (pushes via Instance Connect, needs active)
+      // absent — authorize the key (pushes via SSM SendCommand, needs active)
       return setEc2SshKeyAuthorized(input, context);
     },
     upsert: async (input, context) => {
