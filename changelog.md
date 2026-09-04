@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.0](https://github.com/ehmpathy/declastruct-aws/compare/v1.10.4...v1.11.0) (2026-09-04)
+
+
+### Features
+
+* **ses:** declarative send + receive email primitives (ses, s3, sns) ([#93](https://github.com/ehmpathy/declastruct-aws/issues/93)) ([4f63ff0](https://github.com/ehmpathy/declastruct-aws/commit/4f63ff0c3fd492f2fee7efa1baf3c826a496a1d7))
+
 ## [1.10.4](https://github.com/ehmpathy/declastruct-aws/compare/v1.10.3...v1.10.4) (2026-07-29)
 
 
