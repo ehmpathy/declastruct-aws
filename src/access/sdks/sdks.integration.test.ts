@@ -3,7 +3,17 @@ import {
   EC2Client,
   TerminateInstancesCommand,
 } from '@aws-sdk/client-ec2';
+import {
+  DescribeSessionsCommand,
+  SSMClient,
+  TerminateSessionCommand,
+} from '@aws-sdk/client-ssm';
+import { execFile } from 'child_process';
+import { promises as fs } from 'fs';
+import os from 'os';
+import path from 'path';
 import { genTestUuid, given, then, useBeforeAll, when } from 'test-fns';
+import { promisify } from 'util';
 
 import { getSampleAwsApiContext } from '@src/.test/getSampleAwsApiContext';
 import { DeclaredAwsEc2Instance } from '@src/domain.objects/DeclaredAwsEc2Instance';
@@ -11,9 +21,36 @@ import { DeclaredAwsEc2InstanceSession } from '@src/domain.objects/DeclaredAwsEc
 import { setEc2Instance } from '@src/domain.operations/ec2Instance/setEc2Instance';
 import { setEc2InstanceSession } from '@src/domain.operations/ec2InstanceSession/setEc2InstanceSession';
 
+import { getAwsClientConfig } from './getAwsClientConfig';
 import { sdkEc2InstanceConnect } from './sdkEc2InstanceConnect';
 import { sdkSsm } from './sdkSsm';
 import { sdkSsmSession } from './sdkSsmSession';
+
+const execFileAsync = promisify(execFile);
+
+/**
+ * .what = terminate active SSM sessions whose target instance matches a predicate
+ * .why = a terminated EC2 instance never cleanly disconnects the SSM session it held, so the
+ *   control plane leaves that session `Active` forever. prune by target so parallel runs never
+ *   kill each other's live sessions (rule.require.ssm-session-cleanup-both-ends)
+ */
+const terminateSsmSessions = async (input: {
+  ssm: SSMClient;
+  shouldTerminate: (target: string) => boolean;
+}): Promise<void> => {
+  const response = await input.ssm.send(
+    new DescribeSessionsCommand({ State: 'Active' }),
+  );
+  const doomed = (response.Sessions ?? []).filter(
+    (session) => !!session.Target && input.shouldTerminate(session.Target),
+  );
+  for (const session of doomed) {
+    if (!session.SessionId) continue;
+    await input.ssm.send(
+      new TerminateSessionCommand({ SessionId: session.SessionId }),
+    );
+  }
+};
 
 /**
  * .what = integration tests for low-level SDK wrappers
@@ -55,12 +92,35 @@ describe('sdks.integration', () => {
         new TerminateInstancesCommand({ InstanceIds: orphanIds as string[] }),
       );
     }
+
+    // prune orphan SSM sessions whose target is one of the terminated test orphans — a killed
+    // instance leaves its session `Active` forever, so sweep them here too (both-ends rule)
+    const ssm = new SSMClient(
+      getAwsClientConfig({ region: context.aws.credentials.region }),
+    );
+    const orphanIdSet = new Set(orphanIds as string[]);
+    await terminateSsmSessions({
+      ssm,
+      shouldTerminate: (target) => orphanIdSet.has(target),
+    });
   });
 
-  // cleanup AFTER: terminate instances created in this run
+  // cleanup AFTER: terminate THIS run's SSM sessions BEFORE its instances (a session cannot be
+  // cleanly closed once its instance is gone), then terminate the instances
   afterAll(async () => {
     if (instanceIds.length === 0) return;
     const context = await getSampleAwsApiContext();
+
+    // terminate our sessions first, so no `Active` session is orphaned by the instance teardown
+    const ssm = new SSMClient(
+      getAwsClientConfig({ region: context.aws.credentials.region }),
+    );
+    const ourInstances = new Set(instanceIds);
+    await terminateSsmSessions({
+      ssm,
+      shouldTerminate: (target) => ourInstances.has(target),
+    });
+
     const ec2 = new EC2Client({ region: context.aws.credentials.region });
     await ec2.send(new TerminateInstancesCommand({ InstanceIds: instanceIds }));
   });
@@ -234,19 +294,45 @@ describe('sdks.integration', () => {
     when('[t0] setSshPublicKey authorizes key', () => {
       then('returns success', async () => {
         const { context, instance } = scene;
-        // generate a test SSH public key (not real, just valid format)
-        const testPublicKey =
-          'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDtest123 declastruct-test';
-        const result = await sdkEc2InstanceConnect.setSshPublicKey(
-          {
-            instanceId: instance.id,
-            instanceOsUser: 'ec2-user',
-            sshPublicKey: testPublicKey,
-          },
-          context,
+        // mint a REAL rsa public key — AWS EC2 Instance Connect validates the key is a
+        // genuine, well-formed rsa key (a hardcoded fake is rejected with
+        // InvalidArgsException), so generate a throwaway keypair the same way the
+        // ec2SshKeyAuthorized journey does
+        const dir = await fs.mkdtemp(
+          path.join(os.tmpdir(), 'declastruct-sdkkey-'),
         );
-        expect(result.success).toBe(true);
-        expect(result.requestId).toBeDefined();
+        // clean up the throwaway keypair dir even if a real-AWS call throws mid-test, so a
+        // transient failure never leaks the private key on disk in /tmp
+        try {
+          const keyPath = path.join(dir, 'id_rsa');
+          await execFileAsync('ssh-keygen', [
+            '-t',
+            'rsa',
+            '-b',
+            '2048',
+            '-N',
+            '',
+            '-C',
+            'declastruct-test',
+            '-f',
+            keyPath,
+          ]);
+          const testPublicKey = (
+            await fs.readFile(`${keyPath}.pub`, 'utf-8')
+          ).trim();
+          const result = await sdkEc2InstanceConnect.setSshPublicKey(
+            {
+              instanceId: instance.id,
+              instanceOsUser: 'ec2-user',
+              sshPublicKey: testPublicKey,
+            },
+            context,
+          );
+          expect(result.success).toBe(true);
+          expect(result.requestId).toBeDefined();
+        } finally {
+          await fs.rm(dir, { recursive: true, force: true });
+        }
       });
     });
   });
@@ -283,8 +369,12 @@ describe('sdks.integration', () => {
     when('[t2] getOneSessionHealth for nonexistent instance', () => {
       then('returns notconnected', async () => {
         const { context } = scene;
+        // a WELL-FORMED (17 hex chars) but nonexistent instance id — AWS SSM validates the
+        // target id format up front, so a malformed id (e.g. 'i-nonexistent12345') throws a
+        // ValidationException instead of a status. this id has valid format + will not exist,
+        // so GetConnectionStatus returns a real 'notconnected' — the path under test
         const result = await sdkSsmSession.getOneSessionHealth(
-          { instanceId: 'i-nonexistent12345' },
+          { instanceId: 'i-0123456789abcdef0' },
           context,
         );
         expect(result.status).toBe('notconnected');

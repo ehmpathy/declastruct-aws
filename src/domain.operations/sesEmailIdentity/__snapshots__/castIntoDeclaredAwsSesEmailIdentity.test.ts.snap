@@ -1,0 +1,10 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`castIntoDeclaredAwsSesEmailIdentity a dkimStatus outside the modeled union fails loud (assure) 1`] = `
+"assure.rejection: input does not satisfy type.check 'isSesDkimStatus'
+
+{
+  "check": "isSesDkimStatus",
+  "input": "WAT_UNMODELED"
+}"
+`;

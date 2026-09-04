@@ -9,6 +9,7 @@ import { UnexpectedCodePathError } from 'helpful-errors';
 import type { ContextLogTrail } from 'sdk-logs';
 import type { PickOne } from 'type-fns';
 
+import { getAwsClientConfig } from '@src/access/sdks/getAwsClientConfig';
 import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
 import type { DeclaredAwsEc2Instance } from '@src/domain.objects/DeclaredAwsEc2Instance';
 import type { DeclaredAwsEc2LaunchTemplate } from '@src/domain.objects/DeclaredAwsEc2LaunchTemplate';
@@ -32,8 +33,11 @@ export const setEc2Instance = async (
   }>,
   context: ContextAwsApi & ContextLogTrail,
 ): Promise<HasReadonly<typeof DeclaredAwsEc2Instance>> => {
-  // create ec2 client
-  const ec2 = new EC2Client({ region: context.aws.credentials.region });
+  // create ec2 client — bound requestTimeout so a stalled socket (a connect with no response)
+  // aborts and adaptive-retries instead of a hang (rule.require.failfast)
+  const ec2 = new EC2Client(
+    getAwsClientConfig({ region: context.aws.credentials.region }),
+  );
 
   // get the instance to set
   const instance = input.findsert ?? input.upsert;

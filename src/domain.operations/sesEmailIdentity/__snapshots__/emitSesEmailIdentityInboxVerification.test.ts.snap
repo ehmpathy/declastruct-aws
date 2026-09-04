@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`emitSesEmailIdentityInboxVerification an unverified email identity warns the inbox-click hand-off 1`] = `"SES identity "robot@demo.ehmpathy.com" — AWS emailed a confirmation link to this address; open that inbox and click the link to complete verification"`;

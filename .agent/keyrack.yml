@@ -2,6 +2,8 @@ org: ehmpathy
 env.prod: null
 env.prep:
   - AWS_PROFILE
+  - CLOUDFLARE_API_TOKEN
+  - CLOUDFLARE_ACCOUNT_ID
 env.test:
   - AWS_PROFILE
 extends:

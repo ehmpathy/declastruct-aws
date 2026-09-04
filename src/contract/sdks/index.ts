@@ -41,6 +41,15 @@ export { DeclaredAwsOrganizationPolicyEligibilityDao } from '@src/access/daos/De
 export { DeclaredAwsOrganizationServiceControlPolicyAttachmentDao } from '@src/access/daos/DeclaredAwsOrganizationServiceControlPolicyAttachmentDao';
 export { DeclaredAwsOrganizationServiceControlPolicyDao } from '@src/access/daos/DeclaredAwsOrganizationServiceControlPolicyDao';
 export { DeclaredAwsRdsClusterDao } from '@src/access/daos/DeclaredAwsRdsClusterDao';
+export { DeclaredAwsS3BucketDao } from '@src/access/daos/DeclaredAwsS3BucketDao';
+export { DeclaredAwsS3BucketPolicyDao } from '@src/access/daos/DeclaredAwsS3BucketPolicyDao';
+export { DeclaredAwsSesAccountDetailsDao } from '@src/access/daos/DeclaredAwsSesAccountDetailsDao';
+export { DeclaredAwsSesConfigurationSetDao } from '@src/access/daos/DeclaredAwsSesConfigurationSetDao';
+export { DeclaredAwsSesConfigurationSetEventDestinationDao } from '@src/access/daos/DeclaredAwsSesConfigurationSetEventDestinationDao';
+export { DeclaredAwsSesEmailIdentityDao } from '@src/access/daos/DeclaredAwsSesEmailIdentityDao';
+export { DeclaredAwsSesReceiptRuleDao } from '@src/access/daos/DeclaredAwsSesReceiptRuleDao';
+export { DeclaredAwsSesReceiptRuleSetDao } from '@src/access/daos/DeclaredAwsSesReceiptRuleSetDao';
+export { DeclaredAwsSnsTopicDao } from '@src/access/daos/DeclaredAwsSnsTopicDao';
 export { DeclaredAwsSsmParameterPlainDao } from '@src/access/daos/DeclaredAwsSsmParameterPlainDao';
 export { DeclaredAwsSsmParameterSecureDao } from '@src/access/daos/DeclaredAwsSsmParameterSecureDao';
 export { DeclaredAwsSsmSshTunnelDao } from '@src/access/daos/DeclaredAwsSsmSshTunnelDao';
@@ -153,6 +162,32 @@ export { DeclaredAwsOrganizationPolicyEligibility } from '@src/domain.objects/De
 export { DeclaredAwsOrganizationServiceControlPolicy } from '@src/domain.objects/DeclaredAwsOrganizationServiceControlPolicy';
 export { DeclaredAwsOrganizationServiceControlPolicyAttachment } from '@src/domain.objects/DeclaredAwsOrganizationServiceControlPolicyAttachment';
 export { DeclaredAwsRdsCluster } from '@src/domain.objects/DeclaredAwsRdsCluster';
+// aws s3 domain objects
+export { DeclaredAwsS3Bucket } from '@src/domain.objects/DeclaredAwsS3Bucket';
+export { DeclaredAwsS3BucketLifecycle } from '@src/domain.objects/DeclaredAwsS3BucketLifecycle';
+export { DeclaredAwsS3BucketLifecycleTransition } from '@src/domain.objects/DeclaredAwsS3BucketLifecycleTransition';
+export { DeclaredAwsS3BucketPolicy } from '@src/domain.objects/DeclaredAwsS3BucketPolicy';
+export { DeclaredAwsSesAccountDetails } from '@src/domain.objects/DeclaredAwsSesAccountDetails';
+// aws ses domain objects
+export { DeclaredAwsSesCloudwatchDimension } from '@src/domain.objects/DeclaredAwsSesCloudwatchDimension';
+export { DeclaredAwsSesConfigurationSet } from '@src/domain.objects/DeclaredAwsSesConfigurationSet';
+export { DeclaredAwsSesConfigurationSetEventDestination } from '@src/domain.objects/DeclaredAwsSesConfigurationSetEventDestination';
+export { DeclaredAwsSesEmailIdentity } from '@src/domain.objects/DeclaredAwsSesEmailIdentity';
+export { DeclaredAwsSesEventSink } from '@src/domain.objects/DeclaredAwsSesEventSink';
+export { DeclaredAwsSesMailFrom } from '@src/domain.objects/DeclaredAwsSesMailFrom';
+export { DeclaredAwsSesReceiptAction } from '@src/domain.objects/DeclaredAwsSesReceiptAction';
+export { DeclaredAwsSesReceiptActionAddHeader } from '@src/domain.objects/DeclaredAwsSesReceiptActionAddHeader';
+export { DeclaredAwsSesReceiptActionBounce } from '@src/domain.objects/DeclaredAwsSesReceiptActionBounce';
+export { DeclaredAwsSesReceiptActionConnect } from '@src/domain.objects/DeclaredAwsSesReceiptActionConnect';
+export { DeclaredAwsSesReceiptActionLambda } from '@src/domain.objects/DeclaredAwsSesReceiptActionLambda';
+export { DeclaredAwsSesReceiptActionS3 } from '@src/domain.objects/DeclaredAwsSesReceiptActionS3';
+export { DeclaredAwsSesReceiptActionSns } from '@src/domain.objects/DeclaredAwsSesReceiptActionSns';
+export { DeclaredAwsSesReceiptActionStop } from '@src/domain.objects/DeclaredAwsSesReceiptActionStop';
+export { DeclaredAwsSesReceiptActionWorkmail } from '@src/domain.objects/DeclaredAwsSesReceiptActionWorkmail';
+export { DeclaredAwsSesReceiptRule } from '@src/domain.objects/DeclaredAwsSesReceiptRule';
+export { DeclaredAwsSesReceiptRuleSet } from '@src/domain.objects/DeclaredAwsSesReceiptRuleSet';
+// aws sns domain objects
+export { DeclaredAwsSnsTopic } from '@src/domain.objects/DeclaredAwsSnsTopic';
 // aws ssm domain objects
 export { DeclaredAwsSsmParameterPlain } from '@src/domain.objects/DeclaredAwsSsmParameterPlain';
 export { DeclaredAwsSsmParameterSecure } from '@src/domain.objects/DeclaredAwsSsmParameterSecure';
@@ -309,9 +344,48 @@ export { getAllOrganizationServiceControlPolicyAttachments } from '@src/domain.o
 export { getOneOrganizationServiceControlPolicyAttachment } from '@src/domain.operations/organizationServiceControlPolicyAttachment/getOneOrganizationServiceControlPolicyAttachment';
 export { setOrganizationServiceControlPolicyAttachment } from '@src/domain.operations/organizationServiceControlPolicyAttachment/setOrganizationServiceControlPolicyAttachment';
 // aws provider
-export { getDeclastructAwsProvider } from '@src/domain.operations/provider/getDeclastructAwsProvider';
+export {
+  getCredentials,
+  getDeclastructAwsProvider,
+} from '@src/domain.operations/provider/getDeclastructAwsProvider';
 // aws rds operations
 export { getRdsCluster } from '@src/domain.operations/rdsCluster/getRdsCluster';
+// aws s3 bucket operations
+export { delS3Bucket } from '@src/domain.operations/s3Bucket/delS3Bucket';
+export { getOneS3Bucket } from '@src/domain.operations/s3Bucket/getOneS3Bucket';
+export { setS3Bucket } from '@src/domain.operations/s3Bucket/setS3Bucket';
+// aws s3 bucket policy operations
+export { delS3BucketPolicy } from '@src/domain.operations/s3BucketPolicy/delS3BucketPolicy';
+export { getOneS3BucketPolicy } from '@src/domain.operations/s3BucketPolicy/getOneS3BucketPolicy';
+export { setS3BucketPolicy } from '@src/domain.operations/s3BucketPolicy/setS3BucketPolicy';
+// aws ses account details operations
+export { getOneSesAccountDetails } from '@src/domain.operations/sesAccountDetails/getOneSesAccountDetails';
+export { setSesAccountDetails } from '@src/domain.operations/sesAccountDetails/setSesAccountDetails';
+// aws ses configuration set operations
+export { delSesConfigurationSet } from '@src/domain.operations/sesConfigurationSet/delSesConfigurationSet';
+export { getOneSesConfigurationSet } from '@src/domain.operations/sesConfigurationSet/getOneSesConfigurationSet';
+export { setSesConfigurationSet } from '@src/domain.operations/sesConfigurationSet/setSesConfigurationSet';
+// aws ses configuration set event destination operations
+export { delSesConfigurationSetEventDestination } from '@src/domain.operations/sesConfigurationSetEventDestination/delSesConfigurationSetEventDestination';
+export { getOneSesConfigurationSetEventDestination } from '@src/domain.operations/sesConfigurationSetEventDestination/getOneSesConfigurationSetEventDestination';
+export { setSesConfigurationSetEventDestination } from '@src/domain.operations/sesConfigurationSetEventDestination/setSesConfigurationSetEventDestination';
+// aws ses email identity operations
+export { delSesEmailIdentity } from '@src/domain.operations/sesEmailIdentity/delSesEmailIdentity';
+export { getOneSesEmailIdentity } from '@src/domain.operations/sesEmailIdentity/getOneSesEmailIdentity';
+export { setSesEmailIdentity } from '@src/domain.operations/sesEmailIdentity/setSesEmailIdentity';
+// aws ses receipt rule operations
+export { asSesReceiptRuleArn } from '@src/domain.operations/sesReceiptRule/asSesReceiptRuleArn';
+export { delSesReceiptRule } from '@src/domain.operations/sesReceiptRule/delSesReceiptRule';
+export { getOneSesReceiptRule } from '@src/domain.operations/sesReceiptRule/getOneSesReceiptRule';
+export { setSesReceiptRule } from '@src/domain.operations/sesReceiptRule/setSesReceiptRule';
+// aws ses receipt rule set operations
+export { delSesReceiptRuleSet } from '@src/domain.operations/sesReceiptRuleSet/delSesReceiptRuleSet';
+export { getOneSesReceiptRuleSet } from '@src/domain.operations/sesReceiptRuleSet/getOneSesReceiptRuleSet';
+export { setSesReceiptRuleSet } from '@src/domain.operations/sesReceiptRuleSet/setSesReceiptRuleSet';
+// aws sns topic operations
+export { delSnsTopic } from '@src/domain.operations/snsTopic/delSnsTopic';
+export { getOneSnsTopic } from '@src/domain.operations/snsTopic/getOneSnsTopic';
+export { setSnsTopic } from '@src/domain.operations/snsTopic/setSnsTopic';
 // aws ssm command operations
 export { execSsmCommand } from '@src/domain.operations/ssmCommand/execSsmCommand';
 // aws ssm parameter (plain) operations
