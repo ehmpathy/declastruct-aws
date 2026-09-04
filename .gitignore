@@ -1,8 +1,10 @@
 *.bak.json
 *.local.json
 *.log
+*.plan.json
 *.tsbuildinfo
 .artifact
+.claude/scheduled_tasks.lock
 .env
 .serverless
 .temp

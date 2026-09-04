@@ -1,3 +1,4 @@
+import type { GetCostAndUsageWithResourcesCommandOutput } from '@aws-sdk/client-cost-explorer';
 import { DescribeInstancesCommand, EC2Client } from '@aws-sdk/client-ec2';
 import { asUniDateTime } from '@ehmpathy/uni-time';
 import { execSync } from 'child_process';
@@ -24,6 +25,7 @@ import { ec2InstanceMetadataOptionsSecure } from '@src/domain.objects/DeclaredAw
 import { DeclaredAwsEc2InstanceSession } from '@src/domain.objects/DeclaredAwsEc2InstanceSession';
 import { DeclaredAwsEc2SshKeyAuthorized } from '@src/domain.objects/DeclaredAwsEc2SshKeyAuthorized';
 import { DeclaredAwsSsmParameterSecure } from '@src/domain.objects/DeclaredAwsSsmParameterSecure';
+import { castIntoDeclaredAwsCostReportSpendObservedByResource } from '@src/domain.operations/costReportSpendObservedByResource/castIntoDeclaredAwsCostReportSpendObservedByResource';
 import { getEc2Instance } from '@src/domain.operations/ec2Instance/getEc2Instance';
 import { setEc2InstanceSession } from '@src/domain.operations/ec2InstanceSession/setEc2InstanceSession';
 import { asDeclaredAwsEc2InstanceMetadataOptions } from '@src/domain.operations/ec2LaunchTemplate/asDeclaredAwsEc2InstanceMetadataOptions';
@@ -127,6 +129,13 @@ const asGuardErrorSnapshot = (output: string): string =>
  *   raw snapshot would flake; this masks the value leaves and the array COUNTS so a
  *   cast-shape regression (a dropped/renamed field, a scalar-vs-array flip) still trips
  *   the snapshot, but account-spend jitter never does
+ * .note = booleans are masked too, not just numbers/strings. a cost bucket's `estimated`
+ *   flag is a live billing-finalization state that flips run-to-run as AWS finalizes a
+ *   window's charges (the same window read false one week reads true the next). that is a
+ *   volatile value leaf exactly like a spend number, so leaving it literal would flake the
+ *   snapshot on the passage of time alone. masking to `[boolean]` keeps every structural
+ *   regression visible (a dropped key, a boolean→number cast flip) while the finalization
+ *   jitter never trips it.
  */
 const asMaskedCostReportShape = (value: unknown): unknown => {
   if (value === null) return null;
@@ -143,7 +152,8 @@ const asMaskedCostReportShape = (value: unknown): unknown => {
     );
   if (typeof value === 'number') return '[number]';
   if (typeof value === 'string') return '[string]';
-  return value; // boolean / undefined stay as-is
+  if (typeof value === 'boolean') return '[boolean]';
+  return value; // undefined stays as-is
 };
 
 /**
@@ -605,6 +615,32 @@ describe('declastruct CLI workflow', () => {
           'DeclaredAwsCloudwatchMetricAlarm',
           'DeclaredAwsCostAnomalyMonitor',
           'DeclaredAwsCostAnomalySubscription',
+        ]) {
+          const change = prep.plan.changes.find(
+            (r: DeclastructChange) => r.forResource.class === cls,
+          );
+          expect(change).toBeDefined();
+        }
+      });
+
+      then('plan includes mail primitives (ses + s3 + sns)', () => {
+        /**
+         * .what = validates the plan includes every net-new mail resource — the s3 store +
+         *   policy, the ses identity + receipt rule-set + rule + config-set + event
+         *   destination, and the sns topic
+         * .why = proves each mail primitive is a first-class declarative resource driven via
+         *   its DAO through the plan/apply workflow (rule.require.dao-and-acceptance-per-
+         *   declared-resource). the post-apply KEEP is covered by the generic KEEP block
+         */
+        for (const cls of [
+          'DeclaredAwsSesEmailIdentity',
+          'DeclaredAwsS3Bucket',
+          'DeclaredAwsS3BucketPolicy',
+          'DeclaredAwsSesReceiptRuleSet',
+          'DeclaredAwsSesReceiptRule',
+          'DeclaredAwsSnsTopic',
+          'DeclaredAwsSesConfigurationSet',
+          'DeclaredAwsSesConfigurationSetEventDestination',
         ]) {
           const change = prep.plan.changes.find(
             (r: DeclastructChange) => r.forResource.class === cls,
@@ -1437,12 +1473,19 @@ describe('declastruct CLI workflow', () => {
         });
 
         then(
-          'by-resource-spend report reads + matches masked shape',
+          'by-resource-spend report reads live (integration) + proves the populated group shape (masked)',
           async () => {
-            // requires the FREE resource-level-data-at-daily-granularity opt-in; when off
-            // (the default), the read DEGRADES to an empty report (present, not null) — so
-            // this holds either way: it reads an empty-or-populated report, not a throw
-            const report =
+            // TWO assertions, because the by-resource read is opt-in-gated:
+            //
+            // (1) INTEGRATION — the LIVE read verifies the real Cost Explorer contract is
+            //   reachable + returns a present (never-null) report. it needs the FREE
+            //   resource-level-data-at-daily-granularity opt-in, which is CONSOLE-ONLY —
+            //   declastruct cannot enable it (DeclaredAwsCostExplorerPreference.set fails loud
+            //   with console guidance, per rule.forbid.plan-fail-on-apply-guided-prereq). so in
+            //   CI/demo the opt-in is off and the live read DETERMINISTICALLY degrades to empty
+            //   groups. a live snapshot of THIS read would therefore flip populated-vs-empty with
+            //   the console toggle — non-deterministic, exactly what a snapshot must not capture.
+            const live =
               await DeclaredAwsCostReportSpendObservedByResourceDao.get.one.byUnique(
                 {
                   range: COST_REPORT_BY_RESOURCE_RANGE,
@@ -1455,8 +1498,46 @@ describe('declastruct CLI workflow', () => {
                 },
                 prep.context,
               );
-            expect(report).not.toBeNull();
-            expect(asMaskedCostReportShape(report)).toMatchSnapshot();
+            expect(live).not.toBeNull();
+
+            // (2) CONTRACT SHAPE — prove the POPULATED group-by shape (`{cost:{amount,unit},
+            //   keys}`) deterministically, via the same production cast the live read uses on a
+            //   representative Cost Explorer response. this pins the real response shape (masked
+            //   to placeholders) STABLY, regardless of the console opt-in — so a regression in
+            //   the group-by shape trips the snapshot, on par with the peer observed-spend
+            //   snapshot's masked-group coverage rather than an empty array.
+            const representative: GetCostAndUsageWithResourcesCommandOutput = {
+              $metadata: {},
+              ResultsByTime: [
+                {
+                  TimePeriod: { Start: '2026-07-10', End: '2026-07-11' },
+                  Estimated: true,
+                  Groups: [
+                    {
+                      Keys: ['i-0aaa111'],
+                      Metrics: {
+                        UnblendedCost: { Amount: '0.5300', Unit: 'USD' },
+                      },
+                    },
+                  ],
+                },
+              ],
+            };
+            const shaped = castIntoDeclaredAwsCostReportSpendObservedByResource(
+              {
+                unique: {
+                  range: COST_REPORT_BY_RESOURCE_RANGE,
+                  granularity: 'DAILY',
+                  filter: {
+                    dimension: 'SERVICE',
+                    values: ['Amazon Elastic Compute Cloud - Compute'],
+                  },
+                  metric: 'UnblendedCost',
+                },
+                result: representative,
+              },
+            );
+            expect(asMaskedCostReportShape(shaped)).toMatchSnapshot();
           },
         );
 
@@ -1549,18 +1630,44 @@ describe('declastruct CLI workflow', () => {
         // setup: get provider context for DAO calls
         const provider = await getDeclastructAwsProvider({}, { log: testLog });
 
-        // fetch pattern distribution report via DAO
-        const patternReport =
-          await DeclaredAwsCloudwatchLogGroupReportDistOfPatternDao.get.one.byUnique(
-            {
-              logGroups: [{ name: logGroupName }],
-              range: logGroupReportRange,
-              pattern: '@message',
-              filter: null,
-              limit: 100,
-            },
-            provider.context,
-          );
+        // CloudWatch Logs Insights indexes a freshly-invoked lambda's events with a lag,
+        // and the IncomingBytes metric publishes on its own delay — a query fired the
+        // instant after the beforeAll invoke can read 0 rows before the data settles, so a
+        // single read flakes on the propagation window rather than on a real defect. poll
+        // each report against the live source until it carries data (or a shared deadline
+        // within the test timeout), so the assertion runs on the settled read — the same
+        // eventual-consistency discipline the s3 lifecycle poll uses (rule.require.solve-at-cause).
+        const pollForData = async <T>(input: {
+          read: () => Promise<T>;
+          until: (value: T) => boolean;
+          deadline: number;
+        }): Promise<T> => {
+          const value = await input.read();
+          if (input.until(value) || Date.now() >= input.deadline) return value;
+          await new Promise((wake) => setTimeout(wake, 5000));
+          return pollForData(input); // recurse until settled or deadline
+        };
+        const pollDeadline = Date.now() + 70000;
+
+        // fetch pattern distribution report via DAO, polled until it carries events
+        const patternReport = await pollForData({
+          read: () =>
+            DeclaredAwsCloudwatchLogGroupReportDistOfPatternDao.get.one.byUnique(
+              {
+                logGroups: [{ name: logGroupName }],
+                range: logGroupReportRange,
+                pattern: '@message',
+                filter: null,
+                limit: 100,
+              },
+              provider.context,
+            ),
+          until: (report) =>
+            !!report &&
+            (report.rows?.length ?? 0) > 0 &&
+            (report.matchedEvents ?? 0) > 0,
+          deadline: pollDeadline,
+        });
 
         // verify pattern distribution report has data
         expect(patternReport).not.toBeNull();
@@ -1568,15 +1675,23 @@ describe('declastruct CLI workflow', () => {
         expect(patternReport!.rows!.length).toBeGreaterThan(0);
         expect(patternReport!.matchedEvents).toBeGreaterThan(0);
 
-        // fetch ingestion cost report via DAO
-        const costReport =
-          await DeclaredAwsCloudwatchLogGroupReportCostOfIngestionDao.get.one.byUnique(
-            {
-              logGroupFilter: { names: [logGroupName] },
-              range: logGroupReportRange,
-            },
-            provider.context,
-          );
+        // fetch ingestion cost report via DAO, polled until metrics publish
+        const costReport = await pollForData({
+          read: () =>
+            DeclaredAwsCloudwatchLogGroupReportCostOfIngestionDao.get.one.byUnique(
+              {
+                logGroupFilter: { names: [logGroupName] },
+                range: logGroupReportRange,
+              },
+              provider.context,
+            ),
+          until: (report) =>
+            !!report &&
+            (report.rows?.length ?? 0) > 0 &&
+            (report.totalIngestedBytes ?? 0) > 0 &&
+            (report.totalEstimatedCostUsd ?? 0) > 0,
+          deadline: pollDeadline,
+        });
 
         // verify ingestion cost report has data
         expect(costReport).not.toBeNull();

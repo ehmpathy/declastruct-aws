@@ -3,6 +3,7 @@ import type { RefByPrimary, RefByUnique } from 'domain-objects';
 import type { ContextLogTrail } from 'sdk-logs';
 import type { PickOne } from 'type-fns';
 
+import { getAwsClientConfig } from '@src/access/sdks/getAwsClientConfig';
 import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
 import type { DeclaredAwsEc2Instance } from '@src/domain.objects/DeclaredAwsEc2Instance';
 
@@ -35,8 +36,11 @@ export const delEc2Instance = async (
   // idempotent — if not found, already deleted
   if (!instance) return;
 
-  // terminate the instance
-  const ec2 = new EC2Client({ region: context.aws.credentials.region });
+  // terminate the instance — bound requestTimeout so a stalled socket (a connect with no
+  // response) aborts and adaptive-retries instead of a hang (rule.require.failfast)
+  const ec2 = new EC2Client(
+    getAwsClientConfig({ region: context.aws.credentials.region }),
+  );
   await ec2.send(
     new TerminateInstancesCommand({
       InstanceIds: [instance.id],

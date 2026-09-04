@@ -33,6 +33,15 @@ import type { DeclaredAwsOrganizationPolicyEligibility } from './DeclaredAwsOrga
 import type { DeclaredAwsOrganizationServiceControlPolicy } from './DeclaredAwsOrganizationServiceControlPolicy';
 import type { DeclaredAwsOrganizationServiceControlPolicyAttachment } from './DeclaredAwsOrganizationServiceControlPolicyAttachment';
 import type { DeclaredAwsRdsCluster } from './DeclaredAwsRdsCluster';
+import type { DeclaredAwsS3Bucket } from './DeclaredAwsS3Bucket';
+import type { DeclaredAwsS3BucketPolicy } from './DeclaredAwsS3BucketPolicy';
+import type { DeclaredAwsSesAccountDetails } from './DeclaredAwsSesAccountDetails';
+import type { DeclaredAwsSesConfigurationSet } from './DeclaredAwsSesConfigurationSet';
+import type { DeclaredAwsSesConfigurationSetEventDestination } from './DeclaredAwsSesConfigurationSetEventDestination';
+import type { DeclaredAwsSesEmailIdentity } from './DeclaredAwsSesEmailIdentity';
+import type { DeclaredAwsSesReceiptRule } from './DeclaredAwsSesReceiptRule';
+import type { DeclaredAwsSesReceiptRuleSet } from './DeclaredAwsSesReceiptRuleSet';
+import type { DeclaredAwsSnsTopic } from './DeclaredAwsSnsTopic';
 import type { DeclaredAwsSsmParameterPlain } from './DeclaredAwsSsmParameterPlain';
 import type { DeclaredAwsSsmParameterSecure } from './DeclaredAwsSsmParameterSecure';
 import type { DeclaredAwsSsmSshTunnel } from './DeclaredAwsSsmSshTunnel';
@@ -202,6 +211,42 @@ export type DeclastructAwsProvider = DeclastructProvider<
     >;
     DeclaredAwsSsmParameterSecure: DeclastructDao<
       typeof DeclaredAwsSsmParameterSecure,
+      ContextAwsApi & ContextLogTrail
+    >;
+    DeclaredAwsSnsTopic: DeclastructDao<
+      typeof DeclaredAwsSnsTopic,
+      ContextAwsApi & ContextLogTrail
+    >;
+    DeclaredAwsS3Bucket: DeclastructDao<
+      typeof DeclaredAwsS3Bucket,
+      ContextAwsApi & ContextLogTrail
+    >;
+    DeclaredAwsS3BucketPolicy: DeclastructDao<
+      typeof DeclaredAwsS3BucketPolicy,
+      ContextAwsApi & ContextLogTrail
+    >;
+    DeclaredAwsSesAccountDetails: DeclastructDao<
+      typeof DeclaredAwsSesAccountDetails,
+      ContextAwsApi & ContextLogTrail
+    >;
+    DeclaredAwsSesEmailIdentity: DeclastructDao<
+      typeof DeclaredAwsSesEmailIdentity,
+      ContextAwsApi & ContextLogTrail
+    >;
+    DeclaredAwsSesConfigurationSet: DeclastructDao<
+      typeof DeclaredAwsSesConfigurationSet,
+      ContextAwsApi & ContextLogTrail
+    >;
+    DeclaredAwsSesConfigurationSetEventDestination: DeclastructDao<
+      typeof DeclaredAwsSesConfigurationSetEventDestination,
+      ContextAwsApi & ContextLogTrail
+    >;
+    DeclaredAwsSesReceiptRuleSet: DeclastructDao<
+      typeof DeclaredAwsSesReceiptRuleSet,
+      ContextAwsApi & ContextLogTrail
+    >;
+    DeclaredAwsSesReceiptRule: DeclastructDao<
+      typeof DeclaredAwsSesReceiptRule,
       ContextAwsApi & ContextLogTrail
     >;
   },

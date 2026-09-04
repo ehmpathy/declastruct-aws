@@ -321,6 +321,52 @@ export const demoPermissionsPolicy: DeclaredAwsIamPolicyBundle =
           ],
           resource: '*',
         }),
+        // S3 Buckets: bucket-level lifecycle for the mail inbound store + its policy.
+        //   the object-level statement above covers Put/Get/DeleteObject; these cover the
+        //   bucket itself (create/delete), its lifecycle config (persist | glacier staircase |
+        //   auto-tier), its resource policy (the SES PutObject grant), and its tags.
+        new DeclaredAwsIamPolicyStatement({
+          effect: 'Allow',
+          action: [
+            's3:CreateBucket',
+            's3:DeleteBucket',
+            's3:ListBucket',
+            's3:GetBucketLocation',
+            's3:GetBucketPolicy',
+            's3:PutBucketPolicy',
+            's3:DeleteBucketPolicy',
+            's3:GetLifecycleConfiguration',
+            's3:PutLifecycleConfiguration',
+            's3:GetBucketTagging',
+            's3:PutBucketTagging',
+          ],
+          resource: '*',
+        }),
+        // SES (v1 + v2): the whole mail surface — email identities (+ dkim + mail-from + tags),
+        //   configuration sets + event destinations, and receipt rule sets + rules. wildcard
+        //   for the same reason as budgets:* / ce:* above — the daos call many Get*/Describe*
+        //   reads and Tag actions in addition to Create/Update/Delete, across BOTH the v1
+        //   (receipt rules) and v2 (identity/config-set) apis that share the ses: iam prefix.
+        new DeclaredAwsIamPolicyStatement({
+          effect: 'Allow',
+          action: ['ses:*'],
+          resource: '*',
+        }),
+        // SNS Topics: the event sink a configuration-set event destination publishes to, and
+        //   the optional receive-notify target of a receipt rule's s3 action.
+        new DeclaredAwsIamPolicyStatement({
+          effect: 'Allow',
+          action: [
+            'sns:CreateTopic',
+            'sns:DeleteTopic',
+            'sns:GetTopicAttributes',
+            'sns:SetTopicAttributes',
+            'sns:ListTagsForResource',
+            'sns:TagResource',
+            'sns:UntagResource',
+          ],
+          resource: '*',
+        }),
       ],
     }),
   });

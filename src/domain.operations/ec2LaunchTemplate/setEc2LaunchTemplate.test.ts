@@ -2,6 +2,7 @@ import {
   CreateLaunchTemplateCommand,
   DescribeImagesCommand,
   DescribeLaunchTemplatesCommand,
+  type DescribeLaunchTemplatesCommandInput,
   DescribeLaunchTemplateVersionsCommand,
   EC2Client,
 } from '@aws-sdk/client-ec2';
@@ -51,18 +52,20 @@ describe('setEc2LaunchTemplate', () => {
           'the emitted CreateLaunchTemplate targets DeviceName /dev/sda1 (not /dev/xvda)',
           async () => {
             // findsert lookup: not found (name lookup) → create path; read-back (by id) → found
-            ec2Mock.on(DescribeLaunchTemplatesCommand).callsFake((input) => {
-              if (input.LaunchTemplateIds)
-                return {
-                  LaunchTemplates: [
-                    {
-                      LaunchTemplateId: input.LaunchTemplateIds[0],
-                      Tags: [{ Key: 'exid', Value: template.exid }],
-                    },
-                  ],
-                };
-              return { LaunchTemplates: [] };
-            });
+            ec2Mock
+              .on(DescribeLaunchTemplatesCommand)
+              .callsFake((input: DescribeLaunchTemplatesCommandInput) => {
+                if (input.LaunchTemplateIds)
+                  return {
+                    LaunchTemplates: [
+                      {
+                        LaunchTemplateId: input.LaunchTemplateIds[0],
+                        Tags: [{ Key: 'exid', Value: template.exid }],
+                      },
+                    ],
+                  };
+                return { LaunchTemplates: [] };
+              });
 
             // the AMI's authoritative root device name
             ec2Mock.on(DescribeImagesCommand).resolves({
@@ -170,18 +173,22 @@ describe('setEc2LaunchTemplate', () => {
         then(
           'the emitted CreateLaunchTemplate targets DeviceName /dev/xvda',
           async () => {
-            ec2Mock.on(DescribeLaunchTemplatesCommand).callsFake((input) => {
-              if (input.LaunchTemplateIds)
-                return {
-                  LaunchTemplates: [
-                    {
-                      LaunchTemplateId: input.LaunchTemplateIds[0],
-                      Tags: [{ Key: 'exid', Value: amazonLinuxTemplate.exid }],
-                    },
-                  ],
-                };
-              return { LaunchTemplates: [] };
-            });
+            ec2Mock
+              .on(DescribeLaunchTemplatesCommand)
+              .callsFake((input: DescribeLaunchTemplatesCommandInput) => {
+                if (input.LaunchTemplateIds)
+                  return {
+                    LaunchTemplates: [
+                      {
+                        LaunchTemplateId: input.LaunchTemplateIds[0],
+                        Tags: [
+                          { Key: 'exid', Value: amazonLinuxTemplate.exid },
+                        ],
+                      },
+                    ],
+                  };
+                return { LaunchTemplates: [] };
+              });
 
             ec2Mock.on(DescribeImagesCommand).resolves({
               Images: [{ RootDeviceName: '/dev/xvda' }],

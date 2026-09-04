@@ -176,6 +176,46 @@ exports[`declastruct CLI workflow given: a declastruct resources file when: gene
     "class": "DeclaredAwsBudgetAction",
     "slug": "DeclaredAwsBudgetAction.namedeclastruct-acceptance-budget.APPLY_IAM_POLICY.[HASH]",
   },
+  {
+    "class": "DeclaredAwsSesEmailIdentity",
+    "slug": "DeclaredAwsSesEmailIdentity.acceptance.demo.ehmpathy.com.[HASH]",
+  },
+  {
+    "class": "DeclaredAwsS3Bucket",
+    "slug": "DeclaredAwsS3Bucket.declastruct-acceptance-mail-inbound-805192865516.[HASH]",
+  },
+  {
+    "class": "DeclaredAwsS3BucketPolicy",
+    "slug": "DeclaredAwsS3BucketPolicy.namedeclastruct-acceptance-mail-inbound-805192865516.[HASH]",
+  },
+  {
+    "class": "DeclaredAwsSesReceiptRuleSet",
+    "slug": "DeclaredAwsSesReceiptRuleSet.declastruct-acceptance-mail-inbound.[HASH]",
+  },
+  {
+    "class": "DeclaredAwsSesReceiptRule",
+    "slug": "DeclaredAwsSesReceiptRule.to-s3.namedeclastruct-acceptance-mail-inbound.[HASH]",
+  },
+  {
+    "class": "DeclaredAwsSesEmailIdentity",
+    "slug": "DeclaredAwsSesEmailIdentity.robotacceptance.demo.ehmpathy.com.[HASH]",
+  },
+  {
+    "class": "DeclaredAwsSesEmailIdentity",
+    "slug": "DeclaredAwsSesEmailIdentity.qaacceptance.demo.ehmpathy.com.[HASH]",
+  },
+  {
+    "class": "DeclaredAwsSnsTopic",
+    "slug": "DeclaredAwsSnsTopic.declastruct-acceptance-mail-events.[HASH]",
+  },
+  {
+    "class": "DeclaredAwsSesConfigurationSet",
+    "slug": "DeclaredAwsSesConfigurationSet.declastruct-acceptance-mail-events.[HASH]",
+  },
+  {
+    "class": "DeclaredAwsSesConfigurationSetEventDestination",
+    "slug": "DeclaredAwsSesConfigurationSetEventDestination.namedeclastruct-acceptance-mail-events.to-cloudwatch.[HASH]",
+  },
 ]
 `;
 
@@ -370,14 +410,64 @@ exports[`declastruct CLI workflow given: a declastruct resources file when: re-p
     "class": "DeclaredAwsBudgetAction",
     "slug": "DeclaredAwsBudgetAction.namedeclastruct-acceptance-budget.APPLY_IAM_POLICY.[HASH]",
   },
+  {
+    "action": "KEEP",
+    "class": "DeclaredAwsSesEmailIdentity",
+    "slug": "DeclaredAwsSesEmailIdentity.acceptance.demo.ehmpathy.com.[HASH]",
+  },
+  {
+    "action": "KEEP",
+    "class": "DeclaredAwsS3Bucket",
+    "slug": "DeclaredAwsS3Bucket.declastruct-acceptance-mail-inbound-805192865516.[HASH]",
+  },
+  {
+    "action": "KEEP",
+    "class": "DeclaredAwsS3BucketPolicy",
+    "slug": "DeclaredAwsS3BucketPolicy.namedeclastruct-acceptance-mail-inbound-805192865516.[HASH]",
+  },
+  {
+    "action": "KEEP",
+    "class": "DeclaredAwsSesReceiptRuleSet",
+    "slug": "DeclaredAwsSesReceiptRuleSet.declastruct-acceptance-mail-inbound.[HASH]",
+  },
+  {
+    "action": "KEEP",
+    "class": "DeclaredAwsSesReceiptRule",
+    "slug": "DeclaredAwsSesReceiptRule.to-s3.namedeclastruct-acceptance-mail-inbound.[HASH]",
+  },
+  {
+    "action": "KEEP",
+    "class": "DeclaredAwsSesEmailIdentity",
+    "slug": "DeclaredAwsSesEmailIdentity.robotacceptance.demo.ehmpathy.com.[HASH]",
+  },
+  {
+    "action": "KEEP",
+    "class": "DeclaredAwsSesEmailIdentity",
+    "slug": "DeclaredAwsSesEmailIdentity.qaacceptance.demo.ehmpathy.com.[HASH]",
+  },
+  {
+    "action": "KEEP",
+    "class": "DeclaredAwsSnsTopic",
+    "slug": "DeclaredAwsSnsTopic.declastruct-acceptance-mail-events.[HASH]",
+  },
+  {
+    "action": "KEEP",
+    "class": "DeclaredAwsSesConfigurationSet",
+    "slug": "DeclaredAwsSesConfigurationSet.declastruct-acceptance-mail-events.[HASH]",
+  },
+  {
+    "action": "KEEP",
+    "class": "DeclaredAwsSesConfigurationSetEventDestination",
+    "slug": "DeclaredAwsSesConfigurationSetEventDestination.namedeclastruct-acceptance-mail-events.to-cloudwatch.[HASH]",
+  },
 ]
 `;
 
-exports[`declastruct CLI workflow given: a declastruct resources file when: reading cost explorer reports via DAO then: by-resource-spend report reads + matches masked shape 1`] = `
+exports[`declastruct CLI workflow given: a declastruct resources file when: reading cost explorer reports via DAO then: by-resource-spend report reads live (integration) + proves the populated group shape (masked) 1`] = `
 {
   "buckets": [
     {
-      "estimated": true,
+      "estimated": "[boolean]",
       "groups": [
         {
           "cost": {
@@ -451,7 +541,7 @@ exports[`declastruct CLI workflow given: a declastruct resources file when: read
 {
   "buckets": [
     {
-      "estimated": false,
+      "estimated": "[boolean]",
       "groups": [
         {
           "cost": {

@@ -1,0 +1,24 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`getBucketLifecycleForeignRuleError given: a bucket that holds one foreign lifecycle rule when: the error is built then: it carries the actionable fix guidance (message snapshot) 1`] = `
+"BadRequestError: bucket "ehmpathy-mail-inbound-demo" already holds foreign lifecycle rule(s) [some-console-rule] that declastruct does not own. a whole-bucket replace-all would destroy them. fix by one of: remove the foreign rule(s) in the console, or reconcile them into the declared lifecycle
+
+{
+  "bucket": "ehmpathy-mail-inbound-demo",
+  "foreignRuleIds": [
+    "some-console-rule"
+  ]
+}"
+`;
+
+exports[`getBucketLifecycleForeignRuleError given: a bucket that holds several foreign rules when: the error is built then: it lists every foreign rule id (message snapshot) 1`] = `
+"BadRequestError: bucket "ehmpathy-mail-inbound-demo" already holds foreign lifecycle rule(s) [rule-a, (unnamed)] that declastruct does not own. a whole-bucket replace-all would destroy them. fix by one of: remove the foreign rule(s) in the console, or reconcile them into the declared lifecycle
+
+{
+  "bucket": "ehmpathy-mail-inbound-demo",
+  "foreignRuleIds": [
+    "rule-a",
+    "(unnamed)"
+  ]
+}"
+`;

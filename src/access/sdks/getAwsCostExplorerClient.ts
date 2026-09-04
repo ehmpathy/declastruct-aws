@@ -1,5 +1,6 @@
 import { CostExplorerClient } from '@aws-sdk/client-cost-explorer';
 
+import { getAwsClientConfig } from './getAwsClientConfig';
 import { getCostManagementGuidanceError } from './getCostManagementGuidanceError';
 
 /**
@@ -21,7 +22,12 @@ export const AWS_COST_EXPLORER_REGION = 'us-east-1' as const;
  * .note = credentials load from the default provider chain, same as peer clients
  */
 export const getAwsCostExplorerClient = (): CostExplorerClient => {
-  const client = new CostExplorerClient({ region: AWS_COST_EXPLORER_REGION });
+  // Cost Explorer enforces a very low, account-wide request rate and throttles hard when several
+  // callers hit it at once; the shared config's adaptive retry + bounded requestTimeout recover a
+  // throttled or stalled call instead of a hang. pinned to us-east-1 (the only CE endpoint).
+  const client = new CostExplorerClient(
+    getAwsClientConfig({ region: AWS_COST_EXPLORER_REGION }),
+  );
 
   // guide the human when Cost Explorer is off: translate the aws "please enable"
   // error into actionable guidance (allowlisted translate-then-rethrow — not a

@@ -1,0 +1,10 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`getReceiptRuleSetActiveVerdict given: desired active but a FOREIGN set already holds the one active slot when: the verdict is derived then: it fails loud with a BadRequestError that states the fix 1`] = `
+"BadRequestError: receipt rule set "theirs" is already the active set for this account+region. it cannot be replaced by "ours" silently. fix by one of: deactivate "theirs" first, or reconcile the two declarations to a single active set
+
+{
+  "activeName": "theirs",
+  "desiredName": "ours"
+}"
+`;

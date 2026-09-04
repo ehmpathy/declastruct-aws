@@ -1,0 +1,44 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`emitSesEmailIdentityDnsRecords a domain identity warns the dns records (payload snapped) 1`] = `
+{
+  "dnsRecords": [
+    {
+      "name": "demo.ehmpathy.com",
+      "purpose": "route inbound mail to SES",
+      "type": "MX",
+      "value": "10 inbound-smtp.us-east-1.amazonaws.com",
+    },
+    {
+      "name": "demo.ehmpathy.com",
+      "purpose": "spf — authorize SES to send",
+      "type": "TXT",
+      "value": "v=spf1 include:amazonses.com ~all",
+    },
+    {
+      "name": "t1._domainkey.demo.ehmpathy.com",
+      "purpose": "easy-dkim (ownership + signature)",
+      "type": "CNAME",
+      "value": "t1.dkim.amazonses.com",
+    },
+    {
+      "name": "t2._domainkey.demo.ehmpathy.com",
+      "purpose": "easy-dkim (ownership + signature)",
+      "type": "CNAME",
+      "value": "t2.dkim.amazonses.com",
+    },
+    {
+      "name": "t3._domainkey.demo.ehmpathy.com",
+      "purpose": "easy-dkim (ownership + signature)",
+      "type": "CNAME",
+      "value": "t3.dkim.amazonses.com",
+    },
+    {
+      "name": "_dmarc.demo.ehmpathy.com",
+      "purpose": "dmarc policy (monitor mode)",
+      "type": "TXT",
+      "value": "v=DMARC1; p=none",
+    },
+  ],
+}
+`;

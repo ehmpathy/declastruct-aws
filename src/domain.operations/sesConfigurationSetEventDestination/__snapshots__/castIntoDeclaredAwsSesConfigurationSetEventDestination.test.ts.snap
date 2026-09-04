@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`castIntoDeclaredAwsSesConfigurationSetEventDestination a cloudwatch dimension source outside the modeled union fails loud (assure) 1`] = `
+"assure.rejection: input does not satisfy type.check 'isSesCloudwatchDimensionSource'
+
+{
+  "check": "isSesCloudwatchDimensionSource",
+  "input": "WAT_UNMODELED_SOURCE"
+}"
+`;
+
+exports[`castIntoDeclaredAwsSesConfigurationSetEventDestination an event type outside the modeled union fails loud (assure) 1`] = `
+"assure.rejection: input does not satisfy type.check 'isSesEventType'
+
+{
+  "check": "isSesEventType",
+  "input": "WAT_UNMODELED"
+}"
+`;

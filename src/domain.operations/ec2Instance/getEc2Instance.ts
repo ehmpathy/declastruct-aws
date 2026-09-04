@@ -11,6 +11,7 @@ import { HelpfulError, UnexpectedCodePathError } from 'helpful-errors';
 import type { PickOne } from 'type-fns';
 import type { VisualogicContext } from 'visualogic';
 
+import { getAwsClientConfig } from '@src/access/sdks/getAwsClientConfig';
 import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
 import { DeclaredAwsEc2Instance } from '@src/domain.objects/DeclaredAwsEc2Instance';
 import { getOneVpcSecurityGroup } from '@src/domain.operations/vpcSecurityGroup/getOneVpcSecurityGroup';
@@ -51,8 +52,11 @@ export const getEc2Instance = async (
     });
   })();
 
-  // create ec2 client
-  const ec2 = new EC2Client({ region: context.aws.credentials.region });
+  // create ec2 client — bound requestTimeout so a stalled socket (a connect with no response)
+  // aborts and adaptive-retries instead of a hang (rule.require.failfast)
+  const ec2 = new EC2Client(
+    getAwsClientConfig({ region: context.aws.credentials.region }),
+  );
 
   // filter to exclude terminated instances (they lose subnet/sg info)
   const excludeTerminatedFilter = {

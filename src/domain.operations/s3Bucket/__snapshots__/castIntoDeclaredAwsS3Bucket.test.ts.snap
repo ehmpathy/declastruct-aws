@@ -1,0 +1,10 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`castIntoDeclaredAwsS3Bucket an unmodeled aws storage class fails loud (no silent mistype) 1`] = `
+"assure.rejection: input does not satisfy type.check 'isDeclaredAwsS3StorageClass'
+
+{
+  "check": "isDeclaredAwsS3StorageClass",
+  "input": "ONEZONE_IA"
+}"
+`;

@@ -38,6 +38,15 @@ import { DeclaredAwsOrganizationPolicyEligibilityDao } from '@src/access/daos/De
 import { DeclaredAwsOrganizationServiceControlPolicyAttachmentDao } from '@src/access/daos/DeclaredAwsOrganizationServiceControlPolicyAttachmentDao';
 import { DeclaredAwsOrganizationServiceControlPolicyDao } from '@src/access/daos/DeclaredAwsOrganizationServiceControlPolicyDao';
 import { DeclaredAwsRdsClusterDao } from '@src/access/daos/DeclaredAwsRdsClusterDao';
+import { DeclaredAwsS3BucketDao } from '@src/access/daos/DeclaredAwsS3BucketDao';
+import { DeclaredAwsS3BucketPolicyDao } from '@src/access/daos/DeclaredAwsS3BucketPolicyDao';
+import { DeclaredAwsSesAccountDetailsDao } from '@src/access/daos/DeclaredAwsSesAccountDetailsDao';
+import { DeclaredAwsSesConfigurationSetDao } from '@src/access/daos/DeclaredAwsSesConfigurationSetDao';
+import { DeclaredAwsSesConfigurationSetEventDestinationDao } from '@src/access/daos/DeclaredAwsSesConfigurationSetEventDestinationDao';
+import { DeclaredAwsSesEmailIdentityDao } from '@src/access/daos/DeclaredAwsSesEmailIdentityDao';
+import { DeclaredAwsSesReceiptRuleDao } from '@src/access/daos/DeclaredAwsSesReceiptRuleDao';
+import { DeclaredAwsSesReceiptRuleSetDao } from '@src/access/daos/DeclaredAwsSesReceiptRuleSetDao';
+import { DeclaredAwsSnsTopicDao } from '@src/access/daos/DeclaredAwsSnsTopicDao';
 import { DeclaredAwsSsmParameterPlainDao } from '@src/access/daos/DeclaredAwsSsmParameterPlainDao';
 import { DeclaredAwsSsmParameterSecureDao } from '@src/access/daos/DeclaredAwsSsmParameterSecureDao';
 import { DeclaredAwsSsmSshTunnelDao } from '@src/access/daos/DeclaredAwsSsmSshTunnelDao';
@@ -166,6 +175,16 @@ export const getDeclastructAwsProvider = async (
     DeclaredAwsSsmSshTunnel: DeclaredAwsSsmSshTunnelDao,
     DeclaredAwsSsmParameterPlain: DeclaredAwsSsmParameterPlainDao,
     DeclaredAwsSsmParameterSecure: DeclaredAwsSsmParameterSecureDao,
+    DeclaredAwsSnsTopic: DeclaredAwsSnsTopicDao,
+    DeclaredAwsS3Bucket: DeclaredAwsS3BucketDao,
+    DeclaredAwsS3BucketPolicy: DeclaredAwsS3BucketPolicyDao,
+    DeclaredAwsSesAccountDetails: DeclaredAwsSesAccountDetailsDao,
+    DeclaredAwsSesEmailIdentity: DeclaredAwsSesEmailIdentityDao,
+    DeclaredAwsSesConfigurationSet: DeclaredAwsSesConfigurationSetDao,
+    DeclaredAwsSesConfigurationSetEventDestination:
+      DeclaredAwsSesConfigurationSetEventDestinationDao,
+    DeclaredAwsSesReceiptRuleSet: DeclaredAwsSesReceiptRuleSetDao,
+    DeclaredAwsSesReceiptRule: DeclaredAwsSesReceiptRuleDao,
     DeclaredAwsIamRolePolicyAttachedInline:
       DeclaredAwsIamRolePolicyAttachedInlineDao,
     DeclaredAwsIamRolePolicyAttachedManaged:

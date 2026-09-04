@@ -57,6 +57,16 @@ import {
   DeclaredAwsVpcSecurityGroupRule,
   DeclaredAwsVpcSubnet,
   DeclaredAwsSsmVpcTunnel,
+  // mail primitives (ses + s3 + sns) — send + receive email for a (sub)domain
+  DeclaredAwsS3Bucket,
+  DeclaredAwsS3BucketPolicy,
+  DeclaredAwsSesConfigurationSet,
+  DeclaredAwsSesConfigurationSetEventDestination,
+  DeclaredAwsSesEmailIdentity,
+  DeclaredAwsSesReceiptRule,
+  DeclaredAwsSesReceiptRuleSet,
+  DeclaredAwsSnsTopic,
+  asSesReceiptRuleArn,
   genDeclaredAwsLambdaCode,
   getAllIamUserAccessKeys,
   getDeclastructAwsProvider,
@@ -777,6 +787,165 @@ export const getResources = async () => {
    *   - verify SCP via yalc in consumer repo with management account access
    */
 
+  // ── mail primitives (ses + s3 + sns): send + receive email for a subdomain ──────────
+  // the acceptance domain is a distinct subdomain from the demo dogfood, so the two never
+  // contend. the receipt rule set is declared INACTIVE (active:false) on purpose: only ONE
+  // receipt rule set can be active per account+region, so an active acceptance set would
+  // steal the slot from the demo dogfood (rule.forbid.silent-resource-theft). an inactive
+  // set still proves create + rule + KEEP; activation is exercised by the dogfood, not here.
+  const account = provider.context.aws.credentials.account;
+  const region = provider.context.aws.credentials.region;
+  const mailDomain = 'acceptance.demo.ehmpathy.com';
+  const mailBucketName = `declastruct-acceptance-mail-inbound-${account}`;
+  const mailRuleSetName = 'declastruct-acceptance-mail-inbound';
+  const mailRuleName = 'to-s3';
+  // the bucket policy's SourceArn must name the RECEIPT RULE arn (deterministic from names)
+  const mailReceiptRuleArn = asSesReceiptRuleArn({
+    region,
+    account,
+    ruleSetName: mailRuleSetName,
+    ruleName: mailRuleName,
+  });
+
+  // the domain identity — emits the dkim tokens; reaches only `verificationStatus: unresolved`
+  //   in acceptance (no live dns on the subdomain) — the bar is created + tokens + KEEP
+  const mailIdentity = DeclaredAwsSesEmailIdentity.as({
+    identity: mailDomain,
+    dkim: 'enabled',
+    mailFrom: null,
+    tags: { managedBy: 'declastruct', purpose: 'acceptance-test' },
+  });
+
+  // the inbound store — glacier staircase lifecycle
+  const mailStore = DeclaredAwsS3Bucket.as({
+    name: mailBucketName,
+    lifecycle: {
+      transitions: [
+        { afterDays: 30, class: 'GLACIER_IR' },
+        { afterDays: 180, class: 'DEEP_ARCHIVE' },
+      ],
+      expireAfterDays: null,
+    },
+    tags: { managedBy: 'declastruct', purpose: 'acceptance-test' },
+  });
+
+  // the bucket policy — allow SES (this account only) to PutObject into inbound/
+  const mailStorePolicy = DeclaredAwsS3BucketPolicy.as({
+    bucket: RefByUnique.as<typeof DeclaredAwsS3Bucket>({ name: mailBucketName }),
+    document: {
+      statements: [
+        {
+          sid: 'AllowSesPut',
+          effect: 'Allow',
+          principal: { service: 'ses.amazonaws.com' },
+          action: 's3:PutObject',
+          resource: `arn:aws:s3:::${mailBucketName}/inbound/*`,
+          condition: {
+            StringEquals: { 'aws:SourceAccount': account },
+            ArnLike: { 'aws:SourceArn': mailReceiptRuleArn },
+          },
+        },
+      ],
+    },
+  });
+
+  // the receipt rule set — declared INACTIVE (see the note above)
+  const mailRuleSet = DeclaredAwsSesReceiptRuleSet.as({
+    name: mailRuleSetName,
+    active: false,
+  });
+
+  // the receipt rule — route inbound mail to the s3 inbound/ prefix
+  const mailRule = DeclaredAwsSesReceiptRule.as({
+    ruleSet: RefByUnique.as<typeof DeclaredAwsSesReceiptRuleSet>({
+      name: mailRuleSetName,
+    }),
+    name: mailRuleName,
+    enabled: true,
+    recipients: [`inbox@${mailDomain}`],
+    actions: [
+      {
+        s3: {
+          bucket: RefByUnique.as<typeof DeclaredAwsS3Bucket>({
+            name: mailBucketName,
+          }),
+          objectKeyPrefix: 'inbound/',
+          topic: null,
+          kmsKeyArn: null,
+        },
+        sns: null,
+        lambda: null,
+        bounce: null,
+        stop: null,
+        addHeader: null,
+        workmail: null,
+        connect: null,
+      },
+    ],
+    // AWS materializes TlsPolicy to 'Optional' by default (it is never absent), so declare
+    // the real default explicitly — a null desired would drift to a perpetual UPDATE against
+    // the 'Optional' AWS returns (rule.require.guaranteed-idempotency).
+    tlsPolicy: 'Optional',
+    scanEnabled: true,
+  });
+
+  // verified send-from + sandbox test recipient — email-valued identities (plain verify)
+  const mailSendFrom = DeclaredAwsSesEmailIdentity.as({
+    identity: `robot@${mailDomain}`,
+    dkim: 'disabled',
+    mailFrom: null,
+    tags: null,
+  });
+  const mailTestRecipient = DeclaredAwsSesEmailIdentity.as({
+    identity: `qa@${mailDomain}`,
+    dkim: 'disabled',
+    mailFrom: null,
+    tags: null,
+  });
+
+  // the standalone SNS topic (the net-new sns primitive) — proves create + tag + KEEP
+  const mailSnsTopic = DeclaredAwsSnsTopic.as({
+    name: 'declastruct-acceptance-mail-events',
+    tags: { managedBy: 'declastruct', purpose: 'acceptance-test' },
+  });
+
+  // the send-event capture — a config set + a cloudwatch event destination. a cloudwatch
+  //   sink needs no topic-publish policy, so it is the pit-of-success sink for acceptance;
+  //   the sns sink path is type-covered by the standalone topic above + the unit shape
+  const mailConfigSet = DeclaredAwsSesConfigurationSet.as({
+    name: 'declastruct-acceptance-mail-events',
+    tags: { managedBy: 'declastruct', purpose: 'acceptance-test' },
+  });
+  const mailEventDest = DeclaredAwsSesConfigurationSetEventDestination.as({
+    configurationSet: RefByUnique.as<typeof DeclaredAwsSesConfigurationSet>({
+      name: 'declastruct-acceptance-mail-events',
+    }),
+    name: 'to-cloudwatch',
+    enabled: true,
+    // declared in canonical (alphabetical) order — AWS returns eventTypes sorted, and the cast
+    // canonicalizes remote the same way, so a sorted desired converges to KEEP
+    // (rule.require.guaranteed-idempotency). eventTypes is a set, not an ordered list.
+    eventTypes: [
+      'BOUNCE',
+      'CLICK',
+      'COMPLAINT',
+      'DELIVERY',
+      'OPEN',
+      'REJECT',
+      'SEND',
+    ],
+    sink: {
+      cloudwatch: [
+        {
+          name: 'ses:configuration-set',
+          source: 'MESSAGE_TAG',
+          defaultValue: 'declastruct-acceptance-mail-events',
+        },
+      ],
+      sns: null,
+    },
+  });
+
   // get all IAM access keys and mark for deletion
   const accessKeysToDelete = await getAllIamUserAccessKeys(
     { by: { account: { id: provider.context.aws.credentials.account } } },
@@ -847,6 +1016,20 @@ export const getResources = async () => {
     //   execution role (role before the action refs it; budget already above)
     budgetActionRole,
     budgetActionGuard,
+    // mail primitives — apply order = declared array order (SES test-puts the bucket at
+    //   rule-create, so bucket + policy must precede the rule): identity -> bucket ->
+    //   bucketPolicy -> ruleSet -> rule -> email identities -> sns topic -> config set ->
+    //   event destination
+    mailIdentity,
+    mailStore,
+    mailStorePolicy,
+    mailRuleSet,
+    mailRule,
+    mailSendFrom,
+    mailTestRecipient,
+    mailSnsTopic,
+    mailConfigSet,
+    mailEventDest,
     ...accessKeysToDelete,
   ];
 };

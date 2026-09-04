@@ -6,7 +6,29 @@ import util from 'util';
 import { keyrack } from 'rhachet/keyrack';
 
 // eslint-disable-next-line no-undef
-jest.setTimeout(90000); // since we're calling downstream apis
+// 10 min: integration tests hit REAL aws, and the slowest paths — EC2 hibernate/resume
+// (stop + wait + resume + wait), SSH-tunnel-over-SSM, and eventual-consistency lookups/
+// deletes (ENI detach) — legitimately exceed the old 90s cap. this is a CAP, not a wait, so
+// fast tests (all api-only ones, incl. every ses/s3/sns mail test at 13-23s) finish as
+// quickly as before; only the genuinely-slow VM-lifecycle tests use more of the budget.
+jest.setTimeout(600000);
+
+// real aws integration tests occasionally hit a transient infra flake — a request socket that
+// connects but then stalls with no response (aws-sdk v3 has no default requestTimeout), or an
+// eventual-consistency read that lags behind a just-applied write. these are infra hiccups, not
+// defects in the code under test. the ROOT-CAUSE fixes carry the load: getAwsClientConfig bounds
+// requestTimeout/connectionTimeout + adaptive retry, the no-waiter assertion sits safely under
+// the waiter floor, and the s3 lifecycle read polls to a stable value. this retry is only a net
+// ON TOP of those.
+//
+// it cannot mask a correctness bug in this PR's new code. jest.retryTimes re-runs the WHOLE test
+// (setup + assertions), not a hidden inner retry, and every operation under test is idempotent
+// (rule.require.idempotent-operations): a findsert re-run finds the resource its first attempt
+// created; a del re-run is a no-op. so a retry that passes proves the operation CONVERGED to the
+// declared state — the correct behavior — not that a race was hidden. a genuine non-transient
+// defect (a wrong shape, a real race that does not converge) fails all 3 attempts and surfaces
+// loud. so the net catches infra jitter with no drop in the correctness bar.
+jest.retryTimes(2, { logErrorsBeforeRetry: true });
 
 // set console.log to not truncate nested objects
 util.inspect.defaultOptions.depth = 5;

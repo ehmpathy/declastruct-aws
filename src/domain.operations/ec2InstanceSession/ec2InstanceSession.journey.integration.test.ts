@@ -3,6 +3,10 @@ import {
   EC2Client,
   TerminateInstancesCommand,
 } from '@aws-sdk/client-ec2';
+import {
+  DescribeInstanceInformationCommand,
+  SSMClient,
+} from '@aws-sdk/client-ssm';
 import { BadRequestError } from 'helpful-errors';
 import { genTestUuid, given, then, useBeforeAll, when } from 'test-fns';
 
@@ -14,6 +18,43 @@ import { execSsmCommand } from '@src/domain.operations/ssmCommand/execSsmCommand
 
 import { getEc2InstanceSession } from './getEc2InstanceSession';
 import { setEc2InstanceSession } from './setEc2InstanceSession';
+
+/**
+ * .what = polls DescribeInstanceInformation until the agent PingStatus is 'Online' (bounded)
+ * .why = after a hibernation resume, the instance reaches the 'active' EC2 state well BEFORE its
+ *   SSM agent re-registers for Run Command. PingStatus 'Online' — NOT the Session Manager
+ *   connection status (GetConnectionStatus), which can read a stale 'connected' from before the
+ *   hibernation — is the documented precondition for SendCommand. a command sent before the
+ *   agent is Online throws InvalidInstanceId ('not in a valid state'). gate on the true signal
+ *   so the send succeeds on its first attempt rather than burn the send-retry budget
+ * .note = raw SSMClient in test arrange (a precondition wait, not the subject under test) — the
+ *   same latitude the both-ends cleanup rule grants raw SDK in teardown
+ */
+const waitForSsmOnline = async (input: {
+  instanceId: string;
+  region: string;
+  maxWaitMs: number;
+  pollMs: number;
+}): Promise<void> => {
+  const ssm = new SSMClient({ region: input.region });
+  const deadline = Date.now() + input.maxWaitMs;
+  while (Date.now() < deadline) {
+    const info = await ssm.send(
+      new DescribeInstanceInformationCommand({
+        Filters: [{ Key: 'InstanceIds', Values: [input.instanceId] }],
+      }),
+    );
+    const online = (info.InstanceInformationList ?? []).some(
+      (one) =>
+        one.InstanceId === input.instanceId && one.PingStatus === 'Online',
+    );
+    if (online) return;
+    await new Promise((wake) => setTimeout(wake, input.pollMs));
+  }
+  throw new Error(
+    `ssm agent did not report Online within ${input.maxWaitMs}ms after resume`,
+  );
+};
 
 /**
  * .what = journey test for EC2 instance session lifecycle
@@ -199,8 +240,13 @@ describe('ec2InstanceSession.journey', () => {
         const elapsedMs = Date.now() - startTime;
 
         expect(session.status).toBe(sessionBefore!.status);
-        // idempotent call should be fast (no waiter)
-        expect(elapsedMs).toBeLessThan(5000);
+        // the idempotent path must NOT invoke a state-transition waiter — a real waiter
+        // (start/stop/hibernate) polls for 30-300s, so the bound must sit SAFELY BELOW that
+        // 30s waiter floor to distinguish "no waiter" from "waiter ran". the timed no-op makes
+        // one describe call: ~1-2s normal, ~10s worst-case (an 8s connect-timeout + one adaptive
+        // retry, per getAwsClientConfig). 15s clears that pathological latency with margin yet
+        // stays at half the waiter floor, so a fast waiter (25-29s) can no longer sneak past.
+        expect(elapsedMs).toBeLessThan(15000);
       });
     });
   });
@@ -410,6 +456,16 @@ describe('ec2InstanceSession.journey', () => {
           },
           context,
         );
+
+        // wait for the SSM agent to re-register after the resume — the instance is 'active'
+        // before its agent reports Online, so a command sent too early throws InvalidInstanceId.
+        // poll the real precondition (agent PingStatus 'Online') up to 5 min
+        await waitForSsmOnline({
+          instanceId: instance.id,
+          region: context.aws.credentials.region,
+          maxWaitMs: 300000,
+          pollMs: 10000,
+        });
 
         // execute SSM command to verify SSM agent reachability
         // note: requires ssm:SendCommand permission (demo-agent lacks)

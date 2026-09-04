@@ -1,0 +1,28 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`assertExactlyOnePresent given: two keys are non-null when: asserted then: it fails loud with a BadRequestError 1`] = `
+"BadRequestError: a widget must have exactly one of [a, b] set, but 2 are set
+
+{
+  "present": [
+    "a",
+    "b"
+  ],
+  "keys": [
+    "a",
+    "b"
+  ]
+}"
+`;
+
+exports[`assertExactlyOnePresent given: zero keys are non-null when: asserted then: it fails loud with a BadRequestError 1`] = `
+"BadRequestError: a widget must have exactly one of [a, b] set, but 0 are set
+
+{
+  "present": [],
+  "keys": [
+    "a",
+    "b"
+  ]
+}"
+`;
