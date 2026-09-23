@@ -65,10 +65,16 @@ provision/aws.auth/resources.common.ts
 ## .note
 
 - root account access required to apply SSO permission changes
-- OIDC role permissions in `provision/aws.auth/account=demo/resources.oidc.ts` use the same `demoPermissionsPolicy`
-- changes propagate to both SSO and OIDC auth methods
+- 🔴 **a change to `demoPermissionsPolicy` reaches EVERY consumer of that bundle, and each must be
+  re-applied before its grant is live.** ⚠️ the consumer roster lives in exactly ONE place — the
+  `.note` on `demoPermissionsPolicy` in `provision/aws.auth/resources.common.ts`. read it there;
+  a count restated here would drift the day a consumer is added, which is precisely how this line
+  came to name two when there were three
+- the re-apply commands, per target, are in `hazard.local-green-cicd-red.oidc-role-not-reapplied`
 
 ## .see also
 
+- `hazard.local-green-cicd-red.oidc-role-not-reapplied` — the roster's targets, and the plan-read
+  each one owes
 - `provision/aws.auth/readme.md` — full auth setup documentation
 - `howto.dogfood-aws-resources.md` — dogfood pattern
