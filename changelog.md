@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.12.0](https://github.com/ehmpathy/declastruct-aws/compare/v1.11.0...v1.12.0) (2026-09-24)
+
+
+### Features
+
+* **release:** guard against commit bodies that release-please cannot parse ([#106](https://github.com/ehmpathy/declastruct-aws/issues/106)) ([de6dcd6](https://github.com/ehmpathy/declastruct-aws/commit/de6dcd69f4afe06decce0d8551f2e39d2a9961fc))
+
 ## [1.11.0](https://github.com/ehmpathy/declastruct-aws/compare/v1.10.4...v1.11.0) (2026-09-04)
 
 
