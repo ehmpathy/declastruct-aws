@@ -84,6 +84,8 @@
       "Bash(npx rhachet run --skill git.commit.uses get)",
       "Bash(npx rhachet run --skill git.commit.bind:*)",
       "Bash(npx rhachet run --skill git.commit.bind get)",
+      "Bash(npx rhachet run --skill git.commit.sponsor:*)",
+      "Bash(npx rhachet run --skill git.commit.sponsor get)",
       "Bash(npx rhachet run --skill git.commit.set:*)",
       "Bash(echo $MESSAGE | npx rhachet run --skill git.commit.set -m @stdin)",
       "Bash(echo $MESSAGE | npx rhachet run --skill git.commit.set -m @stdin --mode apply)",
@@ -265,8 +267,14 @@
       "Bash(mv:*)",
       "Bash(npx biome:*)",
       "Bash(npx jest:*)",
+      "Bash(npx rhachet run --skill git.commit.bind -- del:*)",
+      "Bash(npx rhachet run --skill git.commit.bind -- set:*)",
       "Bash(npx rhachet run --skill git.commit.bind del:*)",
       "Bash(npx rhachet run --skill git.commit.bind set:*)",
+      "Bash(npx rhachet run --skill git.commit.sponsor -- del:*)",
+      "Bash(npx rhachet run --skill git.commit.sponsor -- set:*)",
+      "Bash(npx rhachet run --skill git.commit.sponsor del:*)",
+      "Bash(npx rhachet run --skill git.commit.sponsor set:*)",
       "Bash(npx rhachet run --skill git.commit.uses -- allow:*)",
       "Bash(npx rhachet run --skill git.commit.uses -- set:*)",
       "Bash(npx rhachet run --skill git.commit.uses --global allow:*)",
@@ -274,8 +282,14 @@
       "Bash(npx rhachet run --skill git.commit.uses --org * del:*)",
       "Bash(npx rhachet run --skill git.commit.uses allow:*)",
       "Bash(npx rhachet run --skill git.commit.uses set:*)",
+      "Bash(rhx git.commit.bind -- del:*)",
+      "Bash(rhx git.commit.bind -- set:*)",
       "Bash(rhx git.commit.bind del:*)",
       "Bash(rhx git.commit.bind set:*)",
+      "Bash(rhx git.commit.sponsor -- del:*)",
+      "Bash(rhx git.commit.sponsor -- set:*)",
+      "Bash(rhx git.commit.sponsor del:*)",
+      "Bash(rhx git.commit.sponsor set:*)",
       "Bash(rhx git.commit.uses -- allow:*)",
       "Bash(rhx git.commit.uses -- set:*)",
       "Bash(rhx git.commit.uses --global allow:*)",
@@ -443,6 +457,12 @@
             "command": "./node_modules/.bin/rhx route.drive --when hook.onStop",
             "timeout": 5,
             "author": "repo=bhrain/role=driver"
+          },
+          {
+            "type": "command",
+            "command": "./node_modules/.bin/rhx elucidate.summary --when hook.onStop",
+            "timeout": 5,
+            "author": "repo=bhrain/role=telepath"
           }
         ]
       }
@@ -537,9 +557,9 @@
           },
           {
             "type": "command",
-            "command": "./node_modules/.bin/rhachet roles boot --repo ghlitch --role deployer",
-            "timeout": 60,
-            "author": "repo=ghlitch/role=deployer"
+            "command": "./node_modules/.bin/rhachet roles boot --role telepath",
+            "timeout": 30,
+            "author": "repo=bhrain/role=telepath"
           }
         ]
       },

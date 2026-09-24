@@ -1,0 +1,77 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`getOneCampReachIdentityFromEnv given: [case7] every user-faced failure variant when: [t0] each is triggered in turn then: the operator-faced text matches the snapshot, per variant 1`] = `
+[
+  {
+    "kind": "BadRequestError",
+    "message": "BadRequestError: GROVE_REACH_CAMP_ACCOUNT_ID not set
+
+{
+  "hint": "source provision/aws.auth/account=demo/.env — see .env.example. no .env? read both values off the live role: aws iam get-role --role-name ehmpathy-demo-for-grove --query 'Role.AssumeRolePolicyDocument.Statement[0].Principal.AWS' --output text"
+}",
+    "variant": "account id absent",
+  },
+  {
+    "kind": "BadRequestError",
+    "message": "BadRequestError: GROVE_REACH_CAMP_ROLE_NAME not set
+
+{
+  "hint": "source provision/aws.auth/account=demo/.env — see .env.example. no .env? read both values off the live role: aws iam get-role --role-name ehmpathy-demo-for-grove --query 'Role.AssumeRolePolicyDocument.Statement[0].Principal.AWS' --output text"
+}",
+    "variant": "role name absent",
+  },
+  {
+    "kind": "BadRequestError",
+    "message": "BadRequestError: GROVE_REACH_CAMP_ACCOUNT_ID is not 12 digits — an aws account id is exactly 12 digits, with no quotes and no arn prefix
+
+{
+  "hint": "source provision/aws.auth/account=demo/.env — see .env.example. no .env? read both values off the live role: aws iam get-role --role-name ehmpathy-demo-for-grove --query 'Role.AssumeRolePolicyDocument.Statement[0].Principal.AWS' --output text"
+}",
+    "variant": "account id placeholder, unfilled",
+  },
+  {
+    "kind": "BadRequestError",
+    "message": "BadRequestError: GROVE_REACH_CAMP_ROLE_NAME still holds the .env.example placeholder — fill in the real value
+
+{
+  "hint": "source provision/aws.auth/account=demo/.env — see .env.example. no .env? read both values off the live role: aws iam get-role --role-name ehmpathy-demo-for-grove --query 'Role.AssumeRolePolicyDocument.Statement[0].Principal.AWS' --output text"
+}",
+    "variant": "role name placeholder, unfilled",
+  },
+  {
+    "kind": "BadRequestError",
+    "message": "BadRequestError: GROVE_REACH_CAMP_ACCOUNT_ID is not 12 digits — an aws account id is exactly 12 digits, with no quotes and no arn prefix
+
+{
+  "hint": "source provision/aws.auth/account=demo/.env — see .env.example. no .env? read both values off the live role: aws iam get-role --role-name ehmpathy-demo-for-grove --query 'Role.AssumeRolePolicyDocument.Statement[0].Principal.AWS' --output text"
+}",
+    "variant": "account id pasted with json quotes",
+  },
+  {
+    "kind": "BadRequestError",
+    "message": "BadRequestError: GROVE_REACH_CAMP_ACCOUNT_ID is not 12 digits — an aws account id is exactly 12 digits, with no quotes and no arn prefix
+
+{
+  "hint": "source provision/aws.auth/account=demo/.env — see .env.example. no .env? read both values off the live role: aws iam get-role --role-name ehmpathy-demo-for-grove --query 'Role.AssumeRolePolicyDocument.Statement[0].Principal.AWS' --output text"
+}",
+    "variant": "whole arn pasted where the id was wanted",
+  },
+]
+`;
+
+exports[`getResourcesOfReach given: [case1] the grove-reach declaration when: [t4] the declared plan shape is read then: it matches the shape the revoke runbook cites 1`] = `
+[
+  {
+    "identity": "DeclaredAwsIamRole.ehmpathy-demo-for-grove.4ee0beb0c33754559e9bba6272954a8b",
+    "kind": "DeclaredAwsIamRole",
+  },
+  {
+    "identity": "DeclaredAwsIamRolePolicyAttachedInline.ehmpathy-demo-for-grove-extension.nameehmpathy-demo-for-grove.a4a571ade648590da31a5c74bae4a07b",
+    "kind": "DeclaredAwsIamRolePolicyAttachedInline",
+  },
+  {
+    "identity": "DeclaredAwsIamRolePolicyAttachedManaged.arnarnawsiamawspolicyReadOnlyAccess.nameehmpathy-demo-for-grove.ece83b326344579ca9d0fcbc43ee9ec8",
+    "kind": "DeclaredAwsIamRolePolicyAttachedManaged",
+  },
+]
+`;

@@ -10,7 +10,7 @@ account=.root/resources.ts     account=demo/resources.ts
   provisions:                    provisions:
   - admin sso user               - github oidc provider
   - admin permission set         - oidc role for github actions
-  - organization
+  - organization                 - grove-reach role for a camp box
   - demo account
   - demo sso user + permission set
 ```
@@ -49,24 +49,33 @@ resources provisioned in the demo account (requires demo account credentials).
 
 **files:**
 - `resources.oidc.ts` - github oidc provider + role
+- `resources.reach.ts` - the target half of the camp-grove → demo reach
 - `resources.ts` - aggregates all above
 
-**prereq:** demo account must exist (provision account=.root first)
+**prereqs:**
+1. demo account must exist (provision account=.root first)
+2. 🔴 **`.env` is filled and sourced** — `resources.reach.ts` reads its trust principal from
+   `GROVE_REACH_CAMP_ACCOUNT_ID` + `GROVE_REACH_CAMP_ROLE_NAME`, absent from source because this
+   repo is public and the collaborator's is not. **it gates every demo apply, grove-related or
+   not** — see `account=demo/readme.reach.md`
 
 **setup:**
 ```bash
 use.ehmpathy.demo --owner admin
+source provision/aws.auth/account=demo/.env
 npx declastruct plan --wish provision/aws.auth/account=demo/resources.ts --into provision/aws.auth/account=demo/.temp/plan.json
 npx declastruct apply --plan provision/aws.auth/account=demo/.temp/plan.json
 ```
 
 ## update demo permissions
 
-`resources.common.ts` defines `demoPermissionsPolicy` which is shared by:
-- **root account** — SSO permission set (`resources.demo.sso.ts`)
-- **demo account** — OIDC role for github actions (`resources.oidc.ts`)
+`resources.common.ts` defines `demoPermissionsPolicy`, shared by several consumers across **two**
+provisions.
 
-to update permissions, apply to both accounts:
+🔴 **the consumer roster lives in exactly ONE place — the `.note` on `demoPermissionsPolicy` in
+`resources.common.ts`. read it there.** a count restated here drifts the day a consumer is added.
+
+to update permissions, apply to both provisions:
 
 ```bash
 # 1. update SSO permission set in root account
@@ -75,11 +84,16 @@ source provision/aws.auth/account=.root/.env
 npx declastruct plan --wish provision/aws.auth/account=.root/resources.ts --into provision/aws.auth/account=.root/.temp/plan.json
 npx declastruct apply --plan provision/aws.auth/account=.root/.temp/plan.json
 
-# 2. update OIDC role in demo account
+# 2. update every demo-account consumer
 use.ehmpathy.demo --owner admin
+source provision/aws.auth/account=demo/.env
 npx declastruct plan --wish provision/aws.auth/account=demo/resources.ts --into provision/aws.auth/account=demo/.temp/plan.json
 npx declastruct apply --plan provision/aws.auth/account=demo/.temp/plan.json
 ```
+
+⚠️ **read step 2's plan for an `UPDATE` per demo consumer, never just one** — the demo provision
+owns more than one role that attaches this bundle, and one `UPDATE` where two are owed means the
+apply was partial. see `hazard.local-green-cicd-red.oidc-role-not-reapplied`.
 
 ## keyrack credentials
 

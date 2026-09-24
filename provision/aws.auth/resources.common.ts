@@ -32,7 +32,15 @@ export const getOneSsoDemoEmail = (): string =>
 /**
  * .what = shared demo permissions policy
  * .why = single source of truth for demo access permissions
- * .note = reused by both SSO permission set and OIDC role
+ *
+ * .note = 🔴 THREE consumers read this bundle, across TWO provisions:
+ *   - `ehmpathy-demo-sso`       (permission set)  — `account=.root/resources.demo.sso.ts`
+ *   - `ehmpathy-demo-oidc`      (github actions)  — `account=demo/resources.oidc.ts`
+ *   - `ehmpathy-demo-for-grove` (a collaborator's grove) — `account=demo/resources.reach.ts`
+ *
+ *   ⚠️ so a plan of `account=demo` after an edit here expects **TWO** `UPDATE`
+ *   rows, one per consumer that provision owns. ONE alone means the apply was
+ *   partial — a new consumer's inline attachment never reached the aggregator
  */
 export const demoPermissionsPolicy: DeclaredAwsIamPolicyBundle =
   DeclaredAwsIamPolicyBundle.as({
@@ -249,8 +257,9 @@ export const demoPermissionsPolicy: DeclaredAwsIamPolicyBundle =
         //   - GetParameter: plaintext value-compare drift detection (String only; no decrypt)
         //   - DescribeParameters: metadata-only reconcile (the SecureString write-only path)
         //   - ListTagsForResource / AddTagsToResource / RemoveTagsFromResource: roundtrip tags
-        //   note: a change here must re-apply BOTH the SSO permission set (account=.root) AND
-        //   the OIDC role (account=demo) per hazard.local-green-cicd-red.oidc-role-not-reapplied
+        //   note: a change here must be re-applied to every consumer of this bundle, or the
+        //   grant is declared and not live — see hazard.local-green-cicd-red.oidc-role-not-reapplied
+        //   the roster is on `demoPermissionsPolicy` above; a copy here would drift
         new DeclaredAwsIamPolicyStatement({
           effect: 'Allow',
           action: [

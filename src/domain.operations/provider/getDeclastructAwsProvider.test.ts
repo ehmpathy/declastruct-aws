@@ -216,6 +216,15 @@ describe('getDeclastructAwsProvider', () => {
 
       expect(error).toBeInstanceOf(BadRequestError);
       expect(error.message).toContain('AWS region not specified');
+
+      // 🔴 the HINT must reach `.message`, never only the metadata field.
+      // `HelpfulError` serializes its metadata into the message body, which is
+      // what lets `provision/aws.auth/account=demo/readme.md` promise a grove
+      // operator that this error "already names the fix ... needs no second
+      // lookup". that promise is a property of the SERIALIZER, not of this
+      // throw — so without this assert the claim goes false silently the day
+      // `helpful-errors` stops to serialize
+      expect(error.message).toContain('export AWS_REGION=us-east-1');
     });
   });
 });
