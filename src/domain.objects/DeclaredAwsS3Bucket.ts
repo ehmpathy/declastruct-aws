@@ -1,5 +1,6 @@
 import { DomainEntity } from 'domain-objects';
 
+import { DeclaredAwsS3BucketAccess } from './DeclaredAwsS3BucketAccess';
 import { DeclaredAwsS3BucketLifecycle } from './DeclaredAwsS3BucketLifecycle';
 import { DeclaredAwsTags } from './DeclaredAwsTags';
 
@@ -16,7 +17,11 @@ import { DeclaredAwsTags } from './DeclaredAwsTags';
  * .note
  *   - the bucket's region is the provider's resolved region (CreateBucket LocationConstraint);
  *     it is not a declared field — the receive-capable region is a provider concern
- *   - lifecycle is a per-consumer choice (persist | staircase | auto-tier); null = persist
+ *   - lifecycle is a per-consumer choice; `null` = persist (no rule at all). the non-null modes
+ *     are named by WHICH SUBJECT carries content (F16) — staircase (`objects.transitions`),
+ *     auto-tier (`objects.expire`), and cleanup-only (`versions`/`multiparts` with `objects`
+ *     empty, the backup-store shape). ⚠️ these are illustrative, not a closed set: the subjects
+ *     compose freely, so a bucket may carry any combination of the three at once
  */
 export interface DeclaredAwsS3Bucket {
   /**
@@ -27,9 +32,17 @@ export interface DeclaredAwsS3Bucket {
   name: string;
 
   /**
-   * .what = the object-lifecycle config
-   * .note = roundtrip read-write — read via GetBucketLifecycleConfiguration, written via
-   *   PutBucketLifecycleConfiguration; null = persist (no lifecycle rule)
+   * .what = the bucket's access posture (today: public access)
+   * .note = roundtrip read-write — read via GetPublicAccessBlock (absent = no block written),
+   *   written via PutPublicAccessBlock
+   */
+  access: DeclaredAwsS3BucketAccess;
+
+  /**
+   * .what = the lifecycle config, decomposed by what expires (objects | versions | multiparts)
+   * .note = roundtrip read-write — read via GetBucketLifecycleConfiguration +
+   *   GetBucketVersioning, written via PutBucketLifecycleConfiguration + PutBucketVersioning;
+   *   null = persist (no lifecycle rule, no versioning)
    */
   lifecycle: DeclaredAwsS3BucketLifecycle | null;
 
@@ -68,6 +81,7 @@ export class DeclaredAwsS3Bucket
    * .what = nested domain object definitions
    */
   public static nested = {
+    access: DeclaredAwsS3BucketAccess,
     lifecycle: DeclaredAwsS3BucketLifecycle,
     tags: DeclaredAwsTags,
   };

@@ -1,10 +1,50 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`castIntoDeclaredAwsS3Bucket an unmodeled aws storage class fails loud (no silent mistype) 1`] = `
-"assure.rejection: input does not satisfy type.check 'isDeclaredAwsS3StorageClass'
+exports[`castIntoDeclaredAwsS3Bucket given: [case8] a transition to a storage class this package does not model when: [t0] the reads are cast then: it fails loud and names the bucket, field, value, modeled set, and fix (F8) 1`] = `
+{
+  "message": "UnexpectedCodePathError: bucket "my-bucket" reads lifecycle.objects.transitions[].class = "ONEZONE_IA", a value declastruct-aws does not model (modeled: STANDARD_IA, GLACIER_IR, GLACIER, DEEP_ARCHIVE, INTELLIGENT_TIERING). it fails loud rather than guess, since a guess would skew the plan. fix: upgrade declastruct-aws; if already on the latest, file an issue at ehmpathy/declastruct-aws that names this field and value
 
 {
-  "check": "isDeclaredAwsS3StorageClass",
-  "input": "ONEZONE_IA"
-}"
+  "bucket": "my-bucket",
+  "field": "lifecycle.objects.transitions[].class",
+  "value": "ONEZONE_IA",
+  "modeled": [
+    "STANDARD_IA",
+    "GLACIER_IR",
+    "GLACIER",
+    "DEEP_ARCHIVE",
+    "INTELLIGENT_TIERING"
+  ]
+}",
+}
+`;
+
+exports[`castIntoDeclaredAwsS3Bucket given: [case9] a version-state value this package does not model (I-5, case=4) when: [t0] the reads are cast then: it fails loud and names the bucket, field, value, modeled set, and fix (F8) 1`] = `
+{
+  "message": "UnexpectedCodePathError: bucket "my-bucket" reads versions.status = "MfaDelete", a value declastruct-aws does not model (modeled: Enabled, Suspended). it fails loud rather than guess, since a guess would skew the plan. fix: upgrade declastruct-aws; if already on the latest, file an issue at ehmpathy/declastruct-aws that names this field and value
+
+{
+  "bucket": "my-bucket",
+  "field": "versions.status",
+  "value": "MfaDelete",
+  "modeled": [
+    "Enabled",
+    "Suspended"
+  ]
+}",
+}
+`;
+
+exports[`castIntoDeclaredAwsS3Bucket given: [case10] a noncurrent-expiry rule on a bucket that was never versioned (I-7) when: [t0] the reads are cast then: the fix names BOTH out-of-band exits, since no declaration can repair a read 1`] = `
+{
+  "message": "UnexpectedCodePathError: bucket "my-bucket" has a noncurrent-version expiry rule but was never versioned, a pair declastruct-aws cannot represent (the rule has no versions to act on). it fails loud rather than drop the rule or invent a version state. fix: if the wish declares versions, enable them first — \`aws s3api put-bucket-versioning --bucket my-bucket --versioning-configuration Status=Enabled\`; else clear the rule — \`aws s3api delete-bucket-lifecycle --bucket my-bucket\` — and the next apply rewrites the rule the wish declares
+
+{
+  "bucket": "my-bucket",
+  "versionExpiry": {
+    "afterDays": 30,
+    "keep": null
+  }
+}",
+}
 `;

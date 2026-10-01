@@ -1,31 +1,40 @@
 import { DomainLiteral } from 'domain-objects';
 
-import { DeclaredAwsS3BucketLifecycleTransition } from './DeclaredAwsS3BucketLifecycleTransition';
+import { DeclaredAwsS3BucketLifecycleMultiparts } from './DeclaredAwsS3BucketLifecycleMultiparts';
+import { DeclaredAwsS3BucketLifecycleObjects } from './DeclaredAwsS3BucketLifecycleObjects';
+import { DeclaredAwsS3BucketLifecycleVersions } from './DeclaredAwsS3BucketLifecycleVersions';
 
 /**
- * .what = an S3 bucket object-lifecycle config (aws PutBucketLifecycleConfiguration)
- * .why = the per-consumer archival choice the vision locks: model all three modes as one
- *   shape —
- *     - persist: a null lifecycle on the bucket (no rule at all)
- *     - staircase: a declared transition schedule (Standard -> GLACIER_IR -> DEEP_ARCHIVE at
- *       day thresholds), optionally with an expiry at the end
- *     - auto-tier: a single `afterDays: 0 -> INTELLIGENT_TIERING` transition (aws moves
- *       objects between access classes by observed access pattern)
+ * .what = an S3 bucket lifecycle config, decomposed by WHAT EXPIRES (F16)
+ * .why = a flat `expireAfterDays` named no subject — which thing expires? this factors the
+ *   lifecycle into three orthogonal subjects, each with its own `.expire` (one verb, three
+ *   motives), so a backup store can keep every current object forever yet still bound the
+ *   noncurrent-version pile and abort dead multipart uploads
  *
- * .note = declastruct manages a SINGLE whole-bucket rule, so the transitions apply to every
- *   object; a prefix-scoped rule is a later add (rule.prefer.wet-over-dry)
+ * .note
+ *   - `objects` covers ANY bucket (current-version expiry + transitions)
+ *   - `versions` is `false` (never-versioned) or the versioning + noncurrent-expiry config;
+ *     `expire` is unreachable unless `status` is set
+ *   - `multiparts` aborts incomplete uploads
+ *   - a null lifecycle on the bucket = persist (no rule at all)
+ *   - declastruct manages a SINGLE whole-bucket rule (rule.prefer.wet-over-dry)
  */
 export interface DeclaredAwsS3BucketLifecycle {
   /**
-   * .what = the ordered transitions (each moves objects to a colder class after N days)
+   * .what = the current-object rules (expiry + transitions) — apply to any bucket
    */
-  transitions: DeclaredAwsS3BucketLifecycleTransition[];
+  objects: DeclaredAwsS3BucketLifecycleObjects;
 
   /**
-   * .what = days after object creation before it expires (is deleted)
-   * .note = null = never expire (keep in the coldest class forever)
+   * .what = the versioning + noncurrent-version-expiry config
+   * .note = `false` = never-versioned; else `{ status, expire }`
    */
-  expireAfterDays: number | null;
+  versions: false | DeclaredAwsS3BucketLifecycleVersions;
+
+  /**
+   * .what = the incomplete-multipart-upload abort rule
+   */
+  multiparts: DeclaredAwsS3BucketLifecycleMultiparts;
 }
 
 export class DeclaredAwsS3BucketLifecycle
@@ -34,8 +43,12 @@ export class DeclaredAwsS3BucketLifecycle
 {
   /**
    * .what = nested domain object definitions
+   * .note = `versions` nests one option; a bare `false` scalar is left un-hydrated
+   *   (domain-objects skips bare values under a nested key)
    */
   public static nested = {
-    transitions: DeclaredAwsS3BucketLifecycleTransition,
+    objects: DeclaredAwsS3BucketLifecycleObjects,
+    versions: DeclaredAwsS3BucketLifecycleVersions,
+    multiparts: DeclaredAwsS3BucketLifecycleMultiparts,
   };
 }

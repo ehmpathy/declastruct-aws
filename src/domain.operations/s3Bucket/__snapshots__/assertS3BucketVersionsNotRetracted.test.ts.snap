@@ -1,0 +1,37 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`assertS3BucketVersionsNotRetracted given: [case1] a live Enabled bucket when: [t0] the wish declares versions:false then: it throws loud — a one-way door, named by bucket 1`] = `
+{
+  "message": "BadRequestError: cannot un-version bucket "my-bucket", which is already versioned; the aws version-state is a one-way door
+
+{
+  "bucket": "my-bucket",
+  "liveStatus": "enabled",
+  "fix": "declare \`versions: { status: 'suspended', expire }\` to stop new versions; a bucket that was versioned cannot return to never-versioned"
+}",
+}
+`;
+
+exports[`assertS3BucketVersionsNotRetracted given: [case1] a live Enabled bucket when: [t1] the wish declares lifecycle:null then: it throws loud — the null-lifecycle retract path 1`] = `
+{
+  "message": "BadRequestError: cannot un-version bucket "my-bucket", which is already versioned; the aws version-state is a one-way door
+
+{
+  "bucket": "my-bucket",
+  "liveStatus": "enabled",
+  "fix": "declare \`versions: { status: 'suspended', expire }\` to stop new versions; a bucket that was versioned cannot return to never-versioned"
+}",
+}
+`;
+
+exports[`assertS3BucketVersionsNotRetracted given: [case2] a live Suspended bucket when: [t0] the wish declares versions:false then: it throws loud — suspended is still versioned 1`] = `
+{
+  "message": "BadRequestError: cannot un-version bucket "my-bucket", which is already versioned; the aws version-state is a one-way door
+
+{
+  "bucket": "my-bucket",
+  "liveStatus": "suspended",
+  "fix": "declare \`versions: { status: 'suspended', expire }\` to stop new versions; a bucket that was versioned cannot return to never-versioned"
+}",
+}
+`;

@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`assertS3BucketLifecycleDaysInBounds given: [case2] a day-count aws rejects when: [t0] the guard is run on zero, a negative, and a fraction then: the rejection names the fix, not only the symptom 1`] = `
+{
+  "message": "BadRequestError: multiparts.expire must be a positive whole number of days
+
+{
+  "field": "multiparts.expire",
+  "duration": {
+    "days": 0
+  },
+  "fix": "declare \`multiparts.expire\` as { days: N }, where N is a whole number of 1 or more"
+}",
+}
+`;

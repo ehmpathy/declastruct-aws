@@ -4,6 +4,7 @@ import type { ContextLogTrail } from 'sdk-logs';
 import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
 
 import { getAwsClientConfig } from '../getAwsClientConfig';
+import { getBucketNotEmptyError } from './getBucketNotEmptyError';
 
 /**
  * .what = deletes an S3 bucket by name
@@ -27,6 +28,13 @@ export const delBucket = async (
     await s3.send(new DeleteBucketCommand({ Bucket: input.name }));
   } catch (error) {
     if (error instanceof Error && error.name === 'NoSuchBucket') return;
+
+    // a non-empty bucket fails loud with the real cause named; never purge to pass
+    if (error instanceof Error && error.name === 'BucketNotEmpty')
+      throw getBucketNotEmptyError({
+        name: input.name,
+        awsMessage: error.message,
+      });
     throw error;
   }
 };

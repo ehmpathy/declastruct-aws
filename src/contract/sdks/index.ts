@@ -164,9 +164,22 @@ export { DeclaredAwsOrganizationServiceControlPolicyAttachment } from '@src/doma
 export { DeclaredAwsRdsCluster } from '@src/domain.objects/DeclaredAwsRdsCluster';
 // aws s3 domain objects
 export { DeclaredAwsS3Bucket } from '@src/domain.objects/DeclaredAwsS3Bucket';
+export { DeclaredAwsS3BucketAccess } from '@src/domain.objects/DeclaredAwsS3BucketAccess';
 export { DeclaredAwsS3BucketLifecycle } from '@src/domain.objects/DeclaredAwsS3BucketLifecycle';
+export { DeclaredAwsS3BucketLifecycleMultiparts } from '@src/domain.objects/DeclaredAwsS3BucketLifecycleMultiparts';
+export { DeclaredAwsS3BucketLifecycleObjects } from '@src/domain.objects/DeclaredAwsS3BucketLifecycleObjects';
 export { DeclaredAwsS3BucketLifecycleTransition } from '@src/domain.objects/DeclaredAwsS3BucketLifecycleTransition';
+// .note = the `VersionExpiry` union is deliberately NOT exported here. every resource-scoped name
+//   in this file is `DeclaredAws<Service><Resource>`, and a bare `VersionExpiry` is a name a later
+//   resource could collide with in a consumer's import (lambda version retention, ecr image expiry,
+//   backup vault lifecycle). a consumer who wants the union reaches it structurally, always in
+//   sync, via `DeclaredAwsS3BucketLifecycleVersions['expire']`
+export { DeclaredAwsS3BucketLifecycleVersions } from '@src/domain.objects/DeclaredAwsS3BucketLifecycleVersions';
 export { DeclaredAwsS3BucketPolicy } from '@src/domain.objects/DeclaredAwsS3BucketPolicy';
+export { DeclaredAwsS3BucketPublicAccess } from '@src/domain.objects/DeclaredAwsS3BucketPublicAccess';
+export { DeclaredAwsS3BucketPublicAccessAcls } from '@src/domain.objects/DeclaredAwsS3BucketPublicAccessAcls';
+export { DeclaredAwsS3BucketPublicAccessPolicies } from '@src/domain.objects/DeclaredAwsS3BucketPublicAccessPolicies';
+export { DeclaredAwsS3BucketVersionExpiry } from '@src/domain.objects/DeclaredAwsS3BucketVersionExpiry';
 export { DeclaredAwsSesAccountDetails } from '@src/domain.objects/DeclaredAwsSesAccountDetails';
 // aws ses domain objects
 export { DeclaredAwsSesCloudwatchDimension } from '@src/domain.objects/DeclaredAwsSesCloudwatchDimension';
@@ -217,6 +230,14 @@ export { DeclaredAwsVpcSecurityGroupRule } from '@src/domain.objects/DeclaredAws
 export { DeclaredAwsVpcSecurityGroupRules } from '@src/domain.objects/DeclaredAwsVpcSecurityGroupRules';
 export { DeclaredAwsVpcSubnet } from '@src/domain.objects/DeclaredAwsVpcSubnet';
 export type { DeclastructAwsProvider } from '@src/domain.objects/DeclastructAwsProvider';
+// .note = exported as a VALUE, beside its guard — symmetric with every peer domain object this
+//   family declares (a consumer typically writes `{ days: 30 }` as a bare literal under nested
+//   hydration, exactly as they do for `DeclaredAwsS3BucketVersionExpiry`, and the class + guard are
+//   reachable for the consumer who wants to validate one before it reaches a declaration)
+export {
+  IsoDurationInDays,
+  isIsoDurationInDays,
+} from '@src/domain.objects/IsoDurationInDays';
 export { delBudget } from '@src/domain.operations/budget/delBudget';
 export { getOneBudget } from '@src/domain.operations/budget/getOneBudget';
 export { setBudget } from '@src/domain.operations/budget/setBudget';

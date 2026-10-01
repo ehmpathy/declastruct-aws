@@ -816,15 +816,48 @@ export const getResources = async () => {
     tags: { managedBy: 'declastruct', purpose: 'acceptance-test' },
   });
 
-  // the inbound store — glacier staircase lifecycle
+  // the inbound store — glacier staircase lifecycle; a mail store is never public, unversioned.
+  // .note = `versions` MUST stay `false` here. SES writes received mail into this bucket, and a
+  //   versioned bucket that holds objects cannot be torn down — aws inserts a delete marker per
+  //   object, so object deletes alone never empty it (case=7). the constraint keys on
+  //   `versions !== false`, NOT on `status === 'enabled'`: aws inserts a delete marker under
+  //   SUSPENDED versions too, so a suspended mail store is orphaned identically
   const mailStore = DeclaredAwsS3Bucket.as({
     name: mailBucketName,
+    access: { public: 'blocked' },
     lifecycle: {
-      transitions: [
-        { afterDays: 30, class: 'GLACIER_IR' },
-        { afterDays: 180, class: 'DEEP_ARCHIVE' },
-      ],
-      expireAfterDays: null,
+      objects: {
+        expire: null,
+        transitions: [
+          { afterDays: 30, class: 'GLACIER_IR' },
+          { afterDays: 180, class: 'DEEP_ARCHIVE' },
+        ],
+      },
+      versions: false,
+      multiparts: { expire: null },
+    },
+    tags: { managedBy: 'declastruct', purpose: 'acceptance-test' },
+  });
+
+  // a backup store — the wish's headline shape: blocked, versioned with noncurrent expiry, and
+  // multipart abort. exercises access.public + versions + all three lifecycle subjects at once,
+  // and is the acceptance clamp for the plan -> apply -> KEEP convergence (case=1).
+  // .note = this bucket is versioned, so it MUST never receive an object (case=7). a versioned
+  //   bucket that holds objects cannot be torn down — aws inserts a delete marker per object,
+  //   which object deletes alone never clear, and the demo role lacks s3:DeleteObjectVersion.
+  //   the constraint is unrecoverable if broken: s3 names are a GLOBAL namespace, so a leaked
+  //   versioned fixture burns the name account-wide. it stays a pure declared resource (no writer)
+  const backupBucketName = `declastruct-acceptance-git-backup-${account}`;
+  const backupStore = DeclaredAwsS3Bucket.as({
+    name: backupBucketName,
+    access: { public: 'blocked' },
+    lifecycle: {
+      objects: { expire: null, transitions: [] },
+      versions: {
+        status: 'enabled',
+        expire: { after: { days: 30 }, keep: null },
+      },
+      multiparts: { expire: { days: 7 } },
     },
     tags: { managedBy: 'declastruct', purpose: 'acceptance-test' },
   });
@@ -1022,6 +1055,7 @@ export const getResources = async () => {
     //   event destination
     mailIdentity,
     mailStore,
+    backupStore,
     mailStorePolicy,
     mailRuleSet,
     mailRule,

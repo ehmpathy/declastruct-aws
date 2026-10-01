@@ -4,26 +4,43 @@ import { UnexpectedCodePathError } from 'helpful-errors';
 import type { ContextLogTrail } from 'sdk-logs';
 import type { PickOne } from 'type-fns';
 
-import { createBucket } from '@src/access/sdks/sdkS3/createBucket';
-import { delBucketLifecycle } from '@src/access/sdks/sdkS3/delBucketLifecycle';
-import { getBucketLifecycle } from '@src/access/sdks/sdkS3/getBucketLifecycle';
-import { putBucketLifecycle } from '@src/access/sdks/sdkS3/putBucketLifecycle';
 import type { ContextAwsApi } from '@src/domain.objects/ContextAwsApi';
 import type { DeclaredAwsS3Bucket } from '@src/domain.objects/DeclaredAwsS3Bucket';
 
-import { asBucketLifecycleTransitionParams } from './asBucketLifecycleTransitionParams';
+import { assertS3BucketVersionsNotRetracted } from './assertS3BucketVersionsNotRetracted';
 import { getOneS3Bucket } from './getOneS3Bucket';
-import { reconcileS3BucketTags } from './reconcileS3BucketTags';
+import { setS3BucketPropertiesReversible } from './setS3BucketPropertiesReversible';
+import { setS3BucketVersionStateIrreversible } from './setS3BucketVersionStateIrreversible';
+
+// stability-poll knobs — a matched read must repeat on this many CONSECUTIVE reads, within this
+// window, before the write is trusted to have settled (rule.require.guaranteed-idempotency)
+const STABLE_READS_NEEDED = 3;
+const STABILITY_DEADLINE_MS = 60000;
 
 /**
  * .what = creates or updates an S3 bucket (findsert | upsert)
- * .why = enables declarative management of the inbound mail store
+ * .why = enables declarative management of a bucket's access, lifecycle, version-state, and tags
  *
  * .idempotency
- *   - findsert on the FULL unique key (name = the whole natural identity): look up by name,
- *     return the extant if present, else CreateBucket (a re-create of our own bucket is a
- *     no-op via BucketAlreadyOwnedByYou). a re-run converges to KEEP.
- *   - lifecycle + tags reconcile independently to the desired state on every upsert.
+ *   - findsert on the FULL unique key (name): look up by name, return the extant if present, else
+ *     CreateBucket (a re-create of our own bucket is a no-op via BucketAlreadyOwnedByYou)
+ *   - access + lifecycle + version-state + tags reconcile independently to desired on every upsert
+ *
+ * .note = the version-state put runs LAST (invariant I-1). it is the one IRREVERSIBLE write in
+ *   this wish — a bucket that was Enabled cannot return to never-versioned. every other write is
+ *   reversible on a retry, so the irreversible step must run only after every reversible step has
+ *   succeeded; a partial apply that landed it first would leave a bucket versioned-by-accident with
+ *   no noncurrent-expiry rule — the exact cost leak this wish exists to close (case=1 write-order).
+ *
+ *   ⇒ the constraint is carried by the SHAPE, not by this note alone: BOTH halves are named —
+ *   `setS3BucketPropertiesReversible` then `setS3BucketVersionStateIrreversible` — so the whole of
+ *   I-1 is the adjacency of two statements whose names state the invariant. a refactor that would
+ *   break it must reorder two calls that say what they are, rather than drift a statement inside a
+ *   long block.
+ *
+ *   ⚠️ the symmetry carries weight rather than polish: while the irreversible half sat INLINE, its
+ *   position read as incidental beside a named peer, so a hoist for readability would have looked
+ *   like a tidy-up rather than the permadrift it is
  */
 export const setS3Bucket = asProcedure(
   async (
@@ -44,53 +61,29 @@ export const setS3Bucket = asProcedure(
     // findsert: return the extant unchanged
     if (foundBefore && input.findsert) return foundBefore;
 
-    // create-or-adopt the bucket (idempotent for our own bucket)
-    await createBucket(
-      { name: desired.name, region: context.aws.credentials.region },
+    // I-1: reject an irreversible un-version retract BEFORE any write (case=3). aws cannot return a
+    // versioned bucket to never-versioned, so a desired `versions: false` against a live versioned
+    // bucket would silently no-op into a permadrift — fail loud and name `status: 'suspended'`
+    assertS3BucketVersionsNotRetracted({ desired, found: foundBefore });
+
+    // every REVERSIBLE write, in one named step: create-or-adopt, lifecycle, public-access block,
+    // tags. it is a separate operation so the I-1 order below is ONE adjacency to respect rather
+    // than a long block whose sequence reads arbitrary
+    await setS3BucketPropertiesReversible(
+      {
+        desired,
+        stableReadsRequired: STABLE_READS_NEEDED,
+        deadlineMs: STABILITY_DEADLINE_MS,
+      },
       context,
     );
 
-    // reconcile the lifecycle to the desired config (null = drop the rule = persist)
-    if (desired.lifecycle) {
-      await putBucketLifecycle(
-        {
-          name: desired.name,
-          transitions: asBucketLifecycleTransitionParams({
-            transitions: desired.lifecycle.transitions,
-          }),
-          expireAfterDays: desired.lifecycle.expireAfterDays,
-        },
-        context,
-      );
-
-      // PutBucketLifecycleConfiguration is eventually consistent — a GET right after the PUT
-      // can flap between the new rule and NoSuchLifecycleConfiguration until the write settles
-      // across s3's systems. a SINGLE matched read is not enough: it can regress to null on
-      // the very next read. so poll until the desired transition count reads back on several
-      // CONSECUTIVE reads, which crosses the window where reads still flap and makes both the
-      // returned object AND any immediate re-read converge to KEEP against live truth
-      // (rule.require.guaranteed-idempotency + rule.require.immutable-source-of-truth).
-      const stableReadsNeeded = 3;
-      const deadline = Date.now() + 60000;
-      let stableReads = 0;
-      while (Date.now() < deadline && stableReads < stableReadsNeeded) {
-        const live = await getBucketLifecycle({ name: desired.name }, context);
-        stableReads =
-          live?.transitions.length === desired.lifecycle.transitions.length
-            ? stableReads + 1
-            : 0;
-        if (stableReads < stableReadsNeeded)
-          await new Promise((wake) => setTimeout(wake, 1000));
-      }
-    }
-    if (!desired.lifecycle)
-      await delBucketLifecycle({ name: desired.name }, context);
-
-    // reconcile tags to the desired set
-    await reconcileS3BucketTags(
+    // the version-state put runs LAST — the one IRREVERSIBLE write (I-1)
+    await setS3BucketVersionStateIrreversible(
       {
-        name: desired.name,
-        desired: desired.tags ? { ...desired.tags } : null,
+        desired,
+        stableReadsRequired: STABLE_READS_NEEDED,
+        deadlineMs: STABILITY_DEADLINE_MS,
       },
       context,
     );

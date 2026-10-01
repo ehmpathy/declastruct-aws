@@ -457,3 +457,142 @@ this pattern enables:
 > includes today reads `estimated: true`. each paged read is a $0.01 Cost Explorer request.
 > `range` is part of a report's identity, so it must be ABSOLUTE dates — a hardcoded window
 > is frozen to that window; recompute the range (as above) to keep a report current.
+
+
+## example.8 = receive mail into s3 — an SES receipt rule that writes to a lifecycle'd bucket
+
+SES and S3 in one wish. mail addressed to the mailbox lands as an object in the bucket, and the
+bucket ages it down a glacier staircase. the bucket is blocked from public access **at the type
+level**, and its policy names the exact receipt rule allowed to write into it.
+
+```ts
+import { RefByUnique } from 'domain-objects';
+import {
+  getDeclastructAwsProvider,
+  getCredentials,
+  asSesReceiptRuleArn,
+  DeclaredAwsS3Bucket,
+  DeclaredAwsS3BucketPolicy,
+  DeclaredAwsSesReceiptRuleSet,
+  DeclaredAwsSesReceiptRule,
+} from 'declastruct-aws';
+
+const BUCKET = 'ehmpathy-mail-inbound-demo';
+const RULE_SET = 'ehmpathy-mail-inbound';
+const RULE = 'to-s3';
+const ECHO = 'echo@demo.ehmpathy.com';
+
+export const getProviders = async () => [
+  await getDeclastructAwsProvider({}, { log: console }),
+];
+
+export const getResources = async () => {
+  const { account, region } = await getCredentials();
+
+  // the bucket policy's SourceArn must name the RECEIPT RULE arn (deterministic from names)
+  const receiptRuleArn = asSesReceiptRuleArn({
+    region,
+    account,
+    ruleSetName: RULE_SET,
+    ruleName: RULE,
+  });
+
+  // 1. the inbound store — glacier staircase lifecycle (Standard -> GLACIER_IR -> DEEP_ARCHIVE);
+  //    a mail store is never public, and needs no versions
+  const store = DeclaredAwsS3Bucket.as({
+    name: BUCKET,
+    access: { public: 'blocked' },
+    lifecycle: {
+      objects: {
+        expire: null, // keep every current object; the transitions age it down
+        transitions: [
+          { afterDays: 30, class: 'GLACIER_IR' },
+          { afterDays: 180, class: 'DEEP_ARCHIVE' },
+        ],
+      },
+      versions: false, // unversioned, so this bucket stays torn-down-able
+      multiparts: { expire: null },
+    },
+    tags: { managedBy: 'declastruct', purpose: 'mail' },
+  });
+
+  // 2. the bucket policy — allow SES (this account only) to PutObject into inbound/
+  const storePolicy = DeclaredAwsS3BucketPolicy.as({
+    bucket: RefByUnique.as<typeof DeclaredAwsS3Bucket>({ name: BUCKET }),
+    document: {
+      statements: [
+        {
+          sid: 'AllowSesPut',
+          effect: 'Allow',
+          principal: { service: 'ses.amazonaws.com' },
+          action: 's3:PutObject',
+          resource: `arn:aws:s3:::${BUCKET}/inbound/*`,
+          condition: {
+            StringEquals: { 'aws:SourceAccount': account },
+            ArnLike: { 'aws:SourceArn': receiptRuleArn },
+          },
+        },
+      ],
+    },
+  });
+
+  // 3. the receipt rule set — the account's active set
+  const ruleSet = DeclaredAwsSesReceiptRuleSet.as({
+    name: RULE_SET,
+    active: true,
+  });
+
+  // 4. the receipt rule — route inbound mail for ECHO to the s3 inbound/ prefix
+  const rule = DeclaredAwsSesReceiptRule.as({
+    ruleSet: RefByUnique.as<typeof DeclaredAwsSesReceiptRuleSet>({ name: RULE_SET }),
+    name: RULE,
+    enabled: true,
+    recipients: [ECHO],
+    actions: [
+      {
+        s3: {
+          bucket: RefByUnique.as<typeof DeclaredAwsS3Bucket>({ name: BUCKET }),
+          objectKeyPrefix: 'inbound/',
+          topic: null,
+          kmsKeyArn: null,
+        },
+        sns: null,
+        lambda: null,
+        bounce: null,
+        stop: null,
+        addHeader: null,
+        workmail: null,
+        connect: null,
+      },
+    ],
+    // AWS materializes TlsPolicy to 'Optional' by default (it is never absent), so declare
+    // the real default explicitly — a null desired would drift to a perpetual UPDATE against
+    // the 'Optional' AWS returns
+    tlsPolicy: 'Optional',
+    scanEnabled: true,
+  });
+
+  // apply order = declared array order (declastruct does no topological sort). SES test-puts
+  // the bucket when the rule is created, so the bucket + policy must exist first.
+  return [store, storePolicy, ruleSet, rule];
+};
+```
+
+this pattern enables:
+- **safe by default**: `access: { public: 'blocked' }` is one token; the public-capable posture
+  costs four booleans typed out (`{ acls: { block, ignore }, policies: { block, restrict } }`), so
+  the exposed state is never reached by inattention
+- **one verb, three subjects**: `lifecycle` decomposes by *what expires* — `objects`, `versions`,
+  `multiparts` — each with the same `expire`. which sub-object is populated names the mode, so a
+  reader sees "staircase, unversioned, no multipart cleanup" from the shape alone
+- **no silent bill**: `multiparts.expire` aborts stranded upload parts from a dead writer — parts
+  `aws s3 ls` cannot see, and that bill forever otherwise
+- **cross-service refs**: the receipt rule names the bucket by `RefByUnique`, so the two converge
+  together and a rename of either is a compile error rather than a runtime 404
+- **explicit AWS defaults**: `tlsPolicy: 'Optional'` is declared because AWS materializes it — a
+  `null` desired would read `UPDATE` on every plan, forever
+
+> **note** — `versions: false` carries real weight for a bucket you may need to delete. once
+> versions are enabled, a delete inserts a *delete marker* rather than a true erase, so the bucket
+> cannot be emptied by object deletes alone — and `'suspended'` does not undo that. s3 bucket names
+> are a **global** namespace, so a stuck bucket burns its name account-wide.
