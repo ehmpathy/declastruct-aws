@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.13.0](https://github.com/ehmpathy/declastruct-aws/compare/v1.12.0...v1.13.0) (2026-10-01)
+
+
+### Features
+
+* **s3:** declare versions, public access block, multipart abort, noncurrent expiry ([#111](https://github.com/ehmpathy/declastruct-aws/issues/111)) ([b2408a0](https://github.com/ehmpathy/declastruct-aws/commit/b2408a095c2c0ff5ddd8cdf22fee4421e07eac7b))
+
 ## [1.12.0](https://github.com/ehmpathy/declastruct-aws/compare/v1.11.0...v1.12.0) (2026-09-24)
 
 
