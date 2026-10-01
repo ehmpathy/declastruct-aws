@@ -24,6 +24,7 @@ import { setParameter } from '@src/access/sdks/sdkSsm/setParameter';
 import { ec2InstanceMetadataOptionsSecure } from '@src/domain.objects/DeclaredAwsEc2InstanceMetadataOptions';
 import { DeclaredAwsEc2InstanceSession } from '@src/domain.objects/DeclaredAwsEc2InstanceSession';
 import { DeclaredAwsEc2SshKeyAuthorized } from '@src/domain.objects/DeclaredAwsEc2SshKeyAuthorized';
+import type { DeclaredAwsS3Bucket } from '@src/domain.objects/DeclaredAwsS3Bucket';
 import { DeclaredAwsSsmParameterSecure } from '@src/domain.objects/DeclaredAwsSsmParameterSecure';
 import { castIntoDeclaredAwsCostReportSpendObservedByResource } from '@src/domain.operations/costReportSpendObservedByResource/castIntoDeclaredAwsCostReportSpendObservedByResource';
 import { getEc2Instance } from '@src/domain.operations/ec2Instance/getEc2Instance';
@@ -33,6 +34,7 @@ import { getOneEc2SshKeyAuthorized } from '@src/domain.operations/ec2SshKeyAutho
 import { setEc2SshKeyAuthorized } from '@src/domain.operations/ec2SshKeyAuthorized/setEc2SshKeyAuthorized';
 import { getAllIamUserAccessKeys } from '@src/domain.operations/iamUserAccessKey/getAllIamUserAccessKeys';
 import { getDeclastructAwsProvider } from '@src/domain.operations/provider/getDeclastructAwsProvider';
+import { getOneS3Bucket } from '@src/domain.operations/s3Bucket/getOneS3Bucket';
 import { setSsmParameterSecure } from '@src/domain.operations/ssmParameterSecure/setSsmParameterSecure';
 
 import {
@@ -105,12 +107,20 @@ const ansiCsiSequence = new RegExp(
 // the double is a render artifact. keep ONE informative class prefix, drop the redundant second.
 const duplicateErrorClassPrefix = /(\b\w+Error): \1: /g;
 
+// a v8 stack frame. dropped BEFORE the keep-filter below, because a frame that names the error
+// class — `at BadRequestError.throw (/abs/path/HelpfulError.ts:82:11)` — matches that filter's
+// `BadRequestError` alternative and survives it. the frame carries an ABSOLUTE path, so a snapshot
+// that absorbed one would pin the author's worktree and fail on every other machine, which is the
+// exact stability this masker promises (rule.require.hermetic-tests).
+const stackFrameLine = /^\s*at\s/;
+
 const asGuardErrorSnapshot = (output: string): string =>
   output
     .replace(ansiCsiSequence, '')
     .replace(duplicateErrorClassPrefix, '$1: ')
     .split('\n')
     .map((line) => line.trimEnd())
+    .filter((line) => !stackFrameLine.test(line))
     .filter((line) =>
       /BadRequestError|will not manage|without a value|without also a value|is a (SecureString|String), not a|StringList/.test(
         line,
@@ -648,6 +658,64 @@ describe('declastruct CLI workflow', () => {
           expect(change).toBeDefined();
         }
       });
+
+      then('plan includes BOTH s3 buckets, keyed by name', () => {
+        /**
+         * .what = asserts the mail store AND the backup store each appear in the plan, matched
+         *   by their own name rather than by their shared class
+         * .why = the class-keyed `.find()` above returns whichever `DeclaredAwsS3Bucket` comes
+         *   first, so once a SECOND bucket of that class was declared it stopped to prove aught
+         *   about the second one — it passes identically whether or not the backup store was
+         *   ever declared. that is the same "the test claims X and structurally cannot prove X"
+         *   shape the vision names as the silent half, reached here by a peer of the same class
+         */
+        // the account suffix varies per env, so match on the stable per-bucket prefix
+        for (const prefix of [
+          'declastruct-acceptance-mail-inbound-',
+          'declastruct-acceptance-git-backup-',
+        ]) {
+          const change = prep.plan.changes.find(
+            (r: DeclastructChange) =>
+              r.forResource.class === 'DeclaredAwsS3Bucket' &&
+              r.forResource.slug.includes(prefix),
+          );
+          expect(change).toBeDefined();
+        }
+      });
+
+      then(
+        'the mail store is declared UNVERSIONED (case=7, unrecoverable)',
+        () => {
+          /**
+           * .what = asserts the DECLARED `lifecycle.versions` of the mail store is exactly `false`
+           * .why = ⚠️ this is the one fixture invariant whose breach cannot be undone. SES writes
+           *   received mail into this bucket, and a versioned bucket that holds objects can never
+           *   be emptied — aws inserts a delete marker per object, the demo role lacks
+           *   `s3:DeleteObjectVersion`, and s3 names are a GLOBAL namespace, so a leaked fixture
+           *   burns the name account-wide forever.
+           *
+           *   ⚠️ it reads the DESIRED state, never the remote one, and that is the whole point:
+           *   a remote read detects the breach AFTER the apply already versioned the bucket, which
+           *   is too late for an unrecoverable failure. the desired state is the DECLARATION, so
+           *   this fails at plan — before the apply that would do the damage
+           *   (rule.prefer.prevent-over-correct, rung 3: catch it early, at the boundary).
+           *
+           *   ⚠️ the check is `=== false`, NOT `status !== 'enabled'`: aws inserts a delete marker
+           *   under SUSPENDED versions too, so a suspended mail store is orphaned identically
+           */
+          const change = prep.plan.changes.find(
+            (r: DeclastructChange) =>
+              r.forResource.class === 'DeclaredAwsS3Bucket' &&
+              r.forResource.slug.includes(
+                'declastruct-acceptance-mail-inbound-',
+              ),
+          );
+          expect(change).toBeDefined();
+          expect(
+            (change!.state.desired as DeclaredAwsS3Bucket).lifecycle?.versions,
+          ).toEqual(false);
+        },
+      );
 
       /**
        * .skip = SSH key resource uses direct operations, not declastruct plan/apply
@@ -1603,6 +1671,71 @@ describe('declastruct CLI workflow', () => {
         //   },
         // );
       }
+    });
+
+    when('the backup store has been applied via the declastruct CLI', () => {
+      /**
+       * .what = verifies the CLI apply above actually WROTE the backup store's four declared
+       *   properties — access.public, versions (status + noncurrent expiry), multiparts.expire,
+       *   and the objects sub-rule
+       * .why = the KEEP block above proves the bucket PLANS idempotently, but a property stripped
+       *   from BOTH operands (or never plumbed into the dobj) reads KEEP and passes every generic
+       *   assertion. only a read-back proves the values landed — the one new assertion this wish
+       *   owes (case=1, 1.vision acceptance table)
+       * .note
+       *   - the action under test is the CLI apply in the outer scope; the `getOneS3Bucket` below
+       *     is the VERIFY phase, where an internal read is allowed (rule.require.acceptance.blackbox)
+       *   - the backup store is a persistent acceptance resource (never torn down), so a live read
+       *     is safe despite versions
+       */
+      // verify-phase read, shared across the assertions below
+      const found = useBeforeAll(async () => {
+        const provider = await getDeclastructAwsProvider({}, { log: testLog });
+        const account = provider.context.aws.credentials.account;
+        const name = `declastruct-acceptance-git-backup-${account}`;
+        const bucket = await getOneS3Bucket(
+          { by: { unique: { name } } },
+          provider.context,
+        );
+        return { bucket };
+      });
+
+      then('the backup store exists after apply', () => {
+        expect(found.bucket).not.toBeNull();
+      });
+
+      then('access.public reads back blocked (all four controls on)', () => {
+        expect(found.bucket?.access.public).toEqual({
+          acls: { block: true, ignore: true },
+          policies: { block: true, restrict: true },
+        });
+      });
+
+      then('versions reads back enabled with its noncurrent expiry', () => {
+        expect(found.bucket?.lifecycle?.versions).toEqual({
+          status: 'enabled',
+          expire: { after: { days: 30 }, keep: null },
+        });
+      });
+
+      then('multiparts expiry + objects sub-rule read back', () => {
+        expect(found.bucket?.lifecycle?.multiparts).toEqual({
+          expire: { days: 7 },
+        });
+        expect(found.bucket?.lifecycle?.objects).toEqual({
+          expire: null,
+          transitions: [],
+        });
+      });
+
+      then('the read-back shape matches snapshot (account-masked)', () => {
+        // the name carries the account id, so it is masked; every declared property is pinned
+        expect({
+          access: found.bucket?.access,
+          lifecycle: found.bucket?.lifecycle,
+          tags: found.bucket?.tags,
+        }).toMatchSnapshot();
+      });
     });
 
     when('log group reports are fetched after lambda invocation', () => {

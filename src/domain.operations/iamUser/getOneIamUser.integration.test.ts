@@ -1,42 +1,47 @@
-import { given, then, useBeforeAll, when } from 'test-fns';
+import { genTestUuid, given, then, useBeforeAll, when } from 'test-fns';
 
 import { getSampleAwsApiContext } from '@src/.test/getSampleAwsApiContext';
+import {
+  delTestIamUserThrowaway,
+  setTestIamUserThrowaway,
+  TEST_IAM_USER_PREFIX,
+} from '@src/.test/setTestIamUserThrowaway';
 
-import { getAllIamUsers } from './getAllIamUsers';
 import { getOneIamUser } from './getOneIamUser';
 
 /**
  * .what = integration tests for getOneIamUser
  * .why = validates IAM user lookup works against real AWS API
+ * .note = the test mints its own throwaway user — the demo account holds none, and a lookup
+ *   test with no subject proves no behavior. both-ends cleanup; the name carries a fresh uuid
  */
 describe('getOneIamUser', () => {
+  const testUserName = `${TEST_IAM_USER_PREFIX}user-${genTestUuid().slice(0, 8)}`;
   const context = useBeforeAll(() => getSampleAwsApiContext());
 
-  given('an existing IAM user', () => {
+  afterAll(async () => {
+    // fresh context so teardown runs even if setup failed
+    const teardownContext = await getSampleAwsApiContext();
+    await delTestIamUserThrowaway({ name: testUserName }, teardownContext);
+  });
+
+  given('an extant IAM user', () => {
     const scene = useBeforeAll(async () => {
-      // get first user from account to use for testing
-      const users = await getAllIamUsers(
-        { by: { account: { id: context.aws.credentials.account } } },
+      await delTestIamUserThrowaway({ name: testUserName }, context);
+      return setTestIamUserThrowaway(
+        { name: testUserName, withAccessKey: false },
         context,
       );
-      if (users.length === 0)
-        return { user: null as (typeof users)[0] | null, hasUsers: false };
-      return { user: users[0]!, hasUsers: true };
     });
 
-    when('looking up by unique (account + username)', () => {
+    when('a lookup by unique (account + username)', () => {
       then('it should return the user', async () => {
-        if (!scene.hasUsers) {
-          console.log('skipping test - no users in account');
-          return;
-        }
-
         const user = await getOneIamUser(
           {
             by: {
               unique: {
-                account: scene.user!.account,
-                username: scene.user!.username,
+                account: { id: context.aws.credentials.account },
+                username: testUserName,
               },
             },
           },
@@ -44,25 +49,21 @@ describe('getOneIamUser', () => {
         );
 
         expect(user).not.toBeNull();
-        expect(user?.username).toBe(scene.user!.username);
-        expect(user?.id).toBe(scene.user!.id);
-        console.log('found user:', user);
+        expect(user?.username).toBe(testUserName);
+        // the id matches aws's own, from the create — the pre-fixture test checked the id against
+        // the account list; this keeps that cross-source equality
+        expect(user?.id).toBe(scene.userId);
       });
     });
 
-    when('looking up by ref', () => {
+    when('a lookup by ref', () => {
       then('it should return the user', async () => {
-        if (!scene.hasUsers) {
-          console.log('skipping test - no users in account');
-          return;
-        }
-
         const user = await getOneIamUser(
           {
             by: {
               ref: {
-                account: scene.user!.account,
-                username: scene.user!.username,
+                account: { id: context.aws.credentials.account },
+                username: testUserName,
               },
             },
           },
@@ -70,13 +71,13 @@ describe('getOneIamUser', () => {
         );
 
         expect(user).not.toBeNull();
-        expect(user?.username).toBe(scene.user!.username);
+        expect(user?.username).toBe(testUserName);
       });
     });
   });
 
   given('a non-existent user', () => {
-    when('looking up by unique', () => {
+    when('a lookup by unique', () => {
       then('it should return null', async () => {
         const user = await getOneIamUser(
           {

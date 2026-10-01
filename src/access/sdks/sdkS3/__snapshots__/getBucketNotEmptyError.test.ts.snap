@@ -1,0 +1,12 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`getBucketNotEmptyError given: [case1] a DeleteBucket refused as BucketNotEmpty when: [t0] the error is built then: it carries the actionable fix guidance (message snapshot) 1`] = `
+{
+  "message": "BadRequestError: BucketNotEmpty: bucket "ehmpathy-mail-inbound-demo" still holds contents. aws counts object VERSIONS and DELETE MARKERS as contents, so on a bucket whose versions are (or were) enabled, \`aws s3 rm --recursive\` does not empty it — each delete writes a marker, and each marker is itself a version. a versions status of 'suspended' does NOT undo this. fix: remove every version and marker, which needs \`s3:DeleteObjectVersion\` (use admin credentials): \`aws s3api list-object-versions --bucket ehmpathy-mail-inbound-demo\`, then \`aws s3api delete-object --bucket ehmpathy-mail-inbound-demo --key <key> --version-id <versionId>\` for each. note: a bucket name is GLOBAL — until this is cleared, the name is unusable everywhere
+
+{
+  "bucket": "ehmpathy-mail-inbound-demo",
+  "awsMessage": "The bucket you tried to delete is not empty"
+}",
+}
+`;

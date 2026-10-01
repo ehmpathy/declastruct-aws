@@ -5,11 +5,15 @@ import { delBucketPolicy } from './delBucketPolicy';
 import { delBucketTags } from './delBucketTags';
 import { getBucketLifecycle } from './getBucketLifecycle';
 import { getBucketPolicy } from './getBucketPolicy';
+import { getBucketPublicAccessBlock } from './getBucketPublicAccessBlock';
 import { getBucketTags } from './getBucketTags';
+import { getBucketVersioning } from './getBucketVersioning';
 import { headBucket } from './headBucket';
 import { putBucketLifecycle } from './putBucketLifecycle';
 import { putBucketPolicy } from './putBucketPolicy';
+import { putBucketPublicAccessBlock } from './putBucketPublicAccessBlock';
 import { putBucketTags } from './putBucketTags';
+import { putBucketVersioning } from './putBucketVersioning';
 
 /**
  * .what = dao-style SDK wrapper for AWS S3
@@ -22,6 +26,10 @@ export const sdkS3 = {
   getBucketLifecycle,
   putBucketLifecycle,
   delBucketLifecycle,
+  getBucketVersioning,
+  putBucketVersioning,
+  getBucketPublicAccessBlock,
+  putBucketPublicAccessBlock,
   getBucketTags,
   putBucketTags,
   delBucketTags,

@@ -185,6 +185,10 @@ exports[`declastruct CLI workflow given: a declastruct resources file when: gene
     "slug": "DeclaredAwsS3Bucket.declastruct-acceptance-mail-inbound-805192865516.[HASH]",
   },
   {
+    "class": "DeclaredAwsS3Bucket",
+    "slug": "DeclaredAwsS3Bucket.declastruct-acceptance-git-backup-805192865516.[HASH]",
+  },
+  {
     "class": "DeclaredAwsS3BucketPolicy",
     "slug": "DeclaredAwsS3BucketPolicy.namedeclastruct-acceptance-mail-inbound-805192865516.[HASH]",
   },
@@ -422,6 +426,11 @@ exports[`declastruct CLI workflow given: a declastruct resources file when: re-p
   },
   {
     "action": "KEEP",
+    "class": "DeclaredAwsS3Bucket",
+    "slug": "DeclaredAwsS3Bucket.declastruct-acceptance-git-backup-805192865516.[HASH]",
+  },
+  {
+    "action": "KEEP",
     "class": "DeclaredAwsS3BucketPolicy",
     "slug": "DeclaredAwsS3BucketPolicy.namedeclastruct-acceptance-mail-inbound-805192865516.[HASH]",
   },
@@ -576,6 +585,47 @@ exports[`declastruct CLI workflow given: a declastruct resources file when: read
   "total": {
     "amount": "[string]",
     "unit": "[string]",
+  },
+}
+`;
+
+exports[`declastruct CLI workflow given: a declastruct resources file when: the backup store has been applied via the declastruct CLI then: the read-back shape matches snapshot (account-masked) 1`] = `
+{
+  "access": DeclaredAwsS3BucketAccess {
+    "public": DeclaredAwsS3BucketPublicAccess {
+      "acls": DeclaredAwsS3BucketPublicAccessAcls {
+        "block": true,
+        "ignore": true,
+      },
+      "policies": DeclaredAwsS3BucketPublicAccessPolicies {
+        "block": true,
+        "restrict": true,
+      },
+    },
+  },
+  "lifecycle": DeclaredAwsS3BucketLifecycle {
+    "multiparts": DeclaredAwsS3BucketLifecycleMultiparts {
+      "expire": IsoDurationInDays {
+        "days": 7,
+      },
+    },
+    "objects": DeclaredAwsS3BucketLifecycleObjects {
+      "expire": null,
+      "transitions": [],
+    },
+    "versions": DeclaredAwsS3BucketLifecycleVersions {
+      "expire": DeclaredAwsS3BucketVersionExpiry {
+        "after": IsoDurationInDays {
+          "days": 30,
+        },
+        "keep": null,
+      },
+      "status": "enabled",
+    },
+  },
+  "tags": DeclaredAwsTags {
+    "managedBy": "declastruct",
+    "purpose": "acceptance-test",
   },
 }
 `;

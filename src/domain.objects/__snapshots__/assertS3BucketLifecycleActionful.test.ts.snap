@@ -1,0 +1,21 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`assertS3BucketLifecycleActionful given: [case1] a lifecycle that declares no action on any subject when: [t0] it is asserted then: it throws loud and names lifecycle: null 1`] = `
+{
+  "message": "BadRequestError: lifecycle declares no action on any subject (objects, versions, multiparts); aws rejects an actionless rule
+
+{
+  "lifecycle": {
+    "objects": {
+      "expire": null,
+      "transitions": []
+    },
+    "versions": false,
+    "multiparts": {
+      "expire": null
+    }
+  },
+  "fix": "declare \`lifecycle: null\` to persist every object with no rule at all (the shape's persist mode), or add >=1 action"
+}",
+}
+`;

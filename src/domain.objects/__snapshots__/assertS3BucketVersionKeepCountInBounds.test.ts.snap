@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`assertS3BucketVersionKeepCountInBounds given: [case2] a keep count outside aws bounds when: [t0] the guard is run on each illegal value then: the rejection names the fix, not only the symptom 1`] = `
+{
+  "message": "BadRequestError: NewerNoncurrentVersions must be a whole number 1-100
+
+{
+  "keep": 0,
+  "fix": "declare \`keep\` as a whole number from 1 to 100"
+}",
+}
+`;
+
+exports[`assertS3BucketVersionKeepCountInBounds given: [case3] a keep count that is not a whole number when: [t0] the guard is run on a fraction inside the numeric range then: it rejects it — inside the range is not enough 1`] = `
+{
+  "message": "BadRequestError: NewerNoncurrentVersions must be a whole number 1-100
+
+{
+  "keep": 2.5,
+  "fix": "declare \`keep\` as a whole number from 1 to 100"
+}",
+}
+`;

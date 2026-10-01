@@ -1,0 +1,65 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`asS3BucketLifecycleParams given: [case2] a day-count the type admits but aws rejects when: [t0] the object expiry is fractional then: it throws loud (the F17 runtime check) 1`] = `
+{
+  "message": "BadRequestError: objects.expire must be a positive whole number of days
+
+{
+  "field": "objects.expire",
+  "duration": {
+    "days": 30.5
+  },
+  "fix": "declare \`objects.expire\` as { days: N }, where N is a whole number of 1 or more"
+}",
+}
+`;
+
+exports[`asS3BucketLifecycleParams given: [case2] a day-count the type admits but aws rejects when: [t1] the multipart expiry is zero then: it throws loud (aws requires a positive count) 1`] = `
+{
+  "message": "BadRequestError: multiparts.expire must be a positive whole number of days
+
+{
+  "field": "multiparts.expire",
+  "duration": {
+    "days": 0
+  },
+  "fix": "declare \`multiparts.expire\` as { days: N }, where N is a whole number of 1 or more"
+}",
+}
+`;
+
+exports[`asS3BucketLifecycleParams given: [case3] a keep count at and past the aws 1-100 bound when: [t0] keep is 0 then: it throws loud (aws requires 1-100) 1`] = `
+{
+  "message": "BadRequestError: NewerNoncurrentVersions must be a whole number 1-100
+
+{
+  "keep": 0,
+  "fix": "declare \`keep\` as a whole number from 1 to 100"
+}",
+}
+`;
+
+exports[`asS3BucketLifecycleParams given: [case3] a keep count at and past the aws 1-100 bound when: [t1] keep is 101 then: it throws loud (aws requires 1-100) 1`] = `
+{
+  "message": "BadRequestError: NewerNoncurrentVersions must be a whole number 1-100
+
+{
+  "keep": 101,
+  "fix": "declare \`keep\` as a whole number from 1 to 100"
+}",
+}
+`;
+
+exports[`asS3BucketLifecycleParams given: [case4] a version expiry with both axes null when: [t0] it is collapsed to wire params then: it throws loud (I-9: at least one axis required) 1`] = `
+{
+  "message": "BadRequestError: a version expiry must declare at least one axis: \`after\` (age), \`keep\` (count), or both
+
+{
+  "versionExpiry": {
+    "afterDays": null,
+    "keep": null
+  },
+  "fix": "set \`expire.after\`, \`expire.keep\`, or both"
+}",
+}
+`;

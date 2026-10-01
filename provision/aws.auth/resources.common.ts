@@ -113,6 +113,16 @@ export const demoPermissionsPolicy: DeclaredAwsIamPolicyBundle =
           ],
           resource: '*',
         }),
+        // IAM Users: create/delete THROWAWAY test users only
+        // .why = the iamUser + iamUserAccessKey lookup tests need a real user to look up, and
+        //   the demo account holds none — so those tests passed with zero assertions run.
+        //   scoped to the `declastruct-test-` name prefix: identity creation is the one grant
+        //   here that could mint a standing principal, so it may reach no other user
+        new DeclaredAwsIamPolicyStatement({
+          effect: 'Allow',
+          action: ['iam:CreateUser', 'iam:DeleteUser', 'iam:TagUser'],
+          resource: 'arn:aws:iam::*:user/declastruct-test-*',
+        }),
         // IAM OIDC Providers: full access
         new DeclaredAwsIamPolicyStatement({
           effect: 'Allow',
@@ -334,6 +344,13 @@ export const demoPermissionsPolicy: DeclaredAwsIamPolicyBundle =
         //   the object-level statement above covers Put/Get/DeleteObject; these cover the
         //   bucket itself (create/delete), its lifecycle config (persist | glacier staircase |
         //   auto-tier), its resource policy (the SES PutObject grant), and its tags.
+        // .note = the version-state + public-access-block grants are declared here AHEAD of
+        //         the code that calls them (declastruct-aws#99). an iam grant for an action
+        //         nobody calls yet is inert, so the grant can land first at zero risk — and
+        //         that inverts the hazard: the write path meets a ready account instead of
+        //         an absent grant. the two Get*s are also covered by managed ReadOnlyAccess;
+        //         they are declared inline anyway, because a wildcard in a policy aws
+        //         controls can narrow without notice.
         new DeclaredAwsIamPolicyStatement({
           effect: 'Allow',
           action: [
@@ -348,6 +365,10 @@ export const demoPermissionsPolicy: DeclaredAwsIamPolicyBundle =
             's3:PutLifecycleConfiguration',
             's3:GetBucketTagging',
             's3:PutBucketTagging',
+            's3:GetBucketVersioning',
+            's3:PutBucketVersioning',
+            's3:GetBucketPublicAccessBlock',
+            's3:PutBucketPublicAccessBlock',
           ],
           resource: '*',
         }),

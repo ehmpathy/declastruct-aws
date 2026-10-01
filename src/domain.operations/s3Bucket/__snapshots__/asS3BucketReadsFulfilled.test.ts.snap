@@ -1,0 +1,67 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`asS3BucketReadsFulfilled given: [case3] two reads rejected for different causes when: [t0] the cast unwraps them then: it aggregates — NEITHER cause is discarded 1`] = `
+{
+  "message": "getOneS3Bucket: 2 of 4 bucket-level reads failed for "a-bucket"
+
+{
+  "name": "a-bucket",
+  "rejections": [
+    {
+      "read": "publicAccessBlock",
+      "error": {
+        "name": "AccessDenied",
+        "message": "no grant for the block"
+      }
+    },
+    {
+      "read": "tags",
+      "error": {
+        "name": "Error",
+        "message": "a real defect in the tag read"
+      }
+    }
+  ]
+}",
+}
+`;
+
+exports[`asS3BucketReadsFulfilled given: [case4] every read rejected when: [t0] the cast unwraps them then: it aggregates all four 1`] = `
+{
+  "message": "getOneS3Bucket: 4 of 4 bucket-level reads failed for "a-bucket"
+
+{
+  "name": "a-bucket",
+  "rejections": [
+    {
+      "read": "publicAccessBlock",
+      "error": {
+        "name": "Error",
+        "message": "one"
+      }
+    },
+    {
+      "read": "versionStatus",
+      "error": {
+        "name": "Error",
+        "message": "two"
+      }
+    },
+    {
+      "read": "lifecycle",
+      "error": {
+        "name": "Error",
+        "message": "three"
+      }
+    },
+    {
+      "read": "tags",
+      "error": {
+        "name": "Error",
+        "message": "four"
+      }
+    }
+  ]
+}",
+}
+`;

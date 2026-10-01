@@ -79,15 +79,21 @@ export const getResourcesOfMail = (input: {
     tags: { managedBy: 'declastruct', purpose: 'mail' },
   });
 
-  // 2. the inbound store — glacier staircase lifecycle (Standard -> GLACIER_IR -> DEEP_ARCHIVE)
+  // 2. the inbound store — glacier staircase lifecycle (Standard -> GLACIER_IR -> DEEP_ARCHIVE);
+  //    a mail store is never public, and needs no versioning
   const store = DeclaredAwsS3Bucket.as({
     name: BUCKET,
+    access: { public: 'blocked' },
     lifecycle: {
-      transitions: [
-        { afterDays: 30, class: 'GLACIER_IR' },
-        { afterDays: 180, class: 'DEEP_ARCHIVE' },
-      ],
-      expireAfterDays: null,
+      objects: {
+        expire: null,
+        transitions: [
+          { afterDays: 30, class: 'GLACIER_IR' },
+          { afterDays: 180, class: 'DEEP_ARCHIVE' },
+        ],
+      },
+      versions: false,
+      multiparts: { expire: null },
     },
     tags: { managedBy: 'declastruct', purpose: 'mail' },
   });

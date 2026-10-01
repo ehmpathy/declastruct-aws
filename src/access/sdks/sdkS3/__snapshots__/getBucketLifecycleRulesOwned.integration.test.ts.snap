@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`getBucketLifecycleRulesOwned given: [case2] a bucket that holds only the declastruct-owned rule when: [t0] the owned rules are read then: it returns exactly the owned rule 1`] = `
+[
+  {
+    "AbortIncompleteMultipartUpload": {
+      "DaysAfterInitiation": 7,
+    },
+    "Filter": {
+      "Prefix": "",
+    },
+    "ID": "declastruct-lifecycle",
+    "Status": "Enabled",
+  },
+]
+`;
+
+exports[`getBucketLifecycleRulesOwned given: [case3] a bucket that also holds a foreign rule when: [t0] the owned rules are read then: it fails loud and names the foreign rule 1`] = `
+{
+  "message": "BadRequestError: bucket "<bucket>" already holds foreign lifecycle rule(s) [console-added-rule] that declastruct does not own. a whole-bucket replace-all would destroy them. fix by one of: remove the foreign rule(s) in the console, or reconcile them into the declared lifecycle
+
+{
+  "bucket": "<bucket>",
+  "foreignRuleIds": [
+    "console-added-rule"
+  ]
+}",
+}
+`;

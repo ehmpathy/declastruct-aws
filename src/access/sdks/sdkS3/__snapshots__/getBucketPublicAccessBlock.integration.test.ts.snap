@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`getBucketPublicAccessBlock given: [case1] the block is put when: [t0] all four are put false then: the read returns all four false 1`] = `
+{
+  "blockPublicAcls": false,
+  "blockPublicPolicy": false,
+  "ignorePublicAcls": false,
+  "restrictPublicBuckets": false,
+}
+`;
+
+exports[`getBucketPublicAccessBlock given: [case1] the block is put when: [t1] all four are put true then: the read returns all four true 1`] = `
+{
+  "blockPublicAcls": true,
+  "blockPublicPolicy": true,
+  "ignorePublicAcls": true,
+  "restrictPublicBuckets": true,
+}
+`;

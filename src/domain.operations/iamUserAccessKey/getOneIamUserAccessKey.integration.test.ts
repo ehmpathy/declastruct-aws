@@ -1,73 +1,75 @@
-import { given, then, useBeforeAll, when } from 'test-fns';
+import { genTestUuid, given, then, useBeforeAll, when } from 'test-fns';
 
 import { getSampleAwsApiContext } from '@src/.test/getSampleAwsApiContext';
+import {
+  delTestIamUserThrowaway,
+  setTestIamUserThrowaway,
+  TEST_IAM_USER_PREFIX,
+} from '@src/.test/setTestIamUserThrowaway';
 
-import { getAllIamUserAccessKeys } from './getAllIamUserAccessKeys';
 import { getOneIamUserAccessKey } from './getOneIamUserAccessKey';
 
 /**
  * .what = integration tests for getOneIamUserAccessKey
  * .why = validates IAM access key lookup works against real AWS API
+ * .note = the test mints its own throwaway user + key — the demo account holds none, and a
+ *   lookup test with no subject proves no behavior. the key's secret is discarded by the
+ *   fixture; both-ends cleanup removes key and user
  */
 describe('getOneIamUserAccessKey', () => {
+  const testUserName = `${TEST_IAM_USER_PREFIX}key-${genTestUuid().slice(0, 8)}`;
   const context = useBeforeAll(() => getSampleAwsApiContext());
 
-  given('an existing access key', () => {
+  afterAll(async () => {
+    // fresh context so teardown runs even if setup failed
+    const teardownContext = await getSampleAwsApiContext();
+    await delTestIamUserThrowaway({ name: testUserName }, teardownContext);
+  });
+
+  given('an extant access key', () => {
     const scene = useBeforeAll(async () => {
-      // get first access key from account
-      const keys = await getAllIamUserAccessKeys(
-        { by: { account: { id: context.aws.credentials.account } } },
+      await delTestIamUserThrowaway({ name: testUserName }, context);
+      const created = await setTestIamUserThrowaway(
+        { name: testUserName, withAccessKey: true },
         context,
       );
-      if (keys.length === 0)
-        return { key: null as (typeof keys)[0] | null, hasKeys: false };
-      return { key: keys[0]!, hasKeys: true };
+      if (!created.accessKeyId)
+        throw new Error('fixture minted no access key for the key lookup');
+      return { accessKeyId: created.accessKeyId };
     });
 
-    when('looking up by primary (accessKeyId)', () => {
+    when('a lookup by primary (accessKeyId)', () => {
       then('it should return the key with lastUsed info', async () => {
-        if (!scene.hasKeys) {
-          console.log('skipping test - no access keys in account');
-          return;
-        }
-
         const key = await getOneIamUserAccessKey(
-          { by: { primary: { accessKeyId: scene.key!.accessKeyId! } } },
+          { by: { primary: { accessKeyId: scene.accessKeyId } } },
           context,
         );
 
         expect(key).not.toBeNull();
-        expect(key?.accessKeyId).toBe(scene.key!.accessKeyId);
-        expect(key?.user).toEqual(scene.key!.user);
-        console.log('found key:', {
-          accessKeyId: key?.accessKeyId,
-          status: key?.status,
-          lastUsedDate: key?.lastUsedDate,
-          lastUsedService: key?.lastUsedService,
+        expect(key?.accessKeyId).toBe(scene.accessKeyId);
+        // the full owner ref, account included — the pre-fixture test compared the whole `user`
+        expect(key?.user).toEqual({
+          account: { id: context.aws.credentials.account },
+          username: testUserName,
         });
       });
     });
 
-    when('looking up by ref', () => {
+    when('a lookup by ref', () => {
       then('it should return the key', async () => {
-        if (!scene.hasKeys) {
-          console.log('skipping test - no access keys in account');
-          return;
-        }
-
         const key = await getOneIamUserAccessKey(
-          { by: { ref: { accessKeyId: scene.key!.accessKeyId! } } },
+          { by: { ref: { accessKeyId: scene.accessKeyId } } },
           context,
         );
 
         expect(key).not.toBeNull();
-        expect(key?.accessKeyId).toBe(scene.key!.accessKeyId);
+        expect(key?.accessKeyId).toBe(scene.accessKeyId);
       });
     });
   });
 
   given('a non-existent access key', () => {
-    when('looking up by primary', () => {
+    when('a lookup by primary', () => {
       then('it should return null', async () => {
         const key = await getOneIamUserAccessKey(
           { by: { primary: { accessKeyId: 'AKIAIOSFODNN0EXAMPLE' } } },
