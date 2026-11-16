@@ -13,7 +13,7 @@ across TWO SEPARATE provisions —
 |------|-----------|----------------|
 | `ehmpathy-demo-sso` (SSO permission set) | local `keyrack test` creds, `test:acceptance:locally` | `provision/aws.auth/account=.root/resources.ts` |
 | `ehmpathy-demo-oidc` (OIDC role) | GitHub Actions CI | `provision/aws.auth/account=demo/resources.ts` |
-| `ehmpathy-demo-for-grove` (grove reach role) | an ahbode camp grove box's own instance badge | `provision/aws.auth/account=demo/resources.ts` |
+| `ehmpathy-demo-for-grove` (grove reach role) | an ahbode camp grove box's own grove role (imds or roles anywhere) | `provision/aws.auth/account=demo/resources.ts` |
 
 re-apply one and forget the other and you get the signature failure: **local passes, CI
 breaks** (or the reverse) on an `UnauthorizedOperation` for an action that IS present in the

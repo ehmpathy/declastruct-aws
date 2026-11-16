@@ -36,9 +36,11 @@ import { demoPermissionsPolicy } from '../resources.common';
  *        by a backslash and a newline. what must match is the token set:
  *        `aws iam get-role --role-name ehmpathy-demo-for-grove`, the quoted
  *        `--query`, and `--output text`
+ * .note = a third twin: the read-back in `.agent/repo=.this/role=any/skills/aws.auth.demo.plan.sh`.
+ *        the same token set holds there too
  */
 const CAMP_REACH_ENV_HINT =
-  "source provision/aws.auth/account=demo/.env — see .env.example. no .env? read both values off the live role: aws iam get-role --role-name ehmpathy-demo-for-grove --query 'Role.AssumeRolePolicyDocument.Statement[0].Principal.AWS' --output text";
+  "source provision/aws.auth/account=demo/.env — see provision/aws.auth/account=demo/.env.example. no .env? read both values off the live role: aws iam get-role --role-name ehmpathy-demo-for-grove --query 'Role.AssumeRolePolicyDocument.Statement[0].Principal.AWS' --output text";
 
 /**
  * .what = the role-name placeholder `.env.example` ships, verbatim
@@ -49,6 +51,19 @@ const CAMP_REACH_ENV_HINT =
  *         no twin constant — its 12-digit shape check rejects the placeholder already
  */
 const CAMP_REACH_ROLE_NAME_PLACEHOLDER = '__the_camp_grove_role_name__';
+
+/**
+ * .what = is this an aws account id? exactly 12 digits
+ */
+const isAwsAccountId = (value: string): boolean => /^\d{12}$/.test(value);
+
+/**
+ * .what = is this an aws role name, as it follows `:role/` in a role arn?
+ * .why = a role name is 1-64 of `[\w+=,.@-]`, and a role under a path carries
+ *        that path first (`svc/name`), so the arn composes as `role/svc/name`
+ */
+const isAwsIamRoleName = (value: string): boolean =>
+  /^([\w+=,.@-]+\/)*[\w+=,.@-]{1,64}$/.test(value);
 
 /**
  * .what = reads the caller half's identity from the environment, and fails loud if absent
@@ -95,15 +110,32 @@ export const getOneCampReachIdentityFromEnv = (): {
   //   - a value pasted WITH its json quotes, from a read-back run without
   //     `--output text`
   //   - a truncated or mistyped paste
-  if (!/^\d{12}$/.test(campAccountId))
+  if (!isAwsAccountId(campAccountId))
     BadRequestError.throw(
       'GROVE_REACH_CAMP_ACCOUNT_ID is not 12 digits — an aws account id is exactly 12 digits, with no quotes and no arn prefix',
       { hint: CAMP_REACH_ENV_HINT },
     );
 
-  // 🔴 the role name's charset is too permissive to shape-check — the
-  // placeholder itself is a LEGAL aws role name — so it is matched by value.
-  // this is the copy-but-never-fill slip, which is the likeliest of the set
+  // a value SET but blank is named as blank: the shape text below would send
+  // the reader to hunt for a stray character that is not there
+  if (campGroveRoleName === '')
+    BadRequestError.throw(
+      'GROVE_REACH_CAMP_ROLE_NAME is set but blank — fill in the role name',
+      { hint: CAMP_REACH_ENV_HINT },
+    );
+
+  // 🔴 a value padded, quoted, or pasted as a whole arn fails the role-name
+  // shape; each would otherwise compose a principal no role answers to, and
+  // apply clean. a pathed name (`svc/name`) passes
+  if (!isAwsIamRoleName(campGroveRoleName))
+    BadRequestError.throw(
+      'GROVE_REACH_CAMP_ROLE_NAME is not an aws role name — 1 to 64 of letters, digits, and `+=,.@_-`, after an optional path (`svc/`), with no spaces, no quotes, and no arn prefix',
+      { hint: CAMP_REACH_ENV_HINT },
+    );
+
+  // 🔴 the placeholder itself is a LEGAL aws role name, so the shape check
+  // above passes it; it is matched by value. this is the copy-but-never-fill
+  // slip, which is the likeliest of the set
   if (campGroveRoleName === CAMP_REACH_ROLE_NAME_PLACEHOLDER)
     BadRequestError.throw(
       'GROVE_REACH_CAMP_ROLE_NAME still holds the .env.example placeholder — fill in the real value',
@@ -149,8 +181,10 @@ const asManagedAttachments = (input: {
  *        on the box instead of stalling at the first aws call
  *
  * .note = this is one HALF of a two-repo reach. the collaborator's infrastructure repo owns the caller
- *         half — a third `sts:AssumeRole` statement in the camp grove role's
- *         `grove-reach` inline policy, which names our arn. **both halves must be
+ *         half — a third statement in the camp grove role's `grove-reach` inline
+ *         policy, which names our arn and grants `sts:AssumeRole`, plus
+ *         `sts:TagSession` and `sts:SetSourceIdentity` for a roles anywhere
+ *         box (same three as our trust below). **both halves must be
  *         live**; ours alone applies cleanly and fails at runtime.
  *
  * .note = the arn to hand the collaborator is
@@ -228,8 +262,8 @@ export const getResourcesOfReach = async (input: {
       //   row rather than two DESTROYs. the ORDER and the two applies hold either
       //   way; only apply 1's expected row changes
       //
-      // ⚠️ a revoke is also a TWO-REPO act. ours alone leaves a live
-      // `sts:AssumeRole` grant in the collaborator's production tree aimed at a role that now
+      // ⚠️ a revoke is also a TWO-REPO act. ours alone leaves the three live
+      // `sts:` grants in the collaborator's production tree aimed at a role that now
       // denies — the half-wired state their own invariant warns against.
       //
       // ⚠️ and the role NAME is burned afterward. the collaborator's grant binds on our arn
@@ -244,7 +278,12 @@ export const getResourcesOfReach = async (input: {
         principal: {
           aws: campGroveRoleArn,
         },
-        action: 'sts:AssumeRole',
+        // a roles anywhere session (the hetzner grove) carries a source
+        // identity and session tags from its x509 cert. both persist across a
+        // role chain, so sts refuses the hop unless this trust allows them.
+        // an ec2 grove session carries neither, so the two are inert for it.
+        // they gate actions only: the principal above stays the one door
+        action: ['sts:AssumeRole', 'sts:TagSession', 'sts:SetSourceIdentity'],
       }),
     ],
     tags: {

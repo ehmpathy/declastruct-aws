@@ -7,7 +7,7 @@ exports[`getOneCampReachIdentityFromEnv given: [case7] every user-faced failure 
     "message": "BadRequestError: GROVE_REACH_CAMP_ACCOUNT_ID not set
 
 {
-  "hint": "source provision/aws.auth/account=demo/.env — see .env.example. no .env? read both values off the live role: aws iam get-role --role-name ehmpathy-demo-for-grove --query 'Role.AssumeRolePolicyDocument.Statement[0].Principal.AWS' --output text"
+  "hint": "source provision/aws.auth/account=demo/.env — see provision/aws.auth/account=demo/.env.example. no .env? read both values off the live role: aws iam get-role --role-name ehmpathy-demo-for-grove --query 'Role.AssumeRolePolicyDocument.Statement[0].Principal.AWS' --output text"
 }",
     "variant": "account id absent",
   },
@@ -16,7 +16,7 @@ exports[`getOneCampReachIdentityFromEnv given: [case7] every user-faced failure 
     "message": "BadRequestError: GROVE_REACH_CAMP_ROLE_NAME not set
 
 {
-  "hint": "source provision/aws.auth/account=demo/.env — see .env.example. no .env? read both values off the live role: aws iam get-role --role-name ehmpathy-demo-for-grove --query 'Role.AssumeRolePolicyDocument.Statement[0].Principal.AWS' --output text"
+  "hint": "source provision/aws.auth/account=demo/.env — see provision/aws.auth/account=demo/.env.example. no .env? read both values off the live role: aws iam get-role --role-name ehmpathy-demo-for-grove --query 'Role.AssumeRolePolicyDocument.Statement[0].Principal.AWS' --output text"
 }",
     "variant": "role name absent",
   },
@@ -25,7 +25,7 @@ exports[`getOneCampReachIdentityFromEnv given: [case7] every user-faced failure 
     "message": "BadRequestError: GROVE_REACH_CAMP_ACCOUNT_ID is not 12 digits — an aws account id is exactly 12 digits, with no quotes and no arn prefix
 
 {
-  "hint": "source provision/aws.auth/account=demo/.env — see .env.example. no .env? read both values off the live role: aws iam get-role --role-name ehmpathy-demo-for-grove --query 'Role.AssumeRolePolicyDocument.Statement[0].Principal.AWS' --output text"
+  "hint": "source provision/aws.auth/account=demo/.env — see provision/aws.auth/account=demo/.env.example. no .env? read both values off the live role: aws iam get-role --role-name ehmpathy-demo-for-grove --query 'Role.AssumeRolePolicyDocument.Statement[0].Principal.AWS' --output text"
 }",
     "variant": "account id placeholder, unfilled",
   },
@@ -34,7 +34,7 @@ exports[`getOneCampReachIdentityFromEnv given: [case7] every user-faced failure 
     "message": "BadRequestError: GROVE_REACH_CAMP_ROLE_NAME still holds the .env.example placeholder — fill in the real value
 
 {
-  "hint": "source provision/aws.auth/account=demo/.env — see .env.example. no .env? read both values off the live role: aws iam get-role --role-name ehmpathy-demo-for-grove --query 'Role.AssumeRolePolicyDocument.Statement[0].Principal.AWS' --output text"
+  "hint": "source provision/aws.auth/account=demo/.env — see provision/aws.auth/account=demo/.env.example. no .env? read both values off the live role: aws iam get-role --role-name ehmpathy-demo-for-grove --query 'Role.AssumeRolePolicyDocument.Statement[0].Principal.AWS' --output text"
 }",
     "variant": "role name placeholder, unfilled",
   },
@@ -43,18 +43,45 @@ exports[`getOneCampReachIdentityFromEnv given: [case7] every user-faced failure 
     "message": "BadRequestError: GROVE_REACH_CAMP_ACCOUNT_ID is not 12 digits — an aws account id is exactly 12 digits, with no quotes and no arn prefix
 
 {
-  "hint": "source provision/aws.auth/account=demo/.env — see .env.example. no .env? read both values off the live role: aws iam get-role --role-name ehmpathy-demo-for-grove --query 'Role.AssumeRolePolicyDocument.Statement[0].Principal.AWS' --output text"
+  "hint": "source provision/aws.auth/account=demo/.env — see provision/aws.auth/account=demo/.env.example. no .env? read both values off the live role: aws iam get-role --role-name ehmpathy-demo-for-grove --query 'Role.AssumeRolePolicyDocument.Statement[0].Principal.AWS' --output text"
 }",
     "variant": "account id pasted with json quotes",
+  },
+  {
+    "kind": "BadRequestError",
+    "message": "BadRequestError: GROVE_REACH_CAMP_ROLE_NAME is set but blank — fill in the role name
+
+{
+  "hint": "source provision/aws.auth/account=demo/.env — see provision/aws.auth/account=demo/.env.example. no .env? read both values off the live role: aws iam get-role --role-name ehmpathy-demo-for-grove --query 'Role.AssumeRolePolicyDocument.Statement[0].Principal.AWS' --output text"
+}",
+    "variant": "role name sourced blank",
   },
   {
     "kind": "BadRequestError",
     "message": "BadRequestError: GROVE_REACH_CAMP_ACCOUNT_ID is not 12 digits — an aws account id is exactly 12 digits, with no quotes and no arn prefix
 
 {
-  "hint": "source provision/aws.auth/account=demo/.env — see .env.example. no .env? read both values off the live role: aws iam get-role --role-name ehmpathy-demo-for-grove --query 'Role.AssumeRolePolicyDocument.Statement[0].Principal.AWS' --output text"
+  "hint": "source provision/aws.auth/account=demo/.env — see provision/aws.auth/account=demo/.env.example. no .env? read both values off the live role: aws iam get-role --role-name ehmpathy-demo-for-grove --query 'Role.AssumeRolePolicyDocument.Statement[0].Principal.AWS' --output text"
 }",
     "variant": "whole arn pasted where the id was wanted",
+  },
+]
+`;
+
+exports[`getResourcesOfReach given: [case1] the grove-reach declaration when: [t0] the trust policy is read then: that statement grants sts:AssumeRole, sts:TagSession, sts:SetSourceIdentity, and only them 1`] = `
+[
+  DeclaredAwsIamPolicyStatement {
+    "action": [
+      "sts:AssumeRole",
+      "sts:TagSession",
+      "sts:SetSourceIdentity",
+    ],
+    "condition": undefined,
+    "effect": "Allow",
+    "principal": DeclaredAwsIamPrincipal {
+      "aws": "arn:aws:iam::000000000000:role/example-camp-grove-role",
+    },
+    "resource": undefined,
   },
 ]
 `;
@@ -74,4 +101,16 @@ exports[`getResourcesOfReach given: [case1] the grove-reach declaration when: [t
     "kind": "DeclaredAwsIamRolePolicyAttachedManaged",
   },
 ]
+`;
+
+exports[`getResourcesOfReach given: [case1] the grove-reach declaration when: [t5] the role fields beside its trust are read then: they match the snapshot, unchanged by a trust edit 1`] = `
+{
+  "description": "Lets a camp grove box run demo-account tasks with its own instance badge, so no ehmpathy credential is hand-carried onto a foreign org host",
+  "name": "ehmpathy-demo-for-grove",
+  "path": "/",
+  "tags": DeclaredAwsTags {
+    "managedBy": "declastruct",
+    "purpose": "grove-reach",
+  },
+}
 `;

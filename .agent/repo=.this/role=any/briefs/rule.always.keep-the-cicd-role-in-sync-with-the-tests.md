@@ -87,7 +87,7 @@ provisions**:
 |---|---|---|
 | `ehmpathy-demo-sso` | local keyrack creds | `provision/aws.auth/account=.root/resources.ts` |
 | `ehmpathy-demo-oidc` | github actions ci | `provision/aws.auth/account=demo/resources.ts` |
-| `ehmpathy-demo-for-grove` | a camp grove box's instance badge | `provision/aws.auth/account=demo/resources.ts` |
+| `ehmpathy-demo-for-grove` | a camp grove box's grove role (imds or roles anywhere) | `provision/aws.auth/account=demo/resources.ts` |
 
 ⚠️ **"I applied the policy" is ambiguous, and that ambiguity is the hazard's engine.** one provision
 applied and the other stale yields local-green / ci-red — or the reverse. the root provision can even

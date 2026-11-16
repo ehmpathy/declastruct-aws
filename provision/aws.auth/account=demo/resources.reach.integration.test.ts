@@ -126,7 +126,8 @@ describe('resources.reach — the live reach', () => {
           () => {
             // this single assertion is the whole reach. it fails with
             // AccessDenied if EITHER half is absent: ours (the trust policy) or
-            // theirs (the caller-side sts:AssumeRole grant in the grove role)
+            // theirs (the caller-side sts:AssumeRole, sts:TagSession,
+            // sts:SetSourceIdentity grant in the grove role)
             expect(session?.Credentials?.AccessKeyId).toBeDefined();
             expect(session?.Credentials?.SecretAccessKey).toBeDefined();
             expect(session?.Credentials?.SessionToken).toBeDefined();
@@ -187,12 +188,19 @@ describe('resources.reach — the live reach', () => {
             expect(role?.policies).toHaveLength(1);
           });
 
-          then('[t5] that statement allows sts:AssumeRole', () => {
-            const action = role?.policies?.[0]?.action;
-            const actions = Array.isArray(action) ? action : [action];
-            expect(role?.policies?.[0]?.effect).toEqual('Allow');
-            expect(actions).toEqual(['sts:AssumeRole']);
-          });
+          then(
+            '[t5] that statement allows sts:AssumeRole, sts:TagSession, sts:SetSourceIdentity',
+            () => {
+              const action = role?.policies?.[0]?.action;
+              const actions = Array.isArray(action) ? action : [action];
+              expect(role?.policies?.[0]?.effect).toEqual('Allow');
+              expect(actions).toEqual([
+                'sts:AssumeRole',
+                'sts:TagSession',
+                'sts:SetSourceIdentity',
+              ]);
+            },
+          );
 
           then(
             '[t6] its principal is the camp grove role our source declares',

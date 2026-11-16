@@ -1,4 +1,4 @@
-import { given, then, useBeforeAll } from 'test-fns';
+import { given, then, useBeforeAll, when } from 'test-fns';
 
 import { getSampleAwsApiContext } from '@src/.test/getSampleAwsApiContext';
 import type { DeclaredAwsIamRole } from '@src/domain.objects/DeclaredAwsIamRole';
@@ -26,7 +26,7 @@ describe('setIamRole', () => {
     tags: { environment: 'test', managedBy: 'declastruct' },
   };
 
-  given('a role to create', () => {
+  given('[case1] a role to create', () => {
     then('we should be able to findsert a role', async () => {
       const roleAfter = await setIamRole({ findsert: roleDesired }, context);
 
@@ -69,6 +69,54 @@ describe('setIamRole', () => {
 
       expect(roleUpdated.name).toBe(testRoleName);
       console.log(roleUpdated);
+    });
+  });
+
+  given('[case2] a trust that admits roles anywhere sessions', () => {
+    // the trust shape `ehmpathy-demo-for-grove` declares. the planner compares
+    // shape and order, so a re-plan reads KEEP only if iam echoes the action
+    // array in declared order; this reads a live one back before any apply
+    // leans on it
+    const multiActionRoleName = 'declastruct-test-role-multi-action-trust';
+    const actionDeclared = [
+      'sts:AssumeRole',
+      'sts:TagSession',
+      'sts:SetSourceIdentity',
+    ];
+
+    when('[t0] the role is upserted and read back', () => {
+      const scene = useBeforeAll(async () => {
+        await setIamRole(
+          {
+            upsert: {
+              name: multiActionRoleName,
+              path: '/',
+              description: 'Test role: a trust with a multi-action array',
+              policies: [
+                {
+                  effect: 'Allow',
+                  principal: {
+                    aws: `arn:aws:iam::${context.aws.credentials.account}:root`,
+                  },
+                  action: actionDeclared,
+                },
+              ],
+              tags: { environment: 'test', managedBy: 'declastruct' },
+            },
+          },
+          context,
+        );
+        const role = await getIamRole(
+          { by: { unique: { name: multiActionRoleName } } },
+          context,
+        );
+        return { role };
+      });
+
+      then('iam echoes the three actions back in declared order', () => {
+        expect(scene.role?.policies).toHaveLength(1);
+        expect(scene.role?.policies[0]?.action).toEqual(actionDeclared);
+      });
     });
   });
 });
