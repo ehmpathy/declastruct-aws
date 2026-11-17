@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.13.1](https://github.com/ehmpathy/declastruct-aws/compare/v1.13.0...v1.13.1) (2026-11-17)
+
+
+### Bug Fixes
+
+* **grove:** -for-grove trust admits roles anywhere sessions ([#131](https://github.com/ehmpathy/declastruct-aws/issues/131)) ([27f26db](https://github.com/ehmpathy/declastruct-aws/commit/27f26db95aeed2dd39ce2970f7dded04efcfe496))
+
 ## [1.13.0](https://github.com/ehmpathy/declastruct-aws/compare/v1.12.0...v1.13.0) (2026-10-01)
 
 
