@@ -279,7 +279,7 @@ export const getResources = async () => {
   //     bastion: { exid: 'vpc-main-bastion' },
   //   },
   //   into: {
-  //     cluster: { name: 'ahbodedb' },
+  //     cluster: { name: 'exampledb' },
   //   },
   //   from: {
   //     host: 'localhost',

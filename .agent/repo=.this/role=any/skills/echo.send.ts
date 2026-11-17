@@ -18,7 +18,8 @@ import { getCredentials } from '../../../../src/contract/sdks';
 
 // defaults match provision/aws.infra/account=demo/resources.mail.ts; override via env
 const FROM = process.env.ECHO_FROM ?? 'echo@demo.ehmpathy.com';
-const TO = process.env.ECHO_TO ?? 'vlad@ahbode.com';
+// the recipient has no default: a real address in a public repo would name a person
+const TO = process.env.ECHO_TO ?? '';
 const SUBJECT = process.env.ECHO_SUBJECT ?? 'hello from the echo mailbox 🐢';
 
 // the three org mascots — the random pick that proves the initiator chose, not echoed
@@ -41,6 +42,15 @@ const CRITTERS = [
 ] as const;
 
 const main = async (): Promise<void> => {
+  // fail fast when no recipient was named
+  if (!TO) {
+    console.error(
+      '✋ ConstraintError: no recipient\n' +
+        '   └─ hint: rhx echo.send --to <a verified address>',
+    );
+    process.exit(2);
+  }
+
   const { region } = await getCredentials();
   const ses = new SESv2Client(getAwsClientConfig({ region }));
 

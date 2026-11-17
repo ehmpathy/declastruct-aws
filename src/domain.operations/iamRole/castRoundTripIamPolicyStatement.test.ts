@@ -72,7 +72,7 @@ describe('castRoundTrip — iam policy statement', () => {
   });
 
   given('[case2] an identity statement with an array resource', () => {
-    // the shape ahbode's `grove-reach` inline policy carries: one action, and a
+    // the shape a peer's `grove-reach` inline policy carries: one action, and a
     // resource array that grows by one arn per reach
     const declared = new DeclaredAwsIamPolicyStatement({
       sid: 'AssumeDemoPower',

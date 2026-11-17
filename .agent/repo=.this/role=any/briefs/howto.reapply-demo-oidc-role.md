@@ -31,7 +31,7 @@ by TWO separate provisions:
 |------|-----------|----------------|
 | `ehmpathy-demo-sso` (SSO permission set) | local keyrack creds | `provision/aws.auth/account=.root/resources.ts` |
 | `ehmpathy-demo-oidc` (OIDC role) | github actions CI | `provision/aws.auth/account=demo/resources.ts` |
-| `ehmpathy-demo-for-grove` (grove reach role) | an ahbode camp grove box's grove role (imds or roles anywhere) | `provision/aws.auth/account=demo/resources.ts` |
+| `ehmpathy-demo-for-grove` (grove reach role) | a peer org's camp grove box's grove role (imds or roles anywhere) | `provision/aws.auth/account=demo/resources.ts` |
 
 🔴 **the third row rides the SAME provision as the second**, so the walkthrough below
 covers both — it is a third **consumer**, never a third apply target. what it changes is
