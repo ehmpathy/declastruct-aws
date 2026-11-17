@@ -82,7 +82,7 @@
    │  │       └─ taken: .behavior/v2026_11_15.fix-grove-trust-set-source-identity/.reviews/peer/5.3.verification._.review.i004.37eec44047742d6570.r012._.taken.by_self.enroll-verif-test-intent.md
    │  └─ judges
    │      └─ j1: $rhachet run --repo bhrain --skill route.stone.judge --mechanism reviewed? --stone $stone --route $route --allow-blockers 0 --allow-nitpicks 7
-   │          └─ finished 0.6s ✓
+   │          └─ finished 2.5s ✓
    │
    └─ the way continues, run
       └─ rhx route.drive

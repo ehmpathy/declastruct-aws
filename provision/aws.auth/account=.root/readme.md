@@ -14,17 +14,19 @@ provisions auth resources in the management (root) account.
 
 1. bootstrap identity center manually (see `bootstrap.md`)
 2. store aws profile in keyrack (see `../readme.md` keyrack section)
-3. create `.env` from `.env.example` and fill in values
+3. `.env` holds `SSO_ADMIN_USERNAME`, `SSO_ADMIN_EMAIL`, `SSO_DEMO_EMAIL`. gitignored, so each
+   worktree starts without it: fill it with `rhx aws.auth.root.env --mode apply` (below)
 
 ## apply
+
+⚠️ one shell session, all steps; the admin sso session lasts 1h.
 
 ```bash
 # authenticate
 use.ehmpathy.root --owner admin
 
-# create .env from example if needed (one-time)
-cp -n provision/aws.auth/account=.root/.env.example provision/aws.auth/account=.root/.env
-# edit .env with your values (SSO_ADMIN_USERNAME, SSO_ADMIN_EMAIL, SSO_DEMO_EMAIL)
+# fill .env from live aws (read-only; plan by default, apply writes; never overwrites other values)
+rhx aws.auth.root.env --mode apply
 
 # source env vars (required for SSO user emails)
 source provision/aws.auth/account=.root/.env
@@ -38,6 +40,11 @@ npx declastruct plan \
 npx declastruct apply \
   --plan provision/aws.auth/account=.root/.temp/plan.json
 ```
+
+`rhx aws.auth.root.env` reads the admin user (the one sso user beside `demo-agent`; pass `--admin`
+if more exist) and the demo email (the `demo-agent` user and the `ehmpathy-demo` account must agree,
+else it refuses). it refuses a profile that is not the org management account. the first apply, before
+those users exist, still fills `.env` by hand from `.env.example`.
 
 ## after apply
 

@@ -33,7 +33,7 @@ export const getResourcesOfDemoSso = async (): Promise<DomainEntity<any>[]> => {
     instance: refByUnique<typeof DeclaredAwsSsoInstance>(ssoInstance),
     name: 'ehmpathy-demo-sso',
     description: 'Demo access for ehmpathy agents (SSO)',
-    sessionDuration: 'PT4H',
+    sessionDuration: 'PT12H', // aws max; admin stays PT1H (resources.admin.sso.ts)
     policy: demoPermissionsPolicy,
     tags: null,
   });
