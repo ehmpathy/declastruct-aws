@@ -30,6 +30,10 @@ const config: Config = {
     '!**/*.acceptance.test.ts',
     '!**/*.integration.test.ts',
     '!**/.yalc/**',
+    // host-local agent dirs: rmsafe's trash and actor plugin copies hold test
+    // files no repo owns; a clean checkout holds neither
+    '!**/.agent/.cache/**',
+    '!**/.agent/.actors/**',
   ],
   setupFilesAfterEnv: ['./jest.unit.env.ts'],
 

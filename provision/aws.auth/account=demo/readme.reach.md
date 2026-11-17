@@ -1,14 +1,16 @@
 # the grove reach — `resources.reach.ts`
 
-a clone on a collaborator's camp grove box holds one credential: the box's own instance role,
-ambient in imds. that badge reaches their org, and has never heard of ehmpathy.
+a clone on a collaborator's camp grove box holds one credential: a session as their grove role.
+an ec2 box gets it from imds; a box off aws (the hetzner grove) gets it through iam roles anywhere,
+from an x509 cert. that badge reaches their org, and has never heard of ehmpathy.
 
 `ehmpathy-demo-for-grove` closes that gap — the box's badge assumes it, so no ehmpathy credential
 is hand-carried onto a foreign org's host.
 
-⚠️ **this is ONE HALF of a two-repo reach.** the caller half is an `sts:AssumeRole` statement in
-the collaborator's grove role, naming our arn. ours alone applies cleanly and fails at runtime,
-invisible to any plan.
+⚠️ **this is ONE HALF of a two-repo reach.** the caller half is a statement in the
+collaborator's grove role that names our arn. it grants `sts:AssumeRole`, plus `sts:TagSession`
+and `sts:SetSourceIdentity` for a roles anywhere box: the same three our trust allows. ours alone
+applies cleanly and fails at runtime, invisible to any plan.
 
 ## the handoff arn — what they hardcode
 
@@ -63,20 +65,22 @@ exist — an applied role that reads live and denies every assume, which is caus
 
 ## you hit `AccessDenied` — start here
 
-four causes emit a byte-identical `AccessDenied`. **step 1, always:**
+causes 1–4 emit a byte-identical `AccessDenied` on `sts:AssumeRole`. cause 5 names a different
+action, so read the denied action first. **step 1, always:**
 
 ```sh
 aws sts get-caller-identity
 ```
 
-it discriminates exactly one of the four:
+it discriminates exactly one of the first four:
 
 | # | cause | `get-caller-identity` shows | where to go |
 |---|---|---|---|
-| 1 | **the assume never took effect** — a tool set `AWS_PROFILE`, the sdk skipped your session and fell through to imds | ✅ **caught** — the arn is the box's own **grove role**, not `ehmpathy-demo-for-grove` | the ini profile below |
+| 1 | **the assume never took effect** — a tool set `AWS_PROFILE`, the sdk skipped your session and fell through to the box's own credential (imds on ec2, the cert profile on roles anywhere) | ✅ **caught** — the arn is the box's own **grove role**, not `ehmpathy-demo-for-grove` | the ini profile below |
 | 2 | their caller half is absent or unmerged | ⛔ not caught | their grove role's inline policy |
 | 3 | our trust policy denies — revoked on purpose | ⛔ not caught | the intent test below, **before** you re-wire |
 | 4 | the hardcoded target arn holds a typo | ⛔ not caught; both halves apply cleanly into it | compare their arn to ours, character by character |
+| 5 | **a roles anywhere box, and the target trust lacks `sts:SetSourceIdentity` or `sts:TagSession`** — the cert's source identity and tags ride the hop | ⛔ not caught; but the error names `sts:SetSourceIdentity` or `sts:TagSession`, never bare `sts:AssumeRole` | allow both beside `sts:AssumeRole` on BOTH halves: our target trust (as `resources.reach.ts` does) and their caller half. to tell which half denied, in aws's documented text (not yet measured on this reach): the message says `no identity-based policy allows` when theirs lacks it, and names our role's trust (`not authorized to perform … on resource: …ehmpathy-demo-for-grove`, no identity-policy clause) when ours does. iam is eventually consistent: a hop seconds after the apply may still deny, so retry once after a minute before you diagnose |
 
 **step 2 — tell cause 2 from cause 3.** the fixes are opposite. the discriminator is whether the
 stated intent still matches the trust policy:
@@ -94,7 +98,7 @@ failed holds no demo credential. this file is on disk.
 
 ## on a grove box — two setup steps
 
-**1. an ini profile**, so the sdk refreshes the session:
+**1. an ini profile**, so the sdk refreshes the session. on an ec2 box:
 
 ```ini
 [profile ehmpathy-demo]
@@ -103,10 +107,24 @@ credential_source = Ec2InstanceMetadata
 region = us-east-1
 ```
 
+on a roles anywhere box, the grove session comes from a `credential_process` profile that
+the collaborator's grove setup owns (their `aws_signing_helper` line, cert and trust anchor).
+chain the demo hop off it with `source_profile`, in place of `credential_source`:
+
+```ini
+[profile ehmpathy-demo]
+role_arn = arn:aws:iam::<demo-account-id>:role/ehmpathy-demo-for-grove
+source_profile = <their grove profile>
+region = us-east-1
+```
+
+🟡 this block follows the aws cli's documented role-chain shape, and no hop has proven it yet. the
+first `rhx grove.reach.hop.prove` on the hetzner grove is its proof; correct this block if it fails.
+
 | it closes | how |
 |---|---|
 | the **1h overrun** | the sdk re-assumes on expiry; static env-var credentials expire mid-flight |
-| the **`AWS_PROFILE` trap** | any tool that sets `AWS_PROFILE` makes the sdk skip your exported session and fall through to imds — cause 1 above. with this profile declared, it resolves to the demo role instead |
+| the **`AWS_PROFILE` trap** | any tool that sets `AWS_PROFILE` makes the sdk skip your exported session and fall through to the box's own credential — cause 1 above. with this profile declared, it resolves to the demo role instead |
 
 **2. `export AWS_REGION=us-east-1`.** a grove box carries no `~/.aws/config`, so `getCredentials`
 fail-fasts before the first aws call.

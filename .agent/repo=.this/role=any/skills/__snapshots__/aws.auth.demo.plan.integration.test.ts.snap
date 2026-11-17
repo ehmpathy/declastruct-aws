@@ -1,0 +1,524 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`aws.auth.demo.plan given: [case1] a caller who asks for help when: [t0] --help is passed then: it exits 0 and shows usage and the never-apply guarantee 1`] = `
+"🐢 here's the deal...
+
+🐚 aws.auth.demo.plan — plan the demo auth resources, read-only
+   ├─ usage
+   │  └─ rhx aws.auth.demo.plan
+   ├─ inputs, none passed by hand
+   │  ├─ creds: keyrack env test, unlocked for you
+   │  └─ reach pair: GROVE_REACH_CAMP_ACCOUNT_ID + GROVE_REACH_CAMP_ROLE_NAME
+   │     └─ read from: provision/aws.auth/account=demo/.env, else the shell, else the live role
+   ├─ options
+   │  └─ --help   show this help
+   ├─ example
+   │  └─ rhx aws.auth.demo.plan   # then read the tally: one UPDATE per intended change
+   └─ never applies; writes provision/aws.auth/account=demo/.temp/plan.readonly.json
+"
+`;
+
+exports[`aws.auth.demo.plan given: [case2] a caller whose args do not parse when: [t0] each bad call is run once then: each exits 2 with its qualified header, and the text is snapped 1`] = `
+[
+  {
+    "stderr": "✋ ConstraintError: unknown arg '--apply'
+   └─ hint: rhx aws.auth.demo.plan --help
+",
+    "variant": "unknown arg",
+  },
+  {
+    "stderr": "✋ ConstraintError: --repo requires a value
+   └─ hint: rhx aws.auth.demo.plan --help
+",
+    "variant": "a value flag last, with no value",
+  },
+  {
+    "stderr": "✋ ConstraintError: --repo requires a value
+   └─ hint: rhx aws.auth.demo.plan --help
+",
+    "variant": "a value flag with a flag as its value",
+  },
+]
+`;
+
+exports[`aws.auth.demo.plan given: [case3] a caller whose creds or reach identity fail when: [t0] each failure is run once then: each exits with its class code and qualified header, and the text is snapped 1`] = `
+[
+  {
+    "stderr": "🔐 keyrack unlock refused
+✋ ConstraintError: keyrack unlock failed for env=test
+   └─ hint: read keyrack's reason above, then rhx keyrack unlock --owner ehmpath --env test
+",
+    "variant": "keyrack unlock refused",
+  },
+  {
+    "stderr": "✋ ConstraintError: no AWS_PROFILE from keyrack for env=test
+   └─ hint: rhx keyrack unlock --owner ehmpath --env test
+",
+    "variant": "keyrack holds no AWS_PROFILE",
+  },
+  {
+    "stderr": "✋ ConstraintError: aws creds for env=test do not authenticate
+   └─ hint: rhx keyrack unlock --owner ehmpath --env test
+",
+    "variant": "creds do not authenticate",
+  },
+  {
+    "stderr": "✋ ConstraintError: the .env sets only one of GROVE_REACH_CAMP_ACCOUNT_ID, GROVE_REACH_CAMP_ROLE_NAME
+   ├─ absent: GROVE_REACH_CAMP_ROLE_NAME
+   └─ hint: set both (see provision/aws.auth/account=demo/.env.example), or neither to read them off the live role
+",
+    "variant": "a .env with half the pair",
+  },
+  {
+    "stderr": "An error occurred (AccessDenied): not authorized
+💥 MalfunctionError: could not read ehmpathy-demo-for-grove's trust principal
+   └─ hint: read aws's reason above; or fill provision/aws.auth/account=demo/.env (see provision/aws.auth/account=demo/.env.example) and rerun
+",
+    "variant": "trust principal unreadable",
+  },
+  {
+    "stderr": "✋ ConstraintError: ehmpathy-demo-for-grove does not exist yet, so its trust principal cannot be read
+   └─ hint: fill provision/aws.auth/account=demo/.env (see provision/aws.auth/account=demo/.env.example) and rerun
+",
+    "variant": "reach role not yet created",
+  },
+  {
+    "stderr": "✋ ConstraintError: ehmpathy-demo-for-grove's trust principal is not one role arn
+   ├─ got: AROAEXAMPLEUNIQUEID0
+   └─ hint: fill provision/aws.auth/account=demo/.env (see provision/aws.auth/account=demo/.env.example) and rerun
+",
+    "variant": "trust principal is a bare unique id",
+  },
+  {
+    "stderr": "✋ ConstraintError: ehmpathy-demo-for-grove's trust principal is not one role arn
+   ├─ got: arn:aws:iam::000000000000:role/example-camp-grove-role\\tarn:aws:iam::000000000000:role/example-camp-grove-role
+   └─ hint: fill provision/aws.auth/account=demo/.env (see provision/aws.auth/account=demo/.env.example) and rerun
+",
+    "variant": "trust principal is a tab-joined list",
+  },
+  {
+    "stderr": "✋ ConstraintError: the shell sets only one of GROVE_REACH_CAMP_ACCOUNT_ID, GROVE_REACH_CAMP_ROLE_NAME
+   ├─ absent: GROVE_REACH_CAMP_ACCOUNT_ID
+   └─ hint: set both (see provision/aws.auth/account=demo/.env.example), or neither to read them off the live role
+",
+    "variant": "a shell with half the pair, beside a .env silent on it",
+  },
+  {
+    "stderr": "Error: GROVE_REACH_CAMP_ACCOUNT_ID is a placeholder
+💥 MalfunctionError: declastruct plan failed
+   └─ hint: read its reason above; a placeholder or malformed provision/aws.auth/account=demo/.env is the likeliest cause
+",
+    "variant": "declastruct plan refuses a placeholder .env",
+  },
+  {
+    "stderr": "✋ ConstraintError: the .env sets only one of GROVE_REACH_CAMP_ACCOUNT_ID, GROVE_REACH_CAMP_ROLE_NAME
+   ├─ absent: GROVE_REACH_CAMP_ACCOUNT_ID
+   └─ hint: set both (see provision/aws.auth/account=demo/.env.example), or neither to read them off the live role
+",
+    "variant": "a .env with half the pair, beside a shell with the whole pair",
+  },
+  {
+    "stderr": "✋ ConstraintError: not inside a git repo
+   └─ hint: run from within the declastruct-aws clone
+",
+    "variant": "run outside any git repo",
+  },
+  {
+    "stderr": "💥 MalfunctionError: could not tally the plan at provision/aws.auth/account=demo/.temp/plan.readonly.json
+   ├─ reason: not a declastruct plan (no changes list, or a row with no resource slug)
+   └─ hint: rerun; a plan cut short (ctrl-c, full disk) leaves a partial file
+",
+    "variant": "the plan file is not json",
+  },
+]
+`;
+
+exports[`aws.auth.demo.plan given: [case4] a caller whose creds and reach identity are found when: [t0] no .env and no shell pair then: it reads the pair off the live role, warns the principal is unchecked, and never applies 1`] = `
+"🐢 reef check...
+
+🐚 aws.auth.demo.plan
+   ├─ caller: arn:aws:sts::000000000000:assumed-role/example.test.profile/session
+   ├─ reach identity from: live role ehmpathy-demo-for-grove
+   │  └─ ⚠️ principal NOT checked: read off the live role, so it cannot differ from it
+   └─ plan into: provision/aws.auth/account=demo/.temp/plan.readonly.json
+
+(declastruct plan output)
+
+🐚 plan tally
+   ├─ KEEP: 2
+   └─ UPDATE: 1
+      └─ DeclaredAwsIamRole.ehmpathy-demo-for-grove
+         ├─ - "action": "sts:AssumeRole",
+         ├─ + "action": Array [
+         ├─ +   "sts:AssumeRole",
+         ├─ +   "sts:TagSession",
+         ├─ +   "sts:SetSourceIdentity",
+         └─ + ],
+
+🐢 plan written. read it before any apply; this skill never applies
+
+🐚 before any apply
+   ├─ ⚠️ principal NOT checked; the applier's own plan, from the applier's .env, owns that check
+   └─ to apply: the applier's own shell, per account=demo/readme.md (admin creds + .env, plan, apply)
+"
+`;
+
+exports[`aws.auth.demo.plan given: [case4] a caller whose creds and reach identity are found when: [t1] a .env supplies the pair then: it reads the pair from .env, skips the live-role read, and does not warn 1`] = `
+"🐢 reef check...
+
+🐚 aws.auth.demo.plan
+   ├─ caller: arn:aws:sts::000000000000:assumed-role/example.test.profile/session
+   ├─ reach identity from: .env
+   └─ plan into: provision/aws.auth/account=demo/.temp/plan.readonly.json
+
+(declastruct plan output)
+
+🐚 plan tally
+   ├─ KEEP: 2
+   └─ UPDATE: 1
+      └─ DeclaredAwsIamRole.ehmpathy-demo-for-grove
+         ├─ - "action": "sts:AssumeRole",
+         ├─ + "action": Array [
+         ├─ +   "sts:AssumeRole",
+         ├─ +   "sts:TagSession",
+         ├─ +   "sts:SetSourceIdentity",
+         └─ + ],
+
+🐢 plan written. read it before any apply; this skill never applies
+
+🐚 before any apply
+   └─ to apply: the applier's own shell, per account=demo/readme.md (admin creds + .env, plan, apply)
+"
+`;
+
+exports[`aws.auth.demo.plan given: [case4] a caller whose creds and reach identity are found when: [t2] the shell exports the pair, with no .env then: it labels the source as the shell 1`] = `
+"🐢 reef check...
+
+🐚 aws.auth.demo.plan
+   ├─ caller: arn:aws:sts::000000000000:assumed-role/example.test.profile/session
+   ├─ reach identity from: shell
+   └─ plan into: provision/aws.auth/account=demo/.temp/plan.readonly.json
+
+(declastruct plan output)
+
+🐚 plan tally
+   ├─ KEEP: 2
+   └─ UPDATE: 1
+      └─ DeclaredAwsIamRole.ehmpathy-demo-for-grove
+         ├─ - "action": "sts:AssumeRole",
+         ├─ + "action": Array [
+         ├─ +   "sts:AssumeRole",
+         ├─ +   "sts:TagSession",
+         ├─ +   "sts:SetSourceIdentity",
+         └─ + ],
+
+🐢 plan written. read it before any apply; this skill never applies
+
+🐚 before any apply
+   └─ to apply: the applier's own shell, per account=demo/readme.md (admin creds + .env, plan, apply)
+"
+`;
+
+exports[`aws.auth.demo.plan given: [case4] a caller whose creds and reach identity are found when: [t3] the shell holds an ambient AWS_PROFILE then: the plan runs as the keyrack profile, never the ambient one 1`] = `
+"🐢 reef check...
+
+🐚 aws.auth.demo.plan
+   ├─ caller: arn:aws:sts::000000000000:assumed-role/example.test.profile/session
+   ├─ reach identity from: .env
+   └─ plan into: provision/aws.auth/account=demo/.temp/plan.readonly.json
+
+(declastruct plan output)
+
+🐚 plan tally
+   ├─ KEEP: 2
+   └─ UPDATE: 1
+      └─ DeclaredAwsIamRole.ehmpathy-demo-for-grove
+         ├─ - "action": "sts:AssumeRole",
+         ├─ + "action": Array [
+         ├─ +   "sts:AssumeRole",
+         ├─ +   "sts:TagSession",
+         ├─ +   "sts:SetSourceIdentity",
+         └─ + ],
+
+🐢 plan written. read it before any apply; this skill never applies
+
+🐚 before any apply
+   └─ to apply: the applier's own shell, per account=demo/readme.md (admin creds + .env, plan, apply)
+"
+`;
+
+exports[`aws.auth.demo.plan given: [case4] a caller whose creds and reach identity are found when: [t4] the .env sets AWS_* and the skill own names beside the pair then: none of them reach the skill or the plan; only the pair does 1`] = `
+"🐢 reef check...
+
+🐚 aws.auth.demo.plan
+   ├─ caller: arn:aws:sts::000000000000:assumed-role/example.test.profile/session
+   ├─ reach identity from: .env
+   └─ plan into: provision/aws.auth/account=demo/.temp/plan.readonly.json
+
+(declastruct plan output)
+
+🐚 plan tally
+   ├─ KEEP: 2
+   └─ UPDATE: 1
+      └─ DeclaredAwsIamRole.ehmpathy-demo-for-grove
+         ├─ - "action": "sts:AssumeRole",
+         ├─ + "action": Array [
+         ├─ +   "sts:AssumeRole",
+         ├─ +   "sts:TagSession",
+         ├─ +   "sts:SetSourceIdentity",
+         └─ + ],
+
+🐢 plan written. read it before any apply; this skill never applies
+
+🐚 before any apply
+   └─ to apply: the applier's own shell, per account=demo/readme.md (admin creds + .env, plan, apply)
+"
+`;
+
+exports[`aws.auth.demo.plan given: [case4] a caller whose creds and reach identity are found when: [t5] the .env holds bare KEY=value lines, no export then: the pair still reaches the plan 1`] = `
+"🐢 reef check...
+
+🐚 aws.auth.demo.plan
+   ├─ caller: arn:aws:sts::000000000000:assumed-role/example.test.profile/session
+   ├─ reach identity from: .env
+   └─ plan into: provision/aws.auth/account=demo/.temp/plan.readonly.json
+
+(declastruct plan output)
+
+🐚 plan tally
+   ├─ KEEP: 2
+   └─ UPDATE: 1
+      └─ DeclaredAwsIamRole.ehmpathy-demo-for-grove
+         ├─ - "action": "sts:AssumeRole",
+         ├─ + "action": Array [
+         ├─ +   "sts:AssumeRole",
+         ├─ +   "sts:TagSession",
+         ├─ +   "sts:SetSourceIdentity",
+         └─ + ],
+
+🐢 plan written. read it before any apply; this skill never applies
+
+🐚 before any apply
+   └─ to apply: the applier's own shell, per account=demo/readme.md (admin creds + .env, plan, apply)
+"
+`;
+
+exports[`aws.auth.demo.plan given: [case4] a caller whose creds and reach identity are found when: [t6] the skill runs from a subdir of the repo then: it still finds the .env at the repo root 1`] = `
+"🐢 reef check...
+
+🐚 aws.auth.demo.plan
+   ├─ caller: arn:aws:sts::000000000000:assumed-role/example.test.profile/session
+   ├─ reach identity from: .env
+   └─ plan into: provision/aws.auth/account=demo/.temp/plan.readonly.json
+
+(declastruct plan output)
+
+🐚 plan tally
+   ├─ KEEP: 2
+   └─ UPDATE: 1
+      └─ DeclaredAwsIamRole.ehmpathy-demo-for-grove
+         ├─ - "action": "sts:AssumeRole",
+         ├─ + "action": Array [
+         ├─ +   "sts:AssumeRole",
+         ├─ +   "sts:TagSession",
+         ├─ +   "sts:SetSourceIdentity",
+         └─ + ],
+
+🐢 plan written. read it before any apply; this skill never applies
+
+🐚 before any apply
+   └─ to apply: the applier's own shell, per account=demo/readme.md (admin creds + .env, plan, apply)
+"
+`;
+
+exports[`aws.auth.demo.plan given: [case4] a caller whose creds and reach identity are found when: [t7] the shell exports the pair, and a .env is silent on it then: it labels the source by where the pair was found: the shell 1`] = `
+"🐢 reef check...
+
+🐚 aws.auth.demo.plan
+   ├─ caller: arn:aws:sts::000000000000:assumed-role/example.test.profile/session
+   ├─ reach identity from: shell
+   └─ plan into: provision/aws.auth/account=demo/.temp/plan.readonly.json
+
+(declastruct plan output)
+
+🐚 plan tally
+   ├─ KEEP: 2
+   └─ UPDATE: 1
+      └─ DeclaredAwsIamRole.ehmpathy-demo-for-grove
+         ├─ - "action": "sts:AssumeRole",
+         ├─ + "action": Array [
+         ├─ +   "sts:AssumeRole",
+         ├─ +   "sts:TagSession",
+         ├─ +   "sts:SetSourceIdentity",
+         └─ + ],
+
+🐢 plan written. read it before any apply; this skill never applies
+
+🐚 before any apply
+   └─ to apply: the applier's own shell, per account=demo/readme.md (admin creds + .env, plan, apply)
+"
+`;
+
+exports[`aws.auth.demo.plan given: [case4] a caller whose creds and reach identity are found when: [t8] rhx passes its --repo, --skill, --role through then: the skill accepts them and plans as usual 1`] = `
+"🐢 reef check...
+
+🐚 aws.auth.demo.plan
+   ├─ caller: arn:aws:sts::000000000000:assumed-role/example.test.profile/session
+   ├─ reach identity from: .env
+   └─ plan into: provision/aws.auth/account=demo/.temp/plan.readonly.json
+
+(declastruct plan output)
+
+🐚 plan tally
+   ├─ KEEP: 2
+   └─ UPDATE: 1
+      └─ DeclaredAwsIamRole.ehmpathy-demo-for-grove
+         ├─ - "action": "sts:AssumeRole",
+         ├─ + "action": Array [
+         ├─ +   "sts:AssumeRole",
+         ├─ +   "sts:TagSession",
+         ├─ +   "sts:SetSourceIdentity",
+         └─ + ],
+
+🐢 plan written. read it before any apply; this skill never applies
+
+🐚 before any apply
+   └─ to apply: the applier's own shell, per account=demo/readme.md (admin creds + .env, plan, apply)
+"
+`;
+
+exports[`aws.auth.demo.plan given: [case4] a caller whose creds and reach identity are found when: [t9] the live role trusts a role under a path then: the pathed name reaches the plan unaltered 1`] = `
+"🐢 reef check...
+
+🐚 aws.auth.demo.plan
+   ├─ caller: arn:aws:sts::000000000000:assumed-role/example.test.profile/session
+   ├─ reach identity from: live role ehmpathy-demo-for-grove
+   │  └─ ⚠️ principal NOT checked: read off the live role, so it cannot differ from it
+   └─ plan into: provision/aws.auth/account=demo/.temp/plan.readonly.json
+
+(declastruct plan output)
+
+🐚 plan tally
+   ├─ KEEP: 2
+   └─ UPDATE: 1
+      └─ DeclaredAwsIamRole.ehmpathy-demo-for-grove
+         ├─ - "action": "sts:AssumeRole",
+         ├─ + "action": Array [
+         ├─ +   "sts:AssumeRole",
+         ├─ +   "sts:TagSession",
+         ├─ +   "sts:SetSourceIdentity",
+         └─ + ],
+
+🐢 plan written. read it before any apply; this skill never applies
+
+🐚 before any apply
+   ├─ ⚠️ principal NOT checked; the applier's own plan, from the applier's .env, owns that check
+   └─ to apply: the applier's own shell, per account=demo/readme.md (admin creds + .env, plan, apply)
+"
+`;
+
+exports[`aws.auth.demo.plan given: [case5] a plan of each shape the tally must read when: [t0] each shape is planned once then: each tally names every row that is not KEEP, and is snapped 1`] = `
+[
+  {
+    "shape": "stop",
+    "tally": "🐚 plan tally
+   ├─ CREATE: 2
+   │  ├─ DeclaredAwsIamRole.ehmpathy-demo-for-grove
+   │  └─ DeclaredAwsIamRolePolicyAttachedInline.ehmpathy-demo-for-grove-extension.nameehmpathy-demo-for-grove
+   └─ UPDATE: 1
+      └─ DeclaredAwsIamRole.ehmpathy-demo-oidc
+         ├─ - "action": "sts:AssumeRole",
+         ├─ + "action": Array [
+         ├─ +   "sts:AssumeRole",
+         ├─ +   "sts:TagSession",
+         ├─ +   "sts:SetSourceIdentity",
+         └─ + ],
+
+🐢 plan written. read it before any apply; this skill never applies
+
+🐚 before any apply
+   ├─ ⚠️ 3 rows are not KEEP; confirm each is an intended change, else STOP
+   └─ to apply: the applier's own shell, per account=demo/readme.md (admin creds + .env, plan, apply)
+",
+  },
+  {
+    "shape": "stop",
+    "tally": "🐚 plan tally
+   ├─ CREATE: 2
+   │  ├─ DeclaredAwsIamRole.ehmpathy-demo-for-grove
+   │  └─ DeclaredAwsIamRolePolicyAttachedInline.ehmpathy-demo-for-grove-extension.nameehmpathy-demo-for-grove
+   └─ UPDATE: 1
+      └─ DeclaredAwsIamRole.ehmpathy-demo-oidc
+         ├─ - "action": "sts:AssumeRole",
+         ├─ + "action": Array [
+         ├─ +   "sts:AssumeRole",
+         ├─ +   "sts:TagSession",
+         ├─ +   "sts:SetSourceIdentity",
+         └─ + ],
+
+🐢 plan written. read it before any apply; this skill never applies
+
+🐚 before any apply
+   ├─ ⚠️ 3 rows are not KEEP; confirm each is an intended change, else STOP
+   ├─ ⚠️ principal NOT checked; the applier's own plan, from the applier's .env, owns that check
+   └─ to apply: the applier's own shell, per account=demo/readme.md (admin creds + .env, plan, apply)
+",
+  },
+  {
+    "shape": "drift",
+    "tally": "🐚 plan tally
+   ├─ KEEP: 1
+   └─ UPDATE: 1
+      └─ DeclaredAwsIamRole.ehmpathy-demo-for-grove
+         ├─ -   "aws": "arn:aws:iam::000000000000:role/example-camp-grove-role",
+         ├─ +   "aws": "arn:aws:iam::111111111111:role/example-wrong-role",
+         ├─ - "action": "sts:AssumeRole",
+         ├─ + "action": Array [
+         ├─ +   "sts:AssumeRole",
+         ├─ +   "sts:TagSession",
+         ├─ +   "sts:SetSourceIdentity",
+         └─ + ],
+
+🐢 plan written. read it before any apply; this skill never applies
+
+🐚 before any apply
+   ├─ ⚠️ a trust principal moves; a wrong .env pair is the likeliest cause, so STOP and check it
+   └─ to apply: the applier's own shell, per account=demo/readme.md (admin creds + .env, plan, apply)
+",
+  },
+  {
+    "shape": "nodiff",
+    "tally": "🐚 plan tally
+   └─ UPDATE: 1
+      └─ DeclaredAwsIamRole.ehmpathy-demo-for-grove
+
+🐢 plan written. read it before any apply; this skill never applies
+
+🐚 before any apply
+   └─ to apply: the applier's own shell, per account=demo/readme.md (admin creds + .env, plan, apply)
+",
+  },
+  {
+    "shape": "settled",
+    "tally": "🐚 plan tally
+   └─ KEEP: 2
+
+🐢 plan written. read it before any apply; this skill never applies
+
+🐚 before any apply
+   └─ to apply: the applier's own shell, per account=demo/readme.md (admin creds + .env, plan, apply)
+",
+  },
+  {
+    "shape": "empty",
+    "tally": "🐚 plan tally
+   └─ no changes in the plan
+
+🐢 plan written. read it before any apply; this skill never applies
+
+🐚 before any apply
+   └─ to apply: the applier's own shell, per account=demo/readme.md (admin creds + .env, plan, apply)
+",
+  },
+]
+`;

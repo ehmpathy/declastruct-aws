@@ -11,14 +11,13 @@
 #         sources aws creds from keyrack and runs echo.send.ts.
 #
 # usage:
-#   rhx echo.send                        # env=prep, email vlad@ahbode.com
-#   rhx echo.send --env prep             # pick the keyrack env
-#   rhx echo.send --to a@b.com           # override the recipient
-#   rhx echo.send --from A --subject S   # override the from address + subject
+#   rhx echo.send --to a@example.com              # env=prep
+#   rhx echo.send --to a@example.com --env prep   # pick the keyrack env
+#   rhx echo.send --to a@example.com --from A --subject S   # override from + subject
 #
 # options:
 #   --env ENV       keyrack env for aws creds (default: prep)
-#   --to ADDR       the recipient (default: vlad@ahbode.com)
+#   --to ADDR       the recipient (required; a verified address in sandbox)
 #   --from ADDR     the echo send-from address (default: echo@demo.ehmpathy.com)
 #   --subject TEXT  the email subject (default: hello from the echo mailbox 🐢)
 #   --help          show usage
@@ -26,7 +25,7 @@
 # guarantee:
 #   - exit 0 = sent
 #   - exit 1 = malfunction (aws error, send failed)
-#   - exit 2 = constraint (locked keyrack)
+#   - exit 2 = constraint (locked keyrack, no --to)
 #
 # .note = LIVE — sends a real email. SES SANDBOX delivers only to VERIFIED
 #   recipients, so the message reaches the recipient only once that address is
@@ -57,14 +56,13 @@ show_help() {
   echo ""
   echo "🐚 echo.send"
   echo "   usage:"
-  echo "     rhx echo.send                        # env=prep, email vlad@ahbode.com"
-  echo "     rhx echo.send --env prep             # pick the keyrack env"
-  echo "     rhx echo.send --to a@b.com           # override the recipient"
-  echo "     rhx echo.send --from A --subject S   # override the from + subject"
+  echo "     rhx echo.send --to a@example.com              # env=prep"
+  echo "     rhx echo.send --to a@example.com --env prep   # pick the keyrack env"
+  echo "     rhx echo.send --to a@example.com --from A --subject S"
   echo ""
   echo "   options:"
   echo "     --env      keyrack env for aws creds (default: prep)"
-  echo "     --to       the recipient (default: vlad@ahbode.com)"
+  echo "     --to       the recipient (required; a verified address in sandbox)"
   echo "     --from     the echo send-from address (default: echo@demo.ehmpathy.com)"
   echo "     --subject  the email subject"
   echo "     --help     show this help"
@@ -96,6 +94,9 @@ while [[ $# -gt 0 ]]; do
     *) shift ;;
   esac
 done
+
+# the recipient has no default: a real address in a public repo would name a person
+[[ -n "${ECHO_TO:-}" ]] || die 2 "no recipient" "rhx echo.send --to <a verified address>"
 
 echo "🐢 reef check..." >&2
 echo "" >&2

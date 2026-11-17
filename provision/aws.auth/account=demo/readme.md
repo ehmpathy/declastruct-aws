@@ -37,6 +37,15 @@ npx declastruct apply \
   --plan provision/aws.auth/account=demo/.temp/plan.json
 ```
 
+a read-only plan is one call: `rhx aws.auth.demo.plan`. it never applies, and writes its own
+`.temp/plan.readonly.json`, which the apply above never reads. it reads the reach pair from
+`.env`, else the shell, else off the live role, and closes with a tally of the plan. a plan from
+the live role cannot catch a wrong pair, and says so on screen; the applier's own plan, from the
+applier's `.env`, owns that check.
+
+⚠️ apply re-plans and refuses a plan file that differs from its fresh plan ("plan drifted"). so
+apply only a plan made in the same shell, with the same creds and `.env`: the four steps above.
+
 ### what to check in the plan
 
 | check | expect |

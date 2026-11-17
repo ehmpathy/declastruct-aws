@@ -2,7 +2,7 @@
 
 ## .what
 
-how to end the ahbode camp grove's reach into the ehmpathy demo account — the role
+how to end a peer org's camp grove's reach into the ehmpathy demo account — the role
 `ehmpathy-demo-for-grove`, declared in `provision/aws.auth/account=demo/resources.reach.ts`.
 
 ## .why
@@ -22,14 +22,14 @@ issued under it. ⇒ **the quiet gesture is the dangerous one.**
 which is the reverse of the order safety wants — and `applyChange` can throw mid-plan, which leaves
 you half-revoked with no record of which half landed.
 
-**3. a revoke is a TWO-REPO act.** ours alone leaves a live `sts:AssumeRole` grant in ahbode's
-production tree aimed at a role that now denies. that is the exact half-wired state their own
+**3. a revoke is a TWO-REPO act.** ours alone leaves live `sts:` grants (`AssumeRole`, `TagSession`,
+`SetSourceIdentity`) in the peer's production tree aimed at a role that now denies. that is the exact half-wired state their own
 invariant warns against.
 
 ## .the two applies, in order
 
-⚠️ **two applies in THIS repo. a third act follows in ahbode's, and it is not one of the two** —
-see `.then ahbode's half` below.
+⚠️ **two applies in THIS repo. a third act follows in the peer's, and it is not one of the two** —
+see `.then the peer's half` below.
 
 ### act 1 — stop the LIVE session
 
@@ -116,7 +116,7 @@ matches the trust policy**:
 | the description says | the trust policy says | ⇒ read it as |
 |---|---|---|
 | the reach is wanted | it denies / names no live principal | 🔴 **revoked on purpose** — do NOT re-wire |
-| the reach is wanted | it names the camp grove role | **not yet wired** — go merge ahbode's half |
+| the reach is wanted | it names the camp grove role | **not yet wired** — go merge the peer's half |
 
 ⇒ so act 2 edits **three** things, never one: the trust statement, the `description`, and the
 readme. plan, read the diff, apply.
@@ -151,10 +151,11 @@ set is snapped at `provision/aws.auth/account=demo/__snapshots__/resources.reach
 verified on every commit by `resources.reach.test.ts` `[t4]`. **read it first** — if the reach ever
 gains a fourth resource, the snapshot moves and this table's counts do not.
 
-## .then ahbode's half
+## .then the peer's half
 
-open a PR against `ahbode/infrastructure` that removes the `sts:AssumeRole` statement naming our arn
-from the camp grove role's `grove-reach` inline policy.
+open a PR against the peer org's infrastructure repo that removes the whole statement that names our arn from the
+camp grove role's `grove-reach` inline policy: all three actions, `sts:AssumeRole`,
+`sts:TagSession`, `sts:SetSourceIdentity`. a strip of `AssumeRole` alone leaves two grants behind.
 
 ⇒ **until that lands, their tree still grants a reach our side refuses.**
 
@@ -170,13 +171,13 @@ role answers to it.
 
 ## .the first diagnostic step, when a reach fails
 
-🔴 **the four-cause walk has ONE home, and it is not this file:**
+🔴 **the cause walk has ONE home, and it is not this file:**
 
-⇒ **`provision/aws.auth/account=demo/readme.md` → *"you hit `AccessDenied` — start here"*.**
+⇒ **`provision/aws.auth/account=demo/readme.reach.md` → *"you hit `AccessDenied` — start here"*.**
 
-it holds the `aws sts get-caller-identity` filter, the four causes, which single one that filter
-rules out, the `AWS_PROFILE`/imds mechanism behind the counter-intuitive first cause, and the ini
-profile that prevents it.
+it holds the `aws sts get-caller-identity` filter, the five causes, which single one that filter
+rules out, the `AWS_PROFILE` fall-through behind the counter-intuitive first cause (to imds on
+ec2, to the cert profile on roles anywhere), and the ini profiles that prevent it.
 
 ⚠️ **it lives there and not here on purpose.** an operator who hits the error is usually NOT in this
 repo's briefs — they are on a grove box with a failed assume, and they hold no demo credential. the

@@ -140,10 +140,28 @@ describe('getResourcesOfReach', () => {
         },
       );
 
-      then('that statement grants sts:AssumeRole, and only it', () => {
-        expect(scene.role.policies[0]?.action).toEqual('sts:AssumeRole');
-        expect(scene.role.policies[0]?.effect).toEqual('Allow');
-      });
+      // a roles anywhere session carries a source identity and session tags,
+      // and both persist across a role chain — so the hop needs TagSession and
+      // SetSourceIdentity beside AssumeRole, or sts denies it (#129, measured)
+      //
+      // ⚠️ exact order is pinned on purpose: the planner compares shape and
+      // order, so a reorder here is a plan UPDATE on a statement nobody meant
+      // to touch
+      then(
+        'that statement grants sts:AssumeRole, sts:TagSession, sts:SetSourceIdentity, and only them',
+        () => {
+          expect(scene.role.policies[0]?.action).toEqual([
+            'sts:AssumeRole',
+            'sts:TagSession',
+            'sts:SetSourceIdentity',
+          ]);
+          expect(scene.role.policies[0]?.effect).toEqual('Allow');
+
+          // the whole trust, so a review of the snap shows the change itself;
+          // the principal is the public fixture, never a real identity
+          expect(scene.role.policies).toMatchSnapshot();
+        },
+      );
 
       // a `Condition` would narrow the reach in a way the collaborator's caller half
       // cannot see, so a half-wired reach would deny with no signal on either
@@ -237,6 +255,23 @@ describe('getResourcesOfReach', () => {
             identity: getUniqueIdentifierSlug(resource),
           })),
         ).toMatchSnapshot();
+      });
+    });
+
+    when('[t5] the role fields beside its trust are read', () => {
+      // 🔴 a trust-only change must plan as a trust-only UPDATE. `[t4]` keys on
+      // identity alone, so a drift in description or tags would pass it and
+      // then widen the live UPDATE past `action`. this pins every role field
+      // but the trust, so such a drift surfaces here as a snapshot diff
+      then('they match the snapshot, unchanged by a trust edit', () => {
+        const { policies: _trust, ...fieldsBesideTrust } = scene.role;
+        expect(fieldsBesideTrust.name).toEqual('ehmpathy-demo-for-grove');
+        expect(fieldsBesideTrust.path).toEqual('/');
+        expect(fieldsBesideTrust.tags).toEqual({
+          managedBy: 'declastruct',
+          purpose: 'grove-reach',
+        });
+        expect(fieldsBesideTrust).toMatchSnapshot();
       });
     });
   });
@@ -434,6 +469,63 @@ describe('getOneCampReachIdentityFromEnv', () => {
     });
   });
 
+  given('[case8] the role name was sourced set but not a role name', () => {
+    when('[t0] the identity is read', () => {
+      // ⚠️ `GROVE_REACH_CAMP_ROLE_NAME=` is SET, so `??` passes it, and it is
+      // not the placeholder. absent this shape check it composes
+      // `arn:aws:iam::<id>:role/`, a principal no role answers to
+      [
+        { slip: 'blank', value: '', says: 'is set but blank' },
+        {
+          slip: 'padded',
+          value: 'example-camp-grove-role ',
+          says: 'not an aws role name',
+        },
+        {
+          slip: 'json-quoted',
+          value: '"example-camp-grove-role"',
+          says: 'not an aws role name',
+        },
+        {
+          slip: 'whole arn',
+          value: 'arn:aws:iam::000000000000:role/example-camp-grove-role',
+          says: 'not an aws role name',
+        },
+      ].forEach(({ slip, value, says }) =>
+        then(
+          `a ${slip} value is refused, and the message names the var`,
+          () => {
+            setCampReachEnv({
+              campAccountId: CAMP_REACH_IDENTITY_FIXTURE.campAccountId,
+              campGroveRoleName: value,
+            });
+
+            const error = getError(() => getOneCampReachIdentityFromEnv());
+            expect(error).toBeInstanceOf(BadRequestError);
+            expect(error.message).toContain('GROVE_REACH_CAMP_ROLE_NAME');
+            expect(error.message).toContain(says);
+          },
+        ),
+      );
+    });
+  });
+
+  given('[case9] the role sits under a path', () => {
+    when('[t0] the identity is read', () => {
+      // a role at `role/svc/name` is legal, and the live-role read-back
+      // yields `svc/name` for it; the guard must pass it through unaltered
+      then('the pathed name is accepted as given', () => {
+        setCampReachEnv({
+          campAccountId: CAMP_REACH_IDENTITY_FIXTURE.campAccountId,
+          campGroveRoleName: 'svc/example-camp-grove-role',
+        });
+        expect(getOneCampReachIdentityFromEnv().campGroveRoleName).toEqual(
+          'svc/example-camp-grove-role',
+        );
+      });
+    });
+  });
+
   // 🔴 every case above asserts with `toContain`, and that is not enough on its
   // own for THIS contract. a `toContain` pins that a fragment is PRESENT; it
   // cannot see a reorder, a reword around the fragment, or a duplicated clause.
@@ -482,6 +574,11 @@ describe('getOneCampReachIdentityFromEnv', () => {
           variant: 'account id pasted with json quotes',
           campAccountId: `"${CAMP_REACH_IDENTITY_FIXTURE.campAccountId}"`,
           campGroveRoleName: CAMP_REACH_IDENTITY_FIXTURE.campGroveRoleName,
+        },
+        {
+          variant: 'role name sourced blank',
+          campAccountId: CAMP_REACH_IDENTITY_FIXTURE.campAccountId,
+          campGroveRoleName: '',
         },
         {
           variant: 'whole arn pasted where the id was wanted',

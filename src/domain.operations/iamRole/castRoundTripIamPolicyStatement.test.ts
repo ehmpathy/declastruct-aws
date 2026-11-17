@@ -72,7 +72,7 @@ describe('castRoundTrip — iam policy statement', () => {
   });
 
   given('[case2] an identity statement with an array resource', () => {
-    // the shape ahbode's `grove-reach` inline policy carries: one action, and a
+    // the shape a peer's `grove-reach` inline policy carries: one action, and a
     // resource array that grows by one arn per reach
     const declared = new DeclaredAwsIamPolicyStatement({
       sid: 'AssumeDemoPower',
@@ -312,6 +312,76 @@ describe('castRoundTrip — iam policy statement', () => {
             }),
           }),
         ).toEqual(false);
+      });
+    });
+
+    when('[t4] iam returns a multi-action `action` in another order', () => {
+      then('🔴 the plan reads UPDATE — a permadiff', () => {
+        const declared = new DeclaredAwsIamPolicyStatement({
+          effect: 'Allow',
+          principal: { aws: arn },
+          action: ['sts:AssumeRole', 'sts:TagSession', 'sts:SetSourceIdentity'],
+        });
+        expect(
+          isPlannedAsKeep({
+            desired: declared,
+            remote: asRoundTripped(declared, {
+              asAwsStored: (stored) => {
+                stored.Action = [
+                  'sts:SetSourceIdentity',
+                  'sts:AssumeRole',
+                  'sts:TagSession',
+                ];
+              },
+            }),
+          }),
+        ).toEqual(false);
+      });
+    });
+  });
+
+  given('[case7] a trust statement that admits roles anywhere sessions', () => {
+    // the shape `ehmpathy-demo-for-grove` declares: a roles anywhere session
+    // carries a source identity and tags, so the trust allows three actions.
+    // a multi-element action array cannot hit the [case6] fold. an ORDER flip
+    // in transit still could, as [case6] [t4] pins; `setIamRole`'s
+    // integration test reads a live three-action trust back to check order
+    const declared = new DeclaredAwsIamPolicyStatement({
+      effect: 'Allow',
+      principal: { aws: 'arn:aws:iam::000000000000:role/example-role' },
+      action: ['sts:AssumeRole', 'sts:TagSession', 'sts:SetSourceIdentity'],
+    });
+
+    when('[t0] it round-trips through aws', () => {
+      then('the plan reads KEEP, never UPDATE', () => {
+        expect(
+          isPlannedAsKeep({
+            desired: declared,
+            remote: asRoundTripped(declared),
+          }),
+        ).toEqual(true);
+      });
+    });
+
+    when('[t1] the live trust still holds the scalar `sts:AssumeRole`', () => {
+      // the pre-apply state: the one UPDATE the demo plan must show
+      then('the plan reads UPDATE, and only `action` differs', () => {
+        const remote = asRoundTripped(
+          new DeclaredAwsIamPolicyStatement({
+            ...declared,
+            action: 'sts:AssumeRole',
+          }),
+        );
+        expect(isPlannedAsKeep({ desired: declared, remote })).toEqual(false);
+        expect(
+          isPlannedAsKeep({
+            desired: declared,
+            remote: new DeclaredAwsIamPolicyStatement({
+              ...remote,
+              action: declared.action,
+            }),
+          }),
+        ).toEqual(true);
       });
     });
   });
